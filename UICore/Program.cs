@@ -58,13 +58,13 @@ public class Program
         {
             Items = new List<Item>
             {
-                new(new Size(100, SizeKind.Pixels), new Size(200, SizeKind.Pixels), Blue),
-                new(new Size(100, SizeKind.Percentage), new Size(200, SizeKind.Pixels), Red),
-                new(new Size(100, SizeKind.Pixels), new Size(600, SizeKind.Pixels), Blue),
+                new(new Size(100, SizeKind.Pixels), new Size(100, SizeKind.Pixels), Blue),
+                new(new Size(100, SizeKind.Percentage), new Size(10, SizeKind.Percentage), Red),
+                new(new Size(100, SizeKind.Pixels), new Size(100, SizeKind.Pixels), Blue),
             },
-            JustifyContent = JustifyContent.SpaceBetween,
-            FlexDirection = FlexDirection.RowReverse,
-            AlignItems = AlignItems.FlexEnd
+            JustifyContent = JustifyContent.FlexStart,
+            FlexDirection = FlexDirection.Row,
+            AlignItems = AlignItems.FlexStart
         }.Render();
         
         Canvas.Flush();
@@ -214,11 +214,14 @@ class FlexContainer
             {
                 SizeKind.Percentage => (int)(item.Height.Value * sizePerPercent),
                 SizeKind.Pixels => item.Height.Value,
-                _ => item.ComputedHeight
+                _ => throw new ArgumentOutOfRangeException()
             };
-            if (item.Width.SizeKind == SizeKind.Percentage)
-                throw new NotImplementedException();
-            item.ComputedWidth = item.Width.Value;
+            item.ComputedWidth = item.Width.SizeKind switch
+            {
+                SizeKind.Pixels => item.Width.Value,
+                SizeKind.Percentage => (int)(Program.RenderTarget.Width * item.Width.Value * 0.01),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
     
@@ -234,11 +237,14 @@ class FlexContainer
             {
                 SizeKind.Percentage => (int)(item.Width.Value * sizePerPercent),
                 SizeKind.Pixels => item.Width.Value,
-                _ => item.ComputedWidth
+                _ => throw new ArgumentOutOfRangeException()
             };
-            if (item.Height.SizeKind == SizeKind.Percentage)
-                throw new NotImplementedException();
-            item.ComputedHeight = item.Height.Value;
+            item.ComputedHeight = item.Height.SizeKind switch
+            {
+                SizeKind.Pixels => item.Height.Value,
+                SizeKind.Percentage => (int)(Program.RenderTarget.Height * item.Height.Value * 0.01),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 
