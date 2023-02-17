@@ -52,22 +52,21 @@ public class Program
     static void OnWindowOnRender(double _)
     {
         Context.ResetContext();
-        Canvas.Clear(SKColors.Green);
-
+        Canvas.Clear(SKColors.White);
+        
         new FlexContainer
         {
             Items = new List<Item>
             {
-                new(50, 100, Red),
-                new(150, 200, Blue),
-                new(100, 10, Red),
-                new(100, 50, Blue)
+                new(new Size(100, SizeKind.Pixels), new Size(200, SizeKind.Pixels), Blue),
+                new(new Size(100, SizeKind.Percentage), new Size(200, SizeKind.Pixels), Red),
+                new(new Size(100, SizeKind.Pixels), new Size(600, SizeKind.Pixels), Blue),
             },
-            JustifyContent = JustifyContent.SpaceEvenly,
-            FlexDirection = FlexDirection.ColumnReverse,
-            AlignItems = AlignItems.FlexStart
+            JustifyContent = JustifyContent.SpaceBetween,
+            FlexDirection = FlexDirection.RowReverse,
+            AlignItems = AlignItems.FlexEnd
         }.Render();
-
+        
         Canvas.Flush();
     }
 }
@@ -81,6 +80,8 @@ class FlexContainer
 
     public void Render()
     {
+        ComputeSize();
+        
         switch (JustifyContent)
         {
             case JustifyContent.FlexStart:
@@ -111,16 +112,16 @@ class FlexContainer
         switch (FlexDirection)
         {
             case FlexDirection.Row:
-                Program.Canvas.DrawRect(mainOffset, GetCrossAxisOffset(item), item.Width, item.Height, item.Color);
+                Program.Canvas.DrawRect(mainOffset, GetCrossAxisOffset(item), item.ComputedWidth, item.ComputedHeight, item.Color);
                 break;
             case FlexDirection.RowReverse:
-                Program.Canvas.DrawRect(Program.RenderTarget.Width - mainOffset - item.Width, GetCrossAxisOffset(item), item.Width, item.Height, item.Color);
+                Program.Canvas.DrawRect(Program.RenderTarget.Width - mainOffset - item.ComputedWidth, GetCrossAxisOffset(item), item.ComputedWidth, item.ComputedHeight, item.Color);
                 break;
             case FlexDirection.Column:
-                Program.Canvas.DrawRect(GetCrossAxisOffset(item), mainOffset, item.Width, item.Height, item.Color);
+                Program.Canvas.DrawRect(GetCrossAxisOffset(item), mainOffset, item.ComputedWidth, item.ComputedHeight, item.Color);
                 break;
             case FlexDirection.ColumnReverse:
-                Program.Canvas.DrawRect(GetCrossAxisOffset(item), Program.RenderTarget.Height - mainOffset - item.Height, item.Width, item.Height, item.Color);
+                Program.Canvas.DrawRect(GetCrossAxisOffset(item), Program.RenderTarget.Height - mainOffset - item.ComputedHeight, item.ComputedWidth, item.ComputedHeight, item.Color);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -162,8 +163,18 @@ class FlexContainer
     {
         return FlexDirection switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => item.Width,
-            FlexDirection.Column or FlexDirection.ColumnReverse => item.Height,
+            FlexDirection.Row or FlexDirection.RowReverse => item.ComputedWidth,
+            FlexDirection.Column or FlexDirection.ColumnReverse => item.ComputedHeight,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+    
+    private int GetItemMainAxisFixedLength(Item item)
+    {
+        return FlexDirection switch
+        {
+            FlexDirection.Row or FlexDirection.RowReverse => item.Width.SizeKind == SizeKind.Percentage ? 0 : item.Width.Value,
+            FlexDirection.Column or FlexDirection.ColumnReverse => item.Height.SizeKind == SizeKind.Percentage ? 0 : item.Height.Value,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -172,10 +183,73 @@ class FlexContainer
     {
         return FlexDirection switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => item.Height,
-            FlexDirection.Column or FlexDirection.ColumnReverse => item.Width,
+            FlexDirection.Row or FlexDirection.RowReverse => item.ComputedHeight,
+            FlexDirection.Column or FlexDirection.ColumnReverse => item.ComputedWidth,
             _ => throw new ArgumentOutOfRangeException()
         };
+    }
+
+    private void ComputeSize()
+    {
+        switch(FlexDirection)
+        {
+            case FlexDirection.Row or FlexDirection.RowReverse:
+                ComputeRowSize();
+                break;
+            case FlexDirection.Column or FlexDirection.ColumnReverse:
+                ComputeColumnSize();
+                break;
+        }
+    }
+
+    private void ComputeColumnSize()
+    {
+        var remainingSize = RemainingMainAxisFixedSize();
+        var itemsHeightPercentage = Items.Where(x => x.Height.SizeKind == SizeKind.Percentage).ToList();
+        var totalPercentage = itemsHeightPercentage.Sum(x => x.Height.Value);
+        var sizePerPercent = (float)remainingSize / totalPercentage;
+        foreach (var item in Items)
+        {
+            item.ComputedHeight = item.Height.SizeKind switch
+            {
+                SizeKind.Percentage => (int)(item.Height.Value * sizePerPercent),
+                SizeKind.Pixels => item.Height.Value,
+                _ => item.ComputedHeight
+            };
+            if (item.Width.SizeKind == SizeKind.Percentage)
+                throw new NotImplementedException();
+            item.ComputedWidth = item.Width.Value;
+        }
+    }
+    
+    private void ComputeRowSize()
+    {
+        var remainingSize = RemainingMainAxisFixedSize();
+        var itemsWithPercentage = Items.Where(x => x.Width.SizeKind == SizeKind.Percentage).ToList();
+        var totalPercentage = itemsWithPercentage.Sum(x => x.Width.Value);
+        var sizePerPercent = (float)remainingSize / totalPercentage;
+        foreach (var item in Items)
+        {
+            item.ComputedWidth = item.Width.SizeKind switch
+            {
+                SizeKind.Percentage => (int)(item.Width.Value * sizePerPercent),
+                SizeKind.Pixels => item.Width.Value,
+                _ => item.ComputedWidth
+            };
+            if (item.Height.SizeKind == SizeKind.Percentage)
+                throw new NotImplementedException();
+            item.ComputedHeight = item.Height.Value;
+        }
+    }
+
+    private int RemainingMainAxisFixedSize()
+    {        
+        return GetMainAxisLength() - Items.Sum(GetItemMainAxisFixedLength);
+    }
+
+    private int RemainingMainAxisSize()
+    {
+        return GetMainAxisLength() - Items.Sum(GetItemMainAxisLength);
     }
 
     private void RenderFlexStart()
@@ -191,7 +265,7 @@ class FlexContainer
 
     private void RenderFlexEnd()
     {
-        var mainOffset = GetMainAxisLength() - Items.Sum(GetItemMainAxisLength);
+        var mainOffset = RemainingMainAxisSize();
 
         foreach (var item in Items)
         {
@@ -202,8 +276,7 @@ class FlexContainer
 
     private void RenderCenter()
     {
-        var totalWidth = Items.Sum(GetItemMainAxisLength);
-        var mainOffset = (GetMainAxisLength() - totalWidth) / 2;
+        var mainOffset = RemainingMainAxisSize() / 2;
 
         foreach (var item in Items)
         {
@@ -214,8 +287,7 @@ class FlexContainer
 
     private void RenderSpaceBetween()
     {
-        var totalWidth = Items.Sum(GetItemMainAxisLength);
-        var totalRemaining = GetMainAxisLength() - totalWidth;
+        var totalRemaining = RemainingMainAxisSize();
         var space = totalRemaining / (Items.Count - 1);
 
         var mainOffset = 0;
@@ -229,8 +301,7 @@ class FlexContainer
 
     private void RenderSpaceAround()
     {
-        var totalWidth = Items.Sum(GetItemMainAxisLength);
-        var totalRemaining = GetMainAxisLength() - totalWidth;
+        var totalRemaining = RemainingMainAxisSize();
         var space = totalRemaining / Items.Count / 2;
 
         var mainOffset = 0;
@@ -245,8 +316,7 @@ class FlexContainer
 
     private void RenderSpaceEvenly()
     {
-        var totalWidth = Items.Sum(GetItemMainAxisLength);
-        var totalRemaining = GetMainAxisLength() - totalWidth;
+        var totalRemaining = RemainingMainAxisSize();
         var space = totalRemaining / (Items.Count + 1);
 
         var mainOffset = space;
@@ -284,16 +354,16 @@ enum AlignItems
     Center
 }
 
-class Item
+enum SizeKind
 {
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public SKPaint Color { get; set; }
-
-    public Item(int width, int height, SKPaint color)
-    {
-        Color = color;
-        Width = width;
-        Height = height;
-    }
+    Pixels,
+    Percentage
 }
+
+record Item(Size Width, Size Height, SKPaint Color)
+{
+    public int ComputedWidth { get; set; }   
+    public int ComputedHeight { get; set; }   
+}
+    
+record Size(int Value, SizeKind SizeKind);
