@@ -11,6 +11,8 @@ public class Program
     public static SKPaint Blue;
     public static SKPaint Red;
     public static GRBackendRenderTarget RenderTarget;
+    public static IWindow MyWindow;
+    public static GRGlFramebufferInfo FramebufferInfo;
 
     public static void Main()
     {
@@ -22,17 +24,10 @@ public class Program
             PreferredBitDepth = new Vector4D<int>(8, 8, 8, 8)
         };
         GlfwWindowing.Use();
-        var window = Window.Create(options);
-        window.Initialize();
+        MyWindow = Window.Create(options);
+        MyWindow.Initialize();
 
-        using var grGlInterface =
-            GRGlInterface.Create(name => window.GLContext!.TryGetProcAddress(name, out var addr) ? addr : 0);
-        grGlInterface.Validate();
-        Context = GRContext.CreateGl(grGlInterface);
-        RenderTarget =
-            new GRBackendRenderTarget(800, 600, 0, 8, new GRGlFramebufferInfo(0, 0x8058)); // 0x8058 = GL_RGBA8`
-        using var surface = SKSurface.Create(Context, RenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
-        Canvas = surface.Canvas;
+        CreateSurface();
 
         Red = new SKPaint
         {
@@ -44,13 +39,51 @@ public class Program
             Color = new SKColor(0, 204, 255, 255)
         };
 
-        window.Render += OnWindowOnRender;
+        PreviousHeight = MyWindow.Size.Y;
+        PreviousWidth = MyWindow.Size.X;
 
-        window.Run();
+        MyWindow.Render += OnWindowOnRender;
+
+        MyWindow.Run();
     }
 
+    private static void CreateSurface()
+    {
+        if (GrGlInterface != null)
+        {
+            Canvas.Dispose();
+            Surface.Dispose();
+            Context.Dispose();
+            GrGlInterface.Dispose();
+        }
+        
+        GrGlInterface =
+            GRGlInterface.Create(name => MyWindow.GLContext!.TryGetProcAddress(name, out var addr) ? addr : 0);
+        GrGlInterface.Validate();
+        Context = GRContext.CreateGl(GrGlInterface);
+        FramebufferInfo = new GRGlFramebufferInfo(0, 0x8058);
+        RenderTarget =
+            new GRBackendRenderTarget(MyWindow.Size.X, MyWindow.Size.Y, 0, 8, FramebufferInfo); // 0x8058 = GL_RGBA8`
+        Surface = SKSurface.Create(Context, RenderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
+        Canvas = Surface.Canvas;
+        
+        PreviousHeight = MyWindow.Size.Y;
+        PreviousWidth = MyWindow.Size.X;
+    }
+    
+    public static GRGlInterface GrGlInterface { get; set; }
+    public static SKSurface Surface { get; set; }
+
+    public static int PreviousHeight { get; set; }
+    public static int PreviousWidth { get; set; }
+    
     static void OnWindowOnRender(double _)
     {
+        if (PreviousWidth != MyWindow.Size.X || PreviousHeight != MyWindow.Size.Y)
+        {
+            CreateSurface();
+        }
+        
         Context.ResetContext();
         Canvas.Clear(SKColors.White);
         
@@ -58,8 +91,9 @@ public class Program
         {
             Items = new List<Item>
             {
-                new(new Size(100, SizeKind.Pixels), new Size(100, SizeKind.Pixels), Blue),
-                new(new Size(100, SizeKind.Percentage), new Size(10, SizeKind.Percentage), Red),
+                new(new Size(100, SizeKind.Pixels), new Size(100, SizeKind.Pixels), Red),
+                new(new Size(1, SizeKind.Percentage), new Size(10, SizeKind.Percentage), Blue),
+                new(new Size(1, SizeKind.Percentage), new Size(10, SizeKind.Percentage), Red),
                 new(new Size(100, SizeKind.Pixels), new Size(100, SizeKind.Pixels), Blue),
             },
             JustifyContent = JustifyContent.FlexStart,

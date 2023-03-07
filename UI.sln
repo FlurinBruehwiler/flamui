@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UICore", "UICore\UICore.csproj", "{B28C7C34-9057-415B-AF01-749C49508B3B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{C6CABC7C-E032-47D0-8FD3-A74D2E934B24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test2", "test2\test2.csproj", "{290FA3AF-96B5-4FFC-9AC8-177CAE291F51}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{B28C7C34-9057-415B-AF01-749C49508B3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B28C7C34-9057-415B-AF01-749C49508B3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B28C7C34-9057-415B-AF01-749C49508B3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6CABC7C-E032-47D0-8FD3-A74D2E934B24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6CABC7C-E032-47D0-8FD3-A74D2E934B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6CABC7C-E032-47D0-8FD3-A74D2E934B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6CABC7C-E032-47D0-8FD3-A74D2E934B24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{290FA3AF-96B5-4FFC-9AC8-177CAE291F51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{290FA3AF-96B5-4FFC-9AC8-177CAE291F51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{290FA3AF-96B5-4FFC-9AC8-177CAE291F51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{290FA3AF-96B5-4FFC-9AC8-177CAE291F51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
