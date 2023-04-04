@@ -68,39 +68,47 @@ public class Program
         surface.Canvas.DrawSurface(GetCanvas(), SKPoint.Empty);
 
         Canvas = surface.Canvas;
-        
-        var Red = new SKPaint
-        {
-            Color = new SKColor(255, 0, 0, 255)
-        };
 
-        var Blue = new SKPaint
+        SKPaint GetRandomColor(int seed)
         {
-            Color = new SKColor(0, 204, 255, 255)
-        };
+            var rand = new Random(seed);
+            return new SKPaint
+            {
+                Color = new SKColor((byte)rand.Next(250), (byte)rand.Next(250), (byte)rand.Next(250))
+            };
+        }
         
-        var Green = new SKPaint
-        {
-            Color = new SKColor(0, 204, 0, 255)
-        };
-        
-        new FlexContainer(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), Green)
+        new FlexContainer(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), GetRandomColor(1))
         {
             ComputedWidth = ImageInfo.Width,
             ComputedHeight = ImageInfo.Height,
+            ComputedX = 0,
+            ComputedY = 0,
             Items = new List<FlexContainer>
             {
-                new(new Size(50, SizeKind.Percentage), new Size(50, SizeKind.Percentage), Blue)
+                new(new Size(250, SizeKind.Pixels), new Size(100, SizeKind.Percentage), GetRandomColor(2))
                 {
                     Items = new List<FlexContainer>
                     {
-                        new(new Size(40, SizeKind.Percentage), new Size(50, SizeKind.Percentage), Green),
-                        new(new Size(40, SizeKind.Percentage), new Size(50, SizeKind.Percentage), Green)
+                        new(new Size(100, SizeKind.Percentage), new Size(70, SizeKind.Pixels), GetRandomColor(3)),
+                        new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), GetRandomColor(4)),
+                        new(new Size(100, SizeKind.Percentage), new Size(70, SizeKind.Pixels), GetRandomColor(6)),
                     },
-                    JustifyContent = JustifyContent.SpaceBetween,
-                    FlexDirection = FlexDirection.Row,
+                    JustifyContent = JustifyContent.FlexStart,
+                    FlexDirection = FlexDirection.Column,
                     AlignItems = AlignItems.FlexStart
                 },
+                new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), GetRandomColor(5))
+                {
+                    Items = new List<FlexContainer>
+                    {
+                        new(new Size(100, SizeKind.Percentage), new Size(200, SizeKind.Pixels), GetRandomColor(7)),
+                        new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), GetRandomColor(8)),
+                    },
+                    JustifyContent = JustifyContent.FlexStart,
+                    FlexDirection = FlexDirection.Column,
+                    AlignItems = AlignItems.FlexStart
+                }
             },
             JustifyContent = JustifyContent.FlexStart,
             FlexDirection = FlexDirection.Row,

@@ -15,7 +15,9 @@ class FlexContainer
     public Size Height { get; set; }
     public SKPaint Color { get; set; }
     public int ComputedWidth { get; set; }   
-    public int ComputedHeight { get; set; }   
+    public int ComputedHeight { get; set; }
+    public int ComputedX { get; set; }
+    public int ComputedY { get; set; }
     
     public List<FlexContainer> Items { get; set; } = new();
     public JustifyContent JustifyContent { get; set; } = JustifyContent.FlexStart;
