@@ -26,11 +26,22 @@ class FlexContainer
 
     public void Render()
     {
+        Program.Canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Color);
+
         if (Items.Count == 0)
             return;
         
         ComputeSize();
+        ComputePosition();
         
+        foreach (var item in Items)
+        {
+            item.Render();
+        }
+    }
+
+    private void ComputePosition()
+    {
         switch (JustifyContent)
         {
             case JustifyContent.FlexStart:
@@ -61,20 +72,27 @@ class FlexContainer
         switch (FlexDirection)
         {
             case FlexDirection.Row:
-                Program.Canvas.DrawRect(mainOffset, GetCrossAxisOffset(item), item.ComputedWidth, item.ComputedHeight, item.Color);
+                item.ComputedX = mainOffset;
+                item.ComputedY = GetCrossAxisOffset(item);
                 break;
             case FlexDirection.RowReverse:
-                Program.Canvas.DrawRect(ComputedWidth - mainOffset - item.ComputedWidth, GetCrossAxisOffset(item), item.ComputedWidth, item.ComputedHeight, item.Color);
+                item.ComputedX = ComputedWidth - mainOffset - item.ComputedWidth;
+                item.ComputedY = GetCrossAxisOffset(item);
                 break;
             case FlexDirection.Column:
-                Program.Canvas.DrawRect(GetCrossAxisOffset(item), mainOffset, item.ComputedWidth, item.ComputedHeight, item.Color);
+                item.ComputedX = GetCrossAxisOffset(item);
+                item.ComputedY = mainOffset;
                 break;
             case FlexDirection.ColumnReverse:
-                Program.Canvas.DrawRect(GetCrossAxisOffset(item), ComputedHeight - mainOffset - item.ComputedHeight, item.ComputedWidth, item.ComputedHeight, item.Color);
+                item.ComputedX = GetCrossAxisOffset(item);
+                item.ComputedY = ComputedHeight - mainOffset - item.ComputedHeight;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        item.ComputedX += ComputedX;
+        item.ComputedY += ComputedY;
         
         item.Render();
     }
