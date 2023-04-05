@@ -18,7 +18,10 @@ class FlexContainer
     public int ComputedHeight { get; set; }
     public int ComputedX { get; set; }
     public int ComputedY { get; set; }
-    
+    public int Padding { get; set; }
+    public int Gap { get; set; }
+    public int Radius { get; set; }
+    public bool HasBorder { get; set; }
     public List<FlexContainer> Items { get; set; } = new();
     public JustifyContent JustifyContent { get; set; } = JustifyContent.FlexStart;
     public FlexDirection FlexDirection { get; set; } = FlexDirection.Row;
@@ -26,8 +29,23 @@ class FlexContainer
 
     public void Render()
     {
-        Program.Canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Color);
+        if (Radius != 0)
+        {
+            Program.Canvas.DrawRoundRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Radius, Radius, Color);
+        }
+        else
+        {
+            Program.Canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Color);
+        }
 
+        if (HasBorder)
+        {
+            Program.Canvas.DrawLine(ComputedX, ComputedY, ComputedX + ComputedWidth, ComputedY, Program.Black);
+            Program.Canvas.DrawLine(ComputedX + ComputedWidth, ComputedY, ComputedX + ComputedWidth, ComputedY + ComputedHeight, Program.Black);
+            Program.Canvas.DrawLine(ComputedX + ComputedWidth, ComputedY + ComputedHeight, ComputedX, ComputedY + ComputedHeight, Program.Black);
+            Program.Canvas.DrawLine(ComputedX, ComputedY + ComputedHeight, ComputedX, ComputedY, Program.Black);
+        }
+        
         if (Items.Count == 0)
             return;
         
@@ -76,7 +94,7 @@ class FlexContainer
                 item.ComputedY = GetCrossAxisOffset(item);
                 break;
             case FlexDirection.RowReverse:
-                item.ComputedX = ComputedWidth - mainOffset - item.ComputedWidth;
+                item.ComputedX = ComputedWidth - 2 * Padding - mainOffset - item.ComputedWidth;
                 item.ComputedY = GetCrossAxisOffset(item);
                 break;
             case FlexDirection.Column:
@@ -91,8 +109,9 @@ class FlexContainer
                 throw new ArgumentOutOfRangeException();
         }
 
-        item.ComputedX += ComputedX;
-        item.ComputedY += ComputedY;
+        item.ComputedX += ComputedX + Padding;
+        item.ComputedY += ComputedY + Padding;
+
         
         item.Render();
     }
@@ -112,8 +131,8 @@ class FlexContainer
     {
         return FlexDirection switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => ComputedWidth,
-            FlexDirection.Column or FlexDirection.ColumnReverse => ComputedHeight,
+            FlexDirection.Row or FlexDirection.RowReverse => ComputedWidth - 2 * Padding,
+            FlexDirection.Column or FlexDirection.ColumnReverse => ComputedHeight - 2 * Padding,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -122,8 +141,8 @@ class FlexContainer
     {
         return FlexDirection switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => ComputedHeight,
-            FlexDirection.Column or FlexDirection.ColumnReverse => ComputedWidth,
+            FlexDirection.Row or FlexDirection.RowReverse => ComputedHeight - 2 * Padding,
+            FlexDirection.Column or FlexDirection.ColumnReverse => ComputedWidth - 2 * Padding,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -199,7 +218,7 @@ class FlexContainer
             item.ComputedWidth = item.Width.SizeKind switch
             {
                 SizeKind.Pixels => item.Width.Value,
-                SizeKind.Percentage => (int)(ComputedWidth * item.Width.Value * 0.01),
+                SizeKind.Percentage => (int)((ComputedWidth - 2 * Padding) * item.Width.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -241,7 +260,15 @@ class FlexContainer
 
     private int RemainingMainAxisFixedSize()
     {        
-        return GetMainAxisLength() - Items.Sum(GetItemMainAxisFixedLength);
+        return GetMainAxisLength() - Items.Sum(GetItemMainAxisFixedLength) - GetGapSize();
+    }
+
+    private int GetGapSize()
+    {
+        if (Items.Count <= 1)
+            return 0;
+
+        return (Items.Count - 1) * Gap;
     }
 
     private int RemainingMainAxisSize()
@@ -256,7 +283,7 @@ class FlexContainer
         foreach (var item in Items)
         {
             DrawWithMainOffset(mainOffset, item);
-            mainOffset += GetItemMainAxisLength(item);
+            mainOffset += GetItemMainAxisLength(item) + Gap;
         }
     }
 
@@ -267,7 +294,7 @@ class FlexContainer
         foreach (var item in Items)
         {
             DrawWithMainOffset(mainOffset, item);
-            mainOffset += GetItemMainAxisLength(item);
+            mainOffset += GetItemMainAxisLength(item) + Gap;
         }
     }
 
@@ -278,7 +305,7 @@ class FlexContainer
         foreach (var item in Items)
         {
             DrawWithMainOffset(mainOffset, item);
-            mainOffset += GetItemMainAxisLength(item);
+            mainOffset += GetItemMainAxisLength(item) + Gap;
         }
     }
 
@@ -292,7 +319,7 @@ class FlexContainer
         foreach (var item in Items)
         {
             DrawWithMainOffset(mainOffset, item);
-            mainOffset += GetItemMainAxisLength(item) + space;
+            mainOffset += GetItemMainAxisLength(item) + space + Gap;
         }
     }
 
@@ -307,7 +334,7 @@ class FlexContainer
         {
             mainOffset += space;
             DrawWithMainOffset(mainOffset, item);
-            mainOffset += GetItemMainAxisLength(item) + space;
+            mainOffset += GetItemMainAxisLength(item) + space + Gap;
         }
     }
 
@@ -321,7 +348,7 @@ class FlexContainer
         foreach (var item in Items)
         {
             DrawWithMainOffset(mainOffset, item);
-            mainOffset += GetItemMainAxisLength(item) + space;
+            mainOffset += GetItemMainAxisLength(item) + space + Gap;
         }
     }
 }
