@@ -64,6 +64,12 @@ public class Program
         IsAntialias = false
     };
     
+    public static SKPaint Transparent = new()
+    {
+        Color = new SKColor(0, 0, 0, 0),
+        IsAntialias = false
+    };
+    
     public static void DoPaint(Rect bounds)
     {
         var skiaFramebuffer = s_window.Surfaces.OfType<IFramebufferPlatformSurface>().First();
@@ -125,9 +131,9 @@ public class Program
                         {
                             Items = Enumerable.Range(0, 5).Select(x => new FlexContainer(
                                 new Size(100, SizeKind.Percentage),
-                                new Size(100, SizeKind.Pixels), GetRandomColor(10))
+                                new Size(100, SizeKind.Pixels), Transparent)
                             {
-                                Radius = 100,
+                                Radius = 20,
                                 HasBorder = true
                             }).ToList(),
                             JustifyContent = JustifyContent.FlexStart,
@@ -135,7 +141,7 @@ public class Program
                             AlignItems = AlignItems.FlexStart,
                             Padding = 20,
                             Gap = 10,
-                            HasBorder = true
+                            HasBorder = false
                         }
                     },
                     JustifyContent = JustifyContent.FlexStart,

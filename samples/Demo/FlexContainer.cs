@@ -14,7 +14,7 @@ class FlexContainer
     public Size Width { get; set; }
     public Size Height { get; set; }
     public SKPaint Color { get; set; }
-    public int ComputedWidth { get; set; }   
+    public int ComputedWidth { get; set; }
     public int ComputedHeight { get; set; }
     public int ComputedX { get; set; }
     public int ComputedY { get; set; }
@@ -40,18 +40,51 @@ class FlexContainer
 
         if (HasBorder)
         {
-            Program.Canvas.DrawLine(ComputedX, ComputedY, ComputedX + ComputedWidth, ComputedY, Program.Black);
-            Program.Canvas.DrawLine(ComputedX + ComputedWidth, ComputedY, ComputedX + ComputedWidth, ComputedY + ComputedHeight, Program.Black);
-            Program.Canvas.DrawLine(ComputedX + ComputedWidth, ComputedY + ComputedHeight, ComputedX, ComputedY + ComputedHeight, Program.Black);
-            Program.Canvas.DrawLine(ComputedX, ComputedY + ComputedHeight, ComputedX, ComputedY, Program.Black);
+            if (Radius != 0)
+            {
+                var radius = Radius;
+                
+                var paint = new SKPaint
+                {
+                    Color = new SKColor(0, 0, 0),
+                    IsAntialias = false,
+                    StrokeWidth = 1,
+                    Style = SKPaintStyle.Stroke
+                };
+                
+                var path = new SKPath();
+                path.MoveTo(ComputedX + radius, ComputedY);
+                path.QuadTo(ComputedX, ComputedY, ComputedX, ComputedY + radius);
+                Program.Canvas.DrawPath(path, paint);
+                
+                path.MoveTo(ComputedX + ComputedWidth - radius, ComputedY);
+                path.QuadTo(ComputedX + ComputedWidth, ComputedY, ComputedX + ComputedWidth, ComputedY + radius);
+                Program.Canvas.DrawPath(path, paint);
+
+                path.MoveTo(ComputedX + ComputedWidth, ComputedY + ComputedHeight - Radius);
+                path.QuadTo(ComputedX + ComputedWidth, ComputedY + ComputedHeight, ComputedX + ComputedWidth - radius, ComputedY + ComputedHeight);
+                Program.Canvas.DrawPath(path, paint);
+
+                path.MoveTo(ComputedX + radius, ComputedY + ComputedHeight);
+                path.QuadTo(ComputedX, ComputedY + ComputedHeight, ComputedX, ComputedY + ComputedHeight - radius);
+                Program.Canvas.DrawPath(path, paint);
+
+            }
+
+            Program.Canvas.DrawLine(ComputedX + Radius, ComputedY, ComputedX + ComputedWidth - Radius, ComputedY, Program.Black);
+            Program.Canvas.DrawLine(ComputedX + ComputedWidth, ComputedY + Radius, ComputedX + ComputedWidth,
+                ComputedY + ComputedHeight - Radius, Program.Black);
+            Program.Canvas.DrawLine(ComputedX + ComputedWidth - Radius, ComputedY + ComputedHeight, ComputedX + Radius,
+                ComputedY + ComputedHeight, Program.Black);
+            Program.Canvas.DrawLine(ComputedX, ComputedY + ComputedHeight - Radius, ComputedX, ComputedY + Radius, Program.Black);
         }
-        
+
         if (Items.Count == 0)
             return;
-        
+
         ComputeSize();
         ComputePosition();
-        
+
         foreach (var item in Items)
         {
             item.Render();
@@ -112,7 +145,7 @@ class FlexContainer
         item.ComputedX += ComputedX + Padding;
         item.ComputedY += ComputedY + Padding;
 
-        
+
         item.Render();
     }
 
@@ -156,17 +189,21 @@ class FlexContainer
             _ => throw new ArgumentOutOfRangeException()
         };
     }
-    
+
     private int GetItemMainAxisFixedLength(FlexContainer item)
     {
         return FlexDirection switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => item.Width.SizeKind == SizeKind.Percentage ? 0 : item.Width.Value,
-            FlexDirection.Column or FlexDirection.ColumnReverse => item.Height.SizeKind == SizeKind.Percentage ? 0 : item.Height.Value,
+            FlexDirection.Row or FlexDirection.RowReverse => item.Width.SizeKind == SizeKind.Percentage
+                ? 0
+                : item.Width.Value,
+            FlexDirection.Column or FlexDirection.ColumnReverse => item.Height.SizeKind == SizeKind.Percentage
+                ? 0
+                : item.Height.Value,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
-    
+
     private int GetItemCrossAxisLength(FlexContainer item)
     {
         return FlexDirection switch
@@ -179,7 +216,7 @@ class FlexContainer
 
     private void ComputeSize()
     {
-        switch(FlexDirection)
+        switch (FlexDirection)
         {
             case FlexDirection.Row or FlexDirection.RowReverse:
                 ComputeRowSize();
@@ -206,7 +243,7 @@ class FlexContainer
         {
             sizePerPercent = (float)remainingSize / 100;
         }
-        
+
         foreach (var item in Items)
         {
             item.ComputedHeight = item.Height.SizeKind switch
@@ -223,7 +260,7 @@ class FlexContainer
             };
         }
     }
-    
+
     private void ComputeRowSize()
     {
         var remainingSize = RemainingMainAxisFixedSize();
@@ -231,7 +268,7 @@ class FlexContainer
         var totalPercentage = itemsWithPercentage.Sum(x => x.Width.Value);
 
         float sizePerPercent;
-        
+
         if (totalPercentage > 100)
         {
             sizePerPercent = (float)remainingSize / totalPercentage;
@@ -259,7 +296,7 @@ class FlexContainer
     }
 
     private int RemainingMainAxisFixedSize()
-    {        
+    {
         return GetMainAxisLength() - Items.Sum(GetItemMainAxisFixedLength) - GetGapSize();
     }
 
