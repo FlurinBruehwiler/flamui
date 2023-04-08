@@ -1,11 +1,46 @@
-﻿using ShimSkiaSharp;
-using Svg.Skia;
+﻿using SkiaSharp;
 
 namespace Demo.Test;
 
 public class Renderer
 {
-    public void Render(DivDefinition div)
+    private static readonly SKPaint s_paint = new()
+    {
+        IsAntialias = true
+    };
+
+    public static readonly SKPaint BorderColor = new()
+    {
+        IsAntialias = true,
+        Color = SKColors.Black
+    };
+    
+    public static SKPaint GetColor(ColorDefinition colorDefinition)
+    {
+        s_paint.Color = new SKColor((byte) colorDefinition.Red, (byte)colorDefinition.Gree, (byte)colorDefinition.Blue, (byte)colorDefinition.Transparency);
+        return s_paint;
+    }
+
+    private LayoutEngine _layoutEngine = new LayoutEngine();
+
+    private DivDefinition _rootDivDefinition = new DivDefinition();
+    
+    public void DoSomething(Div root)
+    {
+        var actualRoot = new Div();
+        actualRoot.Width(Program.ImageInfo.Width);
+        actualRoot.Height(Program.ImageInfo.Height);
+        actualRoot.Add(root);
+
+        _rootDivDefinition.ComputedHeight = Program.ImageInfo.Height;
+        _rootDivDefinition.ComputedWidth = Program.ImageInfo.Width;
+        
+        var rootDefinition = _layoutEngine.CalculateIfNecessary(actualRoot, _rootDivDefinition);
+
+        Render(rootDefinition);
+    }
+    
+    private void Render(DivDefinition div)
     {
         if (div.BorderWidth != 0)
         {
@@ -14,16 +49,16 @@ public class Renderer
                 var borderRadius = div.Radius + div.BorderWidth;
                 
                 Program.Canvas.DrawRoundRect(div.ComputedX - div.BorderWidth, div.ComputedY - div.BorderWidth,
-                    div.ComputedWidth + 2 * div.BorderWidth, div.ComputedHeight + 2 * div.BorderWidth, borderRadius, borderRadius, div.BorderColor);
+                    div.ComputedWidth + 2 * div.BorderWidth, div.ComputedHeight + 2 * div.BorderWidth, borderRadius, borderRadius, BorderColor);
                 Program.Canvas.DrawRoundRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.Radius, div.Radius,
-                    div.Color);
+                    GetColor(div.Color));
             }
             else
             {
                 Program.Canvas.DrawRect(div.ComputedX - div.BorderWidth, div.ComputedY - div.BorderWidth,
-                    div.ComputedWidth + 2 * div.BorderWidth, div.ComputedHeight + 2 * div.BorderWidth, div.BorderColor);
+                    div.ComputedWidth + 2 * div.BorderWidth, div.ComputedHeight + 2 * div.BorderWidth, BorderColor);
                 Program.Canvas.DrawRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight,
-                    div.Color);
+                    GetColor(div.Color));
             }
         }
         else
@@ -31,12 +66,17 @@ public class Renderer
             if (div.Radius != 0)
             {
                 Program.Canvas.DrawRoundRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.Radius, div.Radius,
-                    div.Color);
+                    GetColor(div.Color));
             }
             else
             {
-                Program.Canvas.DrawRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.Color);
+                Program.Canvas.DrawRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, GetColor(div.Color));
             }
+        }
+
+        foreach (var divDefinition in div.Children)
+        {
+            Render(divDefinition);
         }
 
         // if (div.Text != string.Empty)

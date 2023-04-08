@@ -1,4 +1,5 @@
 ﻿using Demo;
+using Demo.Test;
 using Modern.WindowKit;
 using Modern.WindowKit.Controls.Platform.Surfaces;
 using Modern.WindowKit.Platform;
@@ -73,6 +74,9 @@ public class Program
         IsAntialias = true
     };
 
+    public static Renderer Renderer = new Renderer();
+    private static TestComponent RootComponent = new TestComponent();
+
     public static void DoPaint(Rect bounds)
     {
         var skiaFramebuffer = s_window.Surfaces.OfType<IFramebufferPlatformSurface>().First();
@@ -86,97 +90,26 @@ public class Program
         using var surface = SKSurface.Create(framebufferImageInfo, framebuffer.Address, framebuffer.RowBytes);
 
         surface.Canvas.DrawSurface(GetCanvas(), SKPoint.Empty);
-
         Canvas = surface.Canvas;
 
-        SKPaint GetRandomColor(int seed)
-        {
-            var rand = new Random(seed);
-            return new SKPaint
-            {
-                Color = new SKColor((byte)rand.Next(250), (byte)rand.Next(250), (byte)rand.Next(250)),
-                IsAntialias = true
-            };
-        }
+        Renderer.DoSomething(RootComponent.Render());
 
-        new FlexContainer(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), GetRandomColor(1))
+        repaint++;
+        Canvas.DrawText(rerender.ToString(), new SKPoint(500, 500), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        Canvas.DrawText(repaint.ToString(), new SKPoint(300, 500), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+    }
+
+    public static int rerender = 0;
+    public static int repaint = 0;
+    
+    public static SKPaint GetRandomColor(int seed)
+    {
+        var rand = new Random(seed);
+        return new SKPaint
         {
-            ComputedWidth = ImageInfo.Width,
-            ComputedHeight = ImageInfo.Height,
-            ComputedX = 0,
-            ComputedY = 0,
-            Items = new List<FlexContainer>
-            {
-                new(new Size(250, SizeKind.Pixels), new Size(100, SizeKind.Percentage), GetRandomColor(2))
-                {
-                    Items = new List<FlexContainer>
-                    {
-                        new(new Size(100, SizeKind.Percentage), new Size(70, SizeKind.Pixels),
-                            GetRandomColor(3)),
-                        new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage),
-                            GetRandomColor(4))
-                        {
-                            Items = Enumerable.Range(0, 5).Select(x =>
-                                new FlexContainer(new Size(100, SizeKind.Percentage), new Size(50, SizeKind.Pixels),
-                                    GetRandomColor(20))
-                                {
-                                    Radius = 10,
-                                    Items = new List<FlexContainer>
-                                    {
-                                        new(new Size(50, SizeKind.Pixels), new Size(100, SizeKind.Percentage),
-                                            Transparent)
-                                        {
-                                            Svg = "./battery.svg"
-                                        },
-                                        new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage),
-                                            Transparent)
-                                        {
-                                            Text = $"Item {x}"
-                                        }
-                                    }
-                                }
-                            ).ToList(),
-                            Padding = 20,
-                            Dir = Dir.Column,
-                            Gap = 10
-                        },
-                        new(new Size(100, SizeKind.Percentage), new Size(70, SizeKind.Pixels),
-                            GetRandomColor(6)),
-                    },
-                    MAlign = MAlign.FlexStart,
-                    Dir = Dir.Column,
-                    XAlign = XAlign.FlexStart
-                },
-                new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), GetRandomColor(5))
-                {
-                    Items = new List<FlexContainer>
-                    {
-                        new(new Size(100, SizeKind.Percentage), new Size(150, SizeKind.Pixels), GetRandomColor(7)),
-                        new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), GetRandomColor(8))
-                        {
-                            Items = Enumerable.Range(0, 5).Select(x => new FlexContainer(
-                                new Size(100, SizeKind.Percentage),
-                                new Size(100, SizeKind.Pixels), GetRandomColor(10))
-                            {
-                                Radius = 20,
-                                BorderWidth = 1
-                            }).ToList(),
-                            MAlign = MAlign.FlexStart,
-                            Dir = Dir.Column,
-                            XAlign = XAlign.FlexStart,
-                            Padding = 20,
-                            Gap = 10,
-                        }
-                    },
-                    MAlign = MAlign.FlexStart,
-                    Dir = Dir.Column,
-                    XAlign = XAlign.FlexStart
-                }
-            },
-            MAlign = MAlign.FlexStart,
-            Dir = Dir.Row,
-            XAlign = XAlign.FlexStart
-        }.Render();
+            Color = new SKColor((byte)rand.Next(250), (byte)rand.Next(250), (byte)rand.Next(250)),
+            IsAntialias = true
+        };
     }
 
     private static void Invalidate() => s_window.Invalidate(new Rect(Point.Empty, s_window.ClientSize));

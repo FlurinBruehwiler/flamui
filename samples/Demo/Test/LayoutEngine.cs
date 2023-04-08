@@ -2,14 +2,18 @@
 
 public class LayoutEngine
 {
-    public void CalculateIfNecessary(Div div)
+    public DivDefinition CalculateIfNecessary(Div rootDiv, DivDefinition rootDefiniton)
     {
-        var root = new DivDefinition();
-        if (div.ApplyChanges(root))
+        if (rootDiv.ApplyChanges(rootDefiniton))
         {
-            ComputedSize(root);
-            ComputePosition(root);
+            Program.rerender++;
+
+            
+            ComputedSize(rootDefiniton);
+            ComputePosition(rootDefiniton);
         }
+
+        return rootDefiniton;
     }
 
     private void ComputedSize(DivDefinition div)
