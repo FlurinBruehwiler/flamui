@@ -6,7 +6,13 @@ public class TestComponent : UiComponent
     {
         return new Div
         {
-            new Div().Color(14, 155, 23)
-        }.Width(50, SizeKind.Percentage).Height(50).MAlign(MAlign.Center).XAlign(XAlign.Center).Color(104, 155, 23);
+            new Div
+            {
+                new Div
+                {
+                
+                }.Color(104, 0, 23).Width(50, SizeKind.Percentage).Height(50, SizeKind.Percentage)
+            }.Color(104, 155, 23).Width(50, SizeKind.Percentage).Height(50, SizeKind.Percentage).MAlign(MAlign.FlexEnd)
+        }.MAlign(MAlign.Center).XAlign(XAlign.Center);
     }
 }

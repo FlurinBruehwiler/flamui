@@ -7,13 +7,21 @@ public class LayoutEngine
         if (rootDiv.ApplyChanges(rootDefiniton))
         {
             Program.rerender++;
-
-            
-            ComputedSize(rootDefiniton);
-            ComputePosition(rootDefiniton);
+            ComputedDiv(rootDefiniton);
         }
 
         return rootDefiniton;
+    }
+
+    private void ComputedDiv(DivDefinition divDefinition)
+    {
+        ComputedSize(divDefinition);
+        ComputePosition(divDefinition);
+        
+        foreach (var child in divDefinition.Children)
+        {
+            ComputedDiv(child);    
+        }
     }
 
     private void ComputedSize(DivDefinition div)
@@ -311,8 +319,5 @@ public class LayoutEngine
 
         item.ComputedX += div.ComputedX + div.Padding;
         item.ComputedY += div.ComputedY + div.Padding;
-
-
-        // item.Render();
     }
 }
