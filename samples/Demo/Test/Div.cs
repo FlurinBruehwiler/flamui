@@ -125,6 +125,13 @@ public class Div : IComponent, IEnumerable<Div>
         return layoutChange;
     }
 
+    public Div Items(IEnumerable<Div> children)
+    {
+        _children ??= new List<Div>();
+        _children.AddRange(children);
+        return this;
+    }
+
     public IComponent Add(Div child)
     {
         _children ??= new List<Div>();
