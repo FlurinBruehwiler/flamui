@@ -16,9 +16,12 @@ public class Program
     public static SKSurface? s_canvas;
     public static SKImageInfo ImageInfo;
     public static SKCanvas Canvas = null;
+    public static string Svg;
 
     private static void Main()
     {
+        Svg = File.ReadAllText("./battery.svg");
+
         s_window = AvaloniaGlobals.GetRequiredService<IWindowingPlatform>().CreateWindow();
         s_window.Resize(new Modern.WindowKit.Size(1024, 768));
         s_window.SetTitle("Modern.WindowKit Demo");
@@ -61,15 +64,15 @@ public class Program
     public static SKPaint Black = new()
     {
         Color = new SKColor(0, 0, 0),
-        IsAntialias = false
+        IsAntialias = true
     };
-    
+
     public static SKPaint Transparent = new()
     {
         Color = new SKColor(0, 0, 0, 0),
-        IsAntialias = false
+        IsAntialias = true
     };
-    
+
     public static void DoPaint(Rect bounds)
     {
         var skiaFramebuffer = s_window.Surfaces.OfType<IFramebufferPlatformSurface>().First();
@@ -113,14 +116,36 @@ public class Program
                         new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage),
                             GetRandomColor(4))
                         {
-                            HasBorder = true
+                            Items = Enumerable.Range(0, 5).Select(x =>
+                                new FlexContainer(new Size(100, SizeKind.Percentage), new Size(50, SizeKind.Pixels),
+                                    GetRandomColor(20))
+                                {
+                                    Radius = 10,
+                                    Items = new List<FlexContainer>
+                                    {
+                                        new(new Size(50, SizeKind.Pixels), new Size(100, SizeKind.Percentage),
+                                            Transparent)
+                                        {
+                                            Svg = "./battery.svg"
+                                        },
+                                        new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage),
+                                            Transparent)
+                                        {
+                                            Text = $"Item {x}"
+                                        }
+                                    }
+                                }
+                            ).ToList(),
+                            Padding = 20,
+                            Dir = Dir.Column,
+                            Gap = 10
                         },
                         new(new Size(100, SizeKind.Percentage), new Size(70, SizeKind.Pixels),
                             GetRandomColor(6)),
                     },
-                    JustifyContent = JustifyContent.FlexStart,
-                    FlexDirection = FlexDirection.Column,
-                    AlignItems = AlignItems.FlexStart
+                    MAlign = MAlign.FlexStart,
+                    Dir = Dir.Column,
+                    XAlign = XAlign.FlexStart
                 },
                 new(new Size(100, SizeKind.Percentage), new Size(100, SizeKind.Percentage), GetRandomColor(5))
                 {
@@ -131,27 +156,26 @@ public class Program
                         {
                             Items = Enumerable.Range(0, 5).Select(x => new FlexContainer(
                                 new Size(100, SizeKind.Percentage),
-                                new Size(100, SizeKind.Pixels), Transparent)
+                                new Size(100, SizeKind.Pixels), GetRandomColor(10))
                             {
                                 Radius = 20,
-                                HasBorder = true
+                                BorderWidth = 1
                             }).ToList(),
-                            JustifyContent = JustifyContent.FlexStart,
-                            FlexDirection = FlexDirection.Column,
-                            AlignItems = AlignItems.FlexStart,
+                            MAlign = MAlign.FlexStart,
+                            Dir = Dir.Column,
+                            XAlign = XAlign.FlexStart,
                             Padding = 20,
                             Gap = 10,
-                            HasBorder = false
                         }
                     },
-                    JustifyContent = JustifyContent.FlexStart,
-                    FlexDirection = FlexDirection.Column,
-                    AlignItems = AlignItems.FlexStart
+                    MAlign = MAlign.FlexStart,
+                    Dir = Dir.Column,
+                    XAlign = XAlign.FlexStart
                 }
             },
-            JustifyContent = JustifyContent.FlexStart,
-            FlexDirection = FlexDirection.Row,
-            AlignItems = AlignItems.FlexStart
+            MAlign = MAlign.FlexStart,
+            Dir = Dir.Row,
+            XAlign = XAlign.FlexStart
         }.Render();
     }
 

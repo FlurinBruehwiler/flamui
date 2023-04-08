@@ -1,4 +1,6 @@
-﻿using SkiaSharp;
+﻿using Demo.Test;
+using SkiaSharp;
+using Svg.Skia;
 
 namespace Demo;
 
@@ -21,62 +23,72 @@ class FlexContainer
     public int Padding { get; set; }
     public int Gap { get; set; }
     public int Radius { get; set; }
-    public bool HasBorder { get; set; }
+    public int BorderWidth { get; set; }
+    public string Text { get; set; } = string.Empty;
+    public string Svg { get; set; } = string.Empty;
+    public SKPaint BorderColor { get; set; } = Program.Black;
     public List<FlexContainer> Items { get; set; } = new();
-    public JustifyContent JustifyContent { get; set; } = JustifyContent.FlexStart;
-    public FlexDirection FlexDirection { get; set; } = FlexDirection.Row;
-    public AlignItems AlignItems { get; set; } = AlignItems.FlexStart;
+    public MAlign MAlign { get; set; } = MAlign.FlexStart;
+    public Dir Dir { get; set; } = Dir.Row;
+    public XAlign XAlign { get; set; } = XAlign.FlexStart;
 
     public void Render()
     {
-        if (Radius != 0)
-        {
-            Program.Canvas.DrawRoundRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Radius, Radius, Color);
-        }
-        else
-        {
-            Program.Canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Color);
-        }
-
-        if (HasBorder)
+        if (BorderWidth != 0)
         {
             if (Radius != 0)
             {
-                var radius = Radius;
+                var borderRadius = Radius + BorderWidth;
                 
-                var paint = new SKPaint
-                {
-                    Color = new SKColor(0, 0, 0),
-                    IsAntialias = false,
-                    StrokeWidth = 1,
-                    Style = SKPaintStyle.Stroke
-                };
-                
-                var path = new SKPath();
-                path.MoveTo(ComputedX + radius, ComputedY);
-                path.QuadTo(ComputedX, ComputedY, ComputedX, ComputedY + radius);
-                Program.Canvas.DrawPath(path, paint);
-                
-                path.MoveTo(ComputedX + ComputedWidth - radius, ComputedY);
-                path.QuadTo(ComputedX + ComputedWidth, ComputedY, ComputedX + ComputedWidth, ComputedY + radius);
-                Program.Canvas.DrawPath(path, paint);
-
-                path.MoveTo(ComputedX + ComputedWidth, ComputedY + ComputedHeight - Radius);
-                path.QuadTo(ComputedX + ComputedWidth, ComputedY + ComputedHeight, ComputedX + ComputedWidth - radius, ComputedY + ComputedHeight);
-                Program.Canvas.DrawPath(path, paint);
-
-                path.MoveTo(ComputedX + radius, ComputedY + ComputedHeight);
-                path.QuadTo(ComputedX, ComputedY + ComputedHeight, ComputedX, ComputedY + ComputedHeight - radius);
-                Program.Canvas.DrawPath(path, paint);
-
+                Program.Canvas.DrawRoundRect(ComputedX - BorderWidth, ComputedY - BorderWidth,
+                    ComputedWidth + 2 * BorderWidth, ComputedHeight + 2 * BorderWidth, borderRadius, borderRadius, BorderColor);
+                Program.Canvas.DrawRoundRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Radius, Radius,
+                    Color);
             }
+            else
+            {
+                Program.Canvas.DrawRect(ComputedX - BorderWidth, ComputedY - BorderWidth,
+                    ComputedWidth + 2 * BorderWidth, ComputedHeight + 2 * BorderWidth, BorderColor);
+                Program.Canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight,
+                    Color);
+            }
+        }
+        else
+        {
+            if (Radius != 0)
+            {
+                Program.Canvas.DrawRoundRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Radius, Radius,
+                    Color);
+            }
+            else
+            {
+                Program.Canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, Color);
+            }
+        }
 
-            Program.Canvas.DrawLine(ComputedX + Radius, ComputedY, ComputedX + ComputedWidth - Radius, ComputedY, Program.Black);
-            Program.Canvas.DrawLine(ComputedX + ComputedWidth, ComputedY + Radius, ComputedX + ComputedWidth,
-                ComputedY + ComputedHeight - Radius, Program.Black);
-            Program.Canvas.DrawLine(ComputedX + ComputedWidth - Radius, ComputedY + ComputedHeight, ComputedX + Radius,
-                ComputedY + ComputedHeight, Program.Black);
-            Program.Canvas.DrawLine(ComputedX, ComputedY + ComputedHeight - Radius, ComputedX, ComputedY + Radius, Program.Black);
+        if (Text != string.Empty)
+        {
+            var paint = new SKPaint
+            {
+                Color = new SKColor(0, 0, 0),
+                IsAntialias = true,
+                TextSize = 15,
+                Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+            };
+
+            var path = paint.GetTextPath(Text, ComputedX, ComputedY);
+            path.GetBounds(out var rect);
+
+            var verticalCenter = ComputedY + ComputedHeight / 2;
+            
+            Program.Canvas.DrawText(Text, ComputedX + Padding, verticalCenter + rect.Height / 2, paint);
+        }
+
+        if (Svg != string.Empty)
+        {
+            var svg = new SKSvg();
+            svg.Load("./battery.svg");
+            Program.Canvas.DrawPicture(svg.Picture, ComputedX, ComputedY);
         }
 
         if (Items.Count == 0)
@@ -93,24 +105,24 @@ class FlexContainer
 
     private void ComputePosition()
     {
-        switch (JustifyContent)
+        switch (MAlign)
         {
-            case JustifyContent.FlexStart:
+            case MAlign.FlexStart:
                 RenderFlexStart();
                 break;
-            case JustifyContent.FlexEnd:
+            case MAlign.FlexEnd:
                 RenderFlexEnd();
                 break;
-            case JustifyContent.Center:
+            case MAlign.Center:
                 RenderCenter();
                 break;
-            case JustifyContent.SpaceBetween:
+            case MAlign.SpaceBetween:
                 RenderSpaceBetween();
                 break;
-            case JustifyContent.SpaceAround:
+            case MAlign.SpaceAround:
                 RenderSpaceAround();
                 break;
-            case JustifyContent.SpaceEvenly:
+            case MAlign.SpaceEvenly:
                 RenderSpaceEvenly();
                 break;
             default:
@@ -120,21 +132,21 @@ class FlexContainer
 
     private void DrawWithMainOffset(int mainOffset, FlexContainer item)
     {
-        switch (FlexDirection)
+        switch (Dir)
         {
-            case FlexDirection.Row:
+            case Dir.Row:
                 item.ComputedX = mainOffset;
                 item.ComputedY = GetCrossAxisOffset(item);
                 break;
-            case FlexDirection.RowReverse:
+            case Dir.RowReverse:
                 item.ComputedX = ComputedWidth - 2 * Padding - mainOffset - item.ComputedWidth;
                 item.ComputedY = GetCrossAxisOffset(item);
                 break;
-            case FlexDirection.Column:
+            case Dir.Column:
                 item.ComputedX = GetCrossAxisOffset(item);
                 item.ComputedY = mainOffset;
                 break;
-            case FlexDirection.ColumnReverse:
+            case Dir.ColumnReverse:
                 item.ComputedX = GetCrossAxisOffset(item);
                 item.ComputedY = ComputedHeight - mainOffset - item.ComputedHeight;
                 break;
@@ -151,53 +163,53 @@ class FlexContainer
 
     private int GetCrossAxisOffset(FlexContainer item)
     {
-        return AlignItems switch
+        return XAlign switch
         {
-            AlignItems.FlexStart => 0,
-            AlignItems.FlexEnd => GetCrossAxisLength() - GetItemCrossAxisLength(item),
-            AlignItems.Center => GetCrossAxisLength() / 2 - GetItemCrossAxisLength(item) / 2,
+            XAlign.FlexStart => 0,
+            XAlign.FlexEnd => GetCrossAxisLength() - GetItemCrossAxisLength(item),
+            XAlign.Center => GetCrossAxisLength() / 2 - GetItemCrossAxisLength(item) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private int GetMainAxisLength()
     {
-        return FlexDirection switch
+        return Dir switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => ComputedWidth - 2 * Padding,
-            FlexDirection.Column or FlexDirection.ColumnReverse => ComputedHeight - 2 * Padding,
+            Dir.Row or Dir.RowReverse => ComputedWidth - 2 * Padding,
+            Dir.Column or Dir.ColumnReverse => ComputedHeight - 2 * Padding,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private int GetCrossAxisLength()
     {
-        return FlexDirection switch
+        return Dir switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => ComputedHeight - 2 * Padding,
-            FlexDirection.Column or FlexDirection.ColumnReverse => ComputedWidth - 2 * Padding,
+            Dir.Row or Dir.RowReverse => ComputedHeight - 2 * Padding,
+            Dir.Column or Dir.ColumnReverse => ComputedWidth - 2 * Padding,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private int GetItemMainAxisLength(FlexContainer item)
     {
-        return FlexDirection switch
+        return Dir switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => item.ComputedWidth,
-            FlexDirection.Column or FlexDirection.ColumnReverse => item.ComputedHeight,
+            Dir.Row or Dir.RowReverse => item.ComputedWidth,
+            Dir.Column or Dir.ColumnReverse => item.ComputedHeight,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private int GetItemMainAxisFixedLength(FlexContainer item)
     {
-        return FlexDirection switch
+        return Dir switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => item.Width.SizeKind == SizeKind.Percentage
+            Dir.Row or Dir.RowReverse => item.Width.SizeKind == SizeKind.Percentage
                 ? 0
                 : item.Width.Value,
-            FlexDirection.Column or FlexDirection.ColumnReverse => item.Height.SizeKind == SizeKind.Percentage
+            Dir.Column or Dir.ColumnReverse => item.Height.SizeKind == SizeKind.Percentage
                 ? 0
                 : item.Height.Value,
             _ => throw new ArgumentOutOfRangeException()
@@ -206,22 +218,22 @@ class FlexContainer
 
     private int GetItemCrossAxisLength(FlexContainer item)
     {
-        return FlexDirection switch
+        return Dir switch
         {
-            FlexDirection.Row or FlexDirection.RowReverse => item.ComputedHeight,
-            FlexDirection.Column or FlexDirection.ColumnReverse => item.ComputedWidth,
+            Dir.Row or Dir.RowReverse => item.ComputedHeight,
+            Dir.Column or Dir.ColumnReverse => item.ComputedWidth,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private void ComputeSize()
     {
-        switch (FlexDirection)
+        switch (Dir)
         {
-            case FlexDirection.Row or FlexDirection.RowReverse:
+            case Dir.Row or Dir.RowReverse:
                 ComputeRowSize();
                 break;
-            case FlexDirection.Column or FlexDirection.ColumnReverse:
+            case Dir.Column or Dir.ColumnReverse:
                 ComputeColumnSize();
                 break;
         }
@@ -249,12 +261,13 @@ class FlexContainer
             item.ComputedHeight = item.Height.SizeKind switch
             {
                 SizeKind.Percentage => (int)(item.Height.Value * sizePerPercent),
-                SizeKind.Pixels => item.Height.Value,
+                SizeKind.Pixel => item.Height.Value,
                 _ => throw new ArgumentOutOfRangeException()
             };
+            
             item.ComputedWidth = item.Width.SizeKind switch
             {
-                SizeKind.Pixels => item.Width.Value,
+                SizeKind.Pixel => item.Width.Value,
                 SizeKind.Percentage => (int)((ComputedWidth - 2 * Padding) * item.Width.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };
@@ -283,12 +296,12 @@ class FlexContainer
             item.ComputedWidth = item.Width.SizeKind switch
             {
                 SizeKind.Percentage => (int)(item.Width.Value * sizePerPercent),
-                SizeKind.Pixels => item.Width.Value,
+                SizeKind.Pixel => item.Width.Value,
                 _ => throw new ArgumentOutOfRangeException()
             };
             item.ComputedHeight = item.Height.SizeKind switch
             {
-                SizeKind.Pixels => item.Height.Value,
+                SizeKind.Pixel => item.Height.Value,
                 SizeKind.Percentage => (int)(ComputedHeight * item.Height.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };

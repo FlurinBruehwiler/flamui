@@ -1,8 +1,9 @@
-﻿using SkiaSharp;
+﻿using Demo.Test;
+using SkiaSharp;
 
 namespace Demo;
 
-enum JustifyContent
+public enum MAlign
 {
     FlexStart,
     FlexEnd,
@@ -12,7 +13,7 @@ enum JustifyContent
     SpaceEvenly
 }
 
-enum FlexDirection
+public enum Dir
 {
     Row,
     RowReverse,
@@ -20,17 +21,11 @@ enum FlexDirection
     ColumnReverse
 }
 
-enum AlignItems
+public enum XAlign
 {
     FlexStart,
     FlexEnd,
     Center
-}
-
-enum SizeKind
-{
-    Pixels,
-    Percentage
 }
 
 record Size(int Value, SizeKind SizeKind);
