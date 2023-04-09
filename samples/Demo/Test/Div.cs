@@ -157,6 +157,12 @@ public class Div : IComponent, IEnumerable<Div>
         return this;
     }
 
+    public Div Color(ColorDefinition color)
+    {
+        _color = color;
+        return this;
+    }
+
     public Div Padding(int padding)
     {
         _padding = padding;

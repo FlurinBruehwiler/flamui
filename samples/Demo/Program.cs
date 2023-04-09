@@ -101,16 +101,6 @@ public class Program
 
     public static int rerender = 0;
     public static int repaint = 0;
-    
-    public static SKPaint GetRandomColor(int seed)
-    {
-        var rand = new Random(seed);
-        return new SKPaint
-        {
-            Color = new SKColor((byte)rand.Next(250), (byte)rand.Next(250), (byte)rand.Next(250)),
-            IsAntialias = true
-        };
-    }
 
     private static void Invalidate() => s_window.Invalidate(new Rect(Point.Empty, s_window.ClientSize));
 }
