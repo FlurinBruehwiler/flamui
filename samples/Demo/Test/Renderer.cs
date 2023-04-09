@@ -24,7 +24,7 @@ public class Renderer
 
     private LayoutEngine _layoutEngine = new LayoutEngine();
 
-    private DivDefinition _rootDivDefinition = new DivDefinition();
+    private Div _rootDivDefinition = new Div();
 
     private Div root;
     
@@ -52,37 +52,37 @@ public class Renderer
         Program.draw = time;
     }
     
-    private void Render(DivDefinition div)
+    private void Render(Div div)
     {
-        if (div.BorderWidth != 0)
+        if (div.PBorderWidth != 0)
         {
-            if (div.Radius != 0)
+            if (div.PRadius != 0)
             {
-                var borderRadius = div.Radius + div.BorderWidth;
+                var borderRadius = div.PRadius + div.PBorderWidth;
                 
-                Program.Canvas.DrawRoundRect(div.ComputedX - div.BorderWidth, div.ComputedY - div.BorderWidth,
-                    div.ComputedWidth + 2 * div.BorderWidth, div.ComputedHeight + 2 * div.BorderWidth, borderRadius, borderRadius, BorderColor);
-                Program.Canvas.DrawRoundRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.Radius, div.Radius,
-                    GetColor(div.Color));
+                Program.Canvas.DrawRoundRect(div.ComputedX - div.PBorderWidth, div.ComputedY - div.PBorderWidth,
+                    div.ComputedWidth + 2 * div.PBorderWidth, div.ComputedHeight + 2 * div.PBorderWidth, borderRadius, borderRadius, BorderColor);
+                Program.Canvas.DrawRoundRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.PRadius, div.PRadius,
+                    GetColor(div.PColor));
             }
             else
             {
-                Program.Canvas.DrawRect(div.ComputedX - div.BorderWidth, div.ComputedY - div.BorderWidth,
-                    div.ComputedWidth + 2 * div.BorderWidth, div.ComputedHeight + 2 * div.BorderWidth, BorderColor);
+                Program.Canvas.DrawRect(div.ComputedX - div.PBorderWidth, div.ComputedY - div.PBorderWidth,
+                    div.ComputedWidth + 2 * div.PBorderWidth, div.ComputedHeight + 2 * div.PBorderWidth, BorderColor);
                 Program.Canvas.DrawRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight,
-                    GetColor(div.Color));
+                    GetColor(div.PColor));
             }
         }
         else
         {
-            if (div.Radius != 0)
+            if (div.PRadius != 0)
             {
-                Program.Canvas.DrawRoundRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.Radius, div.Radius,
-                    GetColor(div.Color));
+                Program.Canvas.DrawRoundRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.PRadius, div.PRadius,
+                    GetColor(div.PColor));
             }
             else
             {
-                Program.Canvas.DrawRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, GetColor(div.Color));
+                Program.Canvas.DrawRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, GetColor(div.PColor));
             }
         }
 
