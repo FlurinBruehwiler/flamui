@@ -37,7 +37,7 @@ public class Program
             s_canvas = null;
         };
 
-        s_window.PositionChanged = _ => Invalidate();
+        // s_window.PositionChanged = _ => Invalidate();
 
         s_window.Paint = DoPaint;
 
@@ -92,15 +92,16 @@ public class Program
         surface.Canvas.DrawSurface(GetCanvas(), SKPoint.Empty);
         Canvas = surface.Canvas;
 
-        Renderer.DoSomething(RootComponent.Render());
+        Renderer.DoSomething(RootComponent);
 
-        repaint++;
-        Canvas.DrawText(rerender.ToString(), new SKPoint(500, 500), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
-        Canvas.DrawText(repaint.ToString(), new SKPoint(300, 500), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        Canvas.DrawRect(0,0, 50, 50, Renderer.GetColor(new ColorDefinition(0,0,0,255)));
+        Canvas.DrawText(compute.ToString(), new SKPoint(10, 20), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        Canvas.DrawText(draw.ToString(), new SKPoint(10, 40), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+
     }
 
-    public static int rerender = 0;
-    public static int repaint = 0;
+    public static long compute = 0;
+    public static long draw = 0;
 
     private static void Invalidate() => s_window.Invalidate(new Rect(Point.Empty, s_window.ClientSize));
 }
@@ -114,6 +115,7 @@ public static class HotReloadManager
 
     public static void UpdateApplication(Type[]? updatedTypes)
     {
+        LayoutEngine.IsFirstRender = true;
         Program.DoPaint(new Rect());
         Console.WriteLine("HotReloadManager.UpdateApplication");
     }

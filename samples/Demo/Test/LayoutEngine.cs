@@ -1,15 +1,24 @@
-﻿namespace Demo.Test;
+﻿using System.Diagnostics;
+
+namespace Demo.Test;
 
 public class LayoutEngine
 {
+    public static bool IsFirstRender = true;
+    
     public DivDefinition CalculateIfNecessary(Div rootDiv, DivDefinition rootDefiniton)
     {
-        if (rootDiv.ApplyChanges(rootDefiniton))
+        if (IsFirstRender)
         {
-            Program.rerender++;
-            ComputedDiv(rootDefiniton);
+            rootDiv.ApplyChanges(rootDefiniton);
+            IsFirstRender = false;
         }
 
+        var stopwatch = Stopwatch.StartNew();
+        ComputedDiv(rootDefiniton);
+        var time = stopwatch.ElapsedTicks;
+        Program.compute = time;
+        
         return rootDefiniton;
     }
 
@@ -64,7 +73,7 @@ public class LayoutEngine
         }
     }
 
-    private int GetCrossAxisOffset(DivDefinition div, DivDefinition item)
+    private float GetCrossAxisOffset(DivDefinition div, DivDefinition item)
     {
         return div.XAlign switch
         {
@@ -75,7 +84,7 @@ public class LayoutEngine
         };
     }
 
-    private int GetMainAxisLength(DivDefinition div)
+    private float GetMainAxisLength(DivDefinition div)
     {
         return div.Dir switch
         {
@@ -85,7 +94,7 @@ public class LayoutEngine
         };
     }
 
-    private int GetCrossAxisLength(DivDefinition div)
+    private float GetCrossAxisLength(DivDefinition div)
     {
         return div.Dir switch
         {
@@ -95,7 +104,7 @@ public class LayoutEngine
         };
     }
 
-    private int GetItemMainAxisLength(DivDefinition div, DivDefinition item)
+    private float GetItemMainAxisLength(DivDefinition div, DivDefinition item)
     {
         return div.Dir switch
         {
@@ -105,7 +114,7 @@ public class LayoutEngine
         };
     }
 
-    private int GetItemMainAxisFixedLength(DivDefinition div, DivDefinition item)
+    private float GetItemMainAxisFixedLength(DivDefinition div, DivDefinition item)
     {
         return div.Dir switch
         {
@@ -119,7 +128,7 @@ public class LayoutEngine
         };
     }
 
-    private int GetItemCrossAxisLength(DivDefinition div, DivDefinition item)
+    private float GetItemCrossAxisLength(DivDefinition div, DivDefinition item)
     {
         return div.Dir switch
         {
@@ -133,32 +142,40 @@ public class LayoutEngine
     private void ComputeColumnSize(DivDefinition div)
     {
         var remainingSize = RemainingMainAxisFixedSize(div);
-        var itemsHeightPercentage = div.Children.Where(x => x.Height.Kind == SizeKind.Percentage).ToList();
-        var totalPercentage = itemsHeightPercentage.Sum(x => x.Height.Value);
-
+        
+        var totalPercentage = 0f;
+        
+        foreach (var divDefinition in div.Children)
+        {
+            if (divDefinition.Height.Kind == SizeKind.Percentage)
+            {
+                totalPercentage += divDefinition.Height.Value;
+            }
+        }
+        
         float sizePerPercent;
 
         if (totalPercentage > 100)
         {
-            sizePerPercent = (float)remainingSize / totalPercentage;
+            sizePerPercent = remainingSize / totalPercentage;
         }
         else
         {
-            sizePerPercent = (float)remainingSize / 100;
+            sizePerPercent = remainingSize / 100;
         }
 
         foreach (var item in div.Children)
         {
             item.ComputedHeight = item.Height.Kind switch
             {
-                SizeKind.Percentage => (int)(item.Height.Value * sizePerPercent),
+                SizeKind.Percentage => item.Height.Value * sizePerPercent,
                 SizeKind.Pixel => item.Height.Value,
                 _ => throw new ArgumentOutOfRangeException()
             };
             item.ComputedWidth = item.Width.Kind switch
             {
                 SizeKind.Pixel => item.Width.Value,
-                SizeKind.Percentage => (int)((div.ComputedWidth - 2 * div.Padding) * item.Width.Value * 0.01),
+                SizeKind.Percentage => (float)((div.ComputedWidth - 2 * div.Padding) * item.Width.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -167,44 +184,58 @@ public class LayoutEngine
     private void ComputeRowSize(DivDefinition div)
     {
         var remainingSize = RemainingMainAxisFixedSize(div);
-        var itemsWithPercentage = div.Children.Where(x => x.Width.Kind == SizeKind.Percentage).ToList();
-        var totalPercentage = itemsWithPercentage.Sum(x => x.Width.Value);
+        var totalPercentage = 0f;
 
+        foreach (var divDefinition in div.Children)
+        {
+            if (divDefinition.Width.Kind == SizeKind.Percentage)
+            {
+                totalPercentage += divDefinition.Width.Value;
+            }
+        }
+        
         float sizePerPercent;
 
         if (totalPercentage > 100)
         {
-            sizePerPercent = (float)remainingSize / totalPercentage;
+            sizePerPercent = remainingSize / totalPercentage;
         }
         else
         {
-            sizePerPercent = (float)remainingSize / 100;
+            sizePerPercent = remainingSize / 100;
         }
 
         foreach (var item in div.Children)
         {
             item.ComputedWidth = item.Width.Kind switch
             {
-                SizeKind.Percentage => (int)(item.Width.Value * sizePerPercent),
+                SizeKind.Percentage => item.Width.Value * sizePerPercent,
                 SizeKind.Pixel => item.Width.Value,
                 _ => throw new ArgumentOutOfRangeException()
             };
             item.ComputedHeight = item.Height.Kind switch
             {
                 SizeKind.Pixel => item.Height.Value,
-                SizeKind.Percentage => (int)(div.ComputedHeight * item.Height.Value * 0.01),
+                SizeKind.Percentage => (float)(div.ComputedHeight * item.Height.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
     }
 
-    private int RemainingMainAxisFixedSize(DivDefinition div)
+    private float RemainingMainAxisFixedSize(DivDefinition div)
     {
-        return GetMainAxisLength(div) - div.Children.Sum(definition => GetItemMainAxisFixedLength(div, definition)) -
-               GetGapSize(div);
+        var childSum = 0f;
+        
+        foreach (var divDefinition in div.Children)
+        {
+            childSum += GetItemMainAxisFixedLength(div, divDefinition);
+        }
+        
+        
+        return GetMainAxisLength(div) - childSum - GetGapSize(div);
     }
 
-    private int GetGapSize(DivDefinition div)
+    private float GetGapSize(DivDefinition div)
     {
         if (div.Children.Count <= 1)
             return 0;
@@ -212,14 +243,21 @@ public class LayoutEngine
         return (div.Children.Count - 1) * div.Gap;
     }
 
-    private int RemainingMainAxisSize(DivDefinition div)
+    private float RemainingMainAxisSize(DivDefinition div)
     {
-        return GetMainAxisLength(div) - div.Children.Sum(definition => GetItemMainAxisLength(div, definition));
+        var sum = 0f;
+        
+        foreach (var divDefinition in div.Children)
+        {
+            sum += GetItemMainAxisLength(div, divDefinition);
+        }
+        
+        return GetMainAxisLength(div) - sum;
     }
 
     private void RenderFlexStart(DivDefinition div)
     {
-        var mainOffset = 0;
+        var mainOffset = 0f;
 
         foreach (var item in div.Children)
         {
@@ -255,7 +293,7 @@ public class LayoutEngine
         var totalRemaining = RemainingMainAxisSize(div);
         var space = totalRemaining / (div.Children.Count - 1);
 
-        var mainOffset = 0;
+        var mainOffset = 0f;
 
         foreach (var item in div.Children)
         {
@@ -269,7 +307,7 @@ public class LayoutEngine
         var totalRemaining = RemainingMainAxisSize(div);
         var space = totalRemaining / div.Children.Count / 2;
 
-        var mainOffset = 0;
+        var mainOffset = 0f;
 
         foreach (var item in div.Children)
         {
@@ -293,7 +331,7 @@ public class LayoutEngine
         }
     }
 
-    private void DrawWithMainOffset(DivDefinition div, int mainOffset, DivDefinition item)
+    private void DrawWithMainOffset(DivDefinition div, float mainOffset, DivDefinition item)
     {
         switch (div.Dir)
         {

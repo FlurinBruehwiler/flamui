@@ -8,10 +8,10 @@ public class Div : IComponent, IEnumerable<Div>
     private SizeDefinition _width = new(100, SizeKind.Percentage);
     private SizeDefinition _height = new(100, SizeKind.Percentage);
     private ColorDefinition _color = new(0, 0, 0, 255);
-    private int _padding;
-    private int _gap;
-    private int _radius;
-    private int _borderWidth;
+    private float _padding;
+    private float _gap;
+    private float _radius;
+    private float _borderWidth;
     private Dir _dir = Demo.Dir.Column;
     private MAlign _mAlign = Demo.MAlign.FlexStart;
     private XAlign _xAlign = Demo.XAlign.FlexStart;
@@ -139,19 +139,19 @@ public class Div : IComponent, IEnumerable<Div>
         return this;
     }
 
-    public Div Width(int width, SizeKind sizeKind = SizeKind.Pixel)
+    public Div Width(float width, SizeKind sizeKind = SizeKind.Pixel)
     {
         _width = new SizeDefinition(width, sizeKind);
         return this;
     }
 
-    public Div Height(int height, SizeKind sizeKind = SizeKind.Pixel)
+    public Div Height(float height, SizeKind sizeKind = SizeKind.Pixel)
     {
         _height = new SizeDefinition(height, sizeKind);
         return this;
     }
 
-    public Div Color(int red, int green, int blue, int transparency = 255)
+    public Div Color(float red, float green, float blue, float transparency = 255)
     {
         _color = new ColorDefinition(red, green, blue, transparency);
         return this;
@@ -163,25 +163,25 @@ public class Div : IComponent, IEnumerable<Div>
         return this;
     }
 
-    public Div Padding(int padding)
+    public Div Padding(float padding)
     {
         _padding = padding;
         return this;
     }
 
-    public Div Gap(int gap)
+    public Div Gap(float gap)
     {
         _gap = gap;
         return this;
     }
 
-    public Div Radius(int radius)
+    public Div Radius(float radius)
     {
         _radius = radius;
         return this;
     }
 
-    public Div BorderWidth(int borderWidth)
+    public Div BorderWidth(float borderWidth)
     {
         _borderWidth = borderWidth;
         return this;

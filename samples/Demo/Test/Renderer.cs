@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using System.Diagnostics;
+using SkiaSharp;
 
 namespace Demo.Test;
 
@@ -24,9 +25,16 @@ public class Renderer
     private LayoutEngine _layoutEngine = new LayoutEngine();
 
     private DivDefinition _rootDivDefinition = new DivDefinition();
+
+    private Div root;
     
-    public void DoSomething(Div root)
+    public void DoSomething(UiComponent uiroot)
     {
+        if (LayoutEngine.IsFirstRender)
+        {
+            root = uiroot.Render();
+        }
+        
         var actualRoot = new Div();
         actualRoot.Width(Program.ImageInfo.Width);
         actualRoot.Height(Program.ImageInfo.Height);
@@ -37,7 +45,11 @@ public class Renderer
         
         var rootDefinition = _layoutEngine.CalculateIfNecessary(actualRoot, _rootDivDefinition);
 
+        var stopwatch = Stopwatch.StartNew();
         Render(rootDefinition);
+
+        var time = stopwatch.ElapsedTicks;
+        Program.draw = time;
     }
     
     private void Render(DivDefinition div)
