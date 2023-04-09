@@ -6,28 +6,26 @@ public class LayoutEngine
 {
     public static bool IsFirstRender = true;
     
-    public Div CalculateIfNecessary(Div rootDiv, Div rootDefiniton)
+    public void ApplyLayoutCalculations(Div newRoot, Div oldRoot)
     {
-        if (IsFirstRender)
+        if (newRoot.LayoutHasChanged(oldRoot))
         {
-            rootDiv.ApplyChanges(rootDefiniton);
-            IsFirstRender = false;
+            var stopwatch = Stopwatch.StartNew();
+            ComputedDiv(newRoot);
+            var time = stopwatch.ElapsedTicks;
+            Program.compute = time;
         }
-
-        var stopwatch = Stopwatch.StartNew();
-        ComputedDiv(rootDefiniton);
-        var time = stopwatch.ElapsedTicks;
-        Program.compute = time;
-        
-        return rootDefiniton;
     }
 
-    private void ComputedDiv(Div Div)
+    private void ComputedDiv(Div div)
     {
-        ComputedSize(Div);
-        ComputePosition(Div);
+        if (div.Children is null)
+            return;
         
-        foreach (var child in Div.Children)
+        ComputedSize(div);
+        ComputePosition(div);
+        
+        foreach (var child in div.Children)
         {
             ComputedDiv(child);    
         }
@@ -48,7 +46,7 @@ public class LayoutEngine
     
     private void ComputePosition(Div div)
     {
-        switch (div.PMAlign)
+        switch (div.PmAlign)
         {
             case MAlign.FlexStart:
                 RenderFlexStart(div);
@@ -75,7 +73,7 @@ public class LayoutEngine
 
     private float GetCrossAxisOffset(Div div, Div item)
     {
-        return div.XAlign switch
+        return div.PxAlign switch
         {
             XAlign.FlexStart => 0,
             XAlign.FlexEnd => GetCrossAxisLength(div) - GetItemCrossAxisLength(div, item),
@@ -86,37 +84,37 @@ public class LayoutEngine
 
     private float GetMainAxisLength(Div div)
     {
-        return div.Dir switch
+        return div.PDir switch
         {
-            Dir.Row or Dir.RowReverse => div.ComputedWidth - 2 * div.PPadding,
-            Dir.Column or Dir.ColumnReverse => div.ComputedHeight - 2 * div.PPadding,
+            Dir.Row or Dir.RowReverse => div.PComputedWidth - 2 * div.PPadding,
+            Dir.Column or Dir.ColumnReverse => div.PComputedHeight - 2 * div.PPadding,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private float GetCrossAxisLength(Div div)
     {
-        return div.Dir switch
+        return div.PDir switch
         {
-            Dir.Row or Dir.RowReverse => div.ComputedHeight - 2 * div.PPadding,
-            Dir.Column or Dir.ColumnReverse => div.ComputedWidth - 2 * div.PPadding,
+            Dir.Row or Dir.RowReverse => div.PComputedHeight - 2 * div.PPadding,
+            Dir.Column or Dir.ColumnReverse => div.PComputedWidth - 2 * div.PPadding,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private float GetItemMainAxisLength(Div div, Div item)
     {
-        return div.Dir switch
+        return div.PDir switch
         {
-            Dir.Row or Dir.RowReverse => item.ComputedWidth,
-            Dir.Column or Dir.ColumnReverse => item.ComputedHeight,
+            Dir.Row or Dir.RowReverse => item.PComputedWidth,
+            Dir.Column or Dir.ColumnReverse => item.PComputedHeight,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private float GetItemMainAxisFixedLength(Div div, Div item)
     {
-        return div.Dir switch
+        return div.PDir switch
         {
             Dir.Row or Dir.RowReverse => item.PWidth.Kind == SizeKind.Percentage
                 ? 0
@@ -130,10 +128,10 @@ public class LayoutEngine
 
     private float GetItemCrossAxisLength(Div div, Div item)
     {
-        return div.Dir switch
+        return div.PDir switch
         {
-            Dir.Row or Dir.RowReverse => item.ComputedHeight,
-            Dir.Column or Dir.ColumnReverse => item.ComputedWidth,
+            Dir.Row or Dir.RowReverse => item.PComputedHeight,
+            Dir.Column or Dir.ColumnReverse => item.PComputedWidth,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -166,16 +164,16 @@ public class LayoutEngine
 
         foreach (var item in div.Children)
         {
-            item.ComputedHeight = item.PHeight.Kind switch
+            item.PComputedHeight = item.PHeight.Kind switch
             {
                 SizeKind.Percentage => item.PHeight.Value * sizePerPercent,
                 SizeKind.Pixel => item.PHeight.Value,
                 _ => throw new ArgumentOutOfRangeException()
             };
-            item.ComputedWidth = item.PWidth.Kind switch
+            item.PComputedWidth = item.PWidth.Kind switch
             {
                 SizeKind.Pixel => item.PWidth.Value,
-                SizeKind.Percentage => (float)((div.ComputedWidth - 2 * div.PPadding) * item.PWidth.Value * 0.01),
+                SizeKind.Percentage => (float)((div.PComputedWidth - 2 * div.PPadding) * item.PWidth.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -207,16 +205,16 @@ public class LayoutEngine
 
         foreach (var item in div.Children)
         {
-            item.ComputedWidth = item.PWidth.Kind switch
+            item.PComputedWidth = item.PWidth.Kind switch
             {
                 SizeKind.Percentage => item.PWidth.Value * sizePerPercent,
                 SizeKind.Pixel => item.PWidth.Value,
                 _ => throw new ArgumentOutOfRangeException()
             };
-            item.ComputedHeight = item.PHeight.Kind switch
+            item.PComputedHeight = item.PHeight.Kind switch
             {
                 SizeKind.Pixel => item.PHeight.Value,
-                SizeKind.Percentage => (float)(div.ComputedHeight * item.PHeight.Value * 0.01),
+                SizeKind.Percentage => (float)(div.PComputedHeight * item.PHeight.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -336,26 +334,26 @@ public class LayoutEngine
         switch (div.PDir)
         {
             case Dir.Row:
-                item.ComputedX = mainOffset;
-                item.ComputedY = GetCrossAxisOffset(div, item);
+                item.PComputedX = mainOffset;
+                item.PComputedY = GetCrossAxisOffset(div, item);
                 break;
             case Dir.RowReverse:
-                item.ComputedX = div.ComputedWidth - 2 * div.PPadding - mainOffset - item.ComputedWidth;
-                item.ComputedY = GetCrossAxisOffset(div, item);
+                item.PComputedX = div.PComputedWidth - 2 * div.PPadding - mainOffset - item.PComputedWidth;
+                item.PComputedY = GetCrossAxisOffset(div, item);
                 break;
             case Dir.Column:
-                item.ComputedX = GetCrossAxisOffset(div, item);
-                item.ComputedY = mainOffset;
+                item.PComputedX = GetCrossAxisOffset(div, item);
+                item.PComputedY = mainOffset;
                 break;
             case Dir.ColumnReverse:
-                item.ComputedX = GetCrossAxisOffset(div, item);
-                item.ComputedY = div.ComputedHeight - mainOffset - item.ComputedHeight;
+                item.PComputedX = GetCrossAxisOffset(div, item);
+                item.PComputedY = div.PComputedHeight - mainOffset - item.PComputedHeight;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        item.ComputedX += div.ComputedX + div.PPadding;
-        item.ComputedY += div.ComputedY + div.PPadding;
+        item.PComputedX += div.PComputedX + div.PPadding;
+        item.PComputedY += div.PComputedY + div.PPadding;
     }
 }

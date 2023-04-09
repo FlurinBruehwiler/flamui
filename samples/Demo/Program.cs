@@ -92,7 +92,7 @@ public class Program
         surface.Canvas.DrawSurface(GetCanvas(), SKPoint.Empty);
         Canvas = surface.Canvas;
 
-        Renderer.DoSomething(RootComponent);
+        Renderer.Rerender(RootComponent);
 
         Canvas.DrawRect(0,0, 50, 50, Renderer.GetColor(new ColorDefinition(0,0,0,255)));
         Canvas.DrawText(compute.ToString(), new SKPoint(10, 20), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));

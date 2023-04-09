@@ -22,32 +22,33 @@ public class Renderer
         return s_paint;
     }
 
-    private LayoutEngine _layoutEngine = new LayoutEngine();
+    private LayoutEngine _layoutEngine = new();
 
-    private Div _rootDivDefinition = new Div();
+    private readonly Div _oldRoot = new();
 
-    private Div root;
+    private Div _newRoot = null!;
     
-    public void DoSomething(UiComponent uiroot)
+    public void Rerender(UiComponent uiroot)
     {
         if (LayoutEngine.IsFirstRender)
         {
-            root = uiroot.Render();
+            _newRoot = uiroot.Render();
+            LayoutEngine.IsFirstRender = false;
         }
         
-        var actualRoot = new Div();
-        actualRoot.Width(Program.ImageInfo.Width);
-        actualRoot.Height(Program.ImageInfo.Height);
-        actualRoot.Add(root);
+        var actualNewRoot = new Div
+        {
+            _newRoot
+        }.Width(Program.ImageInfo.Width).Height(Program.ImageInfo.Height);
+        actualNewRoot.PComputedHeight = Program.ImageInfo.Height;
+        actualNewRoot.PComputedWidth = Program.ImageInfo.Width;
 
-        _rootDivDefinition.ComputedHeight = Program.ImageInfo.Height;
-        _rootDivDefinition.ComputedWidth = Program.ImageInfo.Width;
+        _layoutEngine.ApplyLayoutCalculations(actualNewRoot, _oldRoot);
         
-        var rootDefinition = _layoutEngine.CalculateIfNecessary(actualRoot, _rootDivDefinition);
-
         var stopwatch = Stopwatch.StartNew();
-        Render(rootDefinition);
-
+        
+        Render(actualNewRoot);
+        
         var time = stopwatch.ElapsedTicks;
         Program.draw = time;
     }
@@ -60,16 +61,16 @@ public class Renderer
             {
                 var borderRadius = div.PRadius + div.PBorderWidth;
                 
-                Program.Canvas.DrawRoundRect(div.ComputedX - div.PBorderWidth, div.ComputedY - div.PBorderWidth,
-                    div.ComputedWidth + 2 * div.PBorderWidth, div.ComputedHeight + 2 * div.PBorderWidth, borderRadius, borderRadius, BorderColor);
-                Program.Canvas.DrawRoundRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.PRadius, div.PRadius,
+                Program.Canvas.DrawRoundRect(div.PComputedX - div.PBorderWidth, div.PComputedY - div.PBorderWidth,
+                    div.PComputedWidth + 2 * div.PBorderWidth, div.PComputedHeight + 2 * div.PBorderWidth, borderRadius, borderRadius, BorderColor);
+                Program.Canvas.DrawRoundRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight, div.PRadius, div.PRadius,
                     GetColor(div.PColor));
             }
             else
             {
-                Program.Canvas.DrawRect(div.ComputedX - div.PBorderWidth, div.ComputedY - div.PBorderWidth,
-                    div.ComputedWidth + 2 * div.PBorderWidth, div.ComputedHeight + 2 * div.PBorderWidth, BorderColor);
-                Program.Canvas.DrawRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight,
+                Program.Canvas.DrawRect(div.PComputedX - div.PBorderWidth, div.PComputedY - div.PBorderWidth,
+                    div.PComputedWidth + 2 * div.PBorderWidth, div.PComputedHeight + 2 * div.PBorderWidth, BorderColor);
+                Program.Canvas.DrawRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight,
                     GetColor(div.PColor));
             }
         }
@@ -77,19 +78,23 @@ public class Renderer
         {
             if (div.PRadius != 0)
             {
-                Program.Canvas.DrawRoundRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, div.PRadius, div.PRadius,
+                Program.Canvas.DrawRoundRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight, div.PRadius, div.PRadius,
                     GetColor(div.PColor));
             }
             else
             {
-                Program.Canvas.DrawRect(div.ComputedX, div.ComputedY, div.ComputedWidth, div.ComputedHeight, GetColor(div.PColor));
+                Program.Canvas.DrawRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight, GetColor(div.PColor));
             }
         }
 
-        foreach (var divDefinition in div.Children)
+        if (div.Children is not null)
         {
-            Render(divDefinition);
+            foreach (var divDefinition in div.Children)
+            {
+                Render(divDefinition);
+            }    
         }
+        
 
         // if (div.Text != string.Empty)
         // {

@@ -33,131 +33,67 @@ public class Div : IComponent, IEnumerable<Div>
     public Dir PDir { get; set; } = Demo.Dir.Column;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public MAlign PMAlign { get; set; } = Demo.MAlign.FlexStart;
+    public MAlign PmAlign { get; set; } = Demo.MAlign.FlexStart;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public XAlign PXAlign { get; set; } = Demo.XAlign.FlexStart;
+    public XAlign PxAlign { get; set; } = Demo.XAlign.FlexStart;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public float ComputedHeight { get; set; }
+    public float PComputedHeight { get; set; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public float ComputedWidth { get; set; }
+    public float PComputedWidth { get; set; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public float ComputedX { get; set; }
+    public float PComputedX { get; set; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public float ComputedY { get; set; }
+    public float PComputedY { get; set; }
 
-    private bool ApplyEqualLists(List<Div> oldElements, List<Div>? newElements)
+    
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public bool LayoutHasChanged(Div oldDiv)
     {
-        if (newElements is null)
-            return false;
-
-        var hasLayoutChange = false;
-
-        for (var i = 0; i < oldElements.Count; i++)
-        {
-            var previous = oldElements[i];
-            var current = newElements[i];
-
-            if (current.ApplyChanges(previous))
-            {
-                hasLayoutChange = true;
-            }
-        }
-
-        return hasLayoutChange;
-    }
-
-    private bool ChildrenHaveChanges(Div divDefinition)
-    {
-        var childCount = Children?.Count ?? 0;
-
-        if (divDefinition.Children.Count == childCount)
-        {
-            return ApplyEqualLists(divDefinition.Children, Children);
-        }
-
-        if (Children is null)
+        if (PWidth != oldDiv.PWidth)
             return true;
 
-        divDefinition.Children.Clear();
+        if (PHeight != oldDiv.PHeight)
+            return true;
+        
+        if ((oldDiv.Children?.Count ?? 0) != (Children?.Count ?? 0))
+            return true;
 
-        foreach (var child in Children)
+        if (PPadding != oldDiv.PPadding)
+            return true;
+
+        if (PGap != oldDiv.PGap)
+            return true;
+        
+        if (PDir != oldDiv.PDir)
+            return true;
+
+        if (PmAlign != oldDiv.PmAlign)
+            return true;
+
+        if (PxAlign != oldDiv.PxAlign)
+            return true;
+
+        if (Children is not null && oldDiv.Children is not null)
         {
-            var newDev = new Div();
-            child.ApplyChanges(newDev);
-            divDefinition.Children.Add(newDev);
+            for (var i = Children.Count - 1; i >= 0; i--)
+            {
+                if (Children[i].LayoutHasChanged(oldDiv.Children[i]))
+                    return true;
+            }
         }
-
-        return true;
-    }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public bool ApplyChanges(Div divDefinition)
-    {
-        var layoutChange = ChildrenHaveChanges(divDefinition);
-
-        if (Width != divDefinition.Width)
-        {
-            divDefinition.PWidth = PWidth;
-            layoutChange = true;
-        }
-
-        if (PHeight != divDefinition.PHeight)
-        {
-            divDefinition.PHeight = PHeight;
-            layoutChange = true;
-        }
-
-        if (PColor != divDefinition.PColor)
-        {
-            divDefinition.PColor = PColor;
-        }
-
-        if (PPadding != divDefinition.PPadding)
-        {
-            divDefinition.PPadding = PPadding;
-            layoutChange = true;
-        }
-
-        if (PGap != divDefinition.PGap)
-        {
-            divDefinition.PGap = PGap;
-            layoutChange = true;
-        }
-
-        if (PRadius != divDefinition.PRadius)
-        {
-            divDefinition.PRadius = PRadius;
-        }
-
-        if (PBorderWidth != divDefinition.PBorderWidth)
-        {
-            divDefinition.PBorderWidth = PBorderWidth;
-        }
-
-        if (PDir != divDefinition.PDir)
-        {
-            divDefinition.PDir = PDir;
-            layoutChange = true;
-        }
-
-        if (PMAlign != divDefinition.PMAlign)
-        {
-            divDefinition.PMAlign = PMAlign;
-            layoutChange = true;
-        }
-
-        if (PXAlign != divDefinition.PXAlign)
-        {
-            divDefinition.PXAlign = PXAlign;
-            layoutChange = true;
-        }
-
-        return layoutChange;
+     
+        //Copy layout calculations
+        PComputedWidth = oldDiv.PComputedWidth;
+        PComputedHeight = oldDiv.PComputedHeight;
+        PComputedX = oldDiv.PComputedX;
+        PComputedY = oldDiv.PComputedY;
+        
+        return false;
     }
 
     public Div Items(IEnumerable<Div> children)
@@ -230,13 +166,13 @@ public class Div : IComponent, IEnumerable<Div>
 
     public Div MAlign(MAlign mAlign)
     {
-        PMAlign = mAlign;
+        PmAlign = mAlign;
         return this;
     }
 
     public Div XAlign(XAlign xAlign)
     {
-        PXAlign = xAlign;
+        PxAlign = xAlign;
         return this;
     }
 
