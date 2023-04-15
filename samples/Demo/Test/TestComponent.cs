@@ -36,13 +36,15 @@ public class TestComponent : UiComponent
                 .OnClick(() => { _color = GetRandomColor(); })
                 .OnKeyDown(key =>
                 {
-                    if (key == Key.Back)
+                    if (key != Key.Back) return;
+                    if (_text.Length != 0)
                     {
                         _text = _text.Remove(_text.Length - 1);
-                        return;
                     }
-                    
-                    _text += key.ToString();
+                })
+                .OnTextInput(s =>
+                {
+                    _text += s;
                 })
                 .Padding(10)
         }.MAlign(MAlign.Center)

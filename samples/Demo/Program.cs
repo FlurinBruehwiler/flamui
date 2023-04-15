@@ -66,7 +66,14 @@ public class Program
                 callbackWasCalled = true;
             }       
         }
-
+        if (args is RawTextInputEventArgs rawInputEventArgs)
+        {
+            if (ActiveDiv?.POnTextInput is not null)
+            {
+                ActiveDiv.POnTextInput(rawInputEventArgs.Text);
+                callbackWasCalled = true;
+            }    
+        }
         if (args is RawPointerEventArgs pointer)
         {
             var x = Scale((int)pointer.Position.X);
@@ -203,11 +210,12 @@ public class Program
 
         Renderer.LayoutPaintComposite();
 
-        Canvas.DrawRect(0,0, 50, 90, Renderer.GetColor(new ColorDefinition(0,0,0,255)));
+        Canvas.DrawRect(0,0, 50, 110, Renderer.GetColor(new ColorDefinition(0,0,0,255)));
         Canvas.DrawText(compute.ToString(), new SKPoint(10, 20), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
         Canvas.DrawText(draw.ToString(), new SKPoint(10, 40), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
         Canvas.DrawText(counter.ToString(), new SKPoint(10, 60), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
         Canvas.DrawText(skipedRenders.ToString(), new SKPoint(10, 80), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        Canvas.DrawText(textInput, new SKPoint(10, 100), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
         counter++;
     }
 
@@ -215,6 +223,7 @@ public class Program
     public static long draw = 0;
     public static long counter = 0;
     public static long skipedRenders;
+    public static string textInput = "";
 
     private static void Invalidate() => s_window.Invalidate(new Rect(Modern.WindowKit.Point.Empty, s_window.ClientSize));
 }
