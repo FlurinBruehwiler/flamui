@@ -80,17 +80,18 @@ public class Txt : RenderObject
         }
         else if (PvAlign == TextAlign.Center)
         {
-            actualY += (PComputedHeight / 2) + (rect.Height / 2);
+            actualY += PComputedHeight / 2 + rect.Height / 2;
         }
-        
+
         if (PhAlign == TextAlign.End)
         {
             actualX += PComputedWidth - rect.Width;
-        }else if (PhAlign == TextAlign.Center)
-        {
-            actualX += (PComputedWidth / 2) - (rect.Width / 2);
         }
-        
+        else if (PhAlign == TextAlign.Center)
+        {
+            actualX += PComputedWidth / 2 - rect.Width / 2;
+        }
+
         Program.Canvas.DrawText(PText, actualX, actualY, paint);
     }
 }

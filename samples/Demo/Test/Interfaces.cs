@@ -26,7 +26,7 @@ public abstract class RenderObject
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public float PComputedX { get; set; }
-
+    
     [EditorBrowsable(EditorBrowsableState.Never)]
     public float PComputedY { get; set; }
 

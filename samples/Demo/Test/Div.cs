@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.ComponentModel;
+using Modern.WindowKit.Input;
 using SkiaSharp;
 
 namespace Demo.Test;
@@ -35,6 +36,15 @@ public class Div : RenderObject, IEnumerable<RenderObject>
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public Action? POnClick { get; set; }
+    
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Action? POnActive { get; set; }
+    
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Action? POnInactive { get; set; }
+    
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Action<Key>? POnKeyDown { get; set; }
     
     [EditorBrowsable(EditorBrowsableState.Never)]
     public Func<Task>? POnClickAsync { get; set; }
@@ -233,6 +243,24 @@ public class Div : RenderObject, IEnumerable<RenderObject>
     public Div OnClick(Func<Task> callback)
     {
         POnClickAsync = callback;
+        return this;
+    }
+
+    public Div OnActive(Action callback)
+    {
+        POnActive = callback;
+        return this;
+    }
+    
+    public Div OnInactive(Action callback)
+    {
+        POnInactive = callback;
+        return this;
+    }
+
+    public Div OnKeyDown(Action<Key> callback)
+    {
+        POnKeyDown = callback;
         return this;
     }
 

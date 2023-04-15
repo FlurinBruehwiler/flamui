@@ -52,43 +52,65 @@ public class Program
         Dispatcher.UIThread.MainLoop(mainLoopCancellationTokenSource.Token);
     }
 
+    public static Div? ActiveDiv;
+
     private static void Input(RawInputEventArgs args)
     {
-        if (args is not RawPointerEventArgs pointer)
-            return;
+        var callbackWasCalled = false;
         
-        var x = Scale((int)pointer.Position.X);
-        var y = Scale((int)pointer.Position.Y);
-
-        if (pointer.Type == RawPointerEventType.LeftButtonDown)
+        if (args is RawKeyEventArgs { Type: RawKeyEventType.KeyDown } keyEventArgs)
         {
-            var div = HitTest(Renderer._newRoot, x, y);
-
-            if (div is null)
-                return;
-
-            if (div is not Div actualDiv)
-                return;
-            
-            var hasClickFunction = false;
-            
-            if (actualDiv.POnClick is not null)
+            if (ActiveDiv?.POnKeyDown is not null)
             {
-                actualDiv.POnClick();
-                hasClickFunction = true;
-            }
+                ActiveDiv.POnKeyDown(keyEventArgs.Key);
+                callbackWasCalled = true;
+            }       
+        }
 
-            if (actualDiv.POnClickAsync is not null)
+        if (args is RawPointerEventArgs pointer)
+        {
+            var x = Scale((int)pointer.Position.X);
+            var y = Scale((int)pointer.Position.Y);
+
+            if (pointer.Type == RawPointerEventType.LeftButtonDown)
             {
-                actualDiv.POnClickAsync();
-                hasClickFunction = true;
-            }
+                var div = HitTest(Renderer._newRoot, x, y);
+
+                if (div is null)
+                    return;
             
-            if (hasClickFunction)
-            {
-                Renderer.Build(RootComponent);
-                DoPaint(new Rect());
+                if (ActiveDiv?.POnInactive is not null)
+                {
+                    ActiveDiv.POnInactive();
+                    callbackWasCalled = true;
+                }
+
+                ActiveDiv = div;
+
+                if (div.POnActive is not null)
+                {
+                    div.POnActive();
+                    callbackWasCalled = true;
+                }
+            
+                if (div.POnClick is not null)
+                {
+                    div.POnClick();
+                    callbackWasCalled = true;
+                }
+
+                if (div.POnClickAsync is not null)
+                {
+                    div.POnClickAsync();
+                    callbackWasCalled = true;
+                }
             }
+        }
+        
+        if (callbackWasCalled)
+        {
+            Renderer.Build(RootComponent);
+            DoPaint(new Rect());
         }
     }
 
@@ -97,7 +119,9 @@ public class Program
         if (div.PComputedX <= x && div.PComputedX + div.PComputedWidth >= x && div.PComputedY <= y && div.PComputedY + div.PComputedHeight >= y)
         {
             if (div.Children is null)
+            {
                 return div;
+            }
             
             foreach (var child in div.Children)
             {
