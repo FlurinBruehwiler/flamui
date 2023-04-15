@@ -2,26 +2,9 @@
 
 namespace Demo.Test;
 
-public class Txt : IComponent
+public class Txt : RenderObject
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public SizeDefinition PWidth { get; set; } = new(100, SizeKind.Percentage);
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
-    
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public float PComputedHeight { get; set; }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public float PComputedWidth { get; set; }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public float PComputedX { get; set; }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public float PComputedY { get; set; }
-    
     [EditorBrowsable(EditorBrowsableState.Never)]
     public string PTxt { get; set; }
     
@@ -41,5 +24,10 @@ public class Txt : IComponent
     {
         PHeight = new SizeDefinition(height, sizeKind);
         return this;
+    }
+
+    public override void Render()
+    {
+        
     }
 }

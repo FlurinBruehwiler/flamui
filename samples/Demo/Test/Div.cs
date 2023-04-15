@@ -1,18 +1,13 @@
 ﻿using System.Collections;
 using System.ComponentModel;
+using SkiaSharp;
 
 namespace Demo.Test;
 
-public class Div : IComponent, IEnumerable<Div>
+public class Div : RenderObject, IEnumerable<RenderObject>
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public List<Div>? Children { get; set; }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public SizeDefinition PWidth { get; set; } = new(100, SizeKind.Percentage);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
+    public List<RenderObject>? Children { get; set; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public ColorDefinition PColor { get; set; } = new(0, 0, 0, 255);
@@ -37,18 +32,6 @@ public class Div : IComponent, IEnumerable<Div>
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public XAlign PxAlign { get; set; } = Demo.XAlign.FlexStart;
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public float PComputedHeight { get; set; }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public float PComputedWidth { get; set; }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public float PComputedX { get; set; }
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public float PComputedY { get; set; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public Action? POnClick { get; set; }
@@ -87,7 +70,7 @@ public class Div : IComponent, IEnumerable<Div>
         {
             for (var i = Children.Count - 1; i >= 0; i--)
             {
-                if (Children[i].LayoutHasChanged(oldDiv.Children[i]))
+                // if (Children[i].LayoutHasChanged(oldDiv.Children[i]))
                     return true;
             }
         }
@@ -101,16 +84,76 @@ public class Div : IComponent, IEnumerable<Div>
         return false;
     }
 
-    public Div Items(IEnumerable<Div> children)
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public override void Render()
     {
-        Children ??= new List<Div>();
+        if (PBorderWidth != 0)
+        {
+            if (PRadius != 0)
+            {
+                float borderRadius = PRadius + PBorderWidth;
+                
+                // Program.Canvas.DrawRoundRect(PComputedX - PComputedY - PBorderWidth, PComputedWidth + 2 * PBorderWidth, PComputedHeight + 2 * PBorderWidth, borderRadius, borderRadius, BorderColor);
+                Program.Canvas.DrawRoundRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight, PRadius, PRadius,
+                    GetColor(PColor));
+            }
+            else
+            {
+                Program.Canvas.DrawRect(PComputedX - PBorderWidth, PComputedY - PBorderWidth,
+                    PComputedWidth + 2 * PBorderWidth, PComputedHeight + 2 * PBorderWidth, BorderColor);
+                Program.Canvas.DrawRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight,
+                    GetColor(PColor));
+            }
+        }
+        else
+        {
+            if (PRadius != 0)
+            {
+                Program.Canvas.DrawRoundRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight, PRadius, PRadius,
+                    GetColor(PColor));
+            }
+            else
+            {
+                Program.Canvas.DrawRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight, GetColor(PColor));
+            }
+        }
+
+        if (Children is not null)
+        {
+            foreach (var divDefinition in Children)
+            {
+                divDefinition.Render();
+            }    
+        }
+    }
+    
+    private static readonly SKPaint s_paint = new()
+    {
+        IsAntialias = true
+    };
+    
+    public static SKPaint GetColor(ColorDefinition colorDefinition)
+    {
+        s_paint.Color = new SKColor((byte) colorDefinition.Red, (byte)colorDefinition.Gree, (byte)colorDefinition.Blue, (byte)colorDefinition.Transparency);
+        return s_paint;
+    }
+
+    public static readonly SKPaint BorderColor = new()
+    {
+        IsAntialias = true,
+        Color = SKColors.Black
+    };
+    
+    public Div Items(IEnumerable<RenderObject> children)
+    {
+        Children ??= new List<RenderObject>();
         Children.AddRange(children);
         return this;
     }
 
-    public IComponent Add(Div child)
+    public RenderObject Add(RenderObject child)
     {
-        Children ??= new List<Div>();
+        Children ??= new List<RenderObject>();
         Children.Add(child);
         return this;
     }
@@ -193,9 +236,9 @@ public class Div : IComponent, IEnumerable<Div>
         return this;
     }
 
-    public IEnumerator<Div> GetEnumerator()
+    public IEnumerator<RenderObject> GetEnumerator()
     {
-        return Children?.GetEnumerator() ?? Enumerable.Empty<Div>().GetEnumerator();
+        return Children?.GetEnumerator() ?? Enumerable.Empty<RenderObject>().GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

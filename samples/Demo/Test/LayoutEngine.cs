@@ -9,12 +9,20 @@ public class LayoutEngine
         if (newRoot.LayoutHasChanged(oldRoot))
         {
             var stopwatch = Stopwatch.StartNew();
-            ComputedDiv(newRoot);
+            ComputeRenderObj(newRoot);
             var time = stopwatch.ElapsedTicks;
             Program.compute = time;
         }
     }
 
+    private void ComputeRenderObj(RenderObject renderObject)
+    {
+        if (renderObject is Div div)
+        {
+            ComputedDiv(div);
+        }
+    }
+    
     private void ComputedDiv(Div div)
     {
         if (div.Children is null)
@@ -25,7 +33,7 @@ public class LayoutEngine
         
         foreach (var child in div.Children)
         {
-            ComputedDiv(child);    
+            ComputeRenderObj(child);    
         }
     }
 
@@ -69,7 +77,7 @@ public class LayoutEngine
         }
     }
 
-    private float GetCrossAxisOffset(Div div, Div item)
+    private float GetCrossAxisOffset(Div div, RenderObject item)
     {
         return div.PxAlign switch
         {
@@ -100,7 +108,7 @@ public class LayoutEngine
         };
     }
 
-    private float GetItemMainAxisLength(Div div, Div item)
+    private float GetItemMainAxisLength(Div div, RenderObject item)
     {
         return div.PDir switch
         {
@@ -110,7 +118,7 @@ public class LayoutEngine
         };
     }
 
-    private float GetItemMainAxisFixedLength(Div div, Div item)
+    private float GetItemMainAxisFixedLength(Div div, RenderObject item)
     {
         return div.PDir switch
         {
@@ -124,7 +132,7 @@ public class LayoutEngine
         };
     }
 
-    private float GetItemCrossAxisLength(Div div, Div item)
+    private float GetItemCrossAxisLength(Div div, RenderObject item)
     {
         return div.PDir switch
         {
@@ -327,7 +335,7 @@ public class LayoutEngine
         }
     }
 
-    private void DrawWithMainOffset(Div div, float mainOffset, Div item)
+    private void DrawWithMainOffset(Div div, float mainOffset, RenderObject item)
     {
         switch (div.PDir)
         {

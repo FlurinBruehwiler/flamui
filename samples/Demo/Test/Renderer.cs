@@ -10,11 +10,7 @@ public class Renderer
         IsAntialias = true
     };
 
-    public static readonly SKPaint BorderColor = new()
-    {
-        IsAntialias = true,
-        Color = SKColors.Black
-    };
+
     
     public static SKPaint GetColor(ColorDefinition colorDefinition)
     {
@@ -59,55 +55,7 @@ public class Renderer
     
     private void Render(Div div)
     {
-        if (div.PBorderWidth != 0)
-        {
-            if (div.PRadius != 0)
-            {
-                var borderRadius = div.PRadius + div.PBorderWidth;
-                
-                Program.Canvas.DrawRoundRect(div.PComputedX - div.PBorderWidth, div.PComputedY - div.PBorderWidth,
-                    div.PComputedWidth + 2 * div.PBorderWidth, div.PComputedHeight + 2 * div.PBorderWidth, borderRadius, borderRadius, BorderColor);
-                Program.Canvas.DrawRoundRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight, div.PRadius, div.PRadius,
-                    GetColor(div.PColor));
-            }
-            else
-            {
-                Program.Canvas.DrawRect(div.PComputedX - div.PBorderWidth, div.PComputedY - div.PBorderWidth,
-                    div.PComputedWidth + 2 * div.PBorderWidth, div.PComputedHeight + 2 * div.PBorderWidth, BorderColor);
-                Program.Canvas.DrawRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight,
-                    GetColor(div.PColor));
-            }
-        }
-        else
-        {
-            if (div.PRadius != 0)
-            {
-                Program.Canvas.DrawRoundRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight, div.PRadius, div.PRadius,
-                    GetColor(div.PColor));
-            }
-            else
-            {
-                if (Program.ClickPos != new Point(-1, -1))
-                {
-                    if (Program.ClickPos.X > div.PComputedX && Program.ClickPos.X < div.PComputedWidth &&
-                        Program.ClickPos.Y > div.PComputedY && Program.ClickPos.Y < div.PComputedHeight)
-                    {
-                        // Program.click++;
-                        _clickedElement = div;
-                    }
-                }
-                
-                Program.Canvas.DrawRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight, GetColor(div.PColor));
-            }
-        }
-
-        if (div.Children is not null)
-        {
-            foreach (var divDefinition in div.Children)
-            {
-                Render(divDefinition);
-            }    
-        }
+        
         
 
         // if (div.Text != string.Empty)

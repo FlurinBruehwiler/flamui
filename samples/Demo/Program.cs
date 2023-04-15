@@ -67,17 +67,20 @@ public class Program
             if (div is null)
                 return;
 
+            if (div is not Div actualDiv)
+                return;
+            
             var hasClickFunction = false;
             
-            if (div.POnClick is not null)
+            if (actualDiv.POnClick is not null)
             {
-                div.POnClick();
+                actualDiv.POnClick();
                 hasClickFunction = true;
             }
 
-            if (div.POnClickAsync is not null)
+            if (actualDiv.POnClickAsync is not null)
             {
-                div.POnClickAsync();
+                actualDiv.POnClickAsync();
                 hasClickFunction = true;
             }
             
@@ -89,14 +92,17 @@ public class Program
         }
     }
 
-    private static Div? HitTest(Div div, int x, int y)
+    private static RenderObject? HitTest(RenderObject div, int x, int y)
     {
         if (div.PComputedX <= x && div.PComputedX + div.PComputedWidth >= x && div.PComputedY <= y && div.PComputedY + div.PComputedHeight >= y)
         {
-            if (div.Children is null)
+            if (div is not Div actualDiv)
                 return div;
             
-            foreach (var child in div.Children)
+            if (actualDiv.Children is null)
+                return div;
+            
+            foreach (var child in actualDiv.Children)
             {
                 var childHit = HitTest(child, x, y);
                 if (childHit is not null)
