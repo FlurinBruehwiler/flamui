@@ -13,10 +13,6 @@ public interface IComponent
 {
 }
 
-public class Txt : IComponent
-{
-}
-
 public record struct SizeDefinition(float Value, SizeKind Kind);
 
 public record struct ColorDefinition(float Red, float Gree, float Blue, float Transparency);

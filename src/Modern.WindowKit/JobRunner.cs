@@ -36,7 +36,7 @@ namespace Modern.WindowKit.Threading
                     return;
 
                 job.Run();
-        }
+            }
         }
 
         /// <summary>

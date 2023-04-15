@@ -4,8 +4,6 @@ namespace Demo.Test;
 
 public class LayoutEngine
 {
-    public static bool IsFirstRender = true;
-    
     public void ApplyLayoutCalculations(Div newRoot, Div oldRoot)
     {
         if (newRoot.LayoutHasChanged(oldRoot))
@@ -143,11 +141,11 @@ public class LayoutEngine
         
         var totalPercentage = 0f;
         
-        foreach (var Div in div.Children)
+        foreach (var child in div.Children)
         {
-            if (Div.PHeight.Kind == SizeKind.Percentage)
+            if (child.PHeight.Kind == SizeKind.Percentage)
             {
-                totalPercentage += Div.PHeight.Value;
+                totalPercentage += child.PHeight.Value;
             }
         }
         
@@ -184,11 +182,11 @@ public class LayoutEngine
         var remainingSize = RemainingMainAxisFixedSize(div);
         var totalPercentage = 0f;
 
-        foreach (var Div in div.Children)
+        foreach (var child in div.Children)
         {
-            if (Div.PWidth.Kind == SizeKind.Percentage)
+            if (child.PWidth.Kind == SizeKind.Percentage)
             {
-                totalPercentage += Div.PWidth.Value;
+                totalPercentage += child.PWidth.Value;
             }
         }
         
@@ -224,9 +222,9 @@ public class LayoutEngine
     {
         var childSum = 0f;
         
-        foreach (var Div in div.Children)
+        foreach (var child in div.Children)
         {
-            childSum += GetItemMainAxisFixedLength(div, Div);
+            childSum += GetItemMainAxisFixedLength(div, child);
         }
         
         
@@ -245,9 +243,9 @@ public class LayoutEngine
     {
         var sum = 0f;
         
-        foreach (var Div in div.Children)
+        foreach (var child in div.Children)
         {
-            sum += GetItemMainAxisLength(div, Div);
+            sum += GetItemMainAxisLength(div, child);
         }
         
         return GetMainAxisLength(div) - sum;
@@ -257,10 +255,10 @@ public class LayoutEngine
     {
         var mainOffset = 0f;
 
-        foreach (var item in div.Children)
+        foreach (var child in div.Children)
         {
-            DrawWithMainOffset(div, mainOffset, item);
-            mainOffset += GetItemMainAxisLength(div, item) + div.PGap;
+            DrawWithMainOffset(div, mainOffset, child);
+            mainOffset += GetItemMainAxisLength(div, child) + div.PGap;
         }
     }
 
@@ -268,10 +266,10 @@ public class LayoutEngine
     {
         var mainOffset = RemainingMainAxisSize(div);
 
-        foreach (var item in div.Children)
+        foreach (var child in div.Children)
         {
-            DrawWithMainOffset(div, mainOffset, item);
-            mainOffset += GetItemMainAxisLength(div, item) + div.PGap;
+            DrawWithMainOffset(div, mainOffset, child);
+            mainOffset += GetItemMainAxisLength(div, child) + div.PGap;
         }
     }
 
@@ -279,10 +277,10 @@ public class LayoutEngine
     {
         var mainOffset = RemainingMainAxisSize(div) / 2;
 
-        foreach (var item in div.Children)
+        foreach (var child in div.Children)
         {
-            DrawWithMainOffset(div, mainOffset, item);
-            mainOffset += GetItemMainAxisLength(div, item) + div.PGap;
+            DrawWithMainOffset(div, mainOffset, child);
+            mainOffset += GetItemMainAxisLength(div, child) + div.PGap;
         }
     }
 
@@ -293,10 +291,10 @@ public class LayoutEngine
 
         var mainOffset = 0f;
 
-        foreach (var item in div.Children)
+        foreach (var child in div.Children)
         {
-            DrawWithMainOffset(div, mainOffset, item);
-            mainOffset += GetItemMainAxisLength(div, item) + space + div.PGap;
+            DrawWithMainOffset(div, mainOffset, child);
+            mainOffset += GetItemMainAxisLength(div, child) + space + div.PGap;
         }
     }
 
@@ -307,11 +305,11 @@ public class LayoutEngine
 
         var mainOffset = 0f;
 
-        foreach (var item in div.Children)
+        foreach (var child in div.Children)
         {
             mainOffset += space;
-            DrawWithMainOffset(div, mainOffset, item);
-            mainOffset += GetItemMainAxisLength(div, item) + space + div.PGap;
+            DrawWithMainOffset(div, mainOffset, child);
+            mainOffset += GetItemMainAxisLength(div, child) + space + div.PGap;
         }
     }
 
@@ -322,10 +320,10 @@ public class LayoutEngine
 
         var mainOffset = space;
 
-        foreach (var item in div.Children)
+        foreach (var child in div.Children)
         {
-            DrawWithMainOffset(div, mainOffset, item);
-            mainOffset += GetItemMainAxisLength(div, item) + space + div.PGap;
+            DrawWithMainOffset(div, mainOffset, child);
+            mainOffset += GetItemMainAxisLength(div, child) + space + div.PGap;
         }
     }
 

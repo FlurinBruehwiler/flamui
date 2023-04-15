@@ -50,7 +50,12 @@ public class Div : IComponent, IEnumerable<Div>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public float PComputedY { get; set; }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Action? POnClick { get; set; }
     
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Func<Task>? POnClickAsync { get; set; }
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public bool LayoutHasChanged(Div oldDiv)
     {
@@ -176,23 +181,15 @@ public class Div : IComponent, IEnumerable<Div>
         return this;
     }
 
-    public Div OnClick(Action<int> callback)
+    public Div OnClick(Action callback)
     {
+        POnClick = callback;
         return this;
     }
 
-    public Div OnClick(Func<int, Task> callback)
+    public Div OnClick(Func<Task> callback)
     {
-        return this;
-    }
-
-    public Div OnHover(Action<int> callback)
-    {
-        return this;
-    }
-
-    public Div OnHover(Func<int, Task> callback)
-    {
+        POnClickAsync = callback;
         return this;
     }
 

@@ -25,32 +25,36 @@ public class Renderer
     private LayoutEngine _layoutEngine = new();
 
     private readonly Div _oldRoot = new();
-
-    private Div _newRoot = null!;
     
-    public void Rerender(UiComponent uiroot)
+    public Div _newRoot = null!;
+
+    private Div? _clickedElement;
+
+    public void Build(UiComponent rootComponent)
     {
-        if (LayoutEngine.IsFirstRender)
-        {
-            _newRoot = uiroot.Render();
-            LayoutEngine.IsFirstRender = false;
-        }
-        
-        var actualNewRoot = new Div
+        _newRoot = rootComponent.Render();
+    }
+    
+    public void LayoutPaintComposite()
+    {
+        var wrapper = new Div
         {
             _newRoot
         }.Width(Program.ImageInfo.Width).Height(Program.ImageInfo.Height);
-        actualNewRoot.PComputedHeight = Program.ImageInfo.Height;
-        actualNewRoot.PComputedWidth = Program.ImageInfo.Width;
+        wrapper.PComputedHeight = Program.ImageInfo.Height;
+        wrapper.PComputedWidth = Program.ImageInfo.Width;
 
-        _layoutEngine.ApplyLayoutCalculations(actualNewRoot, _oldRoot);
+        _layoutEngine.ApplyLayoutCalculations(wrapper, _oldRoot);
         
         var stopwatch = Stopwatch.StartNew();
         
-        Render(actualNewRoot);
+        Render(wrapper);
         
         var time = stopwatch.ElapsedTicks;
         Program.draw = time;
+
+        _clickedElement?.POnClick?.Invoke();
+        _clickedElement = null;
     }
     
     private void Render(Div div)
@@ -83,6 +87,16 @@ public class Renderer
             }
             else
             {
+                if (Program.ClickPos != new Point(-1, -1))
+                {
+                    if (Program.ClickPos.X > div.PComputedX && Program.ClickPos.X < div.PComputedWidth &&
+                        Program.ClickPos.Y > div.PComputedY && Program.ClickPos.Y < div.PComputedHeight)
+                    {
+                        // Program.click++;
+                        _clickedElement = div;
+                    }
+                }
+                
                 Program.Canvas.DrawRect(div.PComputedX, div.PComputedY, div.PComputedWidth, div.PComputedHeight, GetColor(div.PColor));
             }
         }

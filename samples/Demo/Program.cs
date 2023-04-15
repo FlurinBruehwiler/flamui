@@ -1,7 +1,9 @@
-﻿using Demo;
+﻿using System.Diagnostics;
+using Demo;
 using Demo.Test;
 using Modern.WindowKit;
 using Modern.WindowKit.Controls.Platform.Surfaces;
+using Modern.WindowKit.Input.Raw;
 using Modern.WindowKit.Platform;
 using Modern.WindowKit.Skia;
 using Modern.WindowKit.Threading;
@@ -37,15 +39,81 @@ public class Program
             s_canvas = null;
         };
 
+        s_window.Input = Input;
+        
         // s_window.PositionChanged = _ => Invalidate();
-
+        
         s_window.Paint = DoPaint;
 
         s_window.Show(true, false);
+        
+        Renderer.Build(RootComponent);
 
         Dispatcher.UIThread.MainLoop(mainLoopCancellationTokenSource.Token);
     }
 
+    private static void Input(RawInputEventArgs args)
+    {
+        if (args is not RawPointerEventArgs pointer)
+            return;
+        
+        var x = Scale((int)pointer.Position.X);
+        var y = Scale((int)pointer.Position.Y);
+
+        if (pointer.Type == RawPointerEventType.LeftButtonDown)
+        {
+            var div = HitTest(Renderer._newRoot, x, y);
+
+            if (div is null)
+                return;
+
+            var hasClickFunction = false;
+            
+            if (div.POnClick is not null)
+            {
+                div.POnClick();
+                hasClickFunction = true;
+            }
+
+            if (div.POnClickAsync is not null)
+            {
+                div.POnClickAsync();
+                hasClickFunction = true;
+            }
+            
+            if (hasClickFunction)
+            {
+                Renderer.Build(RootComponent);
+                DoPaint(new Rect());
+            }
+        }
+    }
+
+    private static Div? HitTest(Div div, int x, int y)
+    {
+        if (div.PComputedX <= x && div.PComputedX + div.PComputedWidth >= x && div.PComputedY <= y && div.PComputedY + div.PComputedHeight >= y)
+        {
+            if (div.Children is null)
+                return div;
+            
+            foreach (var child in div.Children)
+            {
+                var childHit = HitTest(child, x, y);
+                if (childHit is not null)
+                    return childHit;
+            }
+        }
+
+        return null;
+    }
+
+    public static Point ClickPos = new(-1, -1); 
+    
+    private static int Scale(int value) => (int)(value * s_window.RenderScaling);
+
+    private static long s_lastRender = Stopwatch.GetTimestamp();
+
+    
     private static SKSurface GetCanvas()
     {
         if (s_canvas is not null)
@@ -75,10 +143,19 @@ public class Program
     };
 
     public static Renderer Renderer = new Renderer();
-    private static TestComponent RootComponent = new TestComponent();
+    public static TestComponent RootComponent = new TestComponent();
 
+    
     public static void DoPaint(Rect bounds)
     {
+        if (Stopwatch.GetElapsedTime(s_lastRender).TotalMilliseconds < 16.666)
+        {
+            skipedRenders++;
+            return;
+        }
+        
+        s_lastRender = Stopwatch.GetTimestamp();
+        
         var skiaFramebuffer = s_window.Surfaces.OfType<IFramebufferPlatformSurface>().First();
 
         using var framebuffer = skiaFramebuffer.Lock();
@@ -92,18 +169,22 @@ public class Program
         surface.Canvas.DrawSurface(GetCanvas(), SKPoint.Empty);
         Canvas = surface.Canvas;
 
-        Renderer.Rerender(RootComponent);
+        Renderer.LayoutPaintComposite();
 
-        Canvas.DrawRect(0,0, 50, 50, Renderer.GetColor(new ColorDefinition(0,0,0,255)));
+        Canvas.DrawRect(0,0, 50, 90, Renderer.GetColor(new ColorDefinition(0,0,0,255)));
         Canvas.DrawText(compute.ToString(), new SKPoint(10, 20), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
         Canvas.DrawText(draw.ToString(), new SKPoint(10, 40), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
-
+        Canvas.DrawText(counter.ToString(), new SKPoint(10, 60), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        Canvas.DrawText(skipedRenders.ToString(), new SKPoint(10, 80), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        counter++;
     }
 
     public static long compute = 0;
     public static long draw = 0;
+    public static long counter = 0;
+    public static long skipedRenders;
 
-    private static void Invalidate() => s_window.Invalidate(new Rect(Point.Empty, s_window.ClientSize));
+    private static void Invalidate() => s_window.Invalidate(new Rect(Modern.WindowKit.Point.Empty, s_window.ClientSize));
 }
 
 public static class HotReloadManager
@@ -115,8 +196,10 @@ public static class HotReloadManager
 
     public static void UpdateApplication(Type[]? updatedTypes)
     {
-        LayoutEngine.IsFirstRender = true;
+        Program.Renderer.Build(Program.RootComponent);
         Program.DoPaint(new Rect());
         Console.WriteLine("HotReloadManager.UpdateApplication");
     }
 }
+
+public record struct Point(int X, int Y);
