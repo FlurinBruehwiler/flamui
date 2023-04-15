@@ -92,22 +92,24 @@ public class Program
         }
     }
 
-    private static RenderObject? HitTest(RenderObject div, int x, int y)
+    private static Div? HitTest(Div div, int x, int y)
     {
         if (div.PComputedX <= x && div.PComputedX + div.PComputedWidth >= x && div.PComputedY <= y && div.PComputedY + div.PComputedHeight >= y)
         {
-            if (div is not Div actualDiv)
+            if (div.Children is null)
                 return div;
             
-            if (actualDiv.Children is null)
-                return div;
-            
-            foreach (var child in actualDiv.Children)
+            foreach (var child in div.Children)
             {
-                var childHit = HitTest(child, x, y);
+                if(child is not Div divChild)
+                    continue;
+                
+                var childHit = HitTest(divChild, x, y);
                 if (childHit is not null)
                     return childHit;
             }
+
+            return div;
         }
 
         return null;
@@ -154,11 +156,11 @@ public class Program
     
     public static void DoPaint(Rect bounds)
     {
-        if (Stopwatch.GetElapsedTime(s_lastRender).TotalMilliseconds < 16.666)
-        {
-            skipedRenders++;
-            return;
-        }
+        // if (Stopwatch.GetElapsedTime(s_lastRender).TotalMilliseconds < 16.666)
+        // {
+        //     skipedRenders++;
+        //     return;
+        // }
         
         s_lastRender = Stopwatch.GetTimestamp();
         

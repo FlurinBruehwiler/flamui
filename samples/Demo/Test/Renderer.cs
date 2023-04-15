@@ -10,8 +10,6 @@ public class Renderer
         IsAntialias = true
     };
 
-
-    
     public static SKPaint GetColor(ColorDefinition colorDefinition)
     {
         s_paint.Color = new SKColor((byte) colorDefinition.Red, (byte)colorDefinition.Gree, (byte)colorDefinition.Blue, (byte)colorDefinition.Transparency);
@@ -44,7 +42,7 @@ public class Renderer
         
         var stopwatch = Stopwatch.StartNew();
         
-        Render(wrapper);
+        wrapper.Render();
         
         var time = stopwatch.ElapsedTicks;
         Program.draw = time;
@@ -55,27 +53,6 @@ public class Renderer
     
     private void Render(Div div)
     {
-        
-        
-
-        // if (div.Text != string.Empty)
-        // {
-        //     var paint = new SKPaint
-        //     {
-        //         Color = new SKColor(0, 0, 0),
-        //         IsAntialias = true,
-        //         TextSize = 15,
-        //         Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
-        //     };
-        //
-        //     var path = paint.GetTextPath(Text, ComputedX, ComputedY);
-        //     path.GetBounds(out var rect);
-        //
-        //     var verticalCenter = ComputedY + ComputedHeight / 2;
-        //     
-        //     Program.Canvas.DrawText(Text, ComputedX + Padding, verticalCenter + rect.Height / 2, paint);
-        // }
-
         // if (Svg != string.Empty)
         // {
         //     var svg = new SKSvg();

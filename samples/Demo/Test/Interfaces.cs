@@ -13,10 +13,10 @@ public enum SizeKind
 public abstract class RenderObject
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public SizeDefinition PWidth { get; set; }
+    public SizeDefinition PWidth { get; set; } = new SizeDefinition(100, SizeKind.Percentage);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public SizeDefinition PHeight { get; set; }
+    public SizeDefinition PHeight { get; set; } = new SizeDefinition(100, SizeKind.Percentage);
     
     [EditorBrowsable(EditorBrowsableState.Never)]
     public float PComputedHeight { get; set; }
