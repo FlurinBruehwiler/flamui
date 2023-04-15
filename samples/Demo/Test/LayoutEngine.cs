@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Demo.Test.RenderObject;
 
 namespace Demo.Test;
 
@@ -15,7 +16,7 @@ public class LayoutEngine
         }
     }
 
-    private void ComputeRenderObj(RenderObject renderObject)
+    private void ComputeRenderObj(RenderObject.RenderObject renderObject)
     {
         if (renderObject is Div div)
         {
@@ -77,7 +78,7 @@ public class LayoutEngine
         }
     }
 
-    private float GetCrossAxisOffset(Div div, RenderObject item)
+    private float GetCrossAxisOffset(Div div, RenderObject.RenderObject item)
     {
         return div.PxAlign switch
         {
@@ -108,7 +109,7 @@ public class LayoutEngine
         };
     }
 
-    private float GetItemMainAxisLength(Div div, RenderObject item)
+    private float GetItemMainAxisLength(Div div, RenderObject.RenderObject item)
     {
         return div.PDir switch
         {
@@ -118,7 +119,7 @@ public class LayoutEngine
         };
     }
 
-    private float GetItemMainAxisFixedLength(Div div, RenderObject item)
+    private float GetItemMainAxisFixedLength(Div div, RenderObject.RenderObject item)
     {
         return div.PDir switch
         {
@@ -132,7 +133,7 @@ public class LayoutEngine
         };
     }
 
-    private float GetItemCrossAxisLength(Div div, RenderObject item)
+    private float GetItemCrossAxisLength(Div div, RenderObject.RenderObject item)
     {
         return div.PDir switch
         {
@@ -220,7 +221,7 @@ public class LayoutEngine
             item.PComputedHeight = item.PHeight.Kind switch
             {
                 SizeKind.Pixel => item.PHeight.Value,
-                SizeKind.Percentage => (float)(div.PComputedHeight * item.PHeight.Value * 0.01),
+                SizeKind.Percentage => (float)((div.PComputedHeight * item.PHeight.Value * 0.01) - (2 * div.PPadding)),
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
@@ -335,7 +336,7 @@ public class LayoutEngine
         }
     }
 
-    private void DrawWithMainOffset(Div div, float mainOffset, RenderObject item)
+    private void DrawWithMainOffset(Div div, float mainOffset, RenderObject.RenderObject item)
     {
         switch (div.PDir)
         {

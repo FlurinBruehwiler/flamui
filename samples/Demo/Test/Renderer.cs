@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Demo.Test.RenderObject;
 using SkiaSharp;
 
 namespace Demo.Test;
@@ -49,15 +50,5 @@ public class Renderer
 
         _clickedElement?.POnClick?.Invoke();
         _clickedElement = null;
-    }
-    
-    private void Render(Div div)
-    {
-        // if (Svg != string.Empty)
-        // {
-        //     var svg = new SKSvg();
-        //     svg.Load("./battery.svg");
-        //     Program.Canvas.DrawPicture(svg.Picture, ComputedX, ComputedY);
-        // }
     }
 }

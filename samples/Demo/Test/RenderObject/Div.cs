@@ -3,7 +3,7 @@ using System.ComponentModel;
 using Modern.WindowKit.Input;
 using SkiaSharp;
 
-namespace Demo.Test;
+namespace Demo.Test.RenderObject;
 
 public class Div : RenderObject, IEnumerable<RenderObject>
 {

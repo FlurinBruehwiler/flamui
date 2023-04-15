@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Demo;
 using Demo.Test;
+using Demo.Test.RenderObject;
 using Modern.WindowKit;
 using Modern.WindowKit.Controls.Platform.Surfaces;
 using Modern.WindowKit.Input.Raw;
@@ -26,10 +27,19 @@ public class Program
         Svg = File.ReadAllText("./battery.svg");
 
         s_window = AvaloniaGlobals.GetRequiredService<IWindowingPlatform>().CreateWindow();
-        s_window.Resize(new Modern.WindowKit.Size(1024, 768));
+        s_window.Resize(new Modern.WindowKit.Size(500, 20));
         s_window.SetTitle("Modern.WindowKit Demo");
         s_window.SetIcon(SKBitmap.Decode("icon.png"));
-
+        s_window.CanResize(false);
+        s_window.SetExtendClientAreaTitleBarHeightHint(0);
+        s_window.SetExtendClientAreaToDecorationsHint(true);
+        s_window.SetExtendClientAreaChromeHints(ExtendClientAreaChromeHints.NoChrome);
+        s_window.ShowTaskbarIcon(false);
+        s_window.LostFocus = () =>
+        {
+            s_window.Hide();
+        };
+        
         var mainLoopCancellationTokenSource = new CancellationTokenSource();
         s_window.Closed = () => mainLoopCancellationTokenSource.Cancel();
 
@@ -210,13 +220,13 @@ public class Program
 
         Renderer.LayoutPaintComposite();
 
-        Canvas.DrawRect(0,0, 50, 110, Renderer.GetColor(new ColorDefinition(0,0,0,255)));
-        Canvas.DrawText(compute.ToString(), new SKPoint(10, 20), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
-        Canvas.DrawText(draw.ToString(), new SKPoint(10, 40), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
-        Canvas.DrawText(counter.ToString(), new SKPoint(10, 60), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
-        Canvas.DrawText(skipedRenders.ToString(), new SKPoint(10, 80), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
-        Canvas.DrawText(textInput, new SKPoint(10, 100), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
-        counter++;
+        // Canvas.DrawRect(0,0, 50, 110, Renderer.GetColor(new ColorDefinition(0,0,0,255)));
+        // Canvas.DrawText(compute.ToString(), new SKPoint(10, 20), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        // Canvas.DrawText(draw.ToString(), new SKPoint(10, 40), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        // Canvas.DrawText(counter.ToString(), new SKPoint(10, 60), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        // Canvas.DrawText(skipedRenders.ToString(), new SKPoint(10, 80), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        // Canvas.DrawText(textInput, new SKPoint(10, 100), Renderer.GetColor(new ColorDefinition(141, 10, 0, 255)));
+        // counter++;
     }
 
     public static long compute = 0;

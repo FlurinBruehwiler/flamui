@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using SkiaSharp;
 
-namespace Demo.Test;
+namespace Demo.Test.RenderObject;
 
 public class Txt : RenderObject
 {
@@ -17,10 +17,10 @@ public class Txt : RenderObject
     [EditorBrowsable(EditorBrowsableState.Never)]
     public TextAlign PvAlign { get; set; } = TextAlign.Start;
 
-    public Txt Content(string txt)
+
+    public Txt(string content)
     {
-        PText = txt;
-        return this;
+        PText = content;
     }
 
     public Txt Width(float width, SizeKind sizeKind = SizeKind.Pixel)
@@ -70,27 +70,21 @@ public class Txt : RenderObject
         var actualX = PComputedX;
         var actualY = PComputedY;
 
-        if (PvAlign == TextAlign.Start)
+        actualY += PvAlign switch
         {
-            actualY += rect.Height;
-        }
-        else if (PvAlign == TextAlign.End)
-        {
-            actualY += PComputedHeight;
-        }
-        else if (PvAlign == TextAlign.Center)
-        {
-            actualY += PComputedHeight / 2 + rect.Height / 2;
-        }
+            TextAlign.Start => PSize,
+            TextAlign.End => PComputedHeight,
+            TextAlign.Center => PComputedHeight / 2 + PSize * 0.74f / 2, // you ask "Why *0.74?" -> Because. 
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
-        if (PhAlign == TextAlign.End)
+        actualX += PhAlign switch
         {
-            actualX += PComputedWidth - rect.Width;
-        }
-        else if (PhAlign == TextAlign.Center)
-        {
-            actualX += PComputedWidth / 2 - rect.Width / 2;
-        }
+            TextAlign.End => PComputedWidth - rect.Width,
+            TextAlign.Center => PComputedWidth / 2 - rect.Width / 2,
+            TextAlign.Start => 0,
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
         Program.Canvas.DrawText(PText, actualX, actualY, paint);
     }
