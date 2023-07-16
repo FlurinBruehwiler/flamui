@@ -1,6 +1,4 @@
-﻿using JoaKit;
-using JoaKit.Sample;
-using Sample;
+﻿using Sample;
 using TolggeUI;
 
 var builder = JoaKitApp.CreateBuilder();
