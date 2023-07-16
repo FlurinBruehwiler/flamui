@@ -77,16 +77,11 @@ public class InputManager
             {
                 Dispatcher.UIThread.InvokeAsync(async () =>
                 {
-                    if (Environment.CurrentManagedThreadId != 1)
-                    {
-                        Debugger.Break();
-                    }
+                    Debug.Assert(Environment.CurrentManagedThreadId == 1);
 
                     await ActiveDiv.POnKeyDownAsync(keyEventArgs.Key, keyEventArgs.Modifiers);
-                    if (Environment.CurrentManagedThreadId != 1)
-                    {
-                        Debugger.Break();
-                    }
+
+                    Debug.Assert(Environment.CurrentManagedThreadId == 1);
 
                     _builder.ShouldRebuild(GetContainingComponent(ActiveDiv));
                 });

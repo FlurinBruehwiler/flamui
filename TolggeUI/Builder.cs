@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using FlurinBruehwiler.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Modern.WindowKit;
@@ -163,10 +164,7 @@ public class Builder
         {
             var previousRenderObject = componentToBuild.RenderObject;
 
-            if (previousRenderObject is null)
-            {
-                Debugger.Break();
-            }
+            Debug.Assert(previousRenderObject is not null);
 
             var newRenderObject = componentToBuild.Build();
             componentToBuild.RenderObject = newRenderObject;
@@ -184,10 +182,7 @@ public class Builder
     {
         if (renderObject != Root)
         {
-            if (renderObject.Parent is null)
-            {
-                Debugger.Break();
-            }
+            Debug.Assert(renderObject.Parent is not null);
         }
 
         if (renderObject is Div div)
@@ -204,10 +199,7 @@ public class Builder
         }
         else if (renderObject is CustomRenderObject customRenderObject)
         {
-            if (customRenderObject.Component is null)
-            {
-                Debugger.Break();
-            }
+            Debug.Assert(customRenderObject.Component is not null);
 
             ValidateTree(customRenderObject.RenderObject);
         }
@@ -361,5 +353,6 @@ public class Builder
 
         _layoutEngine.ApplyLayoutCalculations(wrapper);
         wrapper.Render(_windowManager.Canvas!, new RenderContext(_window));
+        "LayoutPaintComposite".Print();
     }
 }

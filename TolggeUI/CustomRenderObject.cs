@@ -13,7 +13,7 @@ public abstract class CustomRenderObject : RenderObject
         }
         else
         {
-            Debugger.Break();
+            Debug.Assert(false);
         }
     }
 
