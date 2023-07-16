@@ -30,8 +30,8 @@ jobs:
       - name: Pack TolggeUI.SourceGenerators
         run: dotnet pack ./TolggeUI.SourceGenerators --configuration Release
       - name: Push TolggeUI
-        run: dotnet nuget push "/TolggeUI/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "./TolggeUI/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
       - name: Push TolggeUI.Components
-        run: dotnet nuget push "/TolggeUI.Components/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "./TolggeUI.Components/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
       - name: Push TolggeUI.SourceGenerators
-        run: dotnet nuget push "/TolggeUI.SourceGenerators/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "./TolggeUI.SourceGenerators/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
