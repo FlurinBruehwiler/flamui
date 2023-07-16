@@ -5,6 +5,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>TolggeUI</RootNamespace>
+
+        <PackageId>TolggeUI</PackageId>
+        <Version>0.1.0-beta1</Version>
+        <Authors>Flurin Bruehwiler</Authors>
+        <PackageLicenseUrl>MIT</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/FlurinBruehwiler/TolggeUI</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>

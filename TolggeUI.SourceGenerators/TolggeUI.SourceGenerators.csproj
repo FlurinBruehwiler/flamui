@@ -5,10 +5,21 @@
         <LangVersion>11</LangVersion>
         <RootNamespace>TolggeUI.SourceGenerators</RootNamespace>
         <Nullable>enable</Nullable>
+
+        <PackageId>TolggeUI.SourceGenerators</PackageId>
+        <Version>0.1.0-beta1</Version>
+        <Authors>Flurin Bruehwiler</Authors>
+        <PackageLicenseUrl>MIT</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/FlurinBruehwiler/TolggeUI</RepositoryUrl>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0"/>
     </ItemGroup>
 
 </Project>

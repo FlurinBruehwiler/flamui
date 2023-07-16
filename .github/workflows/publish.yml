@@ -1,0 +1,37 @@
+name: Build And Push Packages
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 7.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build release
+        run: dotnet build /p:PublicRelease=true
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+      - name: Pack TolggeUI
+        run: dotnet pack ./TolggeUI --configuration Release
+      - name: Pack TolggeUI.Components
+        run: dotnet pack ./TolggeUI.Components --configuration Release
+      - name: Pack TolggeUI.SourceGenerators
+        run: dotnet pack ./TolggeUI.SourceGenerators --configuration Release
+      - name: Push TolggeUI
+        run: dotnet nuget push "/TolggeUI/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Push TolggeUI.Components
+        run: dotnet nuget push "/TolggeUI.Components/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Push TolggeUI.SourceGenerators
+        run: dotnet nuget push "/TolggeUI.SourceGenerators/bin/Release/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
