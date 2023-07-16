@@ -28,7 +28,7 @@ public class Builder
 
     private Component GetComponent(Type componentType, Component parent)
     {
-        var component = (Component)ActivatorUtilities.CreateInstance(_windowManager.JoaKitApp.Services, componentType);
+        var component = (Component)ActivatorUtilities.CreateInstance(_windowManager.TolggeApp.Services, componentType);
         component.Builder = this;
         component.Parent = parent;
 
@@ -146,9 +146,9 @@ public class Builder
 
     private void Build(Component componentToBuild)
     {
-        JoaLogger.GetInstance().LogInformation($"Building {componentToBuild.GetType().Name}");
+        TolggeLogger.GetInstance().LogInformation($"Building {componentToBuild.GetType().Name}");
 
-        _windowManager.JoaKitApp.CurrentlyBuildingWindow = _window;
+        _windowManager.TolggeApp.CurrentlyBuildingWindow = _window;
         InputManager.AbsoluteDivs.Clear();
 
         if (Root is null)
@@ -177,7 +177,7 @@ public class Builder
         }
 
         ValidateTree(Root);
-        _windowManager.JoaKitApp.CurrentlyBuildingWindow = null;
+        _windowManager.TolggeApp.CurrentlyBuildingWindow = null;
     }
 
     private void ValidateTree(RenderObject renderObject)

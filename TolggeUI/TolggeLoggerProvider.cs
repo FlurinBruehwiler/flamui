@@ -2,7 +2,7 @@
 
 namespace TolggeUI;
 
-public class JoaKitLoggerProvider : ILoggerProvider
+public class TolggeLoggerProvider : ILoggerProvider
 {
     public void Dispose()
     {
@@ -11,6 +11,6 @@ public class JoaKitLoggerProvider : ILoggerProvider
 
     public ILogger CreateLogger(string categoryName)
     {
-        return new JoaLogger();
+        return new TolggeLogger();
     }
 }

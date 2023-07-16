@@ -16,11 +16,11 @@ public static class HotReloadManager
 
     public static void UpdateApplication(Type[]? updatedTypes)
     {
-        foreach (var manager in JoaKitApp.WindowManagers)
+        foreach (var manager in TolggeApp.WindowManagers)
         {
             manager.Builder.ShouldRebuild(manager.RootComponent);
         }
 
-        JoaLogger.GetInstance().LogInformation("HotReloadManager.UpdateApplication");
+        TolggeLogger.GetInstance().LogInformation("HotReloadManager.UpdateApplication");
     }
 }

@@ -55,9 +55,7 @@ public class RenderObjectGenerator : ISourceGenerator
             using TolggeUI;
             using SkiaSharp;
             using System;
-            using Joa.PluginCore;
             using System.Runtime.CompilerServices;
-            using Joa.Settings;
             
             namespace {{type.ContainingNamespace}}
             {

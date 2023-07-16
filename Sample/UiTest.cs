@@ -1,4 +1,5 @@
 ﻿using TolggeUI;
+using TolggeUI.Components;
 
 namespace Sample;
 
@@ -8,9 +9,9 @@ public class UiTest : Component
     {
         return new Div
             {
-                // new TextBoxComponent(),
-                // new CheckboxComponent(),
-                // new DropDownComponent()
+                new TextBoxComponent(),
+                new CheckboxComponent(),
+                new DropDownComponent()
             }
             .Color(50, 50, 50)
             .MAlign(MAlign.FlexStart)

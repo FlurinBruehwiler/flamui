@@ -2,15 +2,15 @@
 
 namespace TolggeUI;
 
-public class JoaLogger : ILogger
+public class TolggeLogger : ILogger
 {
-    private const string FileName = "./Joalog.log";
+    private const string FileName = "./Tollgelog.log";
 
-    private static JoaLogger? _instance;
+    private static TolggeLogger? _instance;
 
-    public static JoaLogger GetInstance()
+    public static TolggeLogger GetInstance()
     {
-        return _instance ?? new JoaLogger();
+        return _instance ?? new TolggeLogger();
     }
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)

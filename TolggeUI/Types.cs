@@ -25,4 +25,4 @@ public enum XAlign
     Center
 }
 
-public record JoaKitSize(int Value, SizeKind SizeKind);
+public record TolggeSize(int Value, SizeKind SizeKind);

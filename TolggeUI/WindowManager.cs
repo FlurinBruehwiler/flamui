@@ -10,7 +10,7 @@ namespace TolggeUI;
 
 public class WindowManager
 {
-    public JoaKitApp JoaKitApp { get; }
+    public TolggeApp TolggeApp { get; }
     public IWindowImpl Window { get; }
     public readonly Component RootComponent;
     public readonly Builder Builder;
@@ -18,19 +18,19 @@ public class WindowManager
     public SKCanvas? Canvas { get; set; }
     public CancellationToken CancellationToken { get; }
 
-    public WindowManager(JoaKitApp joaKitApp, IWindowImpl window, Type rootType, CancellationTokenSource cancellationTokenSource)
+    public WindowManager(TolggeApp tolggeApp, IWindowImpl window, Type rootType, CancellationTokenSource cancellationTokenSource)
     {
         CancellationToken = cancellationTokenSource.Token;
-        JoaKitApp = joaKitApp;
+        TolggeApp = tolggeApp;
         Window = window;
-        joaKitApp.CurrentlyBuildingWindow = window;
+        tolggeApp.CurrentlyBuildingWindow = window;
 
         Builder = new Builder(this, window);
 
-        RootComponent = (Component)ActivatorUtilities.CreateInstance(JoaKitApp.Services, rootType);
+        RootComponent = (Component)ActivatorUtilities.CreateInstance(TolggeApp.Services, rootType);
         RootComponent.Builder = Builder;
 
-        joaKitApp.CurrentlyBuildingWindow = null;
+        tolggeApp.CurrentlyBuildingWindow = null;
 
         window.Closed = cancellationTokenSource.Cancel;
 
@@ -49,7 +49,7 @@ public class WindowManager
 
     public void DoPaint(Rect bounds)
     {
-        JoaLogger.GetInstance().LogInformation("Repainting");
+        TolggeLogger.GetInstance().LogInformation("Repainting");
 
         var skiaFramebuffer = Window.Surfaces.OfType<IFramebufferPlatformSurface>().First();
 
@@ -69,10 +69,10 @@ public class WindowManager
         
         var newSurface = SKSurface.Create(new SKImageInfo(framebuffer.Size.Width, framebuffer.Size.Height));
         // newSurface.Canvas.Translate(100, 0);
-        newSurface.Canvas.DrawRect(0, 0, 100, 100, new SKPaint
-        {
-            Color = SKColors.Black
-        });
+        // newSurface.Canvas.DrawRect(0, 0, 100, 100, new SKPaint
+        // {
+        //     Color = SKColors.Black
+        // });
         // newSurface.Canvas.SetMatrix(new SKMatrix(0, 0, 50, 0, 0, 100, 0, 0, 0));
 
         

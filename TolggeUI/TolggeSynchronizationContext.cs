@@ -2,7 +2,7 @@
 
 namespace TolggeUI;
 
-public class JoaSynchronizationContext : SynchronizationContext
+public class TolggeSynchronizationContext : SynchronizationContext
 {
     public override void Post(SendOrPostCallback d, object? state)
     {
@@ -19,6 +19,6 @@ public class JoaSynchronizationContext : SynchronizationContext
 
     public static void Install()
     {
-        SetSynchronizationContext(new JoaSynchronizationContext());
+        SetSynchronizationContext(new TolggeSynchronizationContext());
     }
 }

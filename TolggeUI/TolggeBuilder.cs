@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TolggeUI;
 
-public class JoaKitBuilder
+public class TolggeBuilder
 {
-    public JoaKitBuilder()
+    public TolggeBuilder()
     {
         Configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -14,9 +14,9 @@ public class JoaKitBuilder
             .Build();
     }
 
-    public JoaKitApp Build()
+    public TolggeApp Build()
     {
-        return new JoaKitApp(Services);
+        return new TolggeApp(Services);
     }
 
     public IConfiguration Configuration { get; private set; }

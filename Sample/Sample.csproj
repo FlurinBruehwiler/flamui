@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\TolggeUI.Components\TolggeUI.Components.csproj" />
         <ProjectReference Include="..\TolggeUI\TolggeUI.csproj" />
         <ProjectReference Include="..\TolggeUI.SourceGenerators\TolggeUI.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>

@@ -5,7 +5,7 @@ using Modern.WindowKit.Threading;
 
 namespace TolggeUI;
 
-public class JoaKitApp
+public class TolggeApp
 {
     internal static readonly List<WindowManager> WindowManagers = new();
     internal IWindowImpl? CurrentlyBuildingWindow = null;
@@ -13,7 +13,7 @@ public class JoaKitApp
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     public IServiceProvider Services { get; private set; }
 
-    internal JoaKitApp(IServiceCollection services)
+    internal TolggeApp(IServiceCollection services)
     {
         services.AddSingleton<IWindowImpl>(_ =>
         {
@@ -46,14 +46,14 @@ public class JoaKitApp
         Services = _serviceScope.ServiceProvider;
     }
 
-    public static JoaKitBuilder CreateBuilder()
+    public static TolggeBuilder CreateBuilder()
     {
-        return new JoaKitBuilder();
+        return new TolggeBuilder();
     }
 
     public void Run()
     {
-        JoaSynchronizationContext.Install();
+        TolggeSynchronizationContext.Install();
 
         AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
         {
