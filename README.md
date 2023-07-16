@@ -1,4 +1,3 @@
-# UI
+# TolggeUI
 
-My attempt an a desktop UI framework.
-It uses a fork of modern.windowkit for the windowing
+A revolutionary new desktop UI framework
