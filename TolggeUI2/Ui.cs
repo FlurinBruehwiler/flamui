@@ -1,12 +1,22 @@
 using System.Runtime.CompilerServices;
+using TollgeUI2.UiElements;
 
-namespace ImmediateModeUiFrameworkTest;
+namespace TollgeUI2;
 
 public static class Ui
 {
     public static readonly Stack<UiContainer> OpenElementStack = new();
 
-    public static UiContainer DivStart(
+    public static IUiContainerBuilder DivStart(
+        out IUiContainerBuilder uiContainer,
+        string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1)
+    {
+        return uiContainer = DivStart(key, path, line);
+    }
+
+    public static IUiContainerBuilder DivStart(
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -36,60 +46,3 @@ public static class Ui
     {
     }
 }
-
-public interface IUiElement
-{
-    public UiElementId Id { get; init; }
-}
-
-public class UiText : IUiElement
-{
-    public UiElementId Id { get; init; }
-    public string Content { get; set; }
-}
-
-public class UiContainer : IUiElement
-{
-    public UiElementId Id { get; init; }
-    private List<IUiElement> Children { get; set; } = new();
-    public Dictionary<UiElementId, IUiElement> OldChildrenById { get; set; } = new();
-    public bool FocusIn { get; set; }
-    public bool FocusOut { get; set; }
-    public bool Clicked { get; set; }
-    public string PColor { get; set; }
-    public UiContainer Color(string color)
-    {
-        PColor = color;
-        return this;
-    }
-
-    public void OpenElement()
-    {
-        OldChildrenById.Clear();
-        foreach (var uiElementClass in Children)
-        {
-            OldChildrenById.Add(uiElementClass.Id, uiElementClass);
-        }
-
-        Children.Clear();
-    }
-
-    public T AddChild<T>(UiElementId uiElementId) where T : IUiElement, new()
-    {
-        if (OldChildrenById.TryGetValue(uiElementId, out var child))
-        {
-            Children.Add(child);
-            return (T)child;
-        }
-
-        var newChild = new T
-        {
-            Id = uiElementId
-        };
-
-        Children.Add(newChild);
-        return newChild;
-    }
-}
-
-public record struct UiElementId(string Key, string Path, int Line);

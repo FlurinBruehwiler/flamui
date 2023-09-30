@@ -4,6 +4,12 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>TollgeUI2</RootNamespace>
     </PropertyGroup>
+
+
+    <ItemGroup>
+      <PackageReference Include="SkiaSharp" Version="2.88.6" />
+    </ItemGroup>
 
 </Project>
