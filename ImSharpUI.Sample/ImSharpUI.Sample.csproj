@@ -1,14 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <OutputType>Exe</OutputType>
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>ImSharpUI.Component</RootNamespace>
+        <RootNamespace>ImSharpUISample</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TolggeUI2\ImUi.NET.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="ppy.SDL2-CS" Version="1.0.82" />
+      <PackageReference Include="SkiaSharp" Version="2.88.6" />
     </ItemGroup>
 
 </Project>

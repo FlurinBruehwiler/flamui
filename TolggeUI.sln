@@ -20,13 +20,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TolggeUI.Components", "TolggeUI.Components\TolggeUI.Components.csproj", "{6ED219EF-498E-4E82-962F-852773AFDC96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImUi.NET.Core", "TolggeUI2\ImUi.NET.Core.csproj", "{E651014C-D14B-4EA7-B33E-2D91367030EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImSharpUI.Core", "TolggeUI2\ImSharpUI.Core.csproj", "{E651014C-D14B-4EA7-B33E-2D91367030EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImUI.NET.ComponentModel", "ImUI.NET.ComponentModel\ImUI.NET.ComponentModel.csproj", "{4722853B-8906-44A9-8FC2-271EE350612F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImSharpUI.ComponentModel", "ImSharpUI.ComponentModel\ImSharpUI.ComponentModel.csproj", "{4722853B-8906-44A9-8FC2-271EE350612F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImUI.NET.Windowing", "ImUI.NET.Windowing\ImUI.NET.Windowing.csproj", "{5A0B2823-660E-4513-8F11-7281DF83FEBF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImSharpUI.Windowing", "ImSharpUI.Windowing\ImSharpUI.Windowing.csproj", "{5A0B2823-660E-4513-8F11-7281DF83FEBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImUI.NET.Sample", "ImUI.NET.Sample\ImUI.NET.Sample.csproj", "{1F2DE690-5B7E-4574-8FD5-C6DED2E4BE4B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImSharpUI.Sample", "ImSharpUI.Sample\ImSharpUI.Sample.csproj", "{1F2DE690-5B7E-4574-8FD5-C6DED2E4BE4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
