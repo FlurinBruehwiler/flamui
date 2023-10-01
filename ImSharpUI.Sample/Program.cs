@@ -33,33 +33,26 @@ if (glContext == IntPtr.Zero)
 }
 
 // Make the OpenGL context current
-SDL_GL_MakeCurrent(window, glContext);
+var success = SDL_GL_MakeCurrent(window, glContext);
+if (success != 0)
+{
+    throw new Exception();
+}
+
 
 
 var glInterface = GRGlInterface.CreateOpenGl(SDL_GL_GetProcAddress);
 Console.WriteLine(glInterface.Validate());
 
-// var context = GRContext.CreateGl(glInterface, new GRContextOptions
-// {
-//     AvoidStencilBuffers = true
-// });
-//
-// var target = new GRBackendRenderTarget(800, 600, 0, 8, new GRGlFramebufferInfo());
-//
-// var surface = SKSurface.Create(context, target, GRSurfaceOrigin.TopLeft, SKColorType.Rgba8888);
-
-GRContext context = GRContext.Create(GRBackend.OpenGL, glInterface);
-GRBackendRenderTargetDesc backendRenderTargetDescription = new GRBackendRenderTargetDesc
+var context = GRContext.CreateGl(glInterface, new GRContextOptions
 {
-    Config = GRPixelConfig.Rgba8888,
-    Height = 300,
-    Width = 300,
-    Origin = GRSurfaceOrigin.TopLeft,
-    RenderTargetHandle = new IntPtr(0),
-    SampleCount = 0,
-    StencilBits = 8
-};
-var surface = SKSurface.Create(context, backendRenderTargetDescription);
+    AvoidStencilBuffers = true
+});
+
+var target = new GRBackendRenderTarget(800, 600,0, 8, new GRGlFramebufferInfo(0, 0x8058));
+
+var surface = SKSurface.Create(context, target, GRSurfaceOrigin.TopLeft, SKColorType.Rgba8888);
+
 var canvas = surface.Canvas;
 
 
@@ -82,12 +75,16 @@ while (!quit)
     });
 
     // Swap the front and back buffers
-    SDL_FillRect(screenSurface, IntPtr.Zero, 300);
+    // SDL_FillRect(screenSurface, IntPtr.Zero, 300);
+    SDL_GL_SwapWindow(window);
     SDL_UpdateWindowSurface(window);
 }
+
 
 surface.Dispose();
 // Clean up
 SDL_GL_DeleteContext(glContext);
 SDL_DestroyWindow(window);
 SDL_Quit();
+
+//https://chromium.googlesource.com/skia/+/chrome/m53/example/SkiaSDLExample.cpp
