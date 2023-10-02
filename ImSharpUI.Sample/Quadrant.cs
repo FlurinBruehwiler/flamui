@@ -1,4 +1,4 @@
-﻿namespace TollgeUI2;
+﻿namespace ImSharpUISample;
 
 public record struct Quadrant(int Left, int Right, int Top, int Bottom);
 
@@ -53,5 +53,5 @@ public enum XAlign
     Center
 }
 
-public record struct ColorDefinition(float Red, float Gree, float Blue, float Transparency = 255);
+public record struct ColorDefinition(float Red, float Green, float Blue, float Appha = 255);
 

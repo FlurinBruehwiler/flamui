@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using ImSharpUISample.UiElements;
+using SkiaSharp;
 using static SDL2.SDL;
 
 namespace ImSharpUISample;
@@ -42,17 +43,24 @@ public class Window : IDisposable
         _canvas = surface.Canvas;
     }
 
-    private int _counter;
+    private readonly Sample _sample = new();
 
     public void Update()
     {
-        _counter++;
-
         _canvas.Clear();
-        _canvas.DrawRect(_counter % 1000, 100, 200, 200, new SKPaint
-        {
-            Color = SKColors.Red
-        });
+
+        SDL_GetWindowSize(_windowHandle, out var width, out var height);
+
+        Ui.OpenElementStack.Clear();
+        Ui.OpenElementStack.Push(new UiContainer());
+        _sample.Build();
+
+        var root = Ui.OpenElementStack.Pop();
+        root.PComputedWidth = width;
+        root.PComputedHeight = height;
+        root.Layout();
+        root.Render(_canvas);
+
         _canvas.Flush();
 
         SDL_GL_SwapWindow(_windowHandle);

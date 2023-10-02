@@ -1,6 +1,6 @@
 ﻿using SkiaSharp;
 
-namespace TollgeUI2.UiElements;
+namespace ImSharpUISample.UiElements;
 
 public abstract class UiElement
 {

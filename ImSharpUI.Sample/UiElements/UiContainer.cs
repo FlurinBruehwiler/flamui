@@ -1,10 +1,14 @@
 ﻿using SkiaSharp;
 
-namespace TollgeUI2.UiElements;
+namespace ImSharpUISample.UiElements;
 
 public interface IUiContainerBuilder
 {
     public IUiContainerBuilder Color(string color);
+    public IUiContainerBuilder Color(byte red, byte green, byte blue, byte alpha = 255);
+    public IUiContainerBuilder Center();
+    public IUiContainerBuilder Width(float width, SizeKind sizeKind);
+    public IUiContainerBuilder Height(float height, SizeKind sizeKind);
     public bool IsHovered { get; set; }
     public bool IsActive { get; set; }
     public bool FocusIn { get; set; }
@@ -22,7 +26,7 @@ public class UiContainer : UiElement, IUiContainerBuilder
     public ColorDefinition? PColor { get; set; }
     public ColorDefinition? PHoverColor { get; set; }
     public ColorDefinition? PBorderColor { get; set; }
-    public Quadrant PQuadrant { get; set; } = new Quadrant(0, 0, 0, 0);
+    public Quadrant PQuadrant { get; set; } = new(0, 0, 0, 0);
     public int PGap { get; set; }
     public int PRadius { get; set; }
     public int PBorderWidth { get; set; }
@@ -33,19 +37,120 @@ public class UiContainer : UiElement, IUiContainerBuilder
     public bool PAutoFocus { get; set; }
     public bool PAbsolute { get; set; }
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
+    public IUiContainerBuilder Color(byte red, byte green, byte blue, byte alpha = 255)
+    {
+        PColor = new ColorDefinition(red, green, blue, alpha);
+        return this;
+    }
+
+    public IUiContainerBuilder Center()
+    {
+        PmAlign = MAlign.Center;
+        PxAlign = XAlign.Center;
+        return this;
+    }
+
+    public IUiContainerBuilder Width(float width, SizeKind sizeKind = SizeKind.Pixel)
+    {
+        PWidth = new SizeDefinition(width, sizeKind);
+        return this;
+    }
+
+    public IUiContainerBuilder Height(float width, SizeKind sizeKind = SizeKind.Pixel)
+    {
+        PHeight = new SizeDefinition(width, sizeKind);
+        return this;
+    }
+
     public bool IsHovered { get; set; }
     public bool IsActive { get; set; }
     public bool PCanScroll { get; set; }
 
     public override void Render(SKCanvas canvas)
     {
+        if (GetColor() is {} color)
+        {
+            if (PBorderWidth != 0)
+            {
+                if (PRadius != 0)
+                {
+                    float borderRadius = PRadius + PBorderWidth;
 
+                    canvas.DrawRoundRect(PComputedX - PBorderWidth,
+                        PComputedY - PBorderWidth,
+                        PComputedWidth + 2 * PBorderWidth,
+                        PComputedHeight + 2 * PBorderWidth,
+                        borderRadius,
+                        borderRadius,
+                        GetColor(PBorderColor ?? color));
+                    canvas.DrawRoundRect(PComputedX,
+                        PComputedY,
+                        PComputedWidth,
+                        PComputedHeight,
+                        PRadius,
+                        PRadius,
+                        GetColor(color));
+                }
+                else
+                {
+                    canvas.DrawRect(PComputedX - PBorderWidth, PComputedY - PBorderWidth,
+                        PComputedWidth + 2 * PBorderWidth, PComputedHeight + 2 * PBorderWidth,
+                        GetColor(PBorderColor ?? color));
+                    canvas.DrawRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight,
+                        GetColor(color));
+                }
+            }
+            else
+            {
+                if (PRadius != 0)
+                {
+                    canvas.DrawRoundRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight, PRadius, PRadius,
+                        GetColor(color));
+                }
+                else
+                {
+                    canvas.DrawRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight,
+                        GetColor(color));
+                }
+            }
+        }
+
+        foreach (var childElement in Children)
+        {
+            childElement.Render(canvas);
+        }
     }
 
     public override void Layout()
     {
-        ComputePosition();
         ComputeSize();
+        ComputePosition();
+
+        foreach (var childElement in Children)
+        {
+            childElement.Layout();
+        }
+    }
+
+    private static readonly SKPaint SPaint = new()
+    {
+        IsAntialias = true
+    };
+    public static SKPaint GetColor(ColorDefinition colorDefinition)
+    {
+        SPaint.Color = new SKColor((byte)colorDefinition.Red, (byte)colorDefinition.Green, (byte)colorDefinition.Blue,
+            (byte)colorDefinition.Appha);
+        return SPaint;
+    }
+
+    private ColorDefinition? GetColor()
+    {
+        if (IsHovered && PHoverColor is not null)
+        {
+            return PHoverColor;
+        }
+
+        return PColor;
     }
 
     public IUiContainerBuilder Color(string color)

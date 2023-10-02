@@ -23,7 +23,6 @@ public class EventLoop
         {
             while (SDL_PollEvent(out var e) != 0)
             {
-                Console.WriteLine(e);
                 if (e.type == SDL_EventType.SDL_QUIT)
                 {
                     quit = true;

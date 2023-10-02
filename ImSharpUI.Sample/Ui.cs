@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
-using TollgeUI2.UiElements;
+using ImSharpUISample.UiElements;
 
-namespace TollgeUI2;
+namespace ImSharpUISample;
 
 public static class Ui
 {
