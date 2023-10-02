@@ -7,8 +7,8 @@ namespace ImSharpUISample;
 public class Window : IDisposable
 {
     private readonly IntPtr _windowHandle;
-    private readonly SKCanvas _canvas;
     private readonly IntPtr _openGlContextHandle;
+    private readonly GRContext _grContext;
 
     public Window(IntPtr windowHandle)
     {
@@ -31,25 +31,23 @@ public class Window : IDisposable
 
         var glInterface = GRGlInterface.CreateOpenGl(SDL_GL_GetProcAddress);
 
-        var context = GRContext.CreateGl(glInterface, new GRContextOptions
+        _grContext = GRContext.CreateGl(glInterface, new GRContextOptions
         {
             AvoidStencilBuffers = true
         });
-
-        var target = new GRBackendRenderTarget(800, 600,0, 8, new GRGlFramebufferInfo(0, 0x8058));
-
-        var surface = SKSurface.Create(context, target, GRSurfaceOrigin.TopLeft, SKColorType.Rgba8888);
-
-        _canvas = surface.Canvas;
     }
 
     private readonly Sample _sample = new();
 
     public void Update()
     {
-        _canvas.Clear();
-
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
+
+        var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
+
+        using var surface = SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.TopLeft, SKColorType.Rgba8888);
+
+        surface.Canvas.Clear();
 
         Ui.OpenElementStack.Clear();
         Ui.OpenElementStack.Push(new UiContainer());
@@ -59,16 +57,15 @@ public class Window : IDisposable
         root.PComputedWidth = width;
         root.PComputedHeight = height;
         root.Layout();
-        root.Render(_canvas);
+        root.Render(surface.Canvas);
 
-        _canvas.Flush();
+        surface.Canvas.Flush();
 
         SDL_GL_SwapWindow(_windowHandle);
     }
 
     public void Dispose()
     {
-        _canvas.Dispose();
         SDL_GL_DeleteContext(_openGlContextHandle);
         SDL_DestroyWindow(_windowHandle);
     }
