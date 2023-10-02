@@ -27,10 +27,29 @@ public class EventLoop
                 {
                     quit = true;
                 }
+                else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
+                {
+                    GetWindow(e.motion.windowID).HandleMouseClick(e.motion);
+                }
+                else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
+                {
+                    GetWindow(e.motion.windowID).HandleMouseMove(e.motion);
+                }
             }
         }
 
         SDL_Quit();
+    }
+
+    private Window GetWindow(uint windowId)
+    {
+        foreach (var window in Windows)
+        {
+            if (window.Id == windowId)
+                return window;
+        }
+
+        throw new Exception();
     }
 
     public void RunRenderThread()

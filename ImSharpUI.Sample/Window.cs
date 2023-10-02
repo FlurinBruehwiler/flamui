@@ -9,10 +9,49 @@ public class Window : IDisposable
     private readonly IntPtr _windowHandle;
     private readonly IntPtr _openGlContextHandle;
     private readonly GRContext _grContext;
+    public uint Id;
+
+    private UiContainer? _hoveredContainer;
+    private UiContainer? _activeContainer;
+    public UiContainer? HoveredDiv
+    {
+        get => _hoveredContainer;
+        set
+        {
+            if (HoveredDiv is not null)
+            {
+                HoveredDiv.IsHovered = false;
+            }
+
+            _hoveredContainer = value;
+            if (value is not null)
+            {
+                value.IsHovered = true;
+            }
+        }
+    }
+    public UiContainer? ActiveDiv
+    {
+        get => _activeContainer;
+        set
+        {
+            if (ActiveDiv is not null)
+            {
+                ActiveDiv.IsActive = false;
+            }
+
+            _activeContainer = value;
+            if (value is not null)
+            {
+                value.IsActive = true;
+            }
+        }
+    }
 
     public Window(IntPtr windowHandle)
     {
         _windowHandle = windowHandle;
+        Id = SDL_GetWindowID(_windowHandle);
 
         _openGlContextHandle = SDL_GL_CreateContext(_windowHandle);
         if (_openGlContextHandle == IntPtr.Zero)
@@ -62,6 +101,92 @@ public class Window : IDisposable
         surface.Canvas.Flush();
 
         SDL_GL_SwapWindow(_windowHandle);
+    }
+
+    public void HandleMouseClick(SDL_MouseMotionEvent eventMotion)
+    {
+
+    }
+
+    public void HandleMouseMove(SDL_MouseMotionEvent eventMotion)
+    {
+        if (HoveredDiv is not null)
+        {
+            var res = ActualHitTest(HoveredDiv, eventMotion.x, eventMotion.y);
+
+            if (res is null)
+            {
+                HoveredDiv.IsHovered = false;
+                HoveredDiv = ActualHitTest(divRoot2, pointer.Position.X, pointer.Position.Y);
+                if (HoveredDiv is not null)
+                {
+                    HoveredDiv.IsHovered = true;
+                    if (HoveredDiv.PHoverColor is not null)
+                    {
+                        _windowManager.DoPaint(new Rect());
+                    }
+                }
+            }
+            else
+            {
+                if (res != HoveredDiv)
+                {
+                    HoveredDiv.IsHovered = false;
+                    HoveredDiv = res;
+                    HoveredDiv.IsHovered = true;
+                    if (HoveredDiv.PHoverColor is not null)
+                    {
+                        _windowManager.DoPaint(new Rect());
+                    }
+                }
+            }
+        }
+        else
+        {
+            HoveredDiv = ActualHitTest(divRoot2, pointer.Position.X, pointer.Position.Y);
+            if (HoveredDiv is not null)
+            {
+                HoveredDiv.IsHovered = true;
+                if (HoveredDiv.PHoverColor is not null)
+                {
+                    _windowManager.DoPaint(new Rect());
+                }
+            }
+        }
+    }
+
+    private UiContainer? ActualHitTest(UiContainer div, double x, double y)
+    {
+        //todo absolute divs
+
+        return HitTest(div, x, y);
+    }
+
+    private static UiContainer? HitTest(UiContainer div, double x, double y)
+    {
+        if (DivContainsPoint(div, x, y))
+        {
+            foreach (var child in div.Children)
+            {
+                var actualChild = child;
+
+                if (actualChild is not UiContainer divChild) continue;
+
+                var childHit = HitTest(divChild, x, y);
+                if (childHit is not null)
+                    return childHit;
+            }
+
+            return div;
+        }
+
+        return null;
+    }
+
+    private static bool DivContainsPoint(UiContainer div, double x, double y)
+    {
+        return div.PComputedX <= x && div.PComputedX + div.PComputedWidth >= x && div.PComputedY <= y &&
+               div.PComputedY + div.PComputedHeight >= y;
     }
 
     public void Dispose()

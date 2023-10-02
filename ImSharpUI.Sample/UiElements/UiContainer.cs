@@ -7,8 +7,10 @@ public interface IUiContainerBuilder
     public IUiContainerBuilder Color(string color);
     public IUiContainerBuilder Color(byte red, byte green, byte blue, byte alpha = 255);
     public IUiContainerBuilder Center();
-    public IUiContainerBuilder Width(float width, SizeKind sizeKind);
-    public IUiContainerBuilder Height(float height, SizeKind sizeKind);
+    public IUiContainerBuilder Width(float width);
+    public IUiContainerBuilder Height(float height);
+    public IUiContainerBuilder WidthFraction(float width);
+    public IUiContainerBuilder HeightFraction(float height);
     public bool IsHovered { get; set; }
     public bool IsActive { get; set; }
     public bool FocusIn { get; set; }
@@ -18,7 +20,7 @@ public interface IUiContainerBuilder
 
 public class UiContainer : UiElement, IUiContainerBuilder
 {
-    private List<UiElement> Children { get; set; } = new();
+    public List<UiElement> Children { get; set; } = new();
     public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
@@ -50,15 +52,27 @@ public class UiContainer : UiElement, IUiContainerBuilder
         return this;
     }
 
-    public IUiContainerBuilder Width(float width, SizeKind sizeKind = SizeKind.Pixel)
+    public IUiContainerBuilder Width(float width)
     {
-        PWidth = new SizeDefinition(width, sizeKind);
+        PWidth = new SizeDefinition(width, SizeKind.Pixel);
         return this;
     }
 
-    public IUiContainerBuilder Height(float width, SizeKind sizeKind = SizeKind.Pixel)
+    public IUiContainerBuilder Height(float height)
     {
-        PHeight = new SizeDefinition(width, sizeKind);
+        PHeight = new SizeDefinition(height, SizeKind.Pixel);
+        return this;
+    }
+
+    public IUiContainerBuilder WidthFraction(float width)
+    {
+        PWidth = new SizeDefinition(width, SizeKind.Percentage);
+        return this;
+    }
+
+    public IUiContainerBuilder HeightFraction(float height)
+    {
+        PHeight = new SizeDefinition(height, SizeKind.Percentage);
         return this;
     }
 
