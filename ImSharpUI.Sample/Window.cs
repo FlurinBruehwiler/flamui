@@ -13,6 +13,7 @@ public class Window : IDisposable
 
     private UiContainer? _hoveredContainer;
     private UiContainer? _activeContainer;
+    private UiContainer _rootContainer = new();
     public UiContainer? HoveredDiv
     {
         get => _hoveredContainer;
@@ -89,14 +90,13 @@ public class Window : IDisposable
         surface.Canvas.Clear();
 
         Ui.OpenElementStack.Clear();
-        Ui.OpenElementStack.Push(new UiContainer());
+        Ui.OpenElementStack.Push(_rootContainer);
+        _rootContainer.OpenElement();
         _sample.Build();
-
-        var root = Ui.OpenElementStack.Pop();
-        root.PComputedWidth = width;
-        root.PComputedHeight = height;
-        root.Layout();
-        root.Render(surface.Canvas);
+        _rootContainer.PComputedWidth = width;
+        _rootContainer.PComputedHeight = height;
+        _rootContainer.Layout();
+        _rootContainer.Render(surface.Canvas);
 
         surface.Canvas.Flush();
 
@@ -105,7 +105,19 @@ public class Window : IDisposable
 
     public void HandleMouseClick(SDL_MouseMotionEvent eventMotion)
     {
+        var div = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
 
+        if (div is null)
+            return;
+
+        if (ActiveDiv is not null)
+        {
+            ActiveDiv.IsActive = false;
+        }
+
+        ActiveDiv = div;
+
+        ActiveDiv.IsActive = true;
     }
 
     public void HandleMouseMove(SDL_MouseMotionEvent eventMotion)
@@ -114,43 +126,32 @@ public class Window : IDisposable
         {
             var res = ActualHitTest(HoveredDiv, eventMotion.x, eventMotion.y);
 
+            //is in new div
             if (res is null)
             {
                 HoveredDiv.IsHovered = false;
-                HoveredDiv = ActualHitTest(divRoot2, pointer.Position.X, pointer.Position.Y);
+                HoveredDiv = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
                 if (HoveredDiv is not null)
                 {
                     HoveredDiv.IsHovered = true;
-                    if (HoveredDiv.PHoverColor is not null)
-                    {
-                        _windowManager.DoPaint(new Rect());
-                    }
                 }
             }
-            else
+            else //is still in old div
             {
                 if (res != HoveredDiv)
                 {
                     HoveredDiv.IsHovered = false;
                     HoveredDiv = res;
                     HoveredDiv.IsHovered = true;
-                    if (HoveredDiv.PHoverColor is not null)
-                    {
-                        _windowManager.DoPaint(new Rect());
-                    }
                 }
             }
         }
         else
         {
-            HoveredDiv = ActualHitTest(divRoot2, pointer.Position.X, pointer.Position.Y);
+            HoveredDiv = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
             if (HoveredDiv is not null)
             {
                 HoveredDiv.IsHovered = true;
-                if (HoveredDiv.PHoverColor is not null)
-                {
-                    _windowManager.DoPaint(new Rect());
-                }
             }
         }
     }

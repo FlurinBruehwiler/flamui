@@ -15,10 +15,17 @@ if (windowHandle == IntPtr.Zero)
     Console.WriteLine($"SDL_CreateWindow Error: {SDL_GetError()}");
     throw new Exception();
 }
+
+var added = false;
 Task.Run(() =>
 {
     eventLoop.Windows.Add(new Window(windowHandle));
+    added = true;
     eventLoop.RunRenderThread();
 });
+while (!added)
+{
+
+}
 eventLoop.RunMainThread();
 
