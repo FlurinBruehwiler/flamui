@@ -1,4 +1,5 @@
-﻿using ImSharpUISample.UiElements;
+﻿using System.Collections.Concurrent;
+using ImSharpUISample.UiElements;
 using SkiaSharp;
 using static SDL2.SDL;
 
@@ -13,8 +14,10 @@ public class Window : IDisposable
 
     private UiContainer? _hoveredContainer;
     private UiContainer? _activeContainer;
-    private UiContainer _rootContainer = new();
-    public UiContainer? HoveredDiv
+    private readonly UiContainer _rootContainer = new();
+    public readonly ConcurrentQueue<SDL_Event> Events = new();
+
+    private UiContainer? HoveredDiv
     {
         get => _hoveredContainer;
         set
@@ -31,7 +34,8 @@ public class Window : IDisposable
             }
         }
     }
-    public UiContainer? ActiveDiv
+
+    private UiContainer? ActiveDiv
     {
         get => _activeContainer;
         set
@@ -81,6 +85,8 @@ public class Window : IDisposable
 
     public void Update()
     {
+        HandleEvents();
+
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
         var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
@@ -98,12 +104,30 @@ public class Window : IDisposable
         _rootContainer.Layout();
         _rootContainer.Render(surface.Canvas);
 
+        if (ActiveDiv is not null)
+            ActiveDiv.Clicked = false;
+
         surface.Canvas.Flush();
 
         SDL_GL_SwapWindow(_windowHandle);
     }
 
-    public void HandleMouseClick(SDL_MouseMotionEvent eventMotion)
+    private void HandleEvents()
+    {
+        while (Events.TryDequeue(out var e))
+        {
+            if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
+            {
+                HandleMouseClick(e.motion);
+            }
+            else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
+            {
+                HandleMouseMove(e.motion);
+            }
+        }
+    }
+
+    private void HandleMouseClick(SDL_MouseMotionEvent eventMotion)
     {
         var div = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
 
@@ -118,9 +142,10 @@ public class Window : IDisposable
         ActiveDiv = div;
 
         ActiveDiv.IsActive = true;
+        ActiveDiv.Clicked = true;
     }
 
-    public void HandleMouseMove(SDL_MouseMotionEvent eventMotion)
+    private void HandleMouseMove(SDL_MouseMotionEvent eventMotion)
     {
         if (HoveredDiv is not null)
         {

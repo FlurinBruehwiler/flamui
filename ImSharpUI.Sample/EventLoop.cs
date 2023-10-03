@@ -29,11 +29,11 @@ public class EventLoop
                 }
                 else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
                 {
-                    GetWindow(e.motion.windowID).HandleMouseClick(e.motion);
+                    GetWindow(e.motion.windowID).Events.Enqueue(e);
                 }
                 else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
                 {
-                    GetWindow(e.motion.windowID).HandleMouseMove(e.motion);
+                    GetWindow(e.motion.windowID).Events.Enqueue(e);
                 }
             }
         }

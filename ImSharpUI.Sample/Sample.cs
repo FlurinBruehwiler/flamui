@@ -10,7 +10,9 @@ public class Sample
                 if (div.IsHovered)
                     div.Color(0, 0, 255);
                 if (div.IsActive)
-                    div.Color(0, 255, 255);
+                    div.Color(255, 255, 255);
+                if (div.Clicked)
+                    Console.WriteLine("clicked");
             DivEnd();
         DivEnd();
     }
