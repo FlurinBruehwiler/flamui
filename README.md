@@ -1,6 +1,6 @@
 This repository contains two Projects
 1. The original TolggeUI (archived)
-2. The new ImSharpUI (in active Development)
+2. The new ImSharpUI (in active development)
 
 ## ImSharpUI
 A C# immediate mode GUI framework.
