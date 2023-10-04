@@ -1,4 +1,5 @@
-﻿using static SDL2.SDL;
+﻿using System.Runtime.InteropServices;
+using static SDL2.SDL;
 
 namespace ImSharpUISample;
 
@@ -37,6 +38,19 @@ public class EventLoop
             else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
             {
                 GetWindow(e.motion.windowID).Events.Enqueue(e);
+            }
+            else if (e.type == SDL_EventType.SDL_TEXTINPUT)
+            {
+                //ToDo https://wiki.libsdl.org/SDL2/Tutorials-TextInput
+                unsafe
+                {
+                    var str = Marshal.PtrToStringUTF8((IntPtr)e.text.text);
+                    Console.WriteLine(str);
+                }
+            }
+            else if (e.type == SDL_EventType.SDL_KEYDOWN)
+            {
+                Console.WriteLine(e.key.keysym.scancode.ToString());
             }
         }
 
