@@ -6,6 +6,7 @@ namespace ImSharpUISample;
 public static class Ui
 {
     public static readonly Stack<UiContainer> OpenElementStack = new();
+    public static List<UiContainer> AbsoluteDivs = new();
 
     public static IUiContainerBuilder DivStart(
         out IUiContainerBuilder uiContainer,
@@ -29,7 +30,11 @@ public static class Ui
 
     public static void DivEnd()
     {
-        OpenElementStack.Pop();
+        var div = OpenElementStack.Pop();
+        if (div.PAbsolute)
+        {
+            AbsoluteDivs.Add(div);
+        }
     }
 
     public static UiText Text(string content,
@@ -39,6 +44,16 @@ public static class Ui
     {
         var text = OpenElementStack.Peek().AddChild<UiText>(new UiElementId(key, path, line));
         text.Content = content;
+        return text;
+    }
+
+    public static UiSvg SvgImage(string src,
+        string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1)
+    {
+        var text = OpenElementStack.Peek().AddChild<UiSvg>(new UiElementId(key, path, line));
+        text.Src = src;
         return text;
     }
 

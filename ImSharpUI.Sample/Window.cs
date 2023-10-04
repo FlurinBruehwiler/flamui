@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using ImSharpUISample.UiElements;
 using SkiaSharp;
 using static SDL2.SDL;
@@ -91,17 +92,23 @@ public class Window : IDisposable
 
         var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
 
-        using var surface = SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.TopLeft, SKColorType.Rgba8888);
+        using var surface = SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
         surface.Canvas.Clear();
+
+        Ui.AbsoluteDivs.Clear();
 
         Ui.OpenElementStack.Clear();
         Ui.OpenElementStack.Push(_rootContainer);
         _rootContainer.OpenElement();
+
         _sample.Build();
+
         _rootContainer.PComputedWidth = width;
         _rootContainer.PComputedHeight = height;
+
         _rootContainer.Layout();
+
         _rootContainer.Render(surface.Canvas);
 
         if (ActiveDiv is not null)
@@ -183,7 +190,12 @@ public class Window : IDisposable
 
     private UiContainer? ActualHitTest(UiContainer div, double x, double y)
     {
-        //todo absolute divs
+        foreach (var absoluteDiv in Ui.AbsoluteDivs)
+        {
+            var hit = HitTest(absoluteDiv, x, y);
+            if (hit is not null)
+                return hit;
+        }
 
         return HitTest(div, x, y);
     }

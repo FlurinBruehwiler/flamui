@@ -21,20 +21,22 @@ public class EventLoop
         var quit = false;
         while (!quit)
         {
-            while (SDL_PollEvent(out var e) != 0)
+            if (SDL_WaitEvent(out var e) == 0)
             {
-                if (e.type == SDL_EventType.SDL_QUIT)
-                {
-                    quit = true;
-                }
-                else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
-                {
-                    GetWindow(e.motion.windowID).Events.Enqueue(e);
-                }
-                else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
-                {
-                    GetWindow(e.motion.windowID).Events.Enqueue(e);
-                }
+                quit = true;
+            }
+
+            if (e.type == SDL_EventType.SDL_QUIT)
+            {
+                quit = true;
+            }
+            else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
+            {
+                GetWindow(e.motion.windowID).Events.Enqueue(e);
+            }
+            else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
+            {
+                GetWindow(e.motion.windowID).Events.Enqueue(e);
             }
         }
 

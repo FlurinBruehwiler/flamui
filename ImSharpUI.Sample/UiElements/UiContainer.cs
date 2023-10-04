@@ -1,16 +1,35 @@
 ﻿using SkiaSharp;
+using EnumXAlign = ImSharpUISample.XAlign;
+using EnumMAlign = ImSharpUISample.MAlign;
+using EnumDir = ImSharpUISample.Dir;
 
 namespace ImSharpUISample.UiElements;
 
 public interface IUiContainerBuilder
 {
-    public IUiContainerBuilder Color(string color);
     public IUiContainerBuilder Color(byte red, byte green, byte blue, byte alpha = 255);
+    public IUiContainerBuilder BorderColor(byte red, byte green, byte blue, byte alpha = 255);
     public IUiContainerBuilder Center();
     public IUiContainerBuilder Width(float width);
     public IUiContainerBuilder Height(float height);
     public IUiContainerBuilder WidthFraction(float width);
     public IUiContainerBuilder HeightFraction(float height);
+    public IUiContainerBuilder Radius(int radius);
+    public IUiContainerBuilder BorderWidth(int borderWidth);
+    public IUiContainerBuilder Gap(int gap);
+    public IUiContainerBuilder PaddingBottom(int paddingBottom);
+    public IUiContainerBuilder PaddingTop(int paddingTop);
+    public IUiContainerBuilder PaddingRight(int paddingRight);
+    public IUiContainerBuilder PaddingLeft(int paddingLeft);
+    public IUiContainerBuilder PaddingVertical(int paddingVertical);
+    public IUiContainerBuilder PaddingHorizontal(int paddingHorizontal);
+    public IUiContainerBuilder Padding(int left, int right, int top, int bottom);
+    public IUiContainerBuilder Padding(int padding);
+    public IUiContainerBuilder XAlign(XAlign xAlign);
+    public IUiContainerBuilder MAlign(MAlign xAlign);
+    public IUiContainerBuilder Dir(Dir dir);
+    public IUiContainerBuilder Absolute(int left = 0, int right = 0, int top = 0, int bottom = 0);
+
     public bool IsHovered { get; set; }
     public bool IsActive { get; set; }
     public bool FocusIn { get; set; }
@@ -32,9 +51,9 @@ public class UiContainer : UiElement, IUiContainerBuilder
     public int PGap { get; set; }
     public int PRadius { get; set; }
     public int PBorderWidth { get; set; }
-    public Dir PDir { get; set; } = Dir.Vertical;
-    public MAlign PmAlign { get; set; } = MAlign.FlexStart;
-    public XAlign PxAlign { get; set; } = XAlign.FlexStart;
+    public EnumDir PDir { get; set; } = EnumDir.Vertical;
+    public MAlign PmAlign { get; set; } = EnumMAlign.FlexStart;
+    public XAlign PxAlign { get; set; } = EnumXAlign.FlexStart;
     public Action? POnClick { get; set; }
     public bool PAutoFocus { get; set; }
     public bool PAbsolute { get; set; }
@@ -45,10 +64,40 @@ public class UiContainer : UiElement, IUiContainerBuilder
         return this;
     }
 
+    public IUiContainerBuilder BorderColor(byte red, byte green, byte blue, byte alpha = 255)
+    {
+        PBorderColor = new ColorDefinition(red, green, blue, alpha);
+        return this;
+    }
+
+    public IUiContainerBuilder BorderWidth(int borderWidth)
+    {
+        PBorderWidth = borderWidth;
+        return this;
+    }
+
+    // public IUiContainerBuilder MAlign(MAlign mAlign)
+    // {
+    //     PmAlign = mAlign;
+    //     return this;
+    // }
+    //
+    // public IUiContainerBuilder XAlign(XAlign xAlign)
+    // {
+    //     PxAlign = xAlign;
+    //     return this;
+    // }
+
+    public IUiContainerBuilder Radius(int radius)
+    {
+        PRadius = radius;
+        return this;
+    }
+
     public IUiContainerBuilder Center()
     {
-        PmAlign = MAlign.Center;
-        PxAlign = XAlign.Center;
+        PmAlign = EnumMAlign.Center;
+        PxAlign = EnumXAlign.Center;
         return this;
     }
 
@@ -64,6 +113,13 @@ public class UiContainer : UiElement, IUiContainerBuilder
         return this;
     }
 
+    public IUiContainerBuilder Absolute(int left = 0, int right = 0, int top = 0, int bottom = 0)
+    {
+        PAbsolute = true;
+        PAbsolutePosition = new Quadrant(left, right, top, bottom);
+        return this;
+    }
+
     public IUiContainerBuilder WidthFraction(float width)
     {
         PWidth = new SizeDefinition(width, SizeKind.Percentage);
@@ -73,6 +129,80 @@ public class UiContainer : UiElement, IUiContainerBuilder
     public IUiContainerBuilder HeightFraction(float height)
     {
         PHeight = new SizeDefinition(height, SizeKind.Percentage);
+        return this;
+    }
+
+    public IUiContainerBuilder Padding(int padding)
+    {
+        PQuadrant = new Quadrant(padding, padding, padding, padding);
+        return this;
+    }
+
+    
+    
+    public IUiContainerBuilder MAlign(MAlign mAlign)
+    {
+        PmAlign = mAlign;
+        return this;
+    }
+
+    public IUiContainerBuilder XAlign(XAlign xAlign)
+    {
+        PxAlign = xAlign;
+        return this;
+    }
+
+    public IUiContainerBuilder Padding(int left, int right, int top, int bottom)
+    {
+        PQuadrant = new Quadrant(left, right, top, bottom);
+        return this;
+    }
+
+    public IUiContainerBuilder PaddingHorizontal(int paddingHorizontal)
+    {
+        PQuadrant = PQuadrant with { Left = paddingHorizontal, Right = paddingHorizontal };
+        return this;
+    }
+
+    public IUiContainerBuilder PaddingVertical(int paddingVertical)
+    {
+        PQuadrant = PQuadrant with { Top = paddingVertical, Bottom = paddingVertical };
+        return this;
+    }
+
+    public IUiContainerBuilder Dir(Dir dir)
+    {
+        PDir = dir;
+        return this;
+    }
+
+    public IUiContainerBuilder PaddingLeft(int paddingLeft)
+    {
+        PQuadrant = PQuadrant with { Left = paddingLeft };
+        return this;
+    }
+
+    public IUiContainerBuilder PaddingRight(int paddingRight)
+    {
+        PQuadrant = PQuadrant with { Right = paddingRight };
+        return this;
+    }
+
+    public IUiContainerBuilder PaddingTop(int paddingTop)
+    {
+        PQuadrant = PQuadrant with { Top = paddingTop };
+        return this;
+    }
+
+    public IUiContainerBuilder PaddingBottom(int paddingBottom)
+    {
+        PQuadrant = PQuadrant with { Bottom = paddingBottom };
+        return this;
+    }
+
+    public IUiContainerBuilder Gap(int gap)
+    {
+        PGap = gap;
         return this;
     }
 
@@ -167,11 +297,6 @@ public class UiContainer : UiElement, IUiContainerBuilder
         return PColor;
     }
 
-    public IUiContainerBuilder Color(string color)
-    {
-        return this;
-    }
-
     public void OpenElement()
     {
         OldChildrenById.Clear();
@@ -204,10 +329,10 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         switch (PDir)
         {
-            case Dir.Horizontal or Dir.RowReverse:
+            case EnumDir.Horizontal or EnumDir.RowReverse:
                 ComputeRowSize();
                 break;
-            case Dir.Vertical or Dir.ColumnReverse:
+            case EnumDir.Vertical or EnumDir.ColumnReverse:
                 ComputeColumnSize();
                 break;
         }
@@ -217,22 +342,22 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         switch (PmAlign)
         {
-            case MAlign.FlexStart:
+            case EnumMAlign.FlexStart:
                 RenderFlexStart();
                 break;
-            case MAlign.FlexEnd:
+            case EnumMAlign.FlexEnd:
                 RenderFlexEnd();
                 break;
-            case MAlign.Center:
+            case EnumMAlign.Center:
                 RenderCenter();
                 break;
-            case MAlign.SpaceBetween:
+            case EnumMAlign.SpaceBetween:
                 RenderSpaceBetween();
                 break;
-            case MAlign.SpaceAround:
+            case EnumMAlign.SpaceAround:
                 RenderSpaceAround();
                 break;
-            case MAlign.SpaceEvenly:
+            case EnumMAlign.SpaceEvenly:
                 RenderSpaceEvenly();
                 break;
             default:
@@ -244,9 +369,9 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         return PxAlign switch
         {
-            XAlign.FlexStart => 0,
-            XAlign.FlexEnd => GetCrossAxisLength() - GetItemCrossAxisLength(item),
-            XAlign.Center => GetCrossAxisLength() / 2 - GetItemCrossAxisLength(item) / 2,
+            EnumXAlign.FlexStart => 0,
+            EnumXAlign.FlexEnd => GetCrossAxisLength() - GetItemCrossAxisLength(item),
+            EnumXAlign.Center => GetCrossAxisLength() / 2 - GetItemCrossAxisLength(item) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -255,8 +380,8 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         return PDir switch
         {
-            Dir.Horizontal or Dir.RowReverse => PComputedWidth - (PQuadrant.Left + PQuadrant.Right),
-            Dir.Vertical or Dir.ColumnReverse => PComputedHeight - (PQuadrant.Top + PQuadrant.Bottom),
+            EnumDir.Horizontal or EnumDir.RowReverse => PComputedWidth - (PQuadrant.Left + PQuadrant.Right),
+            EnumDir.Vertical or EnumDir.ColumnReverse => PComputedHeight - (PQuadrant.Top + PQuadrant.Bottom),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -265,8 +390,8 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         return PDir switch
         {
-            Dir.Horizontal or Dir.RowReverse => PComputedHeight - (PQuadrant.Top + PQuadrant.Bottom),
-            Dir.Vertical or Dir.ColumnReverse => PComputedWidth - (PQuadrant.Left + PQuadrant.Right),
+            EnumDir.Horizontal or EnumDir.RowReverse => PComputedHeight - (PQuadrant.Top + PQuadrant.Bottom),
+            EnumDir.Vertical or EnumDir.ColumnReverse => PComputedWidth - (PQuadrant.Left + PQuadrant.Right),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -275,8 +400,8 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         return PDir switch
         {
-            Dir.Horizontal or Dir.RowReverse => item.PComputedWidth,
-            Dir.Vertical or Dir.ColumnReverse => item.PComputedHeight,
+            EnumDir.Horizontal or EnumDir.RowReverse => item.PComputedWidth,
+            EnumDir.Vertical or EnumDir.ColumnReverse => item.PComputedHeight,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -285,10 +410,10 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         return PDir switch
         {
-            Dir.Horizontal or Dir.RowReverse => item.PWidth.Kind == SizeKind.Percentage
+            EnumDir.Horizontal or EnumDir.RowReverse => item.PWidth.Kind == SizeKind.Percentage
                 ? 0
                 : item.PWidth.GetDpiAwareValue(),
-            Dir.Vertical or Dir.ColumnReverse => item.PHeight.Kind == SizeKind.Percentage
+            EnumDir.Vertical or EnumDir.ColumnReverse => item.PHeight.Kind == SizeKind.Percentage
                 ? 0
                 : item.PHeight.GetDpiAwareValue(),
             _ => throw new ArgumentOutOfRangeException()
@@ -299,8 +424,8 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         return PDir switch
         {
-            Dir.Horizontal or Dir.RowReverse => item.PComputedHeight,
-            Dir.Vertical or Dir.ColumnReverse => item.PComputedWidth,
+            EnumDir.Horizontal or EnumDir.RowReverse => item.PComputedHeight,
+            EnumDir.Vertical or EnumDir.ColumnReverse => item.PComputedWidth,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -587,20 +712,20 @@ public class UiContainer : UiElement, IUiContainerBuilder
     {
         switch (PDir)
         {
-            case Dir.Horizontal:
+            case EnumDir.Horizontal:
                 item.PComputedX = mainOffset;
                 item.PComputedY = GetCrossAxisOffset(item);
                 break;
-            case Dir.RowReverse:
+            case EnumDir.RowReverse:
                 item.PComputedX = PComputedWidth - (PQuadrant.Left + PQuadrant.Right) - mainOffset -
                                   item.PComputedWidth;
                 item.PComputedY = GetCrossAxisOffset(item);
                 break;
-            case Dir.Vertical:
+            case EnumDir.Vertical:
                 item.PComputedX = GetCrossAxisOffset(item);
                 item.PComputedY = mainOffset;
                 break;
-            case Dir.ColumnReverse:
+            case EnumDir.ColumnReverse:
                 item.PComputedX = GetCrossAxisOffset(item);
                 item.PComputedY = PComputedHeight - mainOffset - item.PComputedHeight;
                 break;

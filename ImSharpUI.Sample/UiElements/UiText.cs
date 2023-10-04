@@ -16,6 +16,9 @@ public class UiText : UiElement
 
     public override void Render(SKCanvas canvas)
     {
+        if (Content == string.Empty)
+            return;
+
         var paint = new SKPaint
         {
             Color = new SKColor(255, 255, 255),
@@ -54,6 +57,48 @@ public class UiText : UiElement
 
     public override void Layout()
     {
+    }
+
+    public UiText Width(float width, SizeKind sizeKind = SizeKind.Pixel)
+    {
+        PWidth = new SizeDefinition(width, sizeKind);
+        return this;
+    }
+
+    public UiText Height(float height, SizeKind sizeKind = SizeKind.Pixel)
+    {
+        PHeight = new SizeDefinition(height, sizeKind);
+        return this;
+    }
+
+    public UiText Color(float red, float green, float blue, float transparency = 255)
+    {
+        PColor = new ColorDefinition(red, green, blue, transparency);
+        return this;
+    }
+
+    public UiText Color(ColorDefinition color)
+    {
+        PColor = color;
+        return this;
+    }
+
+    public UiText Size(float size)
+    {
+        PSize = size;
+        return this;
+    }
+
+    public UiText HAlign(TextAlign textAlign)
+    {
+        PhAlign = textAlign;
+        return this;
+    }
+
+    public UiText VAlign(TextAlign textAlign)
+    {
+        PvAlign = textAlign;
+        return this;
     }
 }
 
