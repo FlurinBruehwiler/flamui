@@ -19,14 +19,25 @@ public class Sample
 
     public void Build()
     {
-        DivStart().Color(255, 0, 0);
-            DivStart(out var div).Color(0, 255, 0).WidthFraction(50).HeightFraction(50).Radius(20);
-                if (div.IsHovered)
-                    div.Color(0, 200, 0);
+        DivStart().Color(255, 0, 0).Dir(Dir.Horizontal).Padding(10);
+            DivStart().Gap(10);
+                DivStart(out var div).Color(0, 255, 0).Radius(20);
+                    if (div.IsHovered)
+                        div.Color(0, 200, 0);
+                DivEnd();
+                    DivStart().Color(255, 255, 0).Padding(20).Gap(10);
+                    Checkbox();
+                    DropDown();
+                DivEnd();
             DivEnd();
-            DivStart().Color(255, 255, 0).WidthFraction(50).HeightFraction(50).Padding(20).Gap(10);
-                Checkbox();
-                DropDown();
+            DivStart().Scroll().HeightFraction(70);
+                foreach (var x in Enumerable.Range(0, 30))
+                {
+                    //ToDo remove memory allocation
+                    DivStart(x.ToString()).Height(20).Color(10, 200, 100);
+                        Text(x.ToString());
+                    DivEnd();
+                }
             DivEnd();
         DivEnd();
     }

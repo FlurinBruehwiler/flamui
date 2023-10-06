@@ -46,7 +46,7 @@ public class UiSvg : UiElement
         canvas.DrawPicture(SSvgCache[Src].Picture, ref matrix);
     }
 
-    public override void Layout()
+    public override void Layout(Window window)
     {
 
     }

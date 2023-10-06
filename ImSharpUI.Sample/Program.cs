@@ -19,9 +19,18 @@ if (windowHandle == IntPtr.Zero)
 var added = false;
 Task.Run(() =>
 {
-    eventLoop.Windows.Add(new Window(windowHandle));
-    added = true;
-    eventLoop.RunRenderThread();
+    try
+    {
+        eventLoop.Windows.Add(new Window(windowHandle));
+        added = true;
+        eventLoop.RunRenderThread();
+
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e);
+        throw;
+    }
 });
 while (!added)
 {

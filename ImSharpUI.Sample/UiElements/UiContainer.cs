@@ -9,6 +9,7 @@ public interface IUiContainerBuilder
 {
     public IUiContainerBuilder Color(byte red, byte green, byte blue, byte alpha = 255);
     public IUiContainerBuilder BorderColor(byte red, byte green, byte blue, byte alpha = 255);
+    public IUiContainerBuilder Scroll();
     public IUiContainerBuilder Center();
     public IUiContainerBuilder Width(float width);
     public IUiContainerBuilder Height(float height);
@@ -164,6 +165,12 @@ public class UiContainer : UiElement, IUiContainerBuilder
         return this;
     }
 
+    public IUiContainerBuilder Scroll()
+    {
+        PCanScroll = true;
+        return this;
+    }
+
     public IUiContainerBuilder PaddingVertical(int paddingVertical)
     {
         PQuadrant = PQuadrant with { Top = paddingVertical, Bottom = paddingVertical };
@@ -209,6 +216,7 @@ public class UiContainer : UiElement, IUiContainerBuilder
     public bool IsHovered { get; set; }
     public bool IsActive { get; set; }
     public bool PCanScroll { get; set; }
+    public float ScrollPos { get; set; }
 
     public override void Render(SKCanvas canvas)
     {
@@ -259,20 +267,40 @@ public class UiContainer : UiElement, IUiContainerBuilder
             }
         }
 
+        if (PCanScroll)
+        {
+            canvas.ClipRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight));
+        }
+
         foreach (var childElement in Children)
         {
             childElement.Render(canvas);
         }
+
     }
 
-    public override void Layout()
+    public override void Layout(Window window)
     {
-        ComputeSize();
+        ComputeSize(out var totalChildSize);
+
+        if (PCanScroll)
+        {
+            if (totalChildSize > PComputedHeight)
+            {
+                ScrollPos = Math.Clamp(ScrollPos + window.ScrollDelta * 20, 0, totalChildSize - PComputedHeight);
+
+            }
+            else
+            {
+                ScrollPos = 0;
+            }
+        }
+
         ComputePosition();
 
         foreach (var childElement in Children)
         {
-            childElement.Layout();
+            childElement.Layout(window);
         }
     }
 
@@ -325,15 +353,17 @@ public class UiContainer : UiElement, IUiContainerBuilder
         return newChild;
     }
 
-    private void ComputeSize()
+    private void ComputeSize(out float totalChildSize)
     {
+        totalChildSize = 0;
+
         switch (PDir)
         {
             case EnumDir.Horizontal or EnumDir.RowReverse:
                 ComputeRowSize();
                 break;
             case EnumDir.Vertical or EnumDir.ColumnReverse:
-                ComputeColumnSize();
+                ComputeColumnSize(out totalChildSize);
                 break;
         }
     }
@@ -431,8 +461,10 @@ public class UiContainer : UiElement, IUiContainerBuilder
     }
 
 
-    private void ComputeColumnSize()
+    private void ComputeColumnSize(out float totalChildrenSize)
     {
+        totalChildrenSize = 0;
+
         var remainingSize = RemainingMainAxisFixedSize();
 
         var totalPercentage = 0f;
@@ -480,6 +512,7 @@ public class UiContainer : UiElement, IUiContainerBuilder
                                                item.PWidth.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };
+            totalChildrenSize += item.PComputedHeight;
         }
     }
 
@@ -598,7 +631,7 @@ public class UiContainer : UiElement, IUiContainerBuilder
 
     private void RenderFlexStart()
     {
-        var mainOffset = 0f;
+        var mainOffset = -ScrollPos;
 
         foreach (var child in Children)
         {

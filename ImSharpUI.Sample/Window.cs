@@ -107,7 +107,9 @@ public class Window : IDisposable
         _rootContainer.PComputedWidth = width;
         _rootContainer.PComputedHeight = height;
 
-        _rootContainer.Layout();
+        _rootContainer.Layout(this);
+
+        ScrollDelta = 0;
 
         _rootContainer.Render(surface.Canvas);
 
@@ -131,7 +133,18 @@ public class Window : IDisposable
             {
                 HandleMouseMove(e.motion);
             }
+            else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
+            {
+                HandleScroll(e.wheel);
+            }
         }
+    }
+
+    public int ScrollDelta { get; set; }
+
+    private void HandleScroll(SDL_MouseWheelEvent wheelEvent)
+    {
+        ScrollDelta -= wheelEvent.y;
     }
 
     private void HandleMouseClick(SDL_MouseMotionEvent eventMotion)

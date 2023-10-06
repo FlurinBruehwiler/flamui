@@ -52,6 +52,10 @@ public class EventLoop
             {
                 Console.WriteLine(e.key.keysym.scancode.ToString());
             }
+            else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
+            {
+                GetWindow(e.wheel.windowID).Events.Enqueue(e);
+            }
         }
 
         SDL_Quit();
