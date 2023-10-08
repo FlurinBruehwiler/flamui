@@ -82,6 +82,9 @@ public static class Ui
         if (Window is null)
             throw new Exception();
 
+        if (!((UiContainer)uiContainer).PFocusable)
+            throw new Exception();
+
         Window.ActiveDiv = (UiContainer)uiContainer;
     }
 
