@@ -7,35 +7,25 @@ namespace ImSharpUISample.UiElements;
 
 public partial class UiContainer : UiElement, IUiContainerBuilder
 {
-    public UiContainer()
-    {
-
-    }
-
     public List<UiElement> Children { get; set; } = new();
     public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
-    public bool Clicked { get; set; }
 
-    public bool ClickedWithin //todo we can to a lot of optimization by caching this value and resetting it, only when the user clicks somewhere
+    public bool Clicked
     {
         get
         {
-            var numOfCheckedElements = 0;
+            if (Ui.Window is null)
+                throw new Exception();
 
-            foreach (var child in OldChildrenById)
+            if (Ui.Window.ClickPos is not { } clickPos)
+                return false;
+
+            if (DivContainsPoint(clickPos.X, clickPos.Y))
             {
-                if (child.Value is UiContainer uiContainer)
-                {
-                    numOfCheckedElements++;
-                    if(uiContainer.ClickedWithin)
-                        return true;
-                }
+                return true;
             }
-
-            if (numOfCheckedElements == 0)
-                return Clicked;
 
             return false;
         }
@@ -57,11 +47,34 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     public bool PAbsolute { get; set; }
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
 
-    public bool IsHovered { get; set; }
+    public bool IsHovered
+    {
+        get
+        {
+            if (Ui.Window is null)
+                throw new Exception();
+
+            if (DivContainsPoint(Ui.Window.MousePosition.X, Ui.Window.MousePosition.Y))
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+
+
     public bool IsActive { get; set; }
     public bool PCanScroll { get; set; }
     public float ScrollPos { get; set; }
     public bool IsClipped { get; set; }
+
+    private bool DivContainsPoint(double x, double y)
+    {
+        return PComputedX <= x && PComputedX + PComputedWidth >= x && PComputedY <= y &&
+               PComputedY + PComputedHeight >= y;
+    }
 
 
     public override void Render(SKCanvas canvas)

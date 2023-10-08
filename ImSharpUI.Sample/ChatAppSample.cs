@@ -64,6 +64,48 @@ public class ChatAppSample
                     Id = "2"
                 }
             }
+        },
+        new Chat
+        {
+            Name = "Henry the g",
+            Messages = new List<Message>
+            {
+                new()
+                {
+                    Content = "Test",
+                    From = "Willy",
+                    Time = DateTime.Now,
+                    Id = "1"
+                },
+                new()
+                {
+                    Content = "hi",
+                    From = "Johnny",
+                    Time = DateTime.Now,
+                    Id = "2"
+                }
+            }
+        },
+        new Chat
+        {
+            Name = "moin ",
+            Messages = new List<Message>
+            {
+                new()
+                {
+                    Content = "oh hi mark",
+                    From = "Frank",
+                    Time = DateTime.Now,
+                    Id = "1"
+                },
+                new()
+                {
+                    Content = "Test 2",
+                    From = "Robert",
+                    Time = DateTime.Now,
+                    Id = "2"
+                }
+            }
         }
     };
 
@@ -80,14 +122,14 @@ public class ChatAppSample
         DivStart().Dir(Dir.Horizontal);
 
             //Sidebar
-            DivStart().Color(47, 49, 53).Width(200).Padding(5);
+            DivStart().Color(47, 49, 53).Width(200);
 
-                DivStart().Height(50);
+                DivStart().Height(50).Padding(5);
                     Text("Contacts").Color(100, 103, 107).VAlign(TextAlign.Center);
                 DivEnd();
 
                 //Chats
-                DivStart().Gap(5);
+                DivStart().Gap(5).Padding(5);
                     var index = 0;
                     foreach (var chat in _chats)
                     {
@@ -95,8 +137,14 @@ public class ChatAppSample
                             if (index == _selectedChat)
                                 chatDiv.Color(41, 43, 47);
 
-                            if (chatDiv.ClickedWithin)
+                            if (chatDiv.Clicked)
                                 _selectedChat = index;
+
+                            if (chatDiv.IsHovered)
+                                chatDiv.Color(88, 89, 94);
+
+                            if (index == _selectedChat && chatDiv.IsHovered)
+                                chatDiv.Color(51, 53, 57);
 
                             //Profile Picture
                             DivStart().Width(30).Height(30).Clip().Radius(15);

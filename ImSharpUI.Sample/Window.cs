@@ -13,28 +13,28 @@ public class Window : IDisposable
     private readonly GRContext _grContext;
     public uint Id;
 
-    private UiContainer? _hoveredContainer;
+    // private UiContainer? _hoveredContainer;
     private UiContainer? _activeContainer;
     private readonly UiContainer _rootContainer = new();
     public readonly ConcurrentQueue<SDL_Event> Events = new();
 
-    private UiContainer? HoveredDiv
-    {
-        get => _hoveredContainer;
-        set
-        {
-            if (HoveredDiv is not null)
-            {
-                HoveredDiv.IsHovered = false;
-            }
-
-            _hoveredContainer = value;
-            if (value is not null)
-            {
-                value.IsHovered = true;
-            }
-        }
-    }
+    // private UiContainer? HoveredDiv
+    // {
+    //     get => _hoveredContainer;
+    //     set
+    //     {
+    //         if (HoveredDiv is not null)
+    //         {
+    //             HoveredDiv.IsHovered = false;
+    //         }
+    //
+    //         _hoveredContainer = value;
+    //         if (value is not null)
+    //         {
+    //             value.IsHovered = true;
+    //         }
+    //     }
+    // }
 
     public UiContainer? ActiveDiv
     {
@@ -116,31 +116,31 @@ public class Window : IDisposable
 
         _rootContainer.Render(surface.Canvas);
 
-        if (ActiveDiv is not null)
-            ActiveDiv.Clicked = false;
-
         surface.Canvas.Flush();
         Ui.Window = null;
         TextInput = string.Empty;
         Keypressed.Clear();
+        ClickPos = null;
 
         SDL_GL_SwapWindow(_windowHandle);
     }
 
+    public Vector2Int MousePosition { get; set; }
+    public Vector2Int? ClickPos { get; set; }
+
     private void HandleEvents()
     {
-        SDL_MouseMotionEvent? mousePos = null;
         SDL_MouseMotionEvent? mouseClickPos = null;
 
         while (Events.TryDequeue(out var e))
         {
             if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
             {
-                mouseClickPos = e.motion;
+                ClickPos = new Vector2Int(e.motion.x, e.motion.y);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
             {
-                mousePos = e.motion;
+                MousePosition = new Vector2Int(e.motion.x, e.motion.y);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
             {
@@ -170,10 +170,10 @@ public class Window : IDisposable
             HandleMouseClick(mouseClickPos.Value);
         }
 
-        if (mousePos is not null)
-        {
-            HandleMouseMove(mousePos.Value);
-        }
+        // if (mousePos is not null)
+        // {
+        //     HandleMouseMove(mousePos.Value);
+        // }
     }
 
     public HashSet<SDL_Scancode> Keypressed { get; set; } = new();
@@ -189,96 +189,91 @@ public class Window : IDisposable
 
     private void HandleMouseClick(SDL_MouseMotionEvent eventMotion)
     {
-        var div = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
-
-        if (div is null)
-            return;
-
-        if (ActiveDiv is not null)
-        {
-            ActiveDiv.IsActive = false;
-        }
-
-        ActiveDiv = div;
-
-        ActiveDiv.IsActive = true;
-        ActiveDiv.Clicked = true;
+        // var div = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
+        //
+        // if (div is null)
+        //     return;
+        //
+        // if (ActiveDiv is not null)
+        // {
+        //     ActiveDiv.IsActive = false;
+        // }
+        //
+        // ActiveDiv = div;
+        //
+        // ActiveDiv.IsActive = true;
+        // ActiveDiv.Clicked = true;
     }
 
     private void HandleMouseMove(SDL_MouseMotionEvent eventMotion)
     {
-        if (HoveredDiv is not null)
-        {
-            var res = ActualHitTest(HoveredDiv, eventMotion.x, eventMotion.y);
-
-            //is in new div
-            if (res is null)
-            {
-                HoveredDiv.IsHovered = false;
-                HoveredDiv = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
-                if (HoveredDiv is not null)
-                {
-                    HoveredDiv.IsHovered = true;
-                }
-            }
-            else //is still in old div
-            {
-                if (res != HoveredDiv)
-                {
-                    HoveredDiv.IsHovered = false;
-                    HoveredDiv = res;
-                    HoveredDiv.IsHovered = true;
-                }
-            }
-        }
-        else
-        {
-            HoveredDiv = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
-            if (HoveredDiv is not null)
-            {
-                HoveredDiv.IsHovered = true;
-            }
-        }
+        return;
+        // if (HoveredDiv is not null)
+        // {
+        //     var res = ActualHitTest(HoveredDiv, eventMotion.x, eventMotion.y);
+        //
+        //     //is in new div
+        //     if (res is null)
+        //     {
+        //         HoveredDiv.IsHovered = false;
+        //         HoveredDiv = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
+        //         if (HoveredDiv is not null)
+        //         {
+        //             HoveredDiv.IsHovered = true;
+        //         }
+        //     }
+        //     else //is still in old div
+        //     {
+        //         if (res != HoveredDiv)
+        //         {
+        //             HoveredDiv.IsHovered = false;
+        //             HoveredDiv = res;
+        //             HoveredDiv.IsHovered = true;
+        //         }
+        //     }
+        // }
+        // else
+        // {
+        //     HoveredDiv = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
+        //     if (HoveredDiv is not null)
+        //     {
+        //         HoveredDiv.IsHovered = true;
+        //     }
+        // }
     }
 
-    private UiContainer? ActualHitTest(UiContainer div, double x, double y)
-    {
-        foreach (var absoluteDiv in Ui.AbsoluteDivs)
-        {
-            var hit = HitTest(absoluteDiv, x, y);
-            if (hit is not null)
-                return hit;
-        }
+    // private UiContainer? ActualHitTest(UiContainer div, double x, double y)
+    // {
+    //     foreach (var absoluteDiv in Ui.AbsoluteDivs)
+    //     {
+    //         var hit = HitTest(absoluteDiv, x, y);
+    //         if (hit is not null)
+    //             return hit;
+    //     }
+    //
+    //     return HitTest(div, x, y);
+    // }
 
-        return HitTest(div, x, y);
-    }
-
-    private static UiContainer? HitTest(UiContainer div, double x, double y)
-    {
-        if (DivContainsPoint(div, x, y))
-        {
-            foreach (var child in div.Children)
-            {
-                var actualChild = child;
-
-                if (actualChild is not UiContainer divChild) continue;
-
-                var childHit = HitTest(divChild, x, y);
-                if (childHit is not null)
-                    return childHit;
-            }
-
-            return div;
-        }
-
-        return null;
-    }
-
-    private static bool DivContainsPoint(UiContainer div, double x, double y)
-    {
-        return div.PComputedX <= x && div.PComputedX + div.PComputedWidth >= x && div.PComputedY <= y &&
-               div.PComputedY + div.PComputedHeight >= y;
-    }
+    // private static UiContainer? HitTest(UiContainer div, double x, double y)
+    // {
+    //     if (DivContainsPoint(div, x, y))
+    //     {
+    //         foreach (var child in div.Children)
+    //         {
+    //             var actualChild = child;
+    //
+    //             if (actualChild is not UiContainer divChild) continue;
+    //
+    //             var childHit = HitTest(divChild, x, y);
+    //             if (childHit is not null)
+    //                 return childHit;
+    //         }
+    //
+    //         return div;
+    //     }
+    //
+    //     return null;
+    // }
 
     public void Dispose()
     {
@@ -286,3 +281,5 @@ public class Window : IDisposable
         SDL_DestroyWindow(_windowHandle);
     }
 }
+
+public record struct Vector2Int(int X, int Y);
