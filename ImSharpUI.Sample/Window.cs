@@ -130,8 +130,6 @@ public class Window : IDisposable
 
     private void HandleEvents()
     {
-        SDL_MouseMotionEvent? mouseClickPos = null;
-
         while (Events.TryDequeue(out var e))
         {
             if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
@@ -165,9 +163,9 @@ public class Window : IDisposable
             }
         }
 
-        if (mouseClickPos is not null)
+        if (ClickPos is not null)
         {
-            HandleMouseClick(mouseClickPos.Value);
+            HandleMouseClick(ClickPos.Value);
         }
 
         // if (mousePos is not null)
@@ -187,93 +185,79 @@ public class Window : IDisposable
         ScrollDelta -= wheelEvent.y;
     }
 
-    private void HandleMouseClick(SDL_MouseMotionEvent eventMotion)
+    private void HandleMouseClick(Vector2Int clickPos)
     {
-        // var div = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
-        //
-        // if (div is null)
-        //     return;
-        //
-        // if (ActiveDiv is not null)
-        // {
-        //     ActiveDiv.IsActive = false;
-        // }
-        //
-        // ActiveDiv = div;
-        //
-        // ActiveDiv.IsActive = true;
-        // ActiveDiv.Clicked = true;
+        var div = HitTest(_rootContainer, clickPos.X, clickPos.Y, out var parentCanGetFocus);
+
+        if(!div)
+            ActiveDiv = null;
+
+        if (parentCanGetFocus)
+            ActiveDiv = null;
     }
 
-    private void HandleMouseMove(SDL_MouseMotionEvent eventMotion)
+
+    private bool ActualHitTest(UiContainer div, double x, double y)
     {
-        return;
-        // if (HoveredDiv is not null)
+        // foreach (var absoluteDiv in Ui.AbsoluteDivs)
         // {
-        //     var res = ActualHitTest(HoveredDiv, eventMotion.x, eventMotion.y);
-        //
-        //     //is in new div
-        //     if (res is null)
-        //     {
-        //         HoveredDiv.IsHovered = false;
-        //         HoveredDiv = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
-        //         if (HoveredDiv is not null)
-        //         {
-        //             HoveredDiv.IsHovered = true;
-        //         }
-        //     }
-        //     else //is still in old div
-        //     {
-        //         if (res != HoveredDiv)
-        //         {
-        //             HoveredDiv.IsHovered = false;
-        //             HoveredDiv = res;
-        //             HoveredDiv.IsHovered = true;
-        //         }
-        //     }
+        //     var hit = HitTest(absoluteDiv, x, y);
+        //     if (hit is not null)
+        //         return hit;
         // }
-        // else
-        // {
-        //     HoveredDiv = ActualHitTest(_rootContainer, eventMotion.x, eventMotion.y);
-        //     if (HoveredDiv is not null)
-        //     {
-        //         HoveredDiv.IsHovered = true;
-        //     }
-        // }
+
+        return HitTest(div, x, y, out _);
     }
 
-    // private UiContainer? ActualHitTest(UiContainer div, double x, double y)
-    // {
-    //     foreach (var absoluteDiv in Ui.AbsoluteDivs)
-    //     {
-    //         var hit = HitTest(absoluteDiv, x, y);
-    //         if (hit is not null)
-    //             return hit;
-    //     }
-    //
-    //     return HitTest(div, x, y);
-    // }
+    private bool HitTest(UiContainer div, double x, double y, out bool parentCanGetFocus)
+    {
+        if (DivContainsPoint(div, x, y))
+        {
+            foreach (var child in div.Children)
+            {
+                if (child is not UiContainer divChild)
+                    continue;
 
-    // private static UiContainer? HitTest(UiContainer div, double x, double y)
-    // {
-    //     if (DivContainsPoint(div, x, y))
-    //     {
-    //         foreach (var child in div.Children)
-    //         {
-    //             var actualChild = child;
-    //
-    //             if (actualChild is not UiContainer divChild) continue;
-    //
-    //             var childHit = HitTest(divChild, x, y);
-    //             if (childHit is not null)
-    //                 return childHit;
-    //         }
-    //
-    //         return div;
-    //     }
-    //
-    //     return null;
-    // }
+                var childHit = HitTest(divChild, x, y, out var parentCanGetFocusInner);
+                if (childHit)
+                {
+                    if (parentCanGetFocusInner)
+                    {
+                        if (div.PFocusable)
+                        {
+                            parentCanGetFocus = false;
+                            return true;
+                        }
+
+                        parentCanGetFocus = true;
+                        return true;
+                    }
+
+                    parentCanGetFocus = false;
+                    return true;
+                }
+            }
+
+            if (div.PFocusable)
+            {
+                ActiveDiv = div;
+                parentCanGetFocus = false;
+                return true;
+            }
+
+            parentCanGetFocus = true;
+            return true;
+        }
+
+        parentCanGetFocus = false;
+        return false;
+    }
+
+    private static bool DivContainsPoint(UiContainer div, double x, double y)
+    {
+        return div.PComputedX <= x && div.PComputedX + div.PComputedWidth >= x && div.PComputedY <= y &&
+               div.PComputedY + div.PComputedHeight >= y;
+    }
 
     public void Dispose()
     {

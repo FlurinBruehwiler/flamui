@@ -134,17 +134,14 @@ public class ChatAppSample
                     foreach (var chat in _chats)
                     {
                         DivStart(out var chatDiv, chat.Name).Color(58, 59, 64).Height(50).Radius(4).Dir(Dir.Horizontal).XAlign(XAlign.Center).PaddingEx(left:10).Gap(5);
-                            if (index == _selectedChat)
-                                chatDiv.Color(41, 43, 47);
-
-                            if (chatDiv.Clicked)
-                                _selectedChat = index;
-
                             if (chatDiv.IsHovered)
                                 chatDiv.Color(88, 89, 94);
 
-                            if (index == _selectedChat && chatDiv.IsHovered)
-                                chatDiv.Color(51, 53, 57);
+                            if (index == _selectedChat)
+                                    chatDiv.Color(41, 43, 47);
+
+                            if (chatDiv.Clicked)
+                                _selectedChat = index;
 
                             //Profile Picture
                             DivStart().Width(30).Height(30).Clip().Radius(15);
@@ -186,13 +183,12 @@ public class ChatAppSample
                                 DivEnd();
                                 Text(message.Content);
                             DivEnd();
-
                         DivEnd();
                     }
                 DivEnd();
 
                 //input box
-                DivStart(out var inputDiv).Height(40).Color(58, 62, 67).Radius(3).PaddingEx(left: 10).BorderColor(200, 0,0).BorderWidth(0);
+                DivStart(out var inputDiv).Height(40).Color(58, 62, 67).Radius(3).PaddingLeft(10).BorderColor(200, 0,0).BorderWidth(0).Focusable();
                     var input = GetTextInput();
                     if(!string.IsNullOrEmpty(input) && inputDiv.IsActive)
                         _inputText += GetTextInput();
