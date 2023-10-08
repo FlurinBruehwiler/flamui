@@ -134,7 +134,6 @@ public class Window : IDisposable
             else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
             {
                 mousePos = e.motion;
-                HandleMouseMove(e.motion);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
             {
