@@ -36,7 +36,7 @@ public class Window : IDisposable
         }
     }
 
-    private UiContainer? ActiveDiv
+    public UiContainer? ActiveDiv
     {
         get => _activeContainer;
         set

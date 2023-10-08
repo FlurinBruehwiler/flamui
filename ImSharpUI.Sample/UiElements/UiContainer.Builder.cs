@@ -30,7 +30,7 @@ public interface IUiContainerBuilder
     public IUiContainerBuilder Dir(Dir dir);
     public IUiContainerBuilder Clip(bool isClipped = true);
     public IUiContainerBuilder Absolute(int left = 0, int right = 0, int top = 0, int bottom = 0);
-
+    public bool IsNew { get; set; }
     public bool IsHovered { get; set; }
     public bool IsActive { get; set; }
     public bool FocusIn { get; set; }

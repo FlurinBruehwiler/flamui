@@ -13,8 +13,8 @@ public partial class UiContainer
     };
     public static SKPaint GetColor(ColorDefinition colorDefinition)
     {
-        SPaint.Color = new SKColor((byte)colorDefinition.Red, (byte)colorDefinition.Green, (byte)colorDefinition.Blue,
-            (byte)colorDefinition.Appha);
+        SPaint.Color = new SKColor(colorDefinition.Red, colorDefinition.Green, colorDefinition.Blue,
+            colorDefinition.Appha);
         return SPaint;
     }
 

@@ -77,6 +77,14 @@ public static class Ui
         return Window.TextInput;
     }
 
+    public static void SetFocus(IUiContainerBuilder uiContainer)
+    {
+        if (Window is null)
+            throw new Exception();
+
+        Window.ActiveDiv = (UiContainer)uiContainer;
+    }
+
     public static bool IsKeyPressed(SDL.SDL_Scancode scancode)
     {
         if (Window is null)

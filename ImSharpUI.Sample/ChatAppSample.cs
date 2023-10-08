@@ -118,11 +118,10 @@ public class ChatAppSample
                 DivEnd();
 
             DivEnd();
+            var selectedChat = _chats[_selectedChat];
 
             //Chat View
             DivStart().Color(53, 57, 63).Padding(10);
-                var selectedChat = _chats[_selectedChat];
-
 
                 //Messages
                 DivStart().Gap(10);
@@ -151,6 +150,9 @@ public class ChatAppSample
                         _inputText += GetTextInput();
                     if (inputDiv.IsActive)
                         inputDiv.BorderWidth(2);
+                    if (inputDiv.IsNew)
+                        SetFocus(inputDiv);
+
                     if (IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
                     {
                         if (IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))

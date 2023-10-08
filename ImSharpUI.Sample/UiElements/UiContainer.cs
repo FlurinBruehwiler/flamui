@@ -7,6 +7,11 @@ namespace ImSharpUISample.UiElements;
 
 public partial class UiContainer : UiElement, IUiContainerBuilder
 {
+    public UiContainer()
+    {
+
+    }
+
     public List<UiElement> Children { get; set; } = new();
     public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
     public bool FocusIn { get; set; }
@@ -36,6 +41,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         }
     }
 
+    public bool IsNew { get; set; } = true;
     public ColorDefinition? PColor { get; set; }
     public ColorDefinition? PHoverColor { get; set; }
     public ColorDefinition? PBorderColor { get; set; }
@@ -134,6 +140,8 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
 
     public override void Layout(Window window)
     {
+        IsNew = false;
+
         ComputeSize();
 
         var contentSize = ComputePosition();

@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using static SDL2.SDL;
+﻿using static SDL2.SDL;
 
 namespace ImSharpUISample;
 
@@ -43,7 +42,7 @@ public class EventLoop
             {
                 GetWindow(e.text.windowID).Events.Enqueue(e);
             }
-            else if (e.type is SDL_EventType.SDL_KEYDOWN or SDL_EventType.SDL_KEYDOWN)
+            else if (e.type is SDL_EventType.SDL_KEYDOWN or SDL_EventType.SDL_KEYUP)
             {
                 GetWindow(e.key.windowID).Events.Enqueue(e);
             }
