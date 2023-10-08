@@ -12,6 +12,30 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
     public bool Clicked { get; set; }
+
+    public bool ClickedWithin //todo we can to a lot of optimization by caching this value and resetting it, only when the user clicks somewhere
+    {
+        get
+        {
+            var numOfCheckedElements = 0;
+
+            foreach (var child in OldChildrenById)
+            {
+                if (child.Value is UiContainer uiContainer)
+                {
+                    numOfCheckedElements++;
+                    if(uiContainer.ClickedWithin)
+                        return true;
+                }
+            }
+
+            if (numOfCheckedElements == 0)
+                return Clicked;
+
+            return false;
+        }
+    }
+
     public ColorDefinition? PColor { get; set; }
     public ColorDefinition? PHoverColor { get; set; }
     public ColorDefinition? PBorderColor { get; set; }
@@ -31,7 +55,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     public bool IsActive { get; set; }
     public bool PCanScroll { get; set; }
     public float ScrollPos { get; set; }
-
+    public bool IsClipped { get; set; }
 
 
     public override void Render(SKCanvas canvas)
@@ -83,23 +107,28 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
             }
         }
 
-        if (PCanScroll)
+        canvas.Save();
+
+        if (PCanScroll || IsClipped)
         {
-            canvas.ClipRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight));
+            if (PRadius != 0)
+            {
+                canvas.ClipRoundRect(
+                    new SKRoundRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight), PRadius),
+                    antialias: true);
+            }
+            else
+            {
+                canvas.ClipRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight));
+            }
         }
 
         foreach (var childElement in Children)
         {
-
-
-
-            // canvas.Translate(childElement.PComputedX, childElement.PComputedY - ScrollPos);
-
             childElement.Render(canvas);
-
-            // canvas.Translate(-childElement.PComputedX, -(childElement.PComputedY - ScrollPos));
         }
 
+        canvas.Restore();
     }
 
 

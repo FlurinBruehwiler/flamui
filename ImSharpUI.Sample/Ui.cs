@@ -57,6 +57,16 @@ public static class Ui
         return text;
     }
 
+    public static UiImage Image(string src,
+        string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1)
+    {
+        var text = OpenElementStack.Peek().AddChild<UiImage>(new UiElementId(key, path, line));
+        text.Src = src;
+        return text;
+    }
+
     public static void InvokeAsync(Func<Task> fun)
     {
     }

@@ -23,11 +23,12 @@ public interface IUiContainerBuilder
     public IUiContainerBuilder PaddingLeft(int paddingLeft);
     public IUiContainerBuilder PaddingVertical(int paddingVertical);
     public IUiContainerBuilder PaddingHorizontal(int paddingHorizontal);
-    public IUiContainerBuilder Padding(int left, int right, int top, int bottom);
+    public IUiContainerBuilder PaddingEx(int left = 0, int right = 0, int top = 0, int bottom = 0);
     public IUiContainerBuilder Padding(int padding);
     public IUiContainerBuilder XAlign(XAlign xAlign);
     public IUiContainerBuilder MAlign(MAlign xAlign);
     public IUiContainerBuilder Dir(Dir dir);
+    public IUiContainerBuilder Clip(bool isClipped = true);
     public IUiContainerBuilder Absolute(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
     public bool IsHovered { get; set; }
@@ -35,6 +36,7 @@ public interface IUiContainerBuilder
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
     public bool Clicked { get; set; }
+    public bool ClickedWithin { get; }
 }
 
 
@@ -96,6 +98,12 @@ public partial class UiContainer
         return this;
     }
 
+    public IUiContainerBuilder Clip(bool isClipped = true)
+    {
+        IsClipped = isClipped;
+        return this;
+    }
+
     public IUiContainerBuilder Absolute(int left = 0, int right = 0, int top = 0, int bottom = 0)
     {
         PAbsolute = true;
@@ -133,7 +141,7 @@ public partial class UiContainer
         return this;
     }
 
-    public IUiContainerBuilder Padding(int left, int right, int top, int bottom)
+    public IUiContainerBuilder PaddingEx(int left = 0, int right = 0, int top = 0, int bottom = 0)
     {
         PPadding = new Quadrant(left, right, top, bottom);
         return this;

@@ -16,7 +16,6 @@ public class UiText : UiElement
 
     private static readonly SKPaint Paint = new()
     {
-        Color = new SKColor(255, 255, 255),
         IsAntialias = true,
         Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal,
             SKFontStyleSlant.Upright)
@@ -28,6 +27,7 @@ public class UiText : UiElement
             return;
 
         Paint.TextSize = PSize;
+        Paint.Color = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Appha);
 
         var path = Paint.GetTextPath(Content, PComputedX, PComputedY);
         path.GetBounds(out var rect);
@@ -72,7 +72,7 @@ public class UiText : UiElement
         return this;
     }
 
-    public UiText Color(float red, float green, float blue, float transparency = 255)
+    public UiText Color(byte red, byte green, byte blue, byte transparency = 255)
     {
         PColor = new ColorDefinition(red, green, blue, transparency);
         return this;

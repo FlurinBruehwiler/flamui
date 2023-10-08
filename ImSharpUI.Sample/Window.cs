@@ -82,6 +82,7 @@ public class Window : IDisposable
     }
 
     private readonly Sample _sample = new();
+    private readonly ChatAppSample _chatAppSample = new();
 
     public void Update()
     {
@@ -101,7 +102,8 @@ public class Window : IDisposable
         Ui.OpenElementStack.Push(_rootContainer);
         _rootContainer.OpenElement();
 
-        _sample.Build();
+        // _sample.Build();
+        _chatAppSample.Build();
 
         _rootContainer.PComputedWidth = width;
         _rootContainer.PComputedHeight = height;

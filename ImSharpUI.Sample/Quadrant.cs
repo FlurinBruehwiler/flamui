@@ -53,5 +53,5 @@ public enum XAlign
     Center
 }
 
-public record struct ColorDefinition(float Red, float Green, float Blue, float Appha = 255);
+public record struct ColorDefinition(byte Red, byte Green, byte Blue, byte Appha = 255);
 
