@@ -85,7 +85,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
 
         if (PCanScroll)
         {
-            canvas.ClipRect(SKRect.Create(0, 0, PComputedWidth, PComputedHeight));
+            canvas.ClipRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight));
         }
 
         foreach (var childElement in Children)
@@ -113,7 +113,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         {
             if (contentSize > PComputedHeight)
             {
-                ScrollPos = Math.Clamp(ScrollPos + window.ScrollDelta, 0, contentSize - PComputedHeight);
+                ScrollPos = Math.Clamp(ScrollPos + window.ScrollDelta * 20, 0, contentSize - PComputedHeight);
             }
             else
             {
@@ -123,7 +123,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
 
         foreach (var childElement in Children)
         {
-            childElement.PComputedY += ScrollPos;
+            childElement.PComputedY -= ScrollPos;
             childElement.Layout(window);
         }
     }

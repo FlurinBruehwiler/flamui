@@ -41,14 +41,14 @@ public class Sample
                     if (div.IsHovered)
                         div.Color(0, 200, 0);
 
-                    
+
                 DivEnd();
                 DivStart().Color(255, 255, 0).Padding(20).Gap(10);
                     Checkbox();
                     DropDown();
                 DivEnd();
             DivEnd();
-            DivStart().HeightFraction(70).Gap(5).Padding(5).BorderColor(0, 0,0).BorderWidth(2);
+            DivStart().Scroll().Gap(5).Padding(5).BorderColor(0, 0,0).BorderWidth(2);
                 foreach (var x in _items)
                 {
                     DivStart(out var itemDiv, x).Height(20).Color(10, 200, 100).Radius(5).Padding(2);
