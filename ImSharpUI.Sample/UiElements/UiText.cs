@@ -14,24 +14,25 @@ public class UiText : UiElement
 
     public TextAlign PvAlign { get; set; } = TextAlign.Start;
 
+    private static readonly SKPaint Paint = new()
+    {
+        Color = new SKColor(255, 255, 255),
+        IsAntialias = true,
+        Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal,
+            SKFontStyleSlant.Upright)
+    };
+
     public override void Render(SKCanvas canvas)
     {
         if (Content == string.Empty)
             return;
 
-        var paint = new SKPaint
-        {
-            Color = new SKColor(255, 255, 255),
-            IsAntialias = true,
-            TextSize = PSize,
-            Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal,
-                SKFontStyleSlant.Upright)
-        };
+        Paint.TextSize = PSize;
 
-        var path = paint.GetTextPath(Content, PComputedX, PComputedY);
+        var path = Paint.GetTextPath(Content, PComputedX, PComputedY);
         path.GetBounds(out var rect);
 
-        paint.GetFontMetrics(out var metrics);
+        Paint.GetFontMetrics(out var metrics);
 
         var actualX = PComputedX;
         var actualY = PComputedY;
@@ -52,7 +53,7 @@ public class UiText : UiElement
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        canvas.DrawText(Content, actualX, actualY, paint);
+        canvas.DrawText(Content, actualX, actualY, Paint);
     }
 
     public override void Layout(Window window)
