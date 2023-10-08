@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using ImSharpUISample.UiElements;
 using SkiaSharp;
 using static SDL2.SDL;
@@ -123,20 +122,34 @@ public class Window : IDisposable
 
     private void HandleEvents()
     {
+        SDL_MouseMotionEvent? mousePos = null;
+        SDL_MouseMotionEvent? mouseClickPos = null;
+
         while (Events.TryDequeue(out var e))
         {
             if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
             {
-                HandleMouseClick(e.motion);
+                mouseClickPos = e.motion;
             }
             else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
             {
+                mousePos = e.motion;
                 HandleMouseMove(e.motion);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
             {
                 HandleScroll(e.wheel);
             }
+        }
+
+        if (mouseClickPos is not null)
+        {
+            HandleMouseClick(mouseClickPos.Value);
+        }
+
+        if (mousePos is not null)
+        {
+            HandleMouseMove(mousePos.Value);
         }
     }
 
