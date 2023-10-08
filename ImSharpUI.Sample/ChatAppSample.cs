@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using ImSharpUISample.UiElements;
+using SDL2;
 using static ImSharpUISample.Ui;
 
 namespace ImSharpUISample;
@@ -142,11 +143,42 @@ public class ChatAppSample
                 DivEnd();
 
                 //input box
-                DivStart().Height(40).Color(58, 62, 67).Radius(3);
+                DivStart(out var inputDiv).Height(40).Color(58, 62, 67).Radius(3).PaddingEx(left: 10).BorderColor(200, 0,0).BorderWidth(0);
+                    var input = GetTextInput();
+                    if(!string.IsNullOrEmpty(input) && inputDiv.IsActive)
+                        _inputText += GetTextInput();
+                    if (inputDiv.IsActive)
+                        inputDiv.BorderWidth(2);
+                    if (IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
+                    {
+                        if (IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
+                        {
+                            _inputText = _inputText.TrimEnd();
+
+                            if (!_inputText.Contains(' '))
+                            {
+                                _inputText = string.Empty;
+                            }
+
+                            for (var i = _inputText.Length - 1; i > 0; i--)
+                            {
+                                if (_inputText[i] != ' ') continue;
+                                _inputText = _inputText[..(i + 1)];
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            _inputText = _inputText[..^1];
+                        }
+                    }
+                    Text(_inputText).VAlign(TextAlign.Center).Color(200, 200, 200);
                 DivEnd();
 
             DivEnd();
 
         DivEnd();
     }
+
+    private string _inputText = string.Empty;
 }

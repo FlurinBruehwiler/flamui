@@ -41,16 +41,11 @@ public class EventLoop
             }
             else if (e.type == SDL_EventType.SDL_TEXTINPUT)
             {
-                //ToDo https://wiki.libsdl.org/SDL2/Tutorials-TextInput
-                unsafe
-                {
-                    var str = Marshal.PtrToStringUTF8((IntPtr)e.text.text);
-                    Console.WriteLine(str);
-                }
+                GetWindow(e.text.windowID).Events.Enqueue(e);
             }
             else if (e.type == SDL_EventType.SDL_KEYDOWN)
             {
-                Console.WriteLine(e.key.keysym.scancode.ToString());
+                GetWindow(e.key.windowID).Events.Enqueue(e);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
             {

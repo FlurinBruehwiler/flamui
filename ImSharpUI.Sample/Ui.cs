@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using ImSharpUISample.UiElements;
+using SDL2;
 
 namespace ImSharpUISample;
 
@@ -7,6 +8,7 @@ public static class Ui
 {
     public static readonly Stack<UiContainer> OpenElementStack = new();
     public static List<UiContainer> AbsoluteDivs = new();
+    public static Window? Window = null;
 
     public static IUiContainerBuilder DivStart(
         out IUiContainerBuilder uiContainer,
@@ -65,6 +67,30 @@ public static class Ui
         var text = OpenElementStack.Peek().AddChild<UiImage>(new UiElementId(key, path, line));
         text.Src = src;
         return text;
+    }
+
+    public static string GetTextInput()
+    {
+        if (Window is null)
+            throw new Exception();
+
+        return Window.TextInput;
+    }
+
+    public static bool IsKeyPressed(SDL.SDL_Scancode scancode)
+    {
+        if (Window is null)
+            throw new Exception();
+
+        return Window.Keypressed.Contains(scancode);
+    }
+
+    public static bool IsKeyDown(SDL.SDL_Scancode scancode)
+    {
+        if (Window is null)
+            throw new Exception();
+
+        return Window.Keydown.Contains(scancode);
     }
 
     public static void InvokeAsync(Func<Task> fun)

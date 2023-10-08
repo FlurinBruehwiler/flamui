@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 using ImSharpUISample.UiElements;
 using SkiaSharp;
 using static SDL2.SDL;
@@ -86,6 +87,7 @@ public class Window : IDisposable
 
     public void Update()
     {
+        Ui.Window = this;
         HandleEvents();
 
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
@@ -118,6 +120,9 @@ public class Window : IDisposable
             ActiveDiv.Clicked = false;
 
         surface.Canvas.Flush();
+        Ui.Window = null;
+        TextInput = string.Empty;
+        Keypressed.Clear();
 
         SDL_GL_SwapWindow(_windowHandle);
     }
@@ -141,6 +146,23 @@ public class Window : IDisposable
             {
                 HandleScroll(e.wheel);
             }
+            else if (e.type == SDL_EventType.SDL_TEXTINPUT)
+            {
+                unsafe
+                {
+                    //ToDo https://wiki.libsdl.org/SDL2/Tutorials-TextInput
+                    TextInput += Marshal.PtrToStringUTF8((IntPtr)e.text.text);
+                }
+            }
+            else if (e.type == SDL_EventType.SDL_KEYDOWN)
+            {
+                Keypressed.Add(e.key.keysym.scancode);
+                Keydown.Add(e.key.keysym.scancode);
+            }
+            else if (e.type == SDL_EventType.SDL_KEYUP)
+            {
+                Keydown.Remove(e.key.keysym.scancode);
+            }
         }
 
         if (mouseClickPos is not null)
@@ -153,6 +175,10 @@ public class Window : IDisposable
             HandleMouseMove(mousePos.Value);
         }
     }
+
+    public HashSet<SDL_Scancode> Keypressed { get; set; } = new();
+    public HashSet<SDL_Scancode> Keydown { get; set; } = new();
+    public string TextInput { get; set; } = string.Empty;
 
     public int ScrollDelta { get; set; }
 
