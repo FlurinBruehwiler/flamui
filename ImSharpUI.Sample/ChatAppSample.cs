@@ -73,7 +73,7 @@ public class ChatAppSample
     {
         //Header
         DivStart().Color(36, 36, 36).Height(25).PaddingEx(left: 5);
-            Text("BunnyChat").Color(100, 103, 107).VAlign(TextAlign.Center);
+            Text("Chat app").Color(100, 103, 107).VAlign(TextAlign.Center);
         DivEnd();
 
         //Main Content
@@ -121,9 +121,11 @@ public class ChatAppSample
 
             //Chat View
             DivStart().Color(53, 57, 63).Padding(10);
+                var selectedChat = _chats[_selectedChat];
+
+
                 //Messages
                 DivStart().Gap(10);
-                    var selectedChat = _chats[_selectedChat];
                     foreach (var message in selectedChat.Messages)
                     {
                         DivStart(message.Id).Height(30).Dir(Dir.Horizontal).Gap(10);
@@ -171,6 +173,18 @@ public class ChatAppSample
                         {
                             _inputText = _inputText[..^1];
                         }
+                    }
+
+                    if (IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+                    {
+                        selectedChat.Messages.Add(new Message
+                        {
+                            Content = _inputText,
+                            From = "semmel",
+                            Id = Guid.NewGuid().ToString(),
+                            Time = DateTime.Now
+                        });
+                        _inputText = string.Empty;
                     }
                     Text(_inputText).VAlign(TextAlign.Center).Color(200, 200, 200);
                 DivEnd();

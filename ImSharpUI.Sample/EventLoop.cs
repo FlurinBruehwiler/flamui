@@ -43,7 +43,7 @@ public class EventLoop
             {
                 GetWindow(e.text.windowID).Events.Enqueue(e);
             }
-            else if (e.type == SDL_EventType.SDL_KEYDOWN)
+            else if (e.type is SDL_EventType.SDL_KEYDOWN or SDL_EventType.SDL_KEYDOWN)
             {
                 GetWindow(e.key.windowID).Events.Enqueue(e);
             }
