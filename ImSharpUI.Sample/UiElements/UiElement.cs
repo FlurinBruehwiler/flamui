@@ -18,6 +18,8 @@ public abstract class UiElement
     public float PComputedY { get; set; }
     public abstract void Render(SKCanvas canvas);
     public abstract void Layout(Window window);
+    public abstract bool LayoutHasChanged();
+    public abstract bool HasChanges();
 }
 
 public record struct UiElementId(string Key, string Path, int Line);

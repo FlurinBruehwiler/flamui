@@ -470,4 +470,14 @@ public partial class UiContainer
         item.PComputedX += PComputedX + PPadding.Left;
         item.PComputedY += PComputedY + PPadding.Top;
     }
+
+    public override bool LayoutHasChanged()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool HasChanges()
+    {
+        throw new NotImplementedException();
+    }
 }

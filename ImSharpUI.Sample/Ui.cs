@@ -4,7 +4,7 @@ using SDL2;
 
 namespace ImSharpUISample;
 
-public static class Ui
+public static partial class Ui
 {
     public static readonly Stack<UiContainer> OpenElementStack = new();
     public static List<UiContainer> AbsoluteDivs = new();

@@ -60,6 +60,16 @@ public class UiText : UiElement
     {
     }
 
+    public override bool LayoutHasChanged()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool HasChanges()
+    {
+        throw new NotImplementedException();
+    }
+
     public UiText Width(float width, SizeKind sizeKind = SizeKind.Pixel)
     {
         PWidth = new SizeDefinition(width, sizeKind);

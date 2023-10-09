@@ -50,4 +50,14 @@ public class UiSvg : UiElement
     {
 
     }
+
+    public override bool LayoutHasChanged()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool HasChanges()
+    {
+        throw new NotImplementedException();
+    }
 }

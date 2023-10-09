@@ -31,6 +31,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         }
     }
 
+    public int PZIndex { get; set;}
     public bool PFocusable { get; set; }
     public bool IsNew { get; set; } = true;
     public ColorDefinition? PColor { get; set; }

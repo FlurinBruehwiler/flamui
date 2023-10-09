@@ -110,6 +110,7 @@ public class ChatAppSample
     };
 
     private int _selectedChat = 0;
+    private bool _contactsModelShowing;
 
     public void Build()
     {
@@ -124,9 +125,25 @@ public class ChatAppSample
             //Sidebar
             DivStart().Color(47, 49, 53).Width(200);
 
-                DivStart().Height(50).Padding(5);
+                DivStart(out var contactsDiv).Height(50).Padding(5);
+                    if (contactsDiv.Clicked)
+                    {
+                        _contactsModelShowing = true;
+                    }
+
+                    if (IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_W))
+                    {
+                        _contactsModelShowing = false;
+                    }
+
                     Text("Contacts").Color(100, 103, 107).VAlign(TextAlign.Center);
                 DivEnd();
+
+                if (_contactsModelShowing)
+                {
+                    StartModal();
+                    EndModal();
+                }
 
                 //Chats
                 DivStart().Gap(5).Padding(5);
@@ -189,39 +206,15 @@ public class ChatAppSample
 
                 //input box
                 DivStart(out var inputDiv).Height(40).Color(58, 62, 67).Radius(3).PaddingLeft(10).BorderColor(200, 0,0).BorderWidth(0).Focusable();
-                    var input = GetTextInput();
-                    if(!string.IsNullOrEmpty(input) && inputDiv.IsActive)
-                        _inputText += GetTextInput();
+
                     if (inputDiv.IsActive)
                         inputDiv.BorderWidth(2);
                     if (inputDiv.IsNew)
                         SetFocus(inputDiv);
 
-                    if (IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
-                    {
-                        if (IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
-                        {
-                            _inputText = _inputText.TrimEnd();
+                    Input(ref _inputText);
 
-                            if (!_inputText.Contains(' '))
-                            {
-                                _inputText = string.Empty;
-                            }
-
-                            for (var i = _inputText.Length - 1; i > 0; i--)
-                            {
-                                if (_inputText[i] != ' ') continue;
-                                _inputText = _inputText[..(i + 1)];
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            _inputText = _inputText[..^1];
-                        }
-                    }
-
-                    if (IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+                    if (inputDiv.IsActive && IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
                     {
                         selectedChat.Messages.Add(new Message
                         {
@@ -232,7 +225,6 @@ public class ChatAppSample
                         });
                         _inputText = string.Empty;
                     }
-                    Text(_inputText).VAlign(TextAlign.Center).Color(200, 200, 200);
                 DivEnd();
 
             DivEnd();
