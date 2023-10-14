@@ -47,6 +47,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     public Action? POnClick { get; set; }
     public bool PAutoFocus { get; set; }
     public bool PAbsolute { get; set; }
+    public UiContainer? AbsoluteContainer { get; set; }
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
 
     public bool IsHovered
@@ -77,7 +78,6 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         return PComputedX <= x && PComputedX + PComputedWidth >= x && PComputedY <= y &&
                PComputedY + PComputedHeight >= y;
     }
-
 
     public override void Render(SKCanvas canvas)
     {
@@ -146,6 +146,13 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
 
         foreach (var childElement in Children)
         {
+            //if differenz Z-index, defer rendering
+            if (childElement is UiContainer uiContainer && uiContainer.PZIndex != 0)
+            {
+                Ui.DeferedRenderedContainers.Add(uiContainer);
+                continue;
+            }
+
             childElement.Render(canvas);
         }
 

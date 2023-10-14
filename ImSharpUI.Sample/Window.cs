@@ -101,12 +101,15 @@ public class Window : IDisposable
 
         Ui.OpenElementStack.Clear();
         Ui.OpenElementStack.Push(_rootContainer);
+        Ui.Root = _rootContainer;
+        _rootContainer.PComputedWidth = width;
+        _rootContainer.PComputedHeight = height;
+
         _rootContainer.OpenElement();
 
         _chatAppSample.Build();
 
-        _rootContainer.PComputedWidth = width;
-        _rootContainer.PComputedHeight = height;
+
 
         _rootContainer.Layout(this);
 
@@ -114,6 +117,14 @@ public class Window : IDisposable
 
         _rootContainer.Render(surface.Canvas);
 
+        foreach (var deferedRenderedContainer in Ui.DeferedRenderedContainers)
+        {
+            deferedRenderedContainer.Render(surface.Canvas);
+        }
+
+        Ui.DeferedRenderedContainers.Clear();
+
+        Ui.Root = null!;
         surface.Canvas.Flush();
         Ui.Window = null;
         TextInput = string.Empty;

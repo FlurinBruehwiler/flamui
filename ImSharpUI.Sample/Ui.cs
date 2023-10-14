@@ -9,6 +9,8 @@ public static partial class Ui
     public static readonly Stack<UiContainer> OpenElementStack = new();
     public static List<UiContainer> AbsoluteDivs = new();
     public static Window? Window = null;
+    public static List<UiContainer> DeferedRenderedContainers = new();
+    public static UiContainer Root = null!;
 
     public static IUiContainerBuilder DivStart(
         out IUiContainerBuilder uiContainer,

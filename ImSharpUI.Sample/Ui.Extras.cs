@@ -6,10 +6,10 @@ namespace ImSharpUISample;
 
 public partial class Ui
 {
-    public static void StartModal()
+    public static void StartModal(ref bool show)
     {
-        DivStart().Absolute().XAlign(XAlign.Center).MAlign(MAlign.Center);
-            DivStart().Color(200, 0, 0).Width(200).Height(200);
+        DivStart().Absolute(Root).XAlign(XAlign.Center).MAlign(MAlign.Center).ZIndex(1);
+            DivStart().Color(39, 41, 44).Width(400).Height(200).Radius(10).BorderWidth(1).BorderColor(58, 62, 67);
     }
 
     public static void EndModal()

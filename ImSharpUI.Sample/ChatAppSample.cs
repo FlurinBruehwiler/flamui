@@ -114,6 +114,16 @@ public class ChatAppSample
 
     public void Build()
     {
+        // DivStart().WidthFraction(50).HeightFraction(50);
+        //
+        //     StartModal(ref _contactsModelShowing);
+        //     EndModal();
+        //
+        // DivEnd();
+        //
+        //
+        // return;
+
         //Header
         DivStart().Color(36, 36, 36).Height(25).PaddingEx(left: 5);
             Text("Chat app").Color(100, 103, 107).VAlign(TextAlign.Center);
@@ -131,19 +141,11 @@ public class ChatAppSample
                         _contactsModelShowing = true;
                     }
 
-                    if (IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_W))
-                    {
-                        _contactsModelShowing = false;
-                    }
-
                     Text("Contacts").Color(100, 103, 107).VAlign(TextAlign.Center);
                 DivEnd();
 
-                if (_contactsModelShowing)
-                {
-                    StartModal();
-                    EndModal();
-                }
+                StartModal(ref _contactsModelShowing);
+                EndModal();
 
                 //Chats
                 DivStart().Gap(5).Padding(5);
@@ -209,8 +211,8 @@ public class ChatAppSample
 
                     if (inputDiv.IsActive)
                         inputDiv.BorderWidth(2);
-                    if (inputDiv.IsNew)
-                        SetFocus(inputDiv);
+                    // if (inputDiv.IsNew)
+                    //     SetFocus(inputDiv);
 
                     Input(ref _inputText);
 

@@ -29,7 +29,7 @@ public interface IUiContainerBuilder
     public IUiContainerBuilder MAlign(MAlign xAlign);
     public IUiContainerBuilder Dir(Dir dir);
     public IUiContainerBuilder Clip(bool isClipped = true);
-    public IUiContainerBuilder Absolute(int left = 0, int right = 0, int top = 0, int bottom = 0);
+    public IUiContainerBuilder Absolute(IUiContainerBuilder? container = null, int left = 0, int right = 0, int top = 0, int bottom = 0);
     public IUiContainerBuilder Focusable(bool focusable = true);
     public IUiContainerBuilder ZIndex(int zIndex);
     public bool IsNew { get; set; }
@@ -117,9 +117,10 @@ public partial class UiContainer
         return this;
     }
 
-    public IUiContainerBuilder Absolute(int left = 0, int right = 0, int top = 0, int bottom = 0)
+    public IUiContainerBuilder Absolute(IUiContainerBuilder? container = null, int left = 0, int right = 0, int top = 0, int bottom = 0)
     {
         PAbsolute = true;
+        AbsoluteContainer = container as UiContainer;
         PAbsolutePosition = new Quadrant(left, right, top, bottom);
         return this;
     }
