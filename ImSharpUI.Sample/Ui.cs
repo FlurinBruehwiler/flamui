@@ -4,13 +4,37 @@ using SDL2;
 
 namespace ImSharpUISample;
 
+public class SubStack
+{
+    public required Stack<UiContainer> PreviousSubStack { get; set; }
+    public required Stack<UiContainer> CurrentStack { get; set; }
+}
+
 public static partial class Ui
 {
+    public static Stack<ComponentData> OpenComponents = new();
     public static Stack<UiContainer> OpenElementStack = new();
     public static List<UiContainer> AbsoluteDivs = new();
     public static Window? Window = null;
     public static List<UiContainer> DeferedRenderedContainers = new();
     public static UiContainer Root = null!;
+    public static SubStack StartSubStack(UiContainer temporaryContainer)
+    {
+        var substack = new SubStack //ToDo resuse to avoid memory allocation
+        {
+            PreviousSubStack = OpenElementStack,
+            CurrentStack = new Stack<UiContainer>()
+        };
+        OpenElementStack = substack.CurrentStack;
+        OpenElementStack.Push(temporaryContainer);
+        return substack;
+    }
+
+    public static List<UiElement> EndSubStack(SubStack subStack)
+    {
+        OpenElementStack = subStack.PreviousSubStack;
+        return subStack.CurrentStack.Pop().Children;
+    }
 
     public static IUiContainerBuilder DivStart(
         out IUiContainerBuilder uiContainer,

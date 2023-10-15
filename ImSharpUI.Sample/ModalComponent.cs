@@ -5,7 +5,7 @@ namespace ImSharpUISample;
 
 public interface IData
 {
-    public UiElementId Id { get; init; }
+    public UiElementId Id { get; set; }
 }
 
 [AttributeUsage(AttributeTargets.Method)]
@@ -14,16 +14,20 @@ public class BuilderAttribute : Attribute
 
 }
 
-public class ModalComponent : IData
+public class ModalComponent
 {
     private bool _wasShown;
 
     [Builder]
-    public void StartModal(ref bool show, string title)
+    public void StartModal()
+    {
+
+    }
+
+    [Builder]
+    public void EndModal(ref bool show, string title, List<UiElement> children)
     {
         DivStart().Absolute(Root).XAlign(XAlign.Center).MAlign(MAlign.Center).ZIndex(1).Hidden(!show);
-            if (!show)
-                return;
             DivStart(out var modalDiv).Clip().Color(39, 41, 44).Width(400).Height(200).Radius(10).BorderWidth(2).BorderColor(58, 62, 67);
 
                 if (_wasShown && TryGetMouseClickPosition(out var pos) && !modalDiv.ContainsPoint(pos.X, pos.Y))
@@ -50,17 +54,9 @@ public class ModalComponent : IData
                 DivStart().Padding(15);
 
                     //start user content
-                    DivStart();
-    }
+                    DivStart(out var userContentWrapper);
 
-    [Builder]
-    public void EndModal(ref bool show)
-    {
-        if (!show)
-        {
-            DivEnd();
-            return;
-        }
+                    ((UiContainer)userContentWrapper).Children = children;
 
                     //End user content
                     DivEnd();
@@ -82,8 +78,6 @@ public class ModalComponent : IData
             DivEnd();
         DivEnd();
     }
-
-    public UiElementId Id { get; init; }
 }
 
 public class DropDownComponent

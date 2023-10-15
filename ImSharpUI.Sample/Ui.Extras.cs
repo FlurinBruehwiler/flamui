@@ -1,36 +1,57 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
+using System.Security.Principal;
 using ImSharpUISample.UiElements;
 using SDL2;
 
 namespace ImSharpUISample;
 
+public class ComponentData : IData
+{
+    public required UiElementId Id { get; set; }
+    public required object Component { get; set; }
+    public required SubStack SubStack { get; set; }
+}
+
 public partial class Ui
 {
-    public static Stack<ModalComponent> OpenModalComponents = new();
-
-    public static void StartModal(ref bool show, string title, string key = "",
+    public static void StartModal(string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
         var id = new UiElementId(key, path, line);
         if (!OpenElementStack.Peek().OldDataById.TryGetValue(id, out var existingModal))
         {
-            existingModal = Activator.CreateInstance<ModalComponent>();
+            existingModal = new ComponentData
+            {
+                Component = Activator.CreateInstance<ModalComponent>(),
+                Id = id,
+                SubStack = new SubStack
+                {
+                    PreviousSubStack = OpenElementStack,
+                    CurrentStack = new Stack<UiContainer>()
+                }
+            };
+            ((ComponentData)existingModal).SubStack.CurrentStack.Push(new UiContainer());
         }
 
         OpenElementStack.Peek().Data.Add(existingModal);
 
-        var modal = (ModalComponent)existingModal;
+        var componentData = (ComponentData)existingModal;
+        OpenComponents.Push(componentData);
+        var modal = (ModalComponent)componentData.Component;
+        componentData.SubStack.CurrentStack.Peek().OpenElement();
+        modal.StartModal();
 
-        OpenModalComponents.Push(modal);
-
-        modal.StartModal(ref show, title);
+        OpenElementStack = componentData.SubStack.CurrentStack;
     }
 
-    public static void EndModal(ref bool show)
+    public static void EndModal(ref bool show, string title)
     {
-        var modal = OpenModalComponents.Pop();
-        modal.EndModal(ref show);
+        var componentData = OpenComponents.Pop();
+        OpenElementStack = componentData.SubStack.PreviousSubStack;
+        var children = componentData.SubStack.CurrentStack.Peek().Children;
+        ((ModalComponent)componentData.Component).EndModal(ref show, title, children);
     }
 
     public static void StyledInput(ref string text, string key = "",

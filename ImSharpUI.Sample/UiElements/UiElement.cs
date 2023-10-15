@@ -4,7 +4,7 @@ namespace ImSharpUISample.UiElements;
 
 public abstract class UiElement : IData
 {
-    public UiElementId Id { get; init; }
+    public UiElementId Id { get; set; }
     public SizeDefinition PWidth { get; set; } = new(100, SizeKind.Percentage);
 
     public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
