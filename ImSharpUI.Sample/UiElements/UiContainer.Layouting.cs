@@ -18,44 +18,6 @@ public partial class UiContainer
         return SPaint;
     }
 
-    private ColorDefinition? GetColor()
-    {
-        if (IsHovered && PHoverColor is not null)
-        {
-            return PHoverColor;
-        }
-
-        return PColor;
-    }
-
-    public void OpenElement()
-    {
-        OldChildrenById.Clear();
-        foreach (var uiElementClass in Children)
-        {
-            OldChildrenById.Add(uiElementClass.Id, uiElementClass);
-        }
-
-        Children.Clear();
-    }
-
-    public T AddChild<T>(UiElementId uiElementId) where T : UiElement, new()
-    {
-        if (OldChildrenById.TryGetValue(uiElementId, out var child))
-        {
-            Children.Add(child);
-            return (T)child;
-        }
-
-        var newChild = new T
-        {
-            Id = uiElementId
-        };
-
-        Children.Add(newChild);
-        return newChild;
-    }
-
     private void ComputeSize()
     {
         switch (PDir)
@@ -332,6 +294,8 @@ public partial class UiContainer
 
             sum += GetItemMainAxisLength(child);
         }
+
+        sum += PGap * (Children.Count - 1);
 
         return GetMainAxisLength() - sum;
     }

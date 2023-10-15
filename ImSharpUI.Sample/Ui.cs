@@ -6,7 +6,7 @@ namespace ImSharpUISample;
 
 public static partial class Ui
 {
-    public static readonly Stack<UiContainer> OpenElementStack = new();
+    public static Stack<UiContainer> OpenElementStack = new();
     public static List<UiContainer> AbsoluteDivs = new();
     public static Window? Window = null;
     public static List<UiContainer> DeferedRenderedContainers = new();
@@ -104,6 +104,20 @@ public static partial class Ui
             throw new Exception();
 
         return Window.Keydown.Contains(scancode);
+    }
+
+    public static bool TryGetMouseClickPosition(out Vector2Int pos)
+    {
+        pos = new Vector2Int();
+
+        if (Window is null)
+            throw new Exception();
+
+        if (Window.ClickPos is not { } p)
+            return false;
+
+        pos = p;
+        return true;
     }
 
     public static void InvokeAsync(Func<Task> fun)

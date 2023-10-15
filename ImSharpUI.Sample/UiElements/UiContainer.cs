@@ -31,11 +31,10 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         }
     }
 
-    public int PZIndex { get; set;}
+    public int PZIndex { get; set; }
     public bool PFocusable { get; set; }
     public bool IsNew { get; set; } = true;
     public ColorDefinition? PColor { get; set; }
-    public ColorDefinition? PHoverColor { get; set; }
     public ColorDefinition? PBorderColor { get; set; }
     public Quadrant PPadding { get; set; } = new(0, 0, 0, 0);
     public int PGap { get; set; }
@@ -48,6 +47,9 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     public bool PAutoFocus { get; set; }
     public bool PAbsolute { get; set; }
     public UiContainer? AbsoluteContainer { get; set; }
+
+    public bool PHidden { get; set; }
+
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
 
     public bool IsHovered
@@ -66,6 +68,22 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         }
     }
 
+    public bool HasFocusWithin
+    {
+        get
+        {
+            if (IsActive)
+                return true;
+
+            foreach (var uiElement in OldChildrenById)
+            {
+                if (uiElement.Value is UiContainer { IsActive: true })
+                    return true;
+            }
+
+            return false;
+        }
+    }
 
 
     public bool IsActive { get; set; }
@@ -79,53 +97,82 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
                PComputedY + PComputedHeight >= y;
     }
 
+    public void OpenElement()
+    {
+        OldChildrenById.Clear();
+        foreach (var uiElementClass in Children)
+        {
+            OldChildrenById.Add(uiElementClass.Id, uiElementClass);
+        }
+
+        Children.Clear();
+    }
+
+    public T AddChild<T>(UiElementId uiElementId) where T : UiElement, new()
+    {
+        if (OldChildrenById.TryGetValue(uiElementId, out var child))
+        {
+            Children.Add(child);
+            return (T)child;
+        }
+
+        var newChild = new T
+        {
+            Id = uiElementId
+        };
+
+        Children.Add(newChild);
+        return newChild;
+    }
+
+    public object? Data;
+
     public override void Render(SKCanvas canvas)
     {
-        if (GetColor() is { } color)
+        if (PColor is { } color)
         {
-            if (PBorderWidth != 0)
-            {
-                if (PRadius != 0)
-                {
-                    float borderRadius = PRadius + PBorderWidth;
 
-                    canvas.DrawRoundRect(PComputedX - PBorderWidth,
-                        PComputedY - PBorderWidth,
-                        PComputedWidth + 2 * PBorderWidth,
-                        PComputedHeight + 2 * PBorderWidth,
-                        borderRadius,
-                        borderRadius,
-                        GetColor(PBorderColor ?? color));
-                    canvas.DrawRoundRect(PComputedX,
-                        PComputedY,
-                        PComputedWidth,
-                        PComputedHeight,
-                        PRadius,
-                        PRadius,
-                        GetColor(color));
-                }
-                else
-                {
-                    canvas.DrawRect(PComputedX - PBorderWidth, PComputedY - PBorderWidth,
-                        PComputedWidth + 2 * PBorderWidth, PComputedHeight + 2 * PBorderWidth,
-                        GetColor(PBorderColor ?? color));
-                    canvas.DrawRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight,
-                        GetColor(color));
-                }
+            if (PRadius != 0)
+            {
+                canvas.DrawRoundRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight, PRadius, PRadius,
+                    GetColor(color));
             }
             else
             {
-                if (PRadius != 0)
-                {
-                    canvas.DrawRoundRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight, PRadius, PRadius,
-                        GetColor(color));
-                }
-                else
-                {
-                    canvas.DrawRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight,
-                        GetColor(color));
-                }
+                canvas.DrawRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight,
+                    GetColor(color));
             }
+        }
+        if (PBorderWidth != 0 && PBorderColor is {} borderColor)
+        {
+            canvas.Save();
+
+            if (PRadius != 0)
+            {
+                float borderRadius = PRadius + PBorderWidth;
+
+                canvas.ClipRoundRect(
+                    new SKRoundRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight), PRadius), SKClipOperation.Difference,
+                    antialias: true);
+
+                canvas.DrawRoundRect(PComputedX - PBorderWidth,
+                    PComputedY - PBorderWidth,
+                    PComputedWidth + 2 * PBorderWidth,
+                    PComputedHeight + 2 * PBorderWidth,
+                    borderRadius,
+                    borderRadius,
+                    GetColor(borderColor));
+            }
+            else
+            {
+                canvas.ClipRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight), SKClipOperation.Difference, true);
+
+                canvas.DrawRect(PComputedX - PBorderWidth, PComputedY - PBorderWidth,
+                    PComputedWidth + 2 * PBorderWidth, PComputedHeight + 2 * PBorderWidth,
+                    GetColor(borderColor));
+            }
+
+            canvas.Restore();
         }
 
         canvas.Save();
@@ -146,6 +193,11 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
 
         foreach (var childElement in Children)
         {
+            if (childElement is UiContainer { PHidden: true })
+            {
+                continue;
+            }
+
             //if differenz Z-index, defer rendering
             if (childElement is UiContainer uiContainer && uiContainer.PZIndex != 0)
             {
@@ -182,8 +234,19 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
 
         foreach (var childElement in Children)
         {
+            if (childElement is UiContainer { PHidden: true })
+            {
+                continue;
+            }
+
             childElement.PComputedY -= ScrollPos;
             childElement.Layout(window);
         }
+    }
+
+    public bool ContainsPoint(double x, double y)
+    {
+        return PComputedX <= x && PComputedX + PComputedWidth >= x && PComputedY <= y &&
+               PComputedY + PComputedHeight >= y;
     }
 }

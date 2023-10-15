@@ -32,9 +32,12 @@ public interface IUiContainerBuilder
     public IUiContainerBuilder Absolute(IUiContainerBuilder? container = null, int left = 0, int right = 0, int top = 0, int bottom = 0);
     public IUiContainerBuilder Focusable(bool focusable = true);
     public IUiContainerBuilder ZIndex(int zIndex);
+    public IUiContainerBuilder Hidden(bool hidden = true);
+    public bool ContainsPoint(double x, double y);
     public bool IsNew { get; set; }
     public bool IsHovered { get; }
     public bool IsActive { get; set; }
+    public bool HasFocusWithin { get; }
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
     public bool Clicked { get; }
@@ -89,6 +92,12 @@ public partial class UiContainer
     public IUiContainerBuilder ZIndex(int zIndex)
     {
         PZIndex = zIndex;
+        return this;
+    }
+
+    public IUiContainerBuilder Hidden(bool hidden = true)
+    {
+        PHidden = hidden;
         return this;
     }
 

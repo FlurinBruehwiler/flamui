@@ -196,30 +196,30 @@ public class Window : IDisposable
 
     private void HandleMouseClick(Vector2Int clickPos)
     {
-        var div = HitTest(_rootContainer, clickPos.X, clickPos.Y, out var parentCanGetFocus);
+        var hitSomething = ActualHitTest(_rootContainer, clickPos.X, clickPos.Y, out var parentCanGetFocus);
 
-        if(!div)
+        if(!hitSomething)
             ActiveDiv = null;
 
         if (parentCanGetFocus)
             ActiveDiv = null;
     }
 
-    private bool ActualHitTest(UiContainer div, double x, double y)
+    private bool ActualHitTest(UiContainer div, double x, double y, out bool parentCanGetFocus)
     {
-        // foreach (var absoluteDiv in Ui.AbsoluteDivs)
-        // {
-        //     var hit = HitTest(absoluteDiv, x, y);
-        //     if (hit is not null)
-        //         return hit;
-        // }
+        foreach (var absoluteDiv in Ui.AbsoluteDivs)
+        {
+            var hit = HitTest(absoluteDiv, x, y, out parentCanGetFocus);
+            if (hit)
+                return true;
+        }
 
-        return HitTest(div, x, y, out _);
+        return HitTest(div, x, y, out parentCanGetFocus);
     }
 
     private bool HitTest(UiContainer div, double x, double y, out bool parentCanGetFocus)
     {
-        if (DivContainsPoint(div, x, y))
+        if (div.ContainsPoint(x, y))
         {
             foreach (var child in div.Children)
             {
@@ -259,12 +259,6 @@ public class Window : IDisposable
 
         parentCanGetFocus = false;
         return false;
-    }
-
-    private static bool DivContainsPoint(UiContainer div, double x, double y)
-    {
-        return div.PComputedX <= x && div.PComputedX + div.PComputedWidth >= x && div.PComputedY <= y &&
-               div.PComputedY + div.PComputedHeight >= y;
     }
 
     public void Dispose()

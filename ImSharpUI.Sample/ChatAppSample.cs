@@ -111,6 +111,7 @@ public class ChatAppSample
 
     private int _selectedChat = 0;
     private bool _contactsModelShowing;
+    private string _modalText = string.Empty;
 
     public void Build()
     {
@@ -137,14 +138,15 @@ public class ChatAppSample
 
                 DivStart(out var contactsDiv).Height(50).Padding(5);
                     if (contactsDiv.Clicked)
-                    {
                         _contactsModelShowing = true;
-                    }
 
                     Text("Contacts").Color(100, 103, 107).VAlign(TextAlign.Center);
                 DivEnd();
 
-                StartModal(ref _contactsModelShowing);
+                //create chat modal
+                StartModal(ref _contactsModelShowing, "Create Chat");
+                    StyledInput(ref _modalText);
+
                 EndModal();
 
                 //Chats
@@ -209,14 +211,12 @@ public class ChatAppSample
                 //input box
                 DivStart(out var inputDiv).Height(40).Color(58, 62, 67).Radius(3).PaddingLeft(10).BorderColor(200, 0,0).BorderWidth(0).Focusable();
 
-                    if (inputDiv.IsActive)
+                    if (inputDiv.HasFocusWithin)
                         inputDiv.BorderWidth(2);
-                    // if (inputDiv.IsNew)
-                    //     SetFocus(inputDiv);
 
                     Input(ref _inputText);
 
-                    if (inputDiv.IsActive && IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+                    if (inputDiv.HasFocusWithin && IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
                     {
                         selectedChat.Messages.Add(new Message
                         {

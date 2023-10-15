@@ -15,6 +15,19 @@ if (windowHandle == IntPtr.Zero)
     Console.WriteLine($"SDL_CreateWindow Error: {SDL_GetError()}");
     throw new Exception();
 }
+// SDL_SetWindowHitTest(windowHandle, (win, a, data) =>
+// {
+//     unsafe
+//     {
+//         var area = (SDL_Point*)a;
+//         if (area->y < 60)
+//         {
+//             return SDL_HitTestResult.SDL_HITTEST_DRAGGABLE;
+//         }
+//
+//         return SDL_HitTestResult.SDL_HITTEST_NORMAL;
+//     }
+// }, 0);
 
 var added = false;
 Task.Run(() =>
