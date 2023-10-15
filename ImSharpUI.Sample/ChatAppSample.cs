@@ -146,8 +146,7 @@ public class ChatAppSample
                 //create chat modal
                 StartModal(ref _contactsModelShowing, "Create Chat");
                     StyledInput(ref _modalText);
-
-                EndModal();
+                EndModal(ref _contactsModelShowing);
 
                 //Chats
                 DivStart().Gap(5).Padding(5);

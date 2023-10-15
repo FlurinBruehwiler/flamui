@@ -209,6 +209,8 @@ public class Window : IDisposable
     {
         foreach (var absoluteDiv in Ui.AbsoluteDivs)
         {
+            if(absoluteDiv.PHidden)
+                continue;
             var hit = HitTest(absoluteDiv, x, y, out parentCanGetFocus);
             if (hit)
                 return true;

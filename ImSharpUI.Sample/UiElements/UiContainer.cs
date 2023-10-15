@@ -7,6 +7,8 @@ namespace ImSharpUISample.UiElements;
 
 public partial class UiContainer : UiElement, IUiContainerBuilder
 {
+    private Dictionary<UiElementId, IData>? _oldDataById;
+    private List<IData>? _data;
     public List<UiElement> Children { get; set; } = new();
     public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
     public bool FocusIn { get; set; }
@@ -51,6 +53,9 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     public bool PHidden { get; set; }
 
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
+
+    public Dictionary<UiElementId, IData> OldDataById => _oldDataById ??= new Dictionary<UiElementId, IData>();
+    public List<IData> Data => _data ??= new List<IData>();
 
     public bool IsHovered
     {
@@ -106,6 +111,15 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         }
 
         Children.Clear();
+
+
+        OldDataById.Clear();
+        foreach (var o in Data)
+        {
+            OldDataById.Add(o.Id, o);
+        }
+
+        Data.Clear();
     }
 
     public T AddChild<T>(UiElementId uiElementId) where T : UiElement, new()
@@ -124,8 +138,6 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         Children.Add(newChild);
         return newChild;
     }
-
-    public object? Data;
 
     public override void Render(SKCanvas canvas)
     {
