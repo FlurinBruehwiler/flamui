@@ -230,12 +230,15 @@ public partial class UiContainer
 
     private void PositionAbsoluteItem(UiContainer item)
     {
+        if (item.DisablePositioning)
+            return;
+
         var parent = this;
         if (item is { AbsoluteContainer: not null } p)
             parent = p.AbsoluteContainer;
 
-        item.PComputedX = parent.PComputedX + parent.PPadding.Left + item.PAbsolutePosition.Left;
-        item.PComputedY = parent.PComputedY + parent.PPadding.Top + item.PAbsolutePosition.Top;
+        item.ComputedX = parent.ComputedX + parent.PPadding.Left + item.PAbsolutePosition.Left;
+        item.ComputedY = parent.ComputedY + parent.PPadding.Top + item.PAbsolutePosition.Top;
     }
 
     private void CalculateAbsoluteSize(UiElement item)
@@ -419,28 +422,28 @@ public partial class UiContainer
         switch (PDir)
         {
             case EnumDir.Horizontal:
-                item.PComputedX = mainOffset;
-                item.PComputedY = GetCrossAxisOffset(item);
+                item.ComputedX = mainOffset;
+                item.ComputedY = GetCrossAxisOffset(item);
                 break;
             case EnumDir.RowReverse:
-                item.PComputedX = PComputedWidth - (PPadding.Left + PPadding.Right) - mainOffset -
+                item.ComputedX = PComputedWidth - (PPadding.Left + PPadding.Right) - mainOffset -
                                   item.PComputedWidth;
-                item.PComputedY = GetCrossAxisOffset(item);
+                item.ComputedY = GetCrossAxisOffset(item);
                 break;
             case EnumDir.Vertical:
-                item.PComputedX = GetCrossAxisOffset(item);
-                item.PComputedY = mainOffset;
+                item.ComputedX = GetCrossAxisOffset(item);
+                item.ComputedY = mainOffset;
                 break;
             case EnumDir.ColumnReverse:
-                item.PComputedX = GetCrossAxisOffset(item);
-                item.PComputedY = PComputedHeight - mainOffset - item.PComputedHeight;
+                item.ComputedX = GetCrossAxisOffset(item);
+                item.ComputedY = PComputedHeight - mainOffset - item.PComputedHeight;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        item.PComputedX += PComputedX + PPadding.Left;
-        item.PComputedY += PComputedY + PPadding.Top;
+        item.ComputedX += ComputedX + PPadding.Left;
+        item.ComputedY += ComputedY + PPadding.Top;
     }
 
     public override bool LayoutHasChanged()

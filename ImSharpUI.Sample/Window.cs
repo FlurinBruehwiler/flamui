@@ -82,7 +82,7 @@ public class Window : IDisposable
         });
     }
 
-    private readonly ChatAppSample _chatAppSample = new();
+    private readonly GraphSample _graphSample = new();
 
     public void Update()
     {
@@ -107,9 +107,7 @@ public class Window : IDisposable
 
         _rootContainer.OpenElement();
 
-        _chatAppSample.Build();
-
-
+        _graphSample.Build();
 
         _rootContainer.Layout(this);
 
@@ -129,13 +127,20 @@ public class Window : IDisposable
         Ui.Window = null;
         TextInput = string.Empty;
         Keypressed.Clear();
+        IsMouseButtonNewlyPressed = false;
+        MouseButtonUp = false;
         ClickPos = null;
+        LastMousePosition = MousePosition;
 
         SDL_GL_SwapWindow(_windowHandle);
     }
 
+    public Vector2Int LastMousePosition { get; set; }
     public Vector2Int MousePosition { get; set; }
     public Vector2Int? ClickPos { get; set; }
+    public bool IsMouseButtonDown { get; set; }
+    public bool IsMouseButtonNewlyPressed { get; set; }
+    public bool MouseButtonUp { get; set; }
 
     private void HandleEvents()
     {
@@ -144,6 +149,13 @@ public class Window : IDisposable
             if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
             {
                 ClickPos = new Vector2Int(e.motion.x, e.motion.y);
+                IsMouseButtonDown = true;
+                IsMouseButtonNewlyPressed = true;
+            }
+            else if (e.type == SDL_EventType.SDL_MOUSEBUTTONUP)
+            {
+                IsMouseButtonDown = false;
+                MouseButtonUp = true;
             }
             else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
             {
@@ -270,4 +282,10 @@ public class Window : IDisposable
     }
 }
 
-public record struct Vector2Int(int X, int Y);
+public record struct Vector2Int(int X, int Y)
+{
+    public static Vector2Int operator -(Vector2Int a, Vector2Int b)
+    {
+        return new Vector2Int(a.X - b.X, a.Y - b.Y);
+    }
+}

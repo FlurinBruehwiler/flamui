@@ -29,13 +29,13 @@ public class UiText : UiElement
         Paint.TextSize = PSize;
         Paint.Color = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Appha);
 
-        var path = Paint.GetTextPath(Content, PComputedX, PComputedY);
+        var path = Paint.GetTextPath(Content, ComputedX, ComputedY);
         path.GetBounds(out var rect);
 
         Paint.GetFontMetrics(out var metrics);
 
-        var actualX = PComputedX;
-        var actualY = PComputedY;
+        var actualX = ComputedX;
+        var actualY = ComputedY;
 
         actualY += PvAlign switch
         {

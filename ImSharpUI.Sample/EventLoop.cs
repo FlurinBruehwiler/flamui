@@ -34,6 +34,10 @@ public class EventLoop
             {
                 GetWindow(e.motion.windowID).Events.Enqueue(e);
             }
+            else if (e.type == SDL_EventType.SDL_MOUSEBUTTONUP)
+            {
+                GetWindow(e.motion.windowID).Events.Enqueue(e);
+            }
             else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
             {
                 GetWindow(e.motion.windowID).Events.Enqueue(e);

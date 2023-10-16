@@ -110,7 +110,7 @@ public class ChatAppSample
     };
 
     private int _selectedChat = 0;
-    private bool _contactsModelShowing = true;
+    private bool _contactsModelShowing = false;
     private string _modalText = string.Empty;
 
     public void Build()

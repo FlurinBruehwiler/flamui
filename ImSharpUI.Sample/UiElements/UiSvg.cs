@@ -40,8 +40,8 @@ public class UiSvg : UiElement
 
         var matrix = SKMatrix.CreateScale(factor, factor);
 
-        matrix.TransX = PComputedX;
-        matrix.TransY = PComputedY;
+        matrix.TransX = ComputedX;
+        matrix.TransY = ComputedY;
 
         canvas.DrawPicture(SSvgCache[Src].Picture, ref matrix);
     }

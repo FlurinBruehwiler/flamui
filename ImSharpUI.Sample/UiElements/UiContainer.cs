@@ -51,6 +51,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     public Action? POnClick { get; set; }
     public bool PAutoFocus { get; set; }
     public bool PAbsolute { get; set; }
+    public bool DisablePositioning { get; set; }
     public UiContainer? AbsoluteContainer { get; set; }
 
     public bool PHidden { get; set; }
@@ -101,8 +102,8 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
 
     private bool DivContainsPoint(double x, double y)
     {
-        return PComputedX <= x && PComputedX + PComputedWidth >= x && PComputedY <= y &&
-               PComputedY + PComputedHeight >= y;
+        return ComputedX <= x && ComputedX + PComputedWidth >= x && ComputedY <= y &&
+               ComputedY + PComputedHeight >= y;
     }
 
     public void OpenElement()
@@ -151,12 +152,12 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
 
             if (PRadius != 0)
             {
-                canvas.DrawRoundRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight, PRadius, PRadius,
+                canvas.DrawRoundRect(ComputedX, ComputedY, PComputedWidth, PComputedHeight, PRadius, PRadius,
                     GetColor(color));
             }
             else
             {
-                canvas.DrawRect(PComputedX, PComputedY, PComputedWidth, PComputedHeight,
+                canvas.DrawRect(ComputedX, ComputedY, PComputedWidth, PComputedHeight,
                     GetColor(color));
             }
         }
@@ -169,11 +170,11 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
                 float borderRadius = PRadius + PBorderWidth;
 
                 canvas.ClipRoundRect(
-                    new SKRoundRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight), PRadius), SKClipOperation.Difference,
+                    new SKRoundRect(SKRect.Create(ComputedX, ComputedY, PComputedWidth, PComputedHeight), PRadius), SKClipOperation.Difference,
                     antialias: true);
 
-                canvas.DrawRoundRect(PComputedX - PBorderWidth,
-                    PComputedY - PBorderWidth,
+                canvas.DrawRoundRect(ComputedX - PBorderWidth,
+                    ComputedY - PBorderWidth,
                     PComputedWidth + 2 * PBorderWidth,
                     PComputedHeight + 2 * PBorderWidth,
                     borderRadius,
@@ -182,9 +183,9 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
             }
             else
             {
-                canvas.ClipRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight), SKClipOperation.Difference, true);
+                canvas.ClipRect(SKRect.Create(ComputedX, ComputedY, PComputedWidth, PComputedHeight), SKClipOperation.Difference, true);
 
-                canvas.DrawRect(PComputedX - PBorderWidth, PComputedY - PBorderWidth,
+                canvas.DrawRect(ComputedX - PBorderWidth, ComputedY - PBorderWidth,
                     PComputedWidth + 2 * PBorderWidth, PComputedHeight + 2 * PBorderWidth,
                     GetColor(borderColor));
             }
@@ -199,12 +200,12 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
             if (PRadius != 0)
             {
                 canvas.ClipRoundRect(
-                    new SKRoundRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight), PRadius),
+                    new SKRoundRect(SKRect.Create(ComputedX, ComputedY, PComputedWidth, PComputedHeight), PRadius),
                     antialias: true);
             }
             else
             {
-                canvas.ClipRect(SKRect.Create(PComputedX, PComputedY, PComputedWidth, PComputedHeight));
+                canvas.ClipRect(SKRect.Create(ComputedX, ComputedY, PComputedWidth, PComputedHeight));
             }
         }
 
@@ -256,14 +257,14 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
                 continue;
             }
 
-            childElement.PComputedY -= ScrollPos;
+            childElement.ComputedY -= ScrollPos;
             childElement.Layout(window);
         }
     }
 
     public bool ContainsPoint(double x, double y)
     {
-        return PComputedX <= x && PComputedX + PComputedWidth >= x && PComputedY <= y &&
-               PComputedY + PComputedHeight >= y;
+        return ComputedX <= x && ComputedX + PComputedWidth >= x && ComputedY <= y &&
+               ComputedY + PComputedHeight >= y;
     }
 }

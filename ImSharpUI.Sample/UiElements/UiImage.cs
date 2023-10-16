@@ -35,7 +35,7 @@ public class UiImage : UiElement
             destHeight = PComputedWidth / currentRatio;
         }
 
-        canvas.DrawBitmap(ImgCache[Src], new SKRect(PComputedX, PComputedY, PComputedX + destWidth, PComputedY + destHeight), Paint);
+        canvas.DrawBitmap(ImgCache[Src], new SKRect(ComputedX, ComputedY, ComputedX + destWidth, ComputedY + destHeight), Paint);
     }
 
     private static readonly SKPaint Paint = new()

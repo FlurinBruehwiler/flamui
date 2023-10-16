@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using ImSharpUISample.UiElements;
 using static ImSharpUISample.Ui;
+using static SDL2.SDL;
 
 namespace ImSharpUISample;
 
@@ -18,6 +19,8 @@ public class BuilderAttribute : Attribute
 public class ModalComponent
 {
     private bool _wasShown;
+    private bool _isDragging;
+    private Vector2Int _dragOffset;
 
     [Builder]
     public void StartModal()
@@ -28,7 +31,11 @@ public class ModalComponent
     [Builder]
     public void EndModal(ref bool show, string title, List<UiElement> children)
     {
+        if(!show)
+            return;
+
         DivStart().Absolute(Root).XAlign(XAlign.Center).MAlign(MAlign.Center).ZIndex(1).Hidden(!show);
+
             DivStart(out var modalDiv).Clip().Color(39, 41, 44).Width(400).Height(200).Radius(10).BorderWidth(2).BorderColor(58, 62, 67);
 
                 if (_wasShown && TryGetMouseClickPosition(out var pos) && !modalDiv.ContainsPoint(pos.X, pos.Y))
@@ -36,8 +43,31 @@ public class ModalComponent
 
                 _wasShown = show;
 
-                //Header
-                DivStart().Height(25).Dir(Dir.Horizontal).MAlign(MAlign.SpaceBetween).PaddingLeft(10);
+                //Headerbjmhg
+                DivStart(out var headerDiv).Height(25).Dir(Dir.Horizontal).MAlign(MAlign.SpaceBetween).PaddingLeft(10);
+
+                    var mousePos = GetMousePosition();
+
+                    if (show && IsMouseButtonPressed() && headerDiv.ContainsPoint(mousePos.X, mousePos.Y))
+                    {
+                        _isDragging = true;
+                        _dragOffset = new Vector2Int((int)modalDiv.ComputedX - mousePos.X, (int)modalDiv.ComputedY - mousePos.Y);
+                        SDL_CaptureMouse(SDL_bool.SDL_TRUE);
+                    }
+
+                    if (_isDragging && IsMouseButtonReleased())
+                    {
+                        _isDragging = false;
+                        SDL_CaptureMouse(SDL_bool.SDL_FALSE);
+                    }
+
+                    if (_isDragging)
+                    {
+                        modalDiv.Absolute(disablePositioning: true);
+                        modalDiv.ComputedX = mousePos.X + _dragOffset.X;
+                        modalDiv.ComputedY = mousePos.Y + _dragOffset.Y;
+                    }
+
                     //Title
                     DivStart();
                         Text(title).VAlign(TextAlign.Center);

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using ImSharpUISample.UiElements;
 using SDL2;
@@ -143,6 +144,52 @@ public static partial class Ui
 
         pos = p;
         return true;
+    }
+
+    /// <summary>
+    /// Check if a mouse button has been pressed once
+    /// </summary>
+    /// <returns></returns>
+    public static bool IsMouseButtonPressed()
+    {
+        if (Window is null)
+            throw new Exception();
+
+        return Window.IsMouseButtonNewlyPressed;
+    }
+
+    /// <summary>
+    /// Check if a mouse button is being pressed
+    /// </summary>
+    /// <returns></returns>
+    public static bool IsMouseButtonDown()
+    {
+        return Window!.IsMouseButtonDown;
+    }
+
+    /// <summary>
+    /// Check if a mouse button has been released once
+    /// </summary>
+    /// <returns></returns>
+    public static bool IsMouseButtonReleased()
+    {
+        return Window!.MouseButtonUp;
+    }
+
+    public static Vector2Int GetMousePosition()
+    {
+        if (Window is null)
+            throw new Exception();
+
+        return Window.MousePosition;
+    }
+
+    public static Vector2Int GetMouseDelta()
+    {
+        if (Window is null)
+            throw new Exception();
+
+        return Window.MousePosition - Window.LastMousePosition;
     }
 
     public static void InvokeAsync(Func<Task> fun)

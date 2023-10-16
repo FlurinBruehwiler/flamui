@@ -13,9 +13,9 @@ public abstract class UiElement : IData
 
     public float PComputedWidth { get; set; }
 
-    public float PComputedX { get; set; }
+    public float ComputedX { get; set; }
 
-    public float PComputedY { get; set; }
+    public float ComputedY { get; set; }
     public abstract void Render(SKCanvas canvas);
     public abstract void Layout(Window window);
     public abstract bool LayoutHasChanged();
