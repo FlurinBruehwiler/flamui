@@ -1,4 +1,5 @@
-﻿using ImSharpUISample.UiElements;
+﻿using System.Collections.ObjectModel;
+using ImSharpUISample.UiElements;
 using static ImSharpUISample.Ui;
 
 namespace ImSharpUISample;
@@ -56,7 +57,7 @@ public class ModalComponent
                     //start user content
                     DivStart(out var userContentWrapper);
 
-                    ((UiContainer)userContentWrapper).Children = children;
+                    ((UiContainer)userContentWrapper).Children = children.ToList();
 
                     //End user content
                     DivEnd();

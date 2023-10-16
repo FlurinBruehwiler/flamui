@@ -15,6 +15,8 @@ public class ComponentData : IData
 
 public partial class Ui
 {
+    public static UiContainer substackroot;
+
     public static void StartModal(string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -32,7 +34,11 @@ public partial class Ui
                     CurrentStack = new Stack<UiContainer>()
                 }
             };
-            ((ComponentData)existingModal).SubStack.CurrentStack.Push(new UiContainer());
+            substackroot = new UiContainer
+            {
+                Id = new UiElementId("substack root", string.Empty, 0)
+            };
+            ((ComponentData)existingModal).SubStack.CurrentStack.Push(substackroot);
         }
 
         OpenElementStack.Peek().Data.Add(existingModal);

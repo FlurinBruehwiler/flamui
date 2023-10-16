@@ -1,4 +1,6 @@
-﻿using SkiaSharp;
+﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using SkiaSharp;
 using EnumXAlign = ImSharpUISample.XAlign;
 using EnumMAlign = ImSharpUISample.MAlign;
 using EnumDir = ImSharpUISample.Dir;
@@ -10,6 +12,7 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     private Dictionary<UiElementId, IData>? _oldDataById;
     private List<IData>? _data;
     public List<UiElement> Children { get; set; } = new();
+
     public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
@@ -134,6 +137,8 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
         {
             Id = uiElementId
         };
+
+        Console.WriteLine($"Created {newChild.Id}");
 
         Children.Add(newChild);
         return newChild;

@@ -110,18 +110,15 @@ public class ChatAppSample
     };
 
     private int _selectedChat = 0;
-    private bool _contactsModelShowing;
+    private bool _contactsModelShowing = true;
     private string _modalText = string.Empty;
 
     public void Build()
     {
-        // DivStart().WidthFraction(50).HeightFraction(50);
-        //
-        //     StartModal(ref _contactsModelShowing);
-        //     EndModal();
-        //
-        // DivEnd();
-        //
+        // StartModal();
+        //     DivStart();
+        //     DivEnd();
+        // EndModal(ref _contactsModelShowing, "");
         //
         // return;
 
