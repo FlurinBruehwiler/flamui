@@ -34,7 +34,7 @@ Task.Run(() =>
 {
     try
     {
-        eventLoop.Windows.Add(new Window(windowHandle));
+        eventLoop.Windows.Add(new UiWindow(windowHandle));
         added = true;
         eventLoop.RunRenderThread();
 

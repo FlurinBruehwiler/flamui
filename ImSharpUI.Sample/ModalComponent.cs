@@ -39,24 +39,28 @@ public class ModalComponent
 
             DivStart(out var modalDiv).Clip().Color(39, 41, 44).Width(400).Height(200).Radius(10).BorderWidth(2).BorderColor(58, 62, 67);
 
-                if (_wasShown && TryGetMouseClickPosition(out var pos) && !modalDiv.ContainsPoint(pos.X, pos.Y))
-                    show = false;
+                if (_wasShown && Window.IsMouseButtonPressed(MouseButtonKind.Left))
+                {
+                    var pos = Window.MousePosition;
+                    if(!modalDiv.ContainsPoint(pos.X, pos.Y))
+                        show = false;
+                }
 
                 _wasShown = show;
 
                 //Headerbjmhg
                 DivStart(out var headerDiv).Height(25).Dir(Dir.Horizontal).MAlign(MAlign.SpaceBetween).PaddingLeft(10);
 
-                    var mousePos = GetMousePosition();
+                    var mousePos = Window.MousePosition;
 
-                    if (show && IsMouseButtonPressed() && headerDiv.ContainsPoint(mousePos.X, mousePos.Y))
+                    if (show && Window.IsMouseButtonPressed(MouseButtonKind.Left) && headerDiv.ContainsPoint(mousePos.X, mousePos.Y))
                     {
                         _isDragging = true;
                         _dragOffset = new Vector2(modalDiv.ComputedX - mousePos.X, modalDiv.ComputedY - mousePos.Y);
                         SDL_CaptureMouse(SDL_bool.SDL_TRUE);
                     }
 
-                    if (_isDragging && IsMouseButtonReleased())
+                    if (_isDragging && Window.IsMouseButtonReleased(MouseButtonKind.Left))
                     {
                         _isDragging = false;
                         SDL_CaptureMouse(SDL_bool.SDL_FALSE);

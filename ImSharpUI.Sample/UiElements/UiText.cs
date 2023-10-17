@@ -56,7 +56,7 @@ public class UiText : UiElement
         canvas.DrawText(Content, actualX, actualY, Paint);
     }
 
-    public override void Layout(Window window)
+    public override void Layout(UiWindow uiWindow)
     {
     }
 

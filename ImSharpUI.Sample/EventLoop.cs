@@ -4,7 +4,7 @@ namespace ImSharpUISample;
 
 public class EventLoop
 {
-    public List<Window> Windows { get; set; } = new();
+    public List<UiWindow> Windows { get; set; } = new();
 
     public EventLoop()
     {
@@ -59,7 +59,7 @@ public class EventLoop
         SDL_Quit();
     }
 
-    private Window GetWindow(uint windowId)
+    private UiWindow GetWindow(uint windowId)
     {
         foreach (var window in Windows)
         {

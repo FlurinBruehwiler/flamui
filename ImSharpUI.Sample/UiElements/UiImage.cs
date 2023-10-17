@@ -43,7 +43,7 @@ public class UiImage : UiElement
         IsAntialias = true
     };
 
-    public override void Layout(Window window)
+    public override void Layout(UiWindow uiWindow)
     {
 
     }

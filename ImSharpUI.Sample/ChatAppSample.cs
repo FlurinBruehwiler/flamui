@@ -212,7 +212,7 @@ public class ChatAppSample
 
                     Input(ref _inputText);
 
-                    if (inputDiv.HasFocusWithin && IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+                    if (inputDiv.HasFocusWithin && Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
                     {
                         selectedChat.Messages.Add(new Message
                         {

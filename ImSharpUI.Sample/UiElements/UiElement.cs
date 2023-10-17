@@ -17,7 +17,7 @@ public abstract class UiElement : IData
 
     public float ComputedY { get; set; }
     public abstract void Render(SKCanvas canvas);
-    public abstract void Layout(Window window);
+    public abstract void Layout(UiWindow uiWindow);
     public abstract bool LayoutHasChanged();
     public abstract bool HasChanges();
 }

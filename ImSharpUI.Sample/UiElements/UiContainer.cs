@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using System.Numerics;
+using SkiaSharp;
 using EnumXAlign = ImSharpUISample.XAlign;
 using EnumMAlign = ImSharpUISample.MAlign;
 using EnumDir = ImSharpUISample.Dir;
@@ -18,10 +19,10 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
             if (Ui.Window is null)
                 throw new Exception();
 
-            if (Ui.Window.ClickPos is not { } clickPos)
+            if (!Ui.Window.IsMouseButtonPressed(MouseButtonKind.Left))
                 return false;
 
-            if (DivContainsPoint(clickPos.X, clickPos.Y))
+            if (DivContainsPoint(Ui.Window.MousePosition))
             {
                 return true;
             }
@@ -59,7 +60,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
             if (Ui.Window is null)
                 throw new Exception();
 
-            if (DivContainsPoint(Ui.Window.MousePosition.X, Ui.Window.MousePosition.Y))
+            if (DivContainsPoint(Ui.Window.MousePosition))
             {
                 return true;
             }
@@ -91,10 +92,10 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     public float ScrollPos { get; set; }
     public bool IsClipped { get; set; }
 
-    private bool DivContainsPoint(double x, double y)
+    private bool DivContainsPoint(Vector2 pos)
     {
-        return ComputedX <= x && ComputedX + PComputedWidth >= x && ComputedY <= y &&
-               ComputedY + PComputedHeight >= y;
+        return ComputedX <= pos.X && ComputedX + PComputedWidth >= pos.X && ComputedY <= pos.Y &&
+               ComputedY + PComputedHeight >= pos.Y;
     }
 
     public override void CloseElement()
@@ -189,7 +190,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     }
 
 
-    public override void Layout(Window window)
+    public override void Layout(UiWindow uiWindow)
     {
         IsNew = false;
 
@@ -201,7 +202,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
         {
             if (contentSize > PComputedHeight)
             {
-                ScrollPos = Math.Clamp(ScrollPos + window.ScrollDelta * 20, 0, contentSize - PComputedHeight);
+                ScrollPos = Math.Clamp(ScrollPos + uiWindow.ScrollDelta * 20, 0, contentSize - PComputedHeight);
             }
             else
             {
@@ -217,7 +218,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
             }
 
             childElement.ComputedY -= ScrollPos;
-            childElement.Layout(window);
+            childElement.Layout(uiWindow);
         }
     }
 

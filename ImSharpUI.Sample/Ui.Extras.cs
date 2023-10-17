@@ -77,14 +77,14 @@ public partial class Ui
     {
         DivStart(out var inputDiv, key, path, line).Focusable();
 
-            var input = GetTextInput();
+            var input = Window.TextInput;
 
             if (!string.IsNullOrEmpty(input) && inputDiv.IsActive)
-                text += GetTextInput();
+                text += Window.TextInput;
 
-            if (IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
+            if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
             {
-                if (IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
+                if (Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
                 {
                     text = text.TrimEnd();
 

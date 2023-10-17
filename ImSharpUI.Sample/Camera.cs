@@ -35,11 +35,6 @@ public class Camera : UiElementContainer
     }
     public CameraInfo CameraInfo { get; set; }
 
-    private SKPaint Paint = new()
-    {
-        Color = SKColors.Red
-    };
-
     public override void Render(SKCanvas canvas)
     {
         canvas.SetMatrix(CameraInfo.GetCameraMatrix());
@@ -48,11 +43,10 @@ public class Camera : UiElementContainer
         {
             uiElement.Render(canvas);
         }
-        canvas.DrawRect(CameraInfo.Target.X, CameraInfo.Target.Y, 10, 10, Paint);
         canvas.ResetMatrix();
     }
 
-    public override void Layout(Window window)
+    public override void Layout(UiWindow uiWindow)
     {
         foreach (var uiElement in Children)
         {
@@ -65,7 +59,7 @@ public class Camera : UiElementContainer
             {
                 uiElement.PComputedHeight = uiElement.PHeight.Value;
             }
-            uiElement.Layout(window);
+            uiElement.Layout(uiWindow);
         }
     }
 
