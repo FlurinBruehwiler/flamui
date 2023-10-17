@@ -15,28 +15,28 @@ public class SubStack
 public static partial class Ui
 {
     public static Stack<ComponentData> OpenComponents = new();
-    public static Stack<UiContainer> OpenElementStack = new();
+    public static Stack<UiElementContainer> OpenElementStack = new();
     public static List<UiContainer> AbsoluteDivs = new();
     public static Window? Window = null;
     public static List<UiContainer> DeferedRenderedContainers = new();
     public static UiContainer Root = null!;
-    public static SubStack StartSubStack(UiContainer temporaryContainer)
-    {
-        var substack = new SubStack //ToDo resuse to avoid memory allocation
-        {
-            PreviousSubStack = OpenElementStack,
-            CurrentStack = new Stack<UiContainer>()
-        };
-        OpenElementStack = substack.CurrentStack;
-        OpenElementStack.Push(temporaryContainer);
-        return substack;
-    }
+    // public static SubStack StartSubStack(UiContainer temporaryContainer)
+    // {
+    //     var substack = new SubStack //ToDo resuse to avoid memory allocation
+    //     {
+    //         PreviousSubStack = OpenElementStack,
+    //         CurrentStack = new Stack<UiContainer>()
+    //     };
+    //     OpenElementStack = substack.CurrentStack;
+    //     OpenElementStack.Push(temporaryContainer);
+    //     return substack;
+    // }
 
-    public static List<UiElement> EndSubStack(SubStack subStack)
-    {
-        OpenElementStack = subStack.PreviousSubStack;
-        return subStack.CurrentStack.Pop().Children;
-    }
+    // public static List<UiElement> EndSubStack(SubStack subStack)
+    // {
+    //     OpenElementStack = subStack.PreviousSubStack;
+    //     return subStack.CurrentStack.Pop().Children;
+    // }
 
     public static IUiContainerBuilder DivStart(
         out IUiContainerBuilder uiContainer,
@@ -52,19 +52,46 @@ public static partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var el = OpenElementStack.Peek().AddChild<UiContainer>(new UiElementId(key, path, line));
+        return Start<UiContainer>(key, path, line);
+    }
+
+    public static void DivEnd()
+    {
+        End<UiContainer>();
+    }
+
+    public static T Start<T>(string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1) where T : UiElementContainer, new()
+    {
+        var el = OpenElementStack.Peek().AddChild<T>(new UiElementId(key, path, line));
         OpenElementStack.Push(el);
         el.OpenElement();
         return el;
     }
 
-    public static void DivEnd()
+    public static void End<T>() where T : UiElementContainer, new()
     {
-        var div = OpenElementStack.Pop();
-        if (div.PAbsolute)
+        OpenElementStack.Pop().CloseElement();
+    }
+
+    public static T Get<T>(string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1)
+    {
+        var parentContainer = OpenElementStack.Peek();
+        var id = new UiElementId(key, path, line);
+        if (parentContainer.OldDataById.TryGetValue(id, out var data))
         {
-            AbsoluteDivs.Add(div);
+            parentContainer.Data.Add(new Data(data, id));
+            return (T)data;
         }
+
+        var newData = Activator.CreateInstance<T>();
+        if (newData is null)
+            throw new Exception();
+        parentContainer.Data.Add(new Data(newData, id));
+        return newData;
     }
 
     public static UiText Text(string content,
@@ -132,9 +159,14 @@ public static partial class Ui
         return Window.Keydown.Contains(scancode);
     }
 
-    public static bool TryGetMouseClickPosition(out Vector2Int pos)
+    public static int GetScrollDelta()
     {
-        pos = new Vector2Int();
+        return Window!.ScrollDelta;
+    }
+
+    public static bool TryGetMouseClickPosition(out Vector2 pos)
+    {
+        pos = new Vector2();
 
         if (Window is null)
             throw new Exception();
@@ -176,7 +208,7 @@ public static partial class Ui
         return Window!.MouseButtonUp;
     }
 
-    public static Vector2Int GetMousePosition()
+    public static Vector2 GetMousePosition()
     {
         if (Window is null)
             throw new Exception();
@@ -184,7 +216,7 @@ public static partial class Ui
         return Window.MousePosition;
     }
 
-    public static Vector2Int GetMouseDelta()
+    public static Vector2 GetMouseDelta()
     {
         if (Window is null)
             throw new Exception();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Numerics;
 using ImSharpUISample.UiElements;
 using static ImSharpUISample.Ui;
 using static SDL2.SDL;
@@ -20,7 +21,7 @@ public class ModalComponent
 {
     private bool _wasShown;
     private bool _isDragging;
-    private Vector2Int _dragOffset;
+    private Vector2 _dragOffset;
 
     [Builder]
     public void StartModal()
@@ -51,7 +52,7 @@ public class ModalComponent
                     if (show && IsMouseButtonPressed() && headerDiv.ContainsPoint(mousePos.X, mousePos.Y))
                     {
                         _isDragging = true;
-                        _dragOffset = new Vector2Int((int)modalDiv.ComputedX - mousePos.X, (int)modalDiv.ComputedY - mousePos.Y);
+                        _dragOffset = new Vector2(modalDiv.ComputedX - mousePos.X, modalDiv.ComputedY - mousePos.Y);
                         SDL_CaptureMouse(SDL_bool.SDL_TRUE);
                     }
 

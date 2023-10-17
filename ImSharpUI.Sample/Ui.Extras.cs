@@ -17,48 +17,48 @@ public partial class Ui
 {
     public static UiContainer substackroot;
 
-    public static void StartModal(string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
-    {
-        var id = new UiElementId(key, path, line);
-        if (!OpenElementStack.Peek().OldDataById.TryGetValue(id, out var existingModal))
-        {
-            existingModal = new ComponentData
-            {
-                Component = Activator.CreateInstance<ModalComponent>(),
-                Id = id,
-                SubStack = new SubStack
-                {
-                    PreviousSubStack = OpenElementStack,
-                    CurrentStack = new Stack<UiContainer>()
-                }
-            };
-            substackroot = new UiContainer
-            {
-                Id = new UiElementId("substack root", string.Empty, 0)
-            };
-            ((ComponentData)existingModal).SubStack.CurrentStack.Push(substackroot);
-        }
-
-        OpenElementStack.Peek().Data.Add(existingModal);
-
-        var componentData = (ComponentData)existingModal;
-        OpenComponents.Push(componentData);
-        var modal = (ModalComponent)componentData.Component;
-        componentData.SubStack.CurrentStack.Peek().OpenElement();
-        modal.StartModal();
-
-        OpenElementStack = componentData.SubStack.CurrentStack;
-    }
-
-    public static void EndModal(ref bool show, string title)
-    {
-        var componentData = OpenComponents.Pop();
-        OpenElementStack = componentData.SubStack.PreviousSubStack;
-        var children = componentData.SubStack.CurrentStack.Peek().Children;
-        ((ModalComponent)componentData.Component).EndModal(ref show, title, children);
-    }
+    // public static void StartModal(string key = "",
+    //     [CallerFilePath] string path = "",
+    //     [CallerLineNumber] int line = -1)
+    // {
+    //     var id = new UiElementId(key, path, line);
+    //     if (!OpenElementStack.Peek().OldDataById.TryGetValue(id, out var existingModal))
+    //     {
+    //         existingModal = new ComponentData
+    //         {
+    //             Component = Activator.CreateInstance<ModalComponent>(),
+    //             Id = id,
+    //             SubStack = new SubStack
+    //             {
+    //                 PreviousSubStack = OpenElementStack,
+    //                 CurrentStack = new Stack<UiContainer>()
+    //             }
+    //         };
+    //         substackroot = new UiContainer
+    //         {
+    //             Id = new UiElementId("substack root", string.Empty, 0)
+    //         };
+    //         ((ComponentData)existingModal).SubStack.CurrentStack.Push(substackroot);
+    //     }
+    //
+    //     OpenElementStack.Peek().Data.Add(existingModal);
+    //
+    //     var componentData = (ComponentData)existingModal;
+    //     OpenComponents.Push(componentData);
+    //     var modal = (ModalComponent)componentData.Component;
+    //     componentData.SubStack.CurrentStack.Peek().OpenElement();
+    //     modal.StartModal();
+    //
+    //     OpenElementStack = componentData.SubStack.CurrentStack;
+    // }
+    //
+    // public static void EndModal(ref bool show, string title)
+    // {
+    //     var componentData = OpenComponents.Pop();
+    //     OpenElementStack = componentData.SubStack.PreviousSubStack;
+    //     var children = componentData.SubStack.CurrentStack.Peek().Children;
+    //     ((ModalComponent)componentData.Component).EndModal(ref show, title, children);
+    // }
 
     public static void StyledInput(ref string text, string key = "",
         [CallerFilePath] string path = "",

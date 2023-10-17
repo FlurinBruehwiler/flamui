@@ -1,19 +1,13 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using SkiaSharp;
+﻿using SkiaSharp;
 using EnumXAlign = ImSharpUISample.XAlign;
 using EnumMAlign = ImSharpUISample.MAlign;
 using EnumDir = ImSharpUISample.Dir;
 
 namespace ImSharpUISample.UiElements;
 
-public partial class UiContainer : UiElement, IUiContainerBuilder
+public partial class UiContainer : UiElementContainer, IUiContainerBuilder
 {
-    private Dictionary<UiElementId, IData>? _oldDataById;
-    private List<IData>? _data;
-    public List<UiElement> Children { get; set; } = new();
 
-    public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
 
@@ -57,9 +51,6 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
     public bool PHidden { get; set; }
 
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
-
-    public Dictionary<UiElementId, IData> OldDataById => _oldDataById ??= new Dictionary<UiElementId, IData>();
-    public List<IData> Data => _data ??= new List<IData>();
 
     public bool IsHovered
     {
@@ -106,50 +97,18 @@ public partial class UiContainer : UiElement, IUiContainerBuilder
                ComputedY + PComputedHeight >= y;
     }
 
-    public void OpenElement()
+    public override void CloseElement()
     {
-        OldChildrenById.Clear();
-        foreach (var uiElementClass in Children)
+        if (PAbsolute)
         {
-            OldChildrenById.Add(uiElementClass.Id, uiElementClass);
+            Ui.AbsoluteDivs.Add(this);
         }
-
-        Children.Clear();
-
-
-        OldDataById.Clear();
-        foreach (var o in Data)
-        {
-            OldDataById.Add(o.Id, o);
-        }
-
-        Data.Clear();
-    }
-
-    public T AddChild<T>(UiElementId uiElementId) where T : UiElement, new()
-    {
-        if (OldChildrenById.TryGetValue(uiElementId, out var child))
-        {
-            Children.Add(child);
-            return (T)child;
-        }
-
-        var newChild = new T
-        {
-            Id = uiElementId
-        };
-
-        Console.WriteLine($"Created {newChild.Id}");
-
-        Children.Add(newChild);
-        return newChild;
     }
 
     public override void Render(SKCanvas canvas)
     {
         if (PColor is { } color)
         {
-
             if (PRadius != 0)
             {
                 canvas.DrawRoundRect(ComputedX, ComputedY, PComputedWidth, PComputedHeight, PRadius, PRadius,

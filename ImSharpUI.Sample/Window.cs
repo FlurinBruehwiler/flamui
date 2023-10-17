@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using ImSharpUISample.UiElements;
 using SkiaSharp;
@@ -135,9 +136,9 @@ public class Window : IDisposable
         SDL_GL_SwapWindow(_windowHandle);
     }
 
-    public Vector2Int LastMousePosition { get; set; }
-    public Vector2Int MousePosition { get; set; }
-    public Vector2Int? ClickPos { get; set; }
+    public Vector2 LastMousePosition { get; set; }
+    public Vector2 MousePosition { get; set; }
+    public Vector2? ClickPos { get; set; }
     public bool IsMouseButtonDown { get; set; }
     public bool IsMouseButtonNewlyPressed { get; set; }
     public bool MouseButtonUp { get; set; }
@@ -148,7 +149,7 @@ public class Window : IDisposable
         {
             if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
             {
-                ClickPos = new Vector2Int(e.motion.x, e.motion.y);
+                ClickPos = new Vector2(e.motion.x, e.motion.y);
                 IsMouseButtonDown = true;
                 IsMouseButtonNewlyPressed = true;
             }
@@ -159,7 +160,7 @@ public class Window : IDisposable
             }
             else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
             {
-                MousePosition = new Vector2Int(e.motion.x, e.motion.y);
+                MousePosition = new Vector2(e.motion.x, e.motion.y);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
             {
@@ -206,7 +207,7 @@ public class Window : IDisposable
         ScrollDelta -= wheelEvent.y;
     }
 
-    private void HandleMouseClick(Vector2Int clickPos)
+    private void HandleMouseClick(Vector2 clickPos)
     {
         var hitSomething = ActualHitTest(_rootContainer, clickPos.X, clickPos.Y, out var parentCanGetFocus);
 
