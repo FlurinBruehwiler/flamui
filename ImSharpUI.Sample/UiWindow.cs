@@ -99,8 +99,7 @@ public partial class UiWindow : IDisposable
 
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
-        var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
-
+        using var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
         using var surface = SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
         surface.Canvas.Clear();

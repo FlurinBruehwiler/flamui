@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using SkiaSharp;
+﻿using SkiaSharp;
 using EnumXAlign = ImSharpUISample.XAlign;
 using EnumMAlign = ImSharpUISample.MAlign;
 using EnumDir = ImSharpUISample.Dir;
@@ -118,6 +117,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
             {
                 float borderRadius = PRadius + PBorderWidth;
 
+                //ToDo fix memory leak
                 canvas.ClipRoundRect(
                     new SKRoundRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius), SKClipOperation.Difference,
                     antialias: true);

@@ -29,6 +29,12 @@ public class ConnectionLine : UiElement
         StrokeWidth = 5
     };
 
+    private static SKPaint _paintEnds = new()
+    {
+        Color = new SKColor(200, 0, 0),
+        IsAntialias = true,
+    };
+
     private static SKPath _path = new();
 
     public override void Render(SKCanvas canvas)
@@ -38,6 +44,9 @@ public class ConnectionLine : UiElement
         var startHandle = new SKPoint(centerX, Start.Y);
         var endHandle = new SKPoint(centerX, End.Y);
         var end = new SKPoint(End.X, End.Y);
+
+        canvas.DrawCircle(start, 2.5f, _paintEnds);
+        canvas.DrawCircle(end, 2.5f, _paintEnds);
 
         _path.MoveTo(start);
         _path.CubicTo(startHandle, endHandle, end);
