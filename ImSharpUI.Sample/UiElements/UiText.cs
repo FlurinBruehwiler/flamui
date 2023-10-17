@@ -40,15 +40,15 @@ public class UiText : UiElement
         actualY += PvAlign switch
         {
             TextAlign.Start => PSize,
-            TextAlign.End => PComputedHeight,
-            TextAlign.Center => PComputedHeight / 2 - (metrics.Ascent + metrics.Descent) / 2,
+            TextAlign.End => ComputedHeight,
+            TextAlign.Center => ComputedHeight / 2 - (metrics.Ascent + metrics.Descent) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
 
         actualX += PhAlign switch
         {
-            TextAlign.End => PComputedWidth - rect.Width,
-            TextAlign.Center => PComputedWidth / 2 - rect.Width / 2,
+            TextAlign.End => ComputedWidth - rect.Width,
+            TextAlign.Center => ComputedWidth / 2 - rect.Width / 2,
             TextAlign.Start => 0,
             _ => throw new ArgumentOutOfRangeException()
         };

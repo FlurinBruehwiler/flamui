@@ -97,6 +97,13 @@ public static partial class Ui
         return newData;
     }
 
+    public static T GetElement<T>(string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1) where T : UiElement, new()
+    {
+        return OpenElementStack.Peek().AddChild<T>(new UiElementId(key, path, line));
+    }
+
     public static UiText Text(string content,
         string key = "",
         [CallerFilePath] string path = "",

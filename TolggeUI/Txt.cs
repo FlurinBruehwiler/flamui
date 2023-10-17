@@ -70,21 +70,22 @@ public class Txt : RenderObject
         return this;
     }
 
+    static readonly SKPaint Paint = new()
+    {
+        Color = new SKColor(255, 255, 255),
+        IsAntialias = true,
+        Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal,
+            SKFontStyleSlant.Upright)
+    };
+
     public override void Render(SKCanvas canvas, RenderContext renderContext)
     {
-        var paint = new SKPaint
-        {
-            Color = new SKColor(255, 255, 255),
-            IsAntialias = true,
-            TextSize = renderContext.Scale(PSize),
-            Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal,
-                SKFontStyleSlant.Upright)
-        };
+        Paint.TextSize = renderContext.Scale(PSize);
 
-        var path = paint.GetTextPath(PText, PComputedX, PComputedY);
+        var path = Paint.GetTextPath(PText, PComputedX, PComputedY);
         path.GetBounds(out var rect);
 
-        paint.GetFontMetrics(out var metrics);
+        Paint.GetFontMetrics(out var metrics);
 
         var actualX = PComputedX;
         var actualY = PComputedY;
@@ -105,7 +106,7 @@ public class Txt : RenderObject
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        canvas.DrawText(PText, actualX, actualY, paint);
+        canvas.DrawText(PText, actualX, actualY, Paint);
     }
 }
 

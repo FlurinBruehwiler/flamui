@@ -12,80 +12,61 @@ public class HitTester
         _window = window;
     }
 
-    public void HandleClicks()
+    public void HandleHitTest()
     {
-        if (_window.IsMouseButtonDown(MouseButtonKind.Left))
-        {
-            HandleMouseClick(_window.MousePosition);
-        }
+        HandleMouseClick(_window.MousePosition, _window.IsMouseButtonDown(MouseButtonKind.Left));
     }
 
-    private void HandleMouseClick(Vector2 clickPos)
+    private void HandleMouseClick(Vector2 clickPos, bool isClick)
     {
-        var hitSomething = ActualHitTest(_window.RootContainer, clickPos.X, clickPos.Y, out var parentCanGetFocus);
+        var hitSomething = ActualHitTest(clickPos);
 
-        if(!hitSomething)
-            _window.ActiveDiv = null;
+        if(!isClick)
+            return;
 
-        if (parentCanGetFocus)
+        if (!hitSomething)
             _window.ActiveDiv = null;
     }
 
-    private bool ActualHitTest(UiContainer div, double x, double y, out bool parentCanGetFocus)
+    private bool ActualHitTest(Vector2 point)
     {
-        foreach (var absoluteDiv in Ui.AbsoluteDivs)
-        {
-            if(absoluteDiv.PHidden)
-                continue;
-            var hit = HitTest(absoluteDiv, x, y, out parentCanGetFocus);
-            if (hit)
-                return true;
-        }
+        //ToDo
+        // foreach (var absoluteDiv in Ui.AbsoluteDivs)
+        // {
+        //     if (absoluteDiv.PHidden)
+        //         continue;
+        //     var hit = HitTest(absoluteDiv, point);
+        //     if (hit)
+        //         return true;
+        // }
 
-        return HitTest(div, x, y, out parentCanGetFocus);
+        return HitTest(_window.RootContainer, point);
     }
 
-    private bool HitTest(UiContainer div, double x, double y, out bool parentCanGetFocus)
+    private bool HitTest(UiElementContainer div, Vector2 point)
     {
-        if (div.ContainsPoint(x, y))
+        if (div.ContainsPoint(point))
         {
+            if (div is UiContainer uiContainer)
+            {
+                _window.HoveredDivs.Add(uiContainer);
+            }
+
+            var projectedPoint = div.ProjectPoint(point);
+
             foreach (var child in div.Children)
             {
-                if (child is not UiContainer divChild)
+                if (child is not UiElementContainer divChild)
                     continue;
 
-                var childHit = HitTest(divChild, x, y, out var parentCanGetFocusInner);
+                var childHit = HitTest(divChild, projectedPoint);
                 if (childHit)
-                {
-                    if (parentCanGetFocusInner)
-                    {
-                        if (div.PFocusable)
-                        {
-                            parentCanGetFocus = false;
-                            return true;
-                        }
-
-                        parentCanGetFocus = true;
-                        return true;
-                    }
-
-                    parentCanGetFocus = false;
                     return true;
-                }
-            }
 
-            if (div.PFocusable)
-            {
-                _window.ActiveDiv = div;
-                parentCanGetFocus = false;
-                return true;
             }
-
-            parentCanGetFocus = true;
             return true;
         }
 
-        parentCanGetFocus = false;
         return false;
     }
 }

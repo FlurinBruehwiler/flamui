@@ -1,4 +1,5 @@
-﻿using EnumXAlign = ImSharpUISample.XAlign;
+﻿using System.Numerics;
+using EnumXAlign = ImSharpUISample.XAlign;
 using EnumMAlign = ImSharpUISample.MAlign;
 using EnumDir = ImSharpUISample.Dir;
 
@@ -34,7 +35,7 @@ public interface IUiContainerBuilder
     public IUiContainerBuilder Focusable(bool focusable = true);
     public IUiContainerBuilder ZIndex(int zIndex);
     public IUiContainerBuilder Hidden(bool hidden = true);
-    public bool ContainsPoint(double x, double y);
+    public bool ContainsPoint(Vector2 point);
     public bool IsNew { get; set; }
     public bool IsHovered { get; }
     public bool IsActive { get; set; }
@@ -45,6 +46,9 @@ public interface IUiContainerBuilder
     public float ComputedX { get; set; }
 
     public float ComputedY { get; set; }
+    public float ComputedWidth { get; set; }
+
+    public float ComputedHeight { get; set; }
 }
 
 

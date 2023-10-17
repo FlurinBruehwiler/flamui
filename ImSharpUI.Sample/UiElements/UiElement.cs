@@ -9,9 +9,9 @@ public abstract class UiElement : IData
 
     public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
 
-    public float PComputedHeight { get; set; }
+    public float ComputedHeight { get; set; }
 
-    public float PComputedWidth { get; set; }
+    public float ComputedWidth { get; set; }
 
     public float ComputedX { get; set; }
 

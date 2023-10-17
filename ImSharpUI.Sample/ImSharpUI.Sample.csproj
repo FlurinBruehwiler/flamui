@@ -31,6 +31,9 @@
       <None Update="close.svg">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="expand_more.svg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

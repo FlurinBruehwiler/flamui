@@ -53,14 +53,19 @@ public class Camera : UiElementContainer
             //todo big refactor needed, because wtf
             if (uiElement.PWidth.Kind == SizeKind.Pixel)
             {
-                uiElement.PComputedWidth = uiElement.PWidth.Value;
+                uiElement.ComputedWidth = uiElement.PWidth.Value;
             }
             if (uiElement.PHeight.Kind == SizeKind.Pixel)
             {
-                uiElement.PComputedHeight = uiElement.PHeight.Value;
+                uiElement.ComputedHeight = uiElement.PHeight.Value;
             }
             uiElement.Layout(uiWindow);
         }
+    }
+
+    public override Vector2 ProjectPoint(Vector2 point)
+    {
+        return CameraInfo.ScreenToWorld(point);
     }
 
     public override bool LayoutHasChanged()

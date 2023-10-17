@@ -41,19 +41,18 @@ public class ModalComponent
 
                 if (_wasShown && Window.IsMouseButtonPressed(MouseButtonKind.Left))
                 {
-                    var pos = Window.MousePosition;
-                    if(!modalDiv.ContainsPoint(pos.X, pos.Y))
+                    if(!modalDiv.ContainsPoint(Window.MousePosition))
                         show = false;
                 }
 
                 _wasShown = show;
 
-                //Headerbjmhg
+                //Header
                 DivStart(out var headerDiv).Height(25).Dir(Dir.Horizontal).MAlign(MAlign.SpaceBetween).PaddingLeft(10);
 
                     var mousePos = Window.MousePosition;
 
-                    if (show && Window.IsMouseButtonPressed(MouseButtonKind.Left) && headerDiv.ContainsPoint(mousePos.X, mousePos.Y))
+                    if (show && Window.IsMouseButtonPressed(MouseButtonKind.Left) && headerDiv.ContainsPoint(mousePos))
                     {
                         _isDragging = true;
                         _dragOffset = new Vector2(modalDiv.ComputedX - mousePos.X, modalDiv.ComputedY - mousePos.Y);

@@ -74,8 +74,8 @@ public partial class UiContainer
     {
         return PDir switch
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => PComputedWidth - (PPadding.Left + PPadding.Right),
-            EnumDir.Vertical or EnumDir.ColumnReverse => PComputedHeight - (PPadding.Top + PPadding.Bottom),
+            EnumDir.Horizontal or EnumDir.RowReverse => ComputedWidth - (PPadding.Left + PPadding.Right),
+            EnumDir.Vertical or EnumDir.ColumnReverse => ComputedHeight - (PPadding.Top + PPadding.Bottom),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -84,8 +84,8 @@ public partial class UiContainer
     {
         return PDir switch
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => PComputedHeight - (PPadding.Top + PPadding.Bottom),
-            EnumDir.Vertical or EnumDir.ColumnReverse => PComputedWidth - (PPadding.Left + PPadding.Right),
+            EnumDir.Horizontal or EnumDir.RowReverse => ComputedHeight - (PPadding.Top + PPadding.Bottom),
+            EnumDir.Vertical or EnumDir.ColumnReverse => ComputedWidth - (PPadding.Left + PPadding.Right),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -94,8 +94,8 @@ public partial class UiContainer
     {
         return PDir switch
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => item.PComputedWidth,
-            EnumDir.Vertical or EnumDir.ColumnReverse => item.PComputedHeight,
+            EnumDir.Horizontal or EnumDir.RowReverse => item.ComputedWidth,
+            EnumDir.Vertical or EnumDir.ColumnReverse => item.ComputedHeight,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -118,8 +118,8 @@ public partial class UiContainer
     {
         return PDir switch
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => item.PComputedHeight,
-            EnumDir.Vertical or EnumDir.ColumnReverse => item.PComputedWidth,
+            EnumDir.Horizontal or EnumDir.RowReverse => item.ComputedHeight,
+            EnumDir.Vertical or EnumDir.ColumnReverse => item.ComputedWidth,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -161,16 +161,16 @@ public partial class UiContainer
                 continue;
             }
 
-            item.PComputedHeight = item.PHeight.Kind switch
+            item.ComputedHeight = item.PHeight.Kind switch
             {
                 SizeKind.Percentage => item.PHeight.Value * sizePerPercent,
                 SizeKind.Pixel => item.PHeight.GetDpiAwareValue(),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            item.PComputedWidth = item.PWidth.Kind switch
+            item.ComputedWidth = item.PWidth.Kind switch
             {
                 SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
-                SizeKind.Percentage => (float)((PComputedWidth - (PPadding.Left + PPadding.Right)) *
+                SizeKind.Percentage => (float)((ComputedWidth - (PPadding.Left + PPadding.Right)) *
                                                item.PWidth.Value * 0.01),
                 _ => throw new ArgumentOutOfRangeException()
             };
@@ -212,16 +212,16 @@ public partial class UiContainer
                 continue;
             }
 
-            item.PComputedWidth = item.PWidth.Kind switch
+            item.ComputedWidth = item.PWidth.Kind switch
             {
                 SizeKind.Percentage => item.PWidth.Value * sizePerPercent,
                 SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            item.PComputedHeight = item.PHeight.Kind switch
+            item.ComputedHeight = item.PHeight.Kind switch
             {
                 SizeKind.Pixel => item.PHeight.GetDpiAwareValue(),
-                SizeKind.Percentage => (float)(PComputedHeight * item.PHeight.Value * 0.01 -
+                SizeKind.Percentage => (float)(ComputedHeight * item.PHeight.Value * 0.01 -
                                                (PPadding.Top + PPadding.Bottom)),
                 _ => throw new ArgumentOutOfRangeException()
             };
@@ -247,17 +247,17 @@ public partial class UiContainer
         if (item is UiContainer { AbsoluteContainer: not null } p)
             parent = p.AbsoluteContainer;
 
-        item.PComputedWidth = item.PWidth.Kind switch
+        item.ComputedWidth = item.PWidth.Kind switch
         {
-            SizeKind.Percentage => item.PWidth.Value * ((parent.PComputedWidth - parent.PPadding.Left -
+            SizeKind.Percentage => item.PWidth.Value * ((parent.ComputedWidth - parent.PPadding.Left -
                                                          parent.PPadding.Right) / 100),
             SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
             _ => throw new ArgumentOutOfRangeException()
         };
-        item.PComputedHeight = item.PHeight.Kind switch
+        item.ComputedHeight = item.PHeight.Kind switch
         {
             SizeKind.Pixel => item.PHeight.GetDpiAwareValue(),
-            SizeKind.Percentage => item.PHeight.Value * ((parent.PComputedHeight - parent.PPadding.Top -
+            SizeKind.Percentage => item.PHeight.Value * ((parent.ComputedHeight - parent.PPadding.Top -
                                                           parent.PPadding.Right) / 100),
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -426,8 +426,8 @@ public partial class UiContainer
                 item.ComputedY = GetCrossAxisOffset(item);
                 break;
             case EnumDir.RowReverse:
-                item.ComputedX = PComputedWidth - (PPadding.Left + PPadding.Right) - mainOffset -
-                                  item.PComputedWidth;
+                item.ComputedX = ComputedWidth - (PPadding.Left + PPadding.Right) - mainOffset -
+                                  item.ComputedWidth;
                 item.ComputedY = GetCrossAxisOffset(item);
                 break;
             case EnumDir.Vertical:
@@ -436,7 +436,7 @@ public partial class UiContainer
                 break;
             case EnumDir.ColumnReverse:
                 item.ComputedX = GetCrossAxisOffset(item);
-                item.ComputedY = PComputedHeight - mainOffset - item.PComputedHeight;
+                item.ComputedY = ComputedHeight - mainOffset - item.ComputedHeight;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

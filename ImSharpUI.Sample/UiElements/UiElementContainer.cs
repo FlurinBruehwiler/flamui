@@ -1,9 +1,10 @@
-﻿namespace ImSharpUISample.UiElements;
+﻿using System.Numerics;
+
+namespace ImSharpUISample.UiElements;
 
 public abstract class UiElementContainer : UiElement
 {
     public List<UiElement> Children { get; set; } = new();
-
     public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
     private Dictionary<UiElementId, object>? _oldDataById;
     private List<Data>? _data;
@@ -23,10 +24,13 @@ public abstract class UiElementContainer : UiElement
             Id = uiElementId
         };
 
-        Console.WriteLine($"Created {newChild.Id}");
-
         Children.Add(newChild);
         return newChild;
+    }
+
+    public virtual Vector2 ProjectPoint(Vector2 point)
+    {
+        return point;
     }
 
     public virtual void OpenElement()
@@ -52,5 +56,11 @@ public abstract class UiElementContainer : UiElement
     public virtual void CloseElement()
     {
 
+    }
+
+    public bool ContainsPoint(Vector2 pos)
+    {
+        return ComputedX <= pos.X && ComputedX + ComputedWidth >= pos.X && ComputedY <= pos.Y &&
+               ComputedY + ComputedHeight >= pos.Y;
     }
 }

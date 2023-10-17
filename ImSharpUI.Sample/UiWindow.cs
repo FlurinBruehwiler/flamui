@@ -58,6 +58,8 @@ public partial class UiWindow : IDisposable
         }
     }
 
+    public List<UiContainer> HoveredDivs { get; set; } = new();
+
     public UiWindow(IntPtr windowHandle)
     {
         _hitTester = new HitTester(this);
@@ -93,7 +95,7 @@ public partial class UiWindow : IDisposable
     {
         Ui.Window = this;
         _input.HandleEvents(Events);
-        _hitTester.HandleClicks();
+        _hitTester.HandleHitTest();
 
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
@@ -108,8 +110,8 @@ public partial class UiWindow : IDisposable
         Ui.OpenElementStack.Clear();
         Ui.OpenElementStack.Push(RootContainer);
         Ui.Root = RootContainer;
-        RootContainer.PComputedWidth = width;
-        RootContainer.PComputedHeight = height;
+        RootContainer.ComputedWidth = width;
+        RootContainer.ComputedHeight = height;
 
         RootContainer.OpenElement();
 
@@ -131,6 +133,7 @@ public partial class UiWindow : IDisposable
         Ui.Window = null!;
 
         _input.OnAfterFrame();
+        HoveredDivs.Clear();
 
         SDL_GL_SwapWindow(_windowHandle);
     }
