@@ -32,34 +32,34 @@ public class EventLoop
             }
             else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
             {
-                GetWindow(e.motion.windowID).Events.Enqueue(e);
+                GetWindow(e.motion.windowID)?.Events.Enqueue(e);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEBUTTONUP)
             {
-                GetWindow(e.motion.windowID).Events.Enqueue(e);
+                GetWindow(e.motion.windowID)?.Events.Enqueue(e);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
             {
-                GetWindow(e.motion.windowID).Events.Enqueue(e);
+                GetWindow(e.motion.windowID)?.Events.Enqueue(e);
             }
             else if (e.type == SDL_EventType.SDL_TEXTINPUT)
             {
-                GetWindow(e.text.windowID).Events.Enqueue(e);
+                GetWindow(e.text.windowID)?.Events.Enqueue(e);
             }
             else if (e.type is SDL_EventType.SDL_KEYDOWN or SDL_EventType.SDL_KEYUP)
             {
-                GetWindow(e.key.windowID).Events.Enqueue(e);
+                GetWindow(e.key.windowID)?.Events.Enqueue(e);
             }
             else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
             {
-                GetWindow(e.wheel.windowID).Events.Enqueue(e);
+                GetWindow(e.wheel.windowID)?.Events.Enqueue(e);
             }
         }
 
         SDL_Quit();
     }
 
-    private UiWindow GetWindow(uint windowId)
+    private UiWindow? GetWindow(uint windowId)
     {
         foreach (var window in Windows)
         {
@@ -67,7 +67,7 @@ public class EventLoop
                 return window;
         }
 
-        throw new Exception();
+        return null;
     }
 
     public void RunRenderThread()

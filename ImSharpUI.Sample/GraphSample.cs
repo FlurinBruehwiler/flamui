@@ -78,45 +78,44 @@ public class GraphSample
                                 node.DragOffset = node.Pos - Camera.ScreenToWorld(Window.MousePosition);
                             }
                         }
-                        else
+                        else if(background.IsHovered)
                         {
-                            foreach (var node in Nodes)
+                            if(!Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LSHIFT))
                             {
-                                node.IsSelected = false;
+                                foreach (var node in Nodes)
+                                {
+                                    node.IsSelected = false;
+                                }
                             }
 
                             _mouseDragStartPos = Camera.ScreenToWorld(Window.MousePosition);
                         }
                     }
 
-                    if (Window.IsMouseButtonReleased(MouseButtonKind.Left) && _mouseDragStartPos is not null)
-                    {
-                        _mouseDragStartPos = null;
-                    }
-
                     if (_mouseDragStartPos is { } startPos)
                     {
                         var mousePos = Camera.ScreenToWorld(Window.MousePosition);
+                        var xMax = Math.Max(mousePos.X, startPos.X);
+                        var yMax = Math.Max(mousePos.Y, startPos.Y);
+                        var xMin = Math.Min(mousePos.X, startPos.X);
+                        var yMin = Math.Min(mousePos.Y, startPos.Y);
+
                         DivStart(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning:true);
-                            var xMax = Math.Max(mousePos.X, startPos.X);
-                            var yMax = Math.Max(mousePos.Y, startPos.Y);
-                            var xMin = Math.Min(mousePos.X, startPos.X);
-                            var yMin = Math.Min(mousePos.Y, startPos.Y);
                             selectionDiv.ComputedX = xMin;
                             selectionDiv.ComputedY = yMin;
                             selectionDiv.Width(xMax - xMin);
                             selectionDiv.Height(yMax - yMin);
                         DivEnd();
 
-                        foreach (var node in Nodes)
+                        if (Window.IsMouseButtonReleased(MouseButtonKind.Left))
                         {
-                            if (NodeIntersectsSelection(node, new Vector2(xMin, yMin), new Vector2(xMax, yMax)))
+                            _mouseDragStartPos = null;
+                            foreach (var node in Nodes)
                             {
-                                node.IsSelected = true;
-                            }
-                            else
-                            {
-                                node.IsSelected = false;
+                                if (NodeIntersectsSelection(node, new Vector2(xMin, yMin), new Vector2(xMax, yMax)))
+                                {
+                                    node.IsSelected = true;
+                                }
                             }
                         }
                     }
