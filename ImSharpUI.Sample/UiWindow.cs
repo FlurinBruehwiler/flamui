@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using ImSharpUISample.UiElements;
@@ -114,10 +115,15 @@ public partial class UiWindow : IDisposable
 
         RootContainer.OpenElement();
 
+        var startBuild = Stopwatch.GetTimestamp();
         _graphSample.Build();
+        Console.WriteLine($"Building: {Stopwatch.GetElapsedTime(startBuild).TotalMilliseconds}");
 
+        var startLayout = Stopwatch.GetTimestamp();
         RootContainer.Layout(this);
+        Console.WriteLine($"Layouting: {Stopwatch.GetElapsedTime(startLayout).TotalMilliseconds}");
 
+        var startRendering = Stopwatch.GetTimestamp();
         RootContainer.Render(surface.Canvas);
 
         foreach (var deferedRenderedContainer in Ui.DeferedRenderedContainers)
@@ -128,7 +134,11 @@ public partial class UiWindow : IDisposable
         Ui.DeferedRenderedContainers.Clear();
 
         Ui.Root = null!;
+
         surface.Canvas.Flush();
+
+        Console.WriteLine($"Rendering: {Stopwatch.GetElapsedTime(startRendering).TotalMilliseconds}");
+
         Ui.Window = null!;
 
         _input.OnAfterFrame();

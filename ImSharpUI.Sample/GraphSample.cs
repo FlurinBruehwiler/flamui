@@ -19,8 +19,8 @@ public record Node(Vector2 Pos, string Id)
 public record Connection(Node NodeA, Node NodeB)
 {
     public string Id { get; } = NodeA.Id + NodeB.Id;
-    public Vector2 PortAPos { get; set; }
-    public  Vector2 PortBPos { get; set; }
+    public UiElement? PortA { get; set; }
+    public UiElement? PortB { get; set; }
 };
 
 public class GraphSample
@@ -64,74 +64,90 @@ public class GraphSample
                         Get<NodeComponent>(node.Id).Build(node, this);
                     }
 
-                    if (Window.IsMouseButtonPressed(MouseButtonKind.Left))
-                    {
-                        var dragStartNode = Nodes.FirstOrDefault(static x => x.IsClicked);
-                        if (dragStartNode is not null)
-                        {
-                            foreach (var node in Nodes)
-                            {
-                                if (!node.IsSelected)
-                                    continue;
+                    HandleNodeSelection(background);
 
-                                node.IsClicked = false;
-                                node.IsDragging = true;
-                                node.DragOffset = node.Pos - Camera.ScreenToWorld(Window.MousePosition);
-                            }
-                        }
-                        else if(background.IsHovered)
-                        {
-                            if(!Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LSHIFT))
-                            {
-                                foreach (var node in Nodes)
-                                {
-                                    node.IsSelected = false;
-                                }
-                            }
+                    HandleDragSelection();
 
-                            _mouseDragStartPos = Camera.ScreenToWorld(Window.MousePosition);
-                        }
-                    }
-
-                    if (_mouseDragStartPos is { } startPos)
-                    {
-                        var mousePos = Camera.ScreenToWorld(Window.MousePosition);
-                        var xMax = Math.Max(mousePos.X, startPos.X);
-                        var yMax = Math.Max(mousePos.Y, startPos.Y);
-                        var xMin = Math.Min(mousePos.X, startPos.X);
-                        var yMin = Math.Min(mousePos.Y, startPos.Y);
-
-                        DivStart(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning:true);
-                            selectionDiv.ComputedX = xMin;
-                            selectionDiv.ComputedY = yMin;
-                            selectionDiv.Width(xMax - xMin);
-                            selectionDiv.Height(yMax - yMin);
-                        DivEnd();
-
-                        if (Window.IsMouseButtonReleased(MouseButtonKind.Left))
-                        {
-                            _mouseDragStartPos = null;
-                            foreach (var node in Nodes)
-                            {
-                                if (NodeIntersectsSelection(node, new Vector2(xMin, yMin), new Vector2(xMax, yMax)))
-                                {
-                                    node.IsSelected = true;
-                                }
-                            }
-                        }
-                    }
-
-                    SDL_CaptureMouse(SDL_bool.SDL_TRUE);
+                    // SDL_CaptureMouse(SDL_bool.SDL_TRUE);
 
                     HandleConnectionDrag();
 
                     foreach (var connection in Connections)
                     {
-                        GetElement<ConnectionLine>(connection.Id).From(connection.PortAPos).To(connection.PortBPos);
+                        GetElement<ConnectionLine>(connection.Id).From(connection.PortA, GetCenter).To(connection.PortB, GetCenter);
                     }
                 DivEnd();
             End<Camera>();
         DivEnd();
+    }
+
+    private void HandleNodeSelection(IUiContainerBuilder background)
+    {
+        if (Window.IsMouseButtonPressed(MouseButtonKind.Left))
+        {
+            var dragStartNode = Nodes.FirstOrDefault(static x => x.IsClicked);
+            if (dragStartNode is not null)
+            {
+                foreach (var node in Nodes)
+                {
+                    if (!node.IsSelected)
+                        continue;
+
+                    node.IsClicked = false;
+                    node.IsDragging = true;
+                    node.DragOffset = node.Pos - Camera.ScreenToWorld(Window.MousePosition);
+                }
+            }
+            else if(background.IsHovered)
+            {
+                if(!Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LSHIFT))
+                {
+                    foreach (var node in Nodes)
+                    {
+                        node.IsSelected = false;
+                    }
+                }
+
+                _mouseDragStartPos = Camera.ScreenToWorld(Window.MousePosition);
+            }
+        }
+    }
+
+    private void HandleDragSelection()
+    {
+        if (_mouseDragStartPos is { } startPos)
+        {
+            var mousePos = Camera.ScreenToWorld(Window.MousePosition);
+            var xMax = Math.Max(mousePos.X, startPos.X);
+            var yMax = Math.Max(mousePos.Y, startPos.Y);
+            var xMin = Math.Min(mousePos.X, startPos.X);
+            var yMin = Math.Min(mousePos.Y, startPos.Y);
+
+            DivStart(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning:true);
+            selectionDiv.ComputedX = xMin;
+            selectionDiv.ComputedY = yMin;
+            selectionDiv.Width(xMax - xMin);
+            selectionDiv.Height(yMax - yMin);
+            DivEnd();
+
+            if (Window.IsMouseButtonReleased(MouseButtonKind.Left))
+            {
+                _mouseDragStartPos = null;
+                foreach (var node in Nodes)
+                {
+                    if (NodeIntersectsSelection(node, new Vector2(xMin, yMin), new Vector2(xMax, yMax)))
+                    {
+                        node.IsSelected = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private static Vector2 GetCenter(UiElement port)
+    {
+        return new Vector2(port.ComputedX + port.ComputedWidth / 2,
+            port.ComputedY + port.ComputedHeight / 2);
     }
 
     private void HandleConnectionDrag()
@@ -141,14 +157,10 @@ public class GraphSample
             if (Window.IsMouseButtonReleased(MouseButtonKind.Left))
             {
                 //Connection Drag end
-                SDL_CaptureMouse(SDL_bool.SDL_FALSE);
+                // SDL_CaptureMouse(SDL_bool.SDL_FALSE);
                 if (DragEnd != null)
                 {
-                    Connections.Add(new Connection(DragStart, DragEnd)
-                    {
-                        PortAPos = DragStartPos,
-                        PortBPos = DragEndPos
-                    });
+                    Connections.Add(new Connection(DragStart, DragEnd));
                 }
                 DragStart = null;
             }

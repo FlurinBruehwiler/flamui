@@ -6,18 +6,44 @@ namespace ImSharpUISample;
 
 public class ConnectionLine : UiElement
 {
-    private Vector2 Start { get; set; }
-    private Vector2 End { get; set; }
+    private Vector2 _start;
+    private Vector2 _end;
+    private UiElement? startElement;
+    private UiElement? endElement;
+    private Func<UiElement, Vector2>? startTransform;
+    private Func<UiElement, Vector2>? endTransform;
+
+    public override void CleanElement()
+    {
+        startElement = null;
+        endElement = null;
+        startTransform = null;
+        endTransform = null;
+    }
 
     public ConnectionLine From(Vector2 start)
     {
-        Start = start;
+        _start = start;
+        return this;
+    }
+
+    public ConnectionLine From(UiElement anchor, Func<UiElement, Vector2> transformFunction)
+    {
+        startElement = anchor;
+        startTransform = transformFunction;
+        return this;
+    }
+
+    public ConnectionLine To(UiElement anchor, Func<UiElement, Vector2> transformFunction)
+    {
+        endElement = anchor;
+        endTransform = transformFunction;
         return this;
     }
 
     public ConnectionLine To(Vector2 end)
     {
-        End = end;
+        _end = end;
         return this;
     }
 
@@ -39,11 +65,21 @@ public class ConnectionLine : UiElement
 
     public override void Render(SKCanvas canvas)
     {
-        var centerX = (Start.X + End.X) / 2;
-        var start = new SKPoint(Start.X, Start.Y);
-        var startHandle = new SKPoint(centerX, Start.Y);
-        var endHandle = new SKPoint(centerX, End.Y);
-        var end = new SKPoint(End.X, End.Y);
+        if (startElement is not null && startTransform is not null)
+        {
+            _start = startTransform(startElement);
+        }
+
+        if (endElement is not null && endTransform is not null)
+        {
+            _start = endTransform(endElement);
+        }
+
+        var centerX = (_start.X + _end.X) / 2;
+        var start = new SKPoint(_start.X, _start.Y);
+        var startHandle = new SKPoint(centerX, _start.Y);
+        var endHandle = new SKPoint(centerX, _end.Y);
+        var end = new SKPoint(_end.X, _end.Y);
 
         canvas.DrawCircle(start, 2.5f, _paintEnds);
         canvas.DrawCircle(end, 2.5f, _paintEnds);

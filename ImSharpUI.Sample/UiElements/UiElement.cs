@@ -20,6 +20,11 @@ public abstract class UiElement : IData
     public abstract void Layout(UiWindow uiWindow);
     public abstract bool LayoutHasChanged();
     public abstract bool HasChanges();
+
+    public virtual void CleanElement()
+    {
+
+    }
 }
 
 public record struct UiElementId(string Key, string Path, int Line);

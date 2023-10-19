@@ -46,7 +46,7 @@ public class NodeComponent
                     //Port Drag start
                     if (Window.IsMouseButtonPressed(MouseButtonKind.Left) && port.IsHovered)
                     {
-                        SDL_CaptureMouse(SDL_bool.SDL_TRUE);
+                        // SDL_CaptureMouse(SDL_bool.SDL_TRUE);
                         _graphSample.DragStart = node;
                         _graphSample.DragStartPos = GetCenter(port);
                     }
@@ -69,11 +69,11 @@ public class NodeComponent
                     {
                         if (connection.NodeA == node)
                         {
-                            connection.PortAPos = GetCenter(port);
+                            connection.PortA = (UiElement)port;
                         }
                         if (connection.NodeB == node)
                         {
-                            connection.PortBPos = GetCenter(port);
+                            connection.PortB = (UiElement)port;
                         }
                     }
                 DivEnd();
@@ -113,7 +113,7 @@ public class NodeComponent
         {
             _dragHasHappened = false;
             _node.IsDragging = false;
-            SDL_CaptureMouse(SDL_bool.SDL_FALSE);
+            // SDL_CaptureMouse(SDL_bool.SDL_FALSE);
         }
 
         if (_node.IsDragging)

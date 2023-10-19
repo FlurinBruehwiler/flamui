@@ -1,4 +1,5 @@
-﻿using static SDL2.SDL;
+﻿using System.Diagnostics;
+using static SDL2.SDL;
 
 namespace ImSharpUISample;
 
@@ -74,11 +75,18 @@ public class EventLoop
     {
         while (true)
         {
+            var startTime = Stopwatch.GetTimestamp();
             foreach (var window in Windows)
             {
                 window.Update();
             }
-            Thread.Sleep(16);
+
+            var frameTime = Stopwatch.GetElapsedTime(startTime).TotalMilliseconds;
+            Console.WriteLine($"Total: {frameTime}");
+            if (frameTime > 16)
+                Console.WriteLine("Frame took too long!!!!!!!!!!!!!!");
+            else
+                Thread.Sleep((int)(16 - frameTime));
         }
     }
 }
