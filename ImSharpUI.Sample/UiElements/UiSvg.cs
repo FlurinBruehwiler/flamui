@@ -14,6 +14,7 @@ public class UiSvg : UiElement
     {
         if (!SSvgCache.TryGetValue(Src, out var svg))
         {
+            Console.WriteLine($"Loading {Src}");
             svg = new SKSvg();
             svg.Load(Src);
             SSvgCache.Add(Src, svg);

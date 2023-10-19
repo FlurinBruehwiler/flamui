@@ -21,6 +21,22 @@ public class UiText : UiElement
             SKFontStyleSlant.Upright)
     };
 
+    private static readonly Dictionary<TextPathCacheItem, SKRect> TextPathCache = new();
+
+    private SKRect GetRect()
+    {
+        var key = new TextPathCacheItem(Content, ComputedX, ComputedY);
+        if (TextPathCache.TryGetValue(key, out var rect))
+        {
+            return rect;
+        }
+        var path = Paint.GetTextPath(Content, ComputedX, ComputedY);
+        path.GetBounds(out rect);
+        path.Dispose();
+        TextPathCache.Add(key, rect);
+        return rect;
+    }
+
     public override void Render(SKCanvas canvas)
     {
         if (Content == string.Empty)
@@ -29,8 +45,7 @@ public class UiText : UiElement
         Paint.TextSize = PSize;
         Paint.Color = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Appha);
 
-        var path = Paint.GetTextPath(Content, ComputedX, ComputedY);
-        path.GetBounds(out var rect);
+        var rect = GetRect();
 
         Paint.GetFontMetrics(out var metrics);
 
@@ -112,6 +127,8 @@ public class UiText : UiElement
         return this;
     }
 }
+
+public record struct TextPathCacheItem(string Content, float X, float Y);
 
 public enum TextAlign
 {

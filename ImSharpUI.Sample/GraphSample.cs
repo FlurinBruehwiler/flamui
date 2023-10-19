@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using ImSharpUISample.UiElements;
 using static SDL2.SDL;
 using static ImSharpUISample.Ui;
 
@@ -43,14 +44,14 @@ public class GraphSample
     {
         DragEnd = null;
 
-        HandleCameraMovement();
-
         DivStart().Color(200, 0, 0).HeightFraction(20);
         DivEnd();
 
         DivStart().Clip();
             Start<Camera>().Info(Camera);
                 DivStart(out var background).Color(29, 29, 29);
+                    HandleCameraMovement(background);
+
                     GetElement<DotGrid>();
 
                     background.ComputedX = -10000;
@@ -161,9 +162,13 @@ public class GraphSample
         }
     }
 
-    private void HandleCameraMovement()
+    private void HandleCameraMovement(IUiContainerBuilder background)
     {
-        if (Window.IsMouseButtonDown(MouseButtonKind.Middle))
+        if (!background.IsHovered)
+            return;
+
+        if (Window.IsMouseButtonDown(MouseButtonKind.Middle) || Window.IsMouseButtonDown(MouseButtonKind.Left) &&
+            (Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LCTRL) || Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_SPACE)))
         {
             var delta = Window.MouseDelta;
             delta *= -1.0f / Camera.Zoom;

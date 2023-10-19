@@ -7,7 +7,6 @@ namespace ImSharpUISample.UiElements;
 
 public partial class UiContainer : UiElementContainer, IUiContainerBuilder
 {
-
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
 
@@ -94,6 +93,8 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
         }
     }
 
+    private static readonly SKRoundRect RoundRect = new();
+
     public override void Render(SKCanvas canvas)
     {
         if (PColor is { } color)
@@ -117,10 +118,8 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
             {
                 float borderRadius = PRadius + PBorderWidth;
 
-                //ToDo fix memory leak
-                canvas.ClipRoundRect(
-                    new SKRoundRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius), SKClipOperation.Difference,
-                    antialias: true);
+                RoundRect.SetRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius, PRadius);
+                canvas.ClipRoundRect(RoundRect, SKClipOperation.Difference, antialias: true);
 
                 canvas.DrawRoundRect(ComputedX - PBorderWidth,
                     ComputedY - PBorderWidth,
@@ -148,9 +147,8 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
         {
             if (PRadius != 0)
             {
-                canvas.ClipRoundRect(
-                    new SKRoundRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius),
-                    antialias: true);
+                RoundRect.SetRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius, PRadius);
+                canvas.ClipRoundRect(RoundRect, antialias: true);
             }
             else
             {
