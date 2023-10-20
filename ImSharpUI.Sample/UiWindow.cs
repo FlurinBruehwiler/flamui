@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using ImSharpUISample.UiElements;
 using SkiaSharp;
 using static SDL2.SDL;
@@ -95,15 +93,21 @@ public partial class UiWindow : IDisposable
     public void Update()
     {
         Ui.Window = this;
+
+        var startEventHandling = Stopwatch.GetTimestamp();
         _input.HandleEvents(Events);
         _hitTester.HandleHitTest();
+        Console.WriteLine($"EventHandling: {Stopwatch.GetElapsedTime(startEventHandling).TotalMilliseconds}");
 
+        var setup = Stopwatch.GetTimestamp();
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
         using var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
         using var surface = SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
         surface.Canvas.Clear();
+
+        Console.WriteLine($"Setup: {Stopwatch.GetElapsedTime(setup).TotalMilliseconds}");
 
         Ui.AbsoluteDivs.Clear();
 
@@ -141,10 +145,16 @@ public partial class UiWindow : IDisposable
 
         Ui.Window = null!;
 
+        var finilizingStart = Stopwatch.GetTimestamp();
+
         _input.OnAfterFrame();
         HoveredDivs.Clear();
 
+
+
         SDL_GL_SwapWindow(_windowHandle);
+        Console.WriteLine($"Finilizing: {Stopwatch.GetElapsedTime(finilizingStart).TotalMilliseconds}");
+
     }
 
     public void Dispose()
