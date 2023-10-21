@@ -47,8 +47,8 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     public bool DisablePositioning { get; set; }
     public UiContainer? AbsoluteContainer { get; set; }
     public ColorDefinition? PBlurColor { get; set; }
-    public Quadrant BlurOffset { get; set; }
-    public float BlurSigma { get; set; }
+    public Quadrant ShaddowOffset { get; set; }
+    public float ShadowSigma { get; set; }
     public bool PHidden { get; set; }
 
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
@@ -107,15 +107,15 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
             {
                 SBlurPaint.Color = new SKColor(blurColor.Red, blurColor.Green, blurColor.Blue, blurColor.Appha);
 
-                if (MaskFilterCache.TryGetValue(BlurSigma, out var maskFilter))
+                if (MaskFilterCache.TryGetValue(ShadowSigma, out var maskFilter))
                 {
                     SBlurPaint.MaskFilter = maskFilter;
                 }
                 else
                 {
                     //todo maybe ensure that not no many unused maskfilters get created??? because maskfilters are disposable :) AND immutable grrrr
-                    SBlurPaint.MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Outer, BlurSigma, false);
-                    MaskFilterCache.Add(BlurSigma, SBlurPaint.MaskFilter);
+                    SBlurPaint.MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Outer, ShadowSigma, false);
+                    MaskFilterCache.Add(ShadowSigma, SBlurPaint.MaskFilter);
                 }
 
                 float borderRadius = PRadius + PBorderWidth;
@@ -123,18 +123,18 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
                 if (PRadius != 0)
                 {
                     //todo replace with readable code or something
-                    canvas.DrawRoundRect(ComputedX - PBorderWidth + BlurOffset.Left,
-                        ComputedY - PBorderWidth + BlurOffset.Top,
-                        ComputedWidth + 2 * PBorderWidth - BlurOffset.Left - BlurOffset.Right,
-                        ComputedHeight + 2 * PBorderWidth - BlurOffset.Top - BlurOffset.Bottom,
+                    canvas.DrawRoundRect(ComputedX - PBorderWidth + ShaddowOffset.Left,
+                        ComputedY - PBorderWidth + ShaddowOffset.Top,
+                        ComputedWidth + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
+                        ComputedHeight + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
                         borderRadius, borderRadius, SBlurPaint);
                 }
                 else
                 {
-                    canvas.DrawRect(ComputedX - PBorderWidth + BlurOffset.Left,
-                        ComputedY - PBorderWidth + BlurOffset.Top,
-                        ComputedWidth + 2 * PBorderWidth - BlurOffset.Left - BlurOffset.Right,
-                        ComputedHeight + 2 * PBorderWidth - BlurOffset.Top - BlurOffset.Bottom,
+                    canvas.DrawRect(ComputedX - PBorderWidth + ShaddowOffset.Left,
+                        ComputedY - PBorderWidth + ShaddowOffset.Top,
+                        ComputedWidth + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
+                        ComputedHeight + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
                         SBlurPaint);
                 }
             }

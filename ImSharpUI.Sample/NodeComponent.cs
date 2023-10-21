@@ -15,7 +15,7 @@ public class NodeComponent
     {
         _node = node;
         _graphSample = graphSample;
-        DivStart(out var nodeDiv, LastKey).Blur(5, top: 5).BlurColor(0, 0, 0).Clip().BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48).Radius(10).Width(300).Height(200);
+        DivStart(out var nodeDiv, LastKey).Shadow(5, top: 5).ShadowColor(0, 0, 0).Clip().BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48).Radius(10).Width(300).Height(200);
 
             if (_node.IsSelected)
             {

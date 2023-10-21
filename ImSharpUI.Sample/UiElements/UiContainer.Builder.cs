@@ -36,8 +36,8 @@ public interface IUiContainerBuilder
     public IUiContainerBuilder ZIndex(int zIndex);
     public IUiContainerBuilder Hidden(bool hidden = true);
     public bool ContainsPoint(Vector2 point);
-    public IUiContainerBuilder Blur(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0);
-    public IUiContainerBuilder BlurColor(byte red, byte green, byte blue, byte alpha = 255);
+    public IUiContainerBuilder Shadow(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0);
+    public IUiContainerBuilder ShadowColor(byte red, byte green, byte blue, byte alpha = 255);
     public bool IsNew { get; set; }
     public bool IsHovered { get; }
     public bool IsActive { get; set; }
@@ -56,14 +56,14 @@ public interface IUiContainerBuilder
 
 public partial class UiContainer
 {
-    public IUiContainerBuilder Blur(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0)
+    public IUiContainerBuilder Shadow(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0)
     {
-        BlurSigma = sigma;
-        BlurOffset = new Quadrant(left, right, top, bottom);
+        ShadowSigma = sigma;
+        ShaddowOffset = new Quadrant(left, right, top, bottom);
         return this;
     }
 
-    public IUiContainerBuilder BlurColor(byte red, byte green, byte blue, byte alpha = 255)
+    public IUiContainerBuilder ShadowColor(byte red, byte green, byte blue, byte alpha = 255)
     {
         PBlurColor = new ColorDefinition(red, green, blue, alpha);
         return this;
