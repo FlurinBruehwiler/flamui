@@ -97,7 +97,7 @@ public partial class UiWindow : IDisposable
         var startEventHandling = Stopwatch.GetTimestamp();
         _input.HandleEvents(Events);
         _hitTester.HandleHitTest();
-        Console.WriteLine($"EventHandling: {Stopwatch.GetElapsedTime(startEventHandling).TotalMilliseconds}");
+        // Console.WriteLine($"EventHandling: {Stopwatch.GetElapsedTime(startEventHandling).TotalMilliseconds}");
 
         var setup = Stopwatch.GetTimestamp();
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
@@ -107,7 +107,7 @@ public partial class UiWindow : IDisposable
 
         surface.Canvas.Clear();
 
-        Console.WriteLine($"Setup: {Stopwatch.GetElapsedTime(setup).TotalMilliseconds}");
+        // Console.WriteLine($"Setup: {Stopwatch.GetElapsedTime(setup).TotalMilliseconds}");
 
         Ui.AbsoluteDivs.Clear();
 
@@ -121,11 +121,11 @@ public partial class UiWindow : IDisposable
 
         var startBuild = Stopwatch.GetTimestamp();
         _graphSample.Build();
-        Console.WriteLine($"Building: {Stopwatch.GetElapsedTime(startBuild).TotalMilliseconds}");
+        // Console.WriteLine($"Building: {Stopwatch.GetElapsedTime(startBuild).TotalMilliseconds}");
 
         var startLayout = Stopwatch.GetTimestamp();
         RootContainer.Layout(this);
-        Console.WriteLine($"Layouting: {Stopwatch.GetElapsedTime(startLayout).TotalMilliseconds}");
+        // Console.WriteLine($"Layouting: {Stopwatch.GetElapsedTime(startLayout).TotalMilliseconds}");
 
         var startRendering = Stopwatch.GetTimestamp();
         RootContainer.Render(surface.Canvas);
@@ -141,7 +141,7 @@ public partial class UiWindow : IDisposable
 
         surface.Canvas.Flush();
 
-        Console.WriteLine($"Rendering: {Stopwatch.GetElapsedTime(startRendering).TotalMilliseconds}");
+        // Console.WriteLine($"Rendering: {Stopwatch.GetElapsedTime(startRendering).TotalMilliseconds}");
 
         Ui.Window = null!;
 
@@ -153,7 +153,7 @@ public partial class UiWindow : IDisposable
 
 
         SDL_GL_SwapWindow(_windowHandle);
-        Console.WriteLine($"Finilizing: {Stopwatch.GetElapsedTime(finilizingStart).TotalMilliseconds}");
+        // Console.WriteLine($"Finilizing: {Stopwatch.GetElapsedTime(finilizingStart).TotalMilliseconds}");
 
     }
 

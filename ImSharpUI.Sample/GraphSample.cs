@@ -48,16 +48,11 @@ public class GraphSample
         DivEnd();
 
         DivStart().Clip();
-            Start<Camera>().Info(Camera);
-                DivStart(out var background).Color(29, 29, 29);
+            DivStart(out var background).Color(29, 29, 29);
+                Start<Camera>().Info(Camera);
                     HandleCameraMovement(background);
 
                     GetElement<DotGrid>();
-
-                    background.ComputedX = -10000;
-                    background.ComputedY = -10000;
-                    background.ComputedHeight = 20000;
-                    background.ComputedWidth = 20000;
 
                     foreach (var node in Nodes)
                     {
@@ -68,16 +63,14 @@ public class GraphSample
 
                     HandleDragSelection();
 
-                    // SDL_CaptureMouse(SDL_bool.SDL_TRUE);
-
                     HandleConnectionDrag();
 
                     foreach (var connection in Connections)
                     {
                         GetElement<ConnectionLine>(connection.Id).From(connection.PortA, GetCenter).To(connection.PortB, GetCenter);
                     }
-                DivEnd();
-            End<Camera>();
+                End<Camera>();
+            DivEnd();
         DivEnd();
     }
 
@@ -108,6 +101,7 @@ public class GraphSample
                     }
                 }
 
+                SDL_CaptureMouse(SDL_bool.SDL_TRUE);
                 _mouseDragStartPos = Camera.ScreenToWorld(Window.MousePosition);
             }
         }
@@ -132,6 +126,7 @@ public class GraphSample
 
             if (Window.IsMouseButtonReleased(MouseButtonKind.Left))
             {
+                SDL_CaptureMouse(SDL_bool.SDL_FALSE);
                 _mouseDragStartPos = null;
                 foreach (var node in Nodes)
                 {

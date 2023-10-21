@@ -46,7 +46,10 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     public bool PAbsolute { get; set; }
     public bool DisablePositioning { get; set; }
     public UiContainer? AbsoluteContainer { get; set; }
-
+    public ColorDefinition? BlurColor { get; set; }
+    public int BlurX { get; set; }
+    public int BlurY { get; set; }
+    public float BlurSigma { get; set; }
     public bool PHidden { get; set; }
 
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
@@ -94,11 +97,41 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     }
 
     private static readonly SKRoundRect RoundRect = new();
+    private static readonly Dictionary<float, SKMaskFilter> MaskFilterCache = new();
 
     public override void Render(SKCanvas canvas)
     {
         if (PColor is { } color)
         {
+            //blur
+            if (BlurColor is { } blurColor)
+            {
+                SBlurPaint.Color = new SKColor(blurColor.Red, blurColor.Green, blurColor.Blue, blurColor.Appha);
+
+                if (MaskFilterCache.TryGetValue(BlurSigma, out var maskFilter))
+                {
+                    SBlurPaint.MaskFilter = maskFilter;
+                }
+                else
+                {
+                    //todo maybe ensure that not no many unused maskfilters get created??? because maskfilters are disposable :) AND immutable grrrr
+                    SBlurPaint.MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Outer, BlurSigma, false);
+                    MaskFilterCache.Add(BlurSigma, SBlurPaint.MaskFilter);
+                }
+
+                float borderRadius = PRadius + PBorderWidth;
+
+                if (PRadius != 0)
+                {
+                    canvas.DrawRoundRect(ComputedX - PBorderWidth, ComputedY - PBorderWidth +5, ComputedWidth + 2 * PBorderWidth, ComputedHeight + 2 * PBorderWidth - 5, borderRadius, borderRadius, SBlurPaint);
+                }
+                else
+                {
+                    canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, SBlurPaint);
+                }
+            }
+
+
             if (PRadius != 0)
             {
                 canvas.DrawRoundRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, PRadius, PRadius,

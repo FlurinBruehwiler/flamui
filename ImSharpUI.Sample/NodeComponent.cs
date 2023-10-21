@@ -15,12 +15,18 @@ public class NodeComponent
     {
         _node = node;
         _graphSample = graphSample;
-        DivStart(out var nodeDiv, LastKey).Clip().BorderColor(16, 16, 16).BorderWidth(4).Absolute(disablePositioning: true).Color(48, 48, 48).Radius(10).Width(300).Height(200);
+        DivStart(out var nodeDiv, LastKey).Clip().BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48).Radius(10).Width(300).Height(200);
 
             if (_node.IsSelected)
             {
                 nodeDiv.BorderColor(255, 255, 255);
             }
+
+            var nodeDivReal = (UiContainer)nodeDiv;
+            nodeDivReal.BlurColor = new ColorDefinition(0, 0, 0, 255);
+            nodeDivReal.BlurSigma = 5f;
+            nodeDivReal.BlurX = 0;
+            nodeDivReal.BlurY = 0;
 
             //Header
             DivStart(out var headerDiv).Color(29, 29, 29).Height(50).Dir(Dir.Horizontal);
@@ -30,12 +36,12 @@ public class NodeComponent
                     SvgImage("expand_more.svg");
                 DivEnd();
                 DivStart();
-                    Text("Group Input").Size(25).VAlign(TextAlign.Center);
+                    Text("Group Input").Size(25).VAlign(TextAlign.Center).Color(224, 224, 224);
                 DivEnd();
             DivEnd();
 
             //Border
-            DivStart().Height(4).Color(16, 16, 16);
+            DivStart().Height(2).Color(24, 24, 24);
             DivEnd();
 
             //Body
@@ -94,6 +100,7 @@ public class NodeComponent
 
         if (Window.IsMouseButtonPressed(MouseButtonKind.Left) && headerDiv.IsHovered)
         {
+            SDL_CaptureMouse(SDL_bool.SDL_TRUE);
             if (!node.IsSelected)
             {
                 SelectNode(node);
@@ -103,6 +110,7 @@ public class NodeComponent
 
         if (Window.IsMouseButtonReleased(MouseButtonKind.Left) && headerDiv.IsHovered)
         {
+            SDL_CaptureMouse(SDL_bool.SDL_FALSE);
             if (node.IsSelected && !_dragHasHappened)
             {
                 SelectNode(node);

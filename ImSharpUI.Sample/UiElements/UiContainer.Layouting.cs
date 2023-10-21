@@ -11,6 +11,12 @@ public partial class UiContainer
     {
         IsAntialias = true
     };
+
+    private static readonly SKPaint SBlurPaint = new()
+    {
+        IsAntialias = true
+    };
+
     public static SKPaint GetColor(ColorDefinition colorDefinition)
     {
         SPaint.Color = new SKColor(colorDefinition.Red, colorDefinition.Green, colorDefinition.Blue,

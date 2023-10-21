@@ -32,6 +32,9 @@ if (windowHandle == IntPtr.Zero)
 var added = false;
 Task.Run(() =>
 {
+
+    SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+
     try
     {
         eventLoop.Windows.Add(new UiWindow(windowHandle));

@@ -1,37 +1,49 @@
-﻿using ImSharpUISample.UiElements;
+﻿using System.Numerics;
+using ImSharpUISample.UiElements;
 using SkiaSharp;
 
 namespace ImSharpUISample;
 
 public class DotGrid : UiElement
 {
-    private static SKPaint _paint = new()
+    private static readonly SKPaint DotPaint = new()
     {
         Color = new SKColor(0, 0, 0, 50),
-        StrokeWidth = 5
     };
 
-    private SKPoint[] _points;
+    private static readonly SKPaint GridPaint1 = new();
+    private static readonly SKPaint GridPaint2 = new();
+
+    public Vector2 TopLeft { get; set; }
+    public Vector2 BottomRight { get; set; }
+    public bool Zoom { get; set; }
 
     //ToDo This needs to be optimized a lot, like for example only drawing dots that are visible
     //when the users zooms out we should also create a second set of bigger dots (like blender)
     public DotGrid()
     {
-        _points = new SKPoint[10_000];
-        const float gap = 50;
+        GridPaint1.Shader = GetLodGrid(1);
+        GridPaint2.Shader = GetLodGrid(6);
+    }
 
-        for (int i = 0; i < 100; i++)
-        {
-            for (int j = 0; j < 100; j++)
-            {
-                _points[j + i * 100] = new SKPoint((i - 50) * gap, (j - 50) * gap);
-            }
-        }
+    private SKShader GetLodGrid(int scale)
+    {
+        float dotSize = 5 * scale;
+
+        var dotBitmap = new SKBitmap(50 * scale, 50 * scale);
+        using var canvas = new SKCanvas(dotBitmap);
+        canvas.Clear(SKColors.Transparent);
+        canvas.DrawCircle(dotSize / 2, dotSize / 2, dotSize / 2, DotPaint);
+
+        // var x = SKRuntimeEffect.Create()
+
+        return SKShader.CreateBitmap(dotBitmap, SKShaderTileMode.Repeat, SKShaderTileMode.Repeat);
     }
 
     public override void Render(SKCanvas canvas)
     {
-        canvas.DrawPoints(SKPointMode.Points, _points, _paint);
+        // canvas.DrawRect(new SKRect(-5000, -5000, 10_000, 10_000), GridPaint1);
+        // canvas.DrawRect(new SKRect(-5000, -5000, 10_000, 10_000), GridPaint2);
     }
 
     public override void Layout(UiWindow uiWindow)
