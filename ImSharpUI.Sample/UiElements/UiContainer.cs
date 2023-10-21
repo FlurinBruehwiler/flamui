@@ -46,9 +46,8 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     public bool PAbsolute { get; set; }
     public bool DisablePositioning { get; set; }
     public UiContainer? AbsoluteContainer { get; set; }
-    public ColorDefinition? BlurColor { get; set; }
-    public int BlurX { get; set; }
-    public int BlurY { get; set; }
+    public ColorDefinition? PBlurColor { get; set; }
+    public Quadrant BlurOffset { get; set; }
     public float BlurSigma { get; set; }
     public bool PHidden { get; set; }
 
@@ -104,7 +103,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
         if (PColor is { } color)
         {
             //blur
-            if (BlurColor is { } blurColor)
+            if (PBlurColor is { } blurColor)
             {
                 SBlurPaint.Color = new SKColor(blurColor.Red, blurColor.Green, blurColor.Blue, blurColor.Appha);
 
@@ -123,11 +122,20 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
 
                 if (PRadius != 0)
                 {
-                    canvas.DrawRoundRect(ComputedX - PBorderWidth, ComputedY - PBorderWidth +5, ComputedWidth + 2 * PBorderWidth, ComputedHeight + 2 * PBorderWidth - 5, borderRadius, borderRadius, SBlurPaint);
+                    //todo replace with readable code or something
+                    canvas.DrawRoundRect(ComputedX - PBorderWidth + BlurOffset.Left,
+                        ComputedY - PBorderWidth + BlurOffset.Top,
+                        ComputedWidth + 2 * PBorderWidth - BlurOffset.Left - BlurOffset.Right,
+                        ComputedHeight + 2 * PBorderWidth - BlurOffset.Top - BlurOffset.Bottom,
+                        borderRadius, borderRadius, SBlurPaint);
                 }
                 else
                 {
-                    canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, SBlurPaint);
+                    canvas.DrawRect(ComputedX - PBorderWidth + BlurOffset.Left,
+                        ComputedY - PBorderWidth + BlurOffset.Top,
+                        ComputedWidth + 2 * PBorderWidth - BlurOffset.Left - BlurOffset.Right,
+                        ComputedHeight + 2 * PBorderWidth - BlurOffset.Top - BlurOffset.Bottom,
+                        SBlurPaint);
                 }
             }
 

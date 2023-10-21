@@ -15,18 +15,12 @@ public class NodeComponent
     {
         _node = node;
         _graphSample = graphSample;
-        DivStart(out var nodeDiv, LastKey).Clip().BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48).Radius(10).Width(300).Height(200);
+        DivStart(out var nodeDiv, LastKey).Blur(5, top: 5).BlurColor(0, 0, 0).Clip().BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48).Radius(10).Width(300).Height(200);
 
             if (_node.IsSelected)
             {
                 nodeDiv.BorderColor(255, 255, 255);
             }
-
-            var nodeDivReal = (UiContainer)nodeDiv;
-            nodeDivReal.BlurColor = new ColorDefinition(0, 0, 0, 255);
-            nodeDivReal.BlurSigma = 5f;
-            nodeDivReal.BlurX = 0;
-            nodeDivReal.BlurY = 0;
 
             //Header
             DivStart(out var headerDiv).Color(29, 29, 29).Height(50).Dir(Dir.Horizontal);
