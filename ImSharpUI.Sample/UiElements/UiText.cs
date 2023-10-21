@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using System.Reflection;
+using SkiaSharp;
 
 namespace ImSharpUISample.UiElements;
 
@@ -17,7 +18,7 @@ public class UiText : UiElement
     private static readonly SKPaint Paint = new()
     {
         IsAntialias = true,
-        Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Normal, SKFontStyleWidth.Normal,
+        Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Thin, SKFontStyleWidth.Normal,
             SKFontStyleSlant.Upright)
     };
 

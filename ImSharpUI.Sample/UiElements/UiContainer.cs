@@ -38,6 +38,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     public int PGap { get; set; }
     public int PRadius { get; set; }
     public int PBorderWidth { get; set; }
+    public UiContainer? ClipToIgnore { get; set; }
     public EnumDir PDir { get; set; } = EnumDir.Vertical;
     public MAlign PmAlign { get; set; } = EnumMAlign.FlexStart;
     public XAlign PxAlign { get; set; } = EnumXAlign.FlexStart;
@@ -100,6 +101,11 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
 
     public override void Render(SKCanvas canvas)
     {
+        if (ClipToIgnore is not null)
+        {
+            canvas.Restore();
+        }
+
         if (PColor is { } color)
         {
             //blur
@@ -182,20 +188,8 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
             canvas.Restore();
         }
 
-        canvas.Save();
 
-        if (PCanScroll || IsClipped)
-        {
-            if (PRadius != 0)
-            {
-                RoundRect.SetRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius, PRadius);
-                canvas.ClipRoundRect(RoundRect, antialias: true);
-            }
-            else
-            {
-                canvas.ClipRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight));
-            }
-        }
+        ClipContent(canvas);
 
         foreach (var childElement in Children)
         {
@@ -214,9 +208,37 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
             childElement.Render(canvas);
         }
 
-        canvas.Restore();
+        if (NeedsClip())
+        {
+            canvas.Restore();
+        }
+
+        //reapply clip
+        ClipToIgnore?.ClipContent(canvas);
     }
 
+    public void ClipContent(SKCanvas canvas)
+    {
+        if (NeedsClip())
+        {
+            canvas.Save();
+
+            if (PRadius != 0)
+            {
+                RoundRect.SetRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius, PRadius);
+                canvas.ClipRoundRect(RoundRect, antialias: true);
+            }
+            else
+            {
+                canvas.ClipRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight));
+            }
+        }
+    }
+
+    private bool NeedsClip()
+    {
+        return PCanScroll || IsClipped;
+    }
 
     public override void Layout(UiWindow uiWindow)
     {

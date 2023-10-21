@@ -81,6 +81,8 @@ public class GraphSample
             var dragStartNode = Nodes.FirstOrDefault(static x => x.IsClicked);
             if (dragStartNode is not null)
             {
+                Nodes.Remove(dragStartNode);
+                Nodes.Add(dragStartNode);
                 foreach (var node in Nodes)
                 {
                     if (!node.IsSelected)

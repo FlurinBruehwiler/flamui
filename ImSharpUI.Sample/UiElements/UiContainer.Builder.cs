@@ -38,6 +38,7 @@ public interface IUiContainerBuilder
     public bool ContainsPoint(Vector2 point);
     public IUiContainerBuilder Shadow(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0);
     public IUiContainerBuilder ShadowColor(byte red, byte green, byte blue, byte alpha = 255);
+    public IUiContainerBuilder IgnoreClipFrom(IUiContainerBuilder div);
     public bool IsNew { get; set; }
     public bool IsHovered { get; }
     public bool IsActive { get; set; }
@@ -98,6 +99,17 @@ public partial class UiContainer
     //     PxAlign = xAlign;
     //     return this;
     // }
+
+    /// <summary>
+    /// only works if this is the last clip applied!!!
+    /// </summary>
+    /// <param name="div"></param>
+    /// <returns></returns>
+    public IUiContainerBuilder IgnoreClipFrom(IUiContainerBuilder div)
+    {
+        ClipToIgnore = (UiContainer)div;
+        return this;
+    }
 
     public IUiContainerBuilder Radius(int radius)
     {
