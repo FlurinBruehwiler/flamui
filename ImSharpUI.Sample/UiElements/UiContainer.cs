@@ -46,7 +46,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     public bool PAbsolute { get; set; }
     public bool DisablePositioning { get; set; }
     public UiContainer? AbsoluteContainer { get; set; }
-    public ColorDefinition? PBlurColor { get; set; }
+    public ColorDefinition? PShadowColor { get; set; }
     public Quadrant ShaddowOffset { get; set; }
     public float ShadowSigma { get; set; }
     public bool PHidden { get; set; }
@@ -103,7 +103,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
         if (PColor is { } color)
         {
             //blur
-            if (PBlurColor is { } blurColor)
+            if (PShadowColor is { } blurColor)
             {
                 SBlurPaint.Color = new SKColor(blurColor.Red, blurColor.Green, blurColor.Blue, blurColor.Appha);
 

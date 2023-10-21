@@ -65,7 +65,7 @@ public partial class UiContainer
 
     public IUiContainerBuilder ShadowColor(byte red, byte green, byte blue, byte alpha = 255)
     {
-        PBlurColor = new ColorDefinition(red, green, blue, alpha);
+        PShadowColor = new ColorDefinition(red, green, blue, alpha);
         return this;
     }
 
