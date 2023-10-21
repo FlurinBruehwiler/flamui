@@ -49,6 +49,9 @@ public class NodeComponent
                     //Port
                     DivStart().Absolute(left: -10).MAlign(MAlign.Center);
                         DivStart(out var port).BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Radius(10);
+                            if (port.IsHovered)
+                                port.Color(100, 0, 0);
+
                             HandlePort(port);
                         DivEnd();
                     DivEnd();

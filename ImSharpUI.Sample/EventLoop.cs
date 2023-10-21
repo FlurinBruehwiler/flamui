@@ -76,15 +76,14 @@ public class EventLoop
         while (true)
         {
             var startTime = Stopwatch.GetTimestamp();
+
             foreach (var window in Windows)
             {
                 window.Update();
             }
 
-            var frameTime = Stopwatch.GetElapsedTime(startTime).TotalMilliseconds;
-            // Console.WriteLine($"Total: {frameTime}");
-                // Console.WriteLine("Frame took too long!!!!!!!!!!!!!!");
-            Thread.Sleep((int)(16));
+            Console.WriteLine($"Total: {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds}");
+
         }
     }
 }

@@ -150,9 +150,8 @@ public partial class UiWindow : IDisposable
         _input.OnAfterFrame();
         HoveredDivs.Clear();
 
-
-
         SDL_GL_SwapWindow(_windowHandle);
+
         // Console.WriteLine($"Finilizing: {Stopwatch.GetElapsedTime(finilizingStart).TotalMilliseconds}");
 
     }

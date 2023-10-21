@@ -29,6 +29,8 @@ if (windowHandle == IntPtr.Zero)
 //     }
 // }, 0);
 
+
+
 var added = false;
 Task.Run(() =>
 {
