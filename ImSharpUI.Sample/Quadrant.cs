@@ -1,6 +1,7 @@
 ﻿namespace ImSharpUISample;
 
 public record struct Quadrant(int Left, int Right, int Top, int Bottom);
+public record struct AbsolutePosition(int? Left, int? Right, int? Top, int? Bottom);
 
 public enum SizeKind
 {

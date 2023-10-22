@@ -36,14 +36,14 @@ public record Node(Vector2 Pos, string Id)
 
 public record Connection(ConnectionTarget A, ConnectionTarget B, string Id);
 
-public class GraphSample
+public class NodeGraph
 {
     public readonly List<Node> Nodes = new()
     {
 
     };
 
-    public GraphSample()
+    public NodeGraph()
     {
         foreach (var _ in Enumerable.Range(0, 50))
         {
@@ -66,16 +66,16 @@ public class GraphSample
                 Start<Camera>().Info(Camera);
                     HandleCameraMovement(background);
 
-                    GetElement<DotGrid>();
+                    Get<DotGrid>();
 
                     foreach (var connection in Connections)
                     {
-                        GetElement<ConnectionLine>(connection.Id).Dynamic(connection.A, connection.B);
+                        Get<ConnectionLine>(connection.Id).Dynamic(connection.A, connection.B);
                     }
 
                     foreach (var node in Nodes)
                     {
-                        Get<NodeComponent>(node.Id).Build(node, this);
+                        GetComponent<NodeComponent>(node.Id).Build(node, this);
                     }
 
                     HandleNodeSelection(background);
@@ -173,12 +173,12 @@ public class GraphSample
             {
                 if (DragEnd is not null)
                 {
-                    GetElement<ConnectionLine>().Static(DragStart.Value, DragEnd.Value);
+                    Get<ConnectionLine>().Static(DragStart.Value, DragEnd.Value);
                 }
                 else
                 {
                     var end = Camera.ScreenToWorld(Window.MousePosition);
-                    GetElement<ConnectionLine>().Static(DragStart.Value, end);
+                    Get<ConnectionLine>().Static(DragStart.Value, end);
                 }
             }
         }

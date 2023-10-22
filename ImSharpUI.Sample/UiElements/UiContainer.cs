@@ -54,7 +54,7 @@ public partial class UiContainer : UiElementContainer
     public bool PHidden { get; set; }
     public bool PBlockHit { get; set; }
 
-    public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
+    public AbsolutePosition PAbsolutePosition { get; set; }
 
     public bool IsHovered
     {
@@ -64,6 +64,28 @@ public partial class UiContainer : UiElementContainer
                 throw new Exception();
 
             return Ui.Window.HoveredDivs.Contains(this);
+        }
+    }
+
+    public bool IsNewlyHovered
+    {
+        get
+        {
+            if (Ui.Window is null)
+                throw new Exception();
+
+            return !Ui.Window.OldHoveredDivs.Contains(this) && Ui.Window.HoveredDivs.Contains(this);
+        }
+    }
+
+    public bool IsNewlyUnHovered
+    {
+        get
+        {
+            if (Ui.Window is null)
+                throw new Exception();
+
+            return Ui.Window.OldHoveredDivs.Contains(this) && !Ui.Window.HoveredDivs.Contains(this);
         }
     }
 

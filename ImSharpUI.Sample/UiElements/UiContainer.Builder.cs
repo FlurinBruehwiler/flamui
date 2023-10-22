@@ -121,16 +121,16 @@ public partial class UiContainer
         PAbsolute = false;
         AbsoluteContainer = null;
         DisablePositioning = false;
-        PAbsolutePosition = new Quadrant();
+        PAbsolutePosition = new AbsolutePosition();
         return this;
     }
 
-    public UiContainer Absolute(UiContainer? container = null, int left = 0, int right = 0, int top = 0, int bottom = 0, bool disablePositioning = false)
+    public UiContainer Absolute(UiContainer? container = null, int? left = null, int? right = null, int? top = null, int? bottom = null, bool disablePositioning = false)
     {
         PAbsolute = true;
         AbsoluteContainer = container as UiContainer;
         DisablePositioning = disablePositioning;
-        PAbsolutePosition = new Quadrant(left, right, top, bottom);
+        PAbsolutePosition = new AbsolutePosition(left, right, top, bottom);
         return this;
     }
 

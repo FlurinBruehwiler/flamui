@@ -5,8 +5,8 @@ var eventLoop = new EventLoop();
 var windowHandle = SDL_CreateWindow("SDL2 C# OpenGL",
     SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED,
-    800,
-    600,
+    1800,
+    900,
     SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
 
 if (windowHandle == IntPtr.Zero)

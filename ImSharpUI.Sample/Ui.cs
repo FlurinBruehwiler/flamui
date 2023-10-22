@@ -14,7 +14,7 @@ public class SubStack
 
 public static partial class Ui
 {
-    public static Stack<ComponentData> OpenComponents = new();
+    public static Stack<ValueTuple<UiComponent, bool>> OpenComponents = new();
     public static Stack<UiElementContainer> OpenElementStack = new();
     public static UiWindow Window = null!;
     public static List<UiContainer> DeferedRenderedContainers = new();
@@ -76,27 +76,62 @@ public static partial class Ui
 
     public static string LastKey;
 
-    public static T Get<T>(string key = "",
+    public static T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        LastKey = key;
-        var parentContainer = OpenElementStack.Peek();
         var id = new UiElementId(key, path, line);
+        return (T)GetComponentInternal(typeof(T), id, out _);
+    }
+
+    public static object GetComponent(Type type, string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1)
+    {
+        var id = new UiElementId(key, path, line);
+        return GetComponentInternal(type, id, out _);
+    }
+
+    private static object GetComponentInternal(Type type, UiElementId id, out bool wasNewlyCreated)
+    {
+        wasNewlyCreated = false;
+        LastKey = id.Key;
+        var parentContainer = OpenElementStack.Peek();
         if (parentContainer.OldDataById.TryGetValue(id, out var data))
         {
             parentContainer.Data.Add(new Data(data, id));
-            return (T)data;
+            return data;
         }
 
-        var newData = Activator.CreateInstance<T>();
+        wasNewlyCreated = true;
+        var newData = Activator.CreateInstance(type);
         if (newData is null)
             throw new Exception();
         parentContainer.Data.Add(new Data(newData, id));
         return newData;
     }
 
-    public static T GetElement<T>(string key = "",
+    public static T StartComponent<T>(out T component, string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1) where T : UiComponent
+    {
+        component = (T)GetComponentInternal(typeof(T), new UiElementId(key, path, line), out var isNew);
+        OpenComponents.Push((component, isNew));
+        return component;
+    }
+
+    public static void EndComponent<T>() where T : UiComponent
+    {
+        var (component, isNew) = OpenComponents.Pop();
+        if (isNew)
+        {
+            component.OnInitialized();
+        }
+
+        component.Build();
+    }
+
+    public static T Get<T>(string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1) where T : UiElement, new()
     {

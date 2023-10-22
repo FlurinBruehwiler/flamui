@@ -6,12 +6,7 @@ using SDL2;
 
 namespace ImSharpUISample;
 
-public class ComponentData : IData
-{
-    public required UiElementId Id { get; set; }
-    public required object Component { get; set; }
-    public required SubStack SubStack { get; set; }
-}
+
 
 public partial class Ui
 {

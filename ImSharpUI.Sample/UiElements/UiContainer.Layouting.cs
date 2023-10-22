@@ -243,12 +243,19 @@ public partial class UiContainer
         if (item is { AbsoluteContainer: not null } p)
             parent = p.AbsoluteContainer;
 
-        item.ComputedX = parent.ComputedX + item.PAbsolutePosition.Left;
-        item.ComputedY = parent.ComputedY + item.PAbsolutePosition.Top;
-        if (item.PAbsolutePosition.Right != default)
+        var horizontalOffset = 0f;
+
+        if (item.PAbsolutePosition.Left != null)
         {
-            item.ComputedX = parent.ComputedX + parent.ComputedWidth + item.PAbsolutePosition.Right;
+            horizontalOffset = item.PAbsolutePosition.Left.Value;
         }
+
+        if (item.PAbsolutePosition.Right != null)
+        {
+            horizontalOffset = parent.ComputedWidth + item.PAbsolutePosition.Right.Value;
+        }
+        item.ComputedX = parent.ComputedX + horizontalOffset;
+        item.ComputedY = parent.ComputedY + (item.PAbsolutePosition.Top ?? 0);
     }
 
     private void CalculateAbsoluteSize(UiElement item)
@@ -259,16 +266,14 @@ public partial class UiContainer
 
         item.ComputedWidth = item.PWidth.Kind switch
         {
-            SizeKind.Percentage => item.PWidth.Value * ((parent.ComputedWidth - parent.PPadding.Left -
-                                                         parent.PPadding.Right) / 100),
+            SizeKind.Percentage => item.PWidth.Value * (parent.ComputedWidth / 100),
             SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
             _ => throw new ArgumentOutOfRangeException()
         };
         item.ComputedHeight = item.PHeight.Kind switch
         {
             SizeKind.Pixel => item.PHeight.GetDpiAwareValue(),
-            SizeKind.Percentage => item.PHeight.Value * ((parent.ComputedHeight - parent.PPadding.Top -
-                                                          parent.PPadding.Right) / 100),
+            SizeKind.Percentage => item.PHeight.Value * (parent.ComputedHeight / 100),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

@@ -39,6 +39,7 @@ public class HitTester
             if (childBlocksHit)
             {
                 anyChildBlocksHit = true;
+                break;
             }
         }
 

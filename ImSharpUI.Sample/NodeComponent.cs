@@ -8,13 +8,13 @@ namespace ImSharpUISample;
 public class NodeComponent
 {
     private Node _node = null!;
-    private GraphSample _graphSample = null!;
+    private NodeGraph _nodeGraph = null!;
     private bool _dragHasHappened;
 
-    public void Build(Node node, GraphSample graphSample)
+    public void Build(Node node, NodeGraph nodeGraph)
     {
         _node = node;
-        _graphSample = graphSample;
+        _nodeGraph = nodeGraph;
         DivStart(out var nodeDiv, LastKey).Shadow(5, top: 5).ShadowColor(0, 0, 0).Clip()
             .BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48)
             .Radius(10).Width(300).Height(150);
@@ -29,7 +29,7 @@ public class NodeComponent
                 HandleMovement(_node, nodeDiv);
 
                 DivStart().Width(50);
-                    SvgImage("expand_more.svg");
+                    SvgImage("./Icons/expand_more.svg");
                 DivEnd();
                 DivStart();
                     Text("Group Input").Size(25).VAlign(TextAlign.Center).Color(224, 224, 224);
@@ -83,7 +83,7 @@ public class NodeComponent
         if (Window.IsMouseButtonPressed(MouseButtonKind.Left) && activePort.IsHovered)
         {
             // SDL_CaptureMouse(SDL_bool.SDL_TRUE);
-            _graphSample.DragStart = new ConnectionTarget
+            _nodeGraph.DragStart = new ConnectionTarget
             {
                 LeftPort = new Port(leftPort, PortDirection.Left),
                 RightPort = new Port(rightPort, PortDirection.Right),
@@ -92,14 +92,14 @@ public class NodeComponent
         }
 
         //Snap to Target Port
-        if (_graphSample.DragStart is not null && _graphSample.DragStart.Value.LeftPort.PortElement != leftPort && _graphSample.DragStart.Value.RightPort.PortElement != rightPort)
+        if (_nodeGraph.DragStart is not null && _nodeGraph.DragStart.Value.LeftPort.PortElement != leftPort && _nodeGraph.DragStart.Value.RightPort.PortElement != rightPort)
         {
-            var mousePos = _graphSample.Camera.ScreenToWorld(Window.MousePosition);
+            var mousePos = _nodeGraph.Camera.ScreenToWorld(Window.MousePosition);
             var portCenter = GetCenter(activePort);
 
             if (Vector2.Distance(mousePos, portCenter) < 40)
             {
-                _graphSample.DragEnd = new ConnectionTarget
+                _nodeGraph.DragEnd = new ConnectionTarget
                 {
                     LeftPort = new Port(leftPort, PortDirection.Left),
                     RightPort = new Port(rightPort, PortDirection.Right),
@@ -117,7 +117,7 @@ public class NodeComponent
 
     private void HandleMovement(Node node, UiContainer nodeDiv)
     {
-        var mousePos = _graphSample.Camera.ScreenToWorld(Window.MousePosition);
+        var mousePos = _nodeGraph.Camera.ScreenToWorld(Window.MousePosition);
 
         if (Window.IsMouseButtonPressed(MouseButtonKind.Left) && nodeDiv.IsHovered)
         {
@@ -169,7 +169,7 @@ public class NodeComponent
         }
         else
         {
-            foreach (var otherNode in _graphSample.Nodes)
+            foreach (var otherNode in _nodeGraph.Nodes)
             {
                 otherNode.IsSelected = false;
             }

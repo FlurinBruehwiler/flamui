@@ -58,6 +58,7 @@ public partial class UiWindow : IDisposable
     }
 
     public List<UiContainer> HoveredDivs { get; set; } = new();
+    public List<UiContainer> OldHoveredDivs { get; set; } = new();
 
     public UiWindow(IntPtr windowHandle)
     {
@@ -88,7 +89,7 @@ public partial class UiWindow : IDisposable
         });
     }
 
-    private readonly GraphSample _graphSample = new();
+    private readonly BddGraph _bddGraph = new();
 
     public void Update()
     {
@@ -118,7 +119,7 @@ public partial class UiWindow : IDisposable
         RootContainer.OpenElement();
 
         var startBuild = Stopwatch.GetTimestamp();
-        _graphSample.Build();
+        _bddGraph.Build();
         // Console.WriteLine($"Building: {Stopwatch.GetElapsedTime(startBuild).TotalMilliseconds}");
 
         var startLayout = Stopwatch.GetTimestamp();
@@ -146,6 +147,11 @@ public partial class UiWindow : IDisposable
         var finilizingStart = Stopwatch.GetTimestamp();
 
         _input.OnAfterFrame();
+        OldHoveredDivs.Clear();
+        foreach (var uiContainer in HoveredDivs)
+        {
+            OldHoveredDivs.Add(uiContainer);
+        }
         HoveredDivs.Clear();
 
         SDL_GL_SwapWindow(_windowHandle);
