@@ -55,15 +55,17 @@ public class GraphSample
     {
         DragEnd = null;
 
-        DivStart().Color(200, 0, 0).HeightFraction(20);
-        DivEnd();
-
         DivStart().Clip();
             DivStart(out var background).Color(29, 29, 29);
                 Start<Camera>().Info(Camera);
                     HandleCameraMovement(background);
 
                     GetElement<DotGrid>();
+
+                    foreach (var connection in Connections)
+                    {
+                        GetElement<ConnectionLine>(connection.Id).Dynamic(connection.A, connection.B);
+                    }
 
                     foreach (var node in Nodes)
                     {
@@ -75,11 +77,6 @@ public class GraphSample
                     HandleDragSelection();
 
                     HandleConnectionDrag();
-
-                    foreach (var connection in Connections)
-                    {
-                        GetElement<ConnectionLine>(connection.Id).Dynamic(connection.A, connection.B);
-                    }
                 End<Camera>();
             DivEnd();
         DivEnd();

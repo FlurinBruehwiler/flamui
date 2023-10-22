@@ -50,7 +50,7 @@ public class NodeComponent
                     DivStart().Absolute(left: -10).MAlign(MAlign.Center);
                         DivStart(out var portLeft, nodeDiv.Id.Key).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Radius(10);
                             if (portLeft.IsHovered)
-                                portLeft.Color(100, 0, 0);
+                                portLeft.Color(0, 255, 195);
 
                         DivEnd();
                     DivEnd();
@@ -58,7 +58,7 @@ public class NodeComponent
                     DivStart().Absolute(right: -10).MAlign(MAlign.Center);
                         DivStart(out var portRight, nodeDiv.Id.Key).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Radius(10);
                             if (portRight.IsHovered)
-                                portRight.Color(100, 0, 0);
+                                portRight.Color(0, 255, 195);
 
                         DivEnd();
                     DivEnd();

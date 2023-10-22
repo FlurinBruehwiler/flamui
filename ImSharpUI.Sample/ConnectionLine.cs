@@ -45,15 +45,15 @@ public class ConnectionLine : UiElement
 
     private static SKPaint _paint = new()
     {
-        Color = new SKColor(200, 0, 0),
+        Color = new SKColor(0, 214, 163),
         IsAntialias = true,
         Style = SKPaintStyle.Stroke,
-        StrokeWidth = 5
+        StrokeWidth = 2
     };
 
     private static SKPaint _paintEnds = new()
     {
-        Color = new SKColor(200, 0, 0),
+        Color = new SKColor(0, 214, 163),
         IsAntialias = true,
     };
 
