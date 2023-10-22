@@ -90,22 +90,10 @@ public class ConnectionLine : UiElement
         var end1 = GetCenter(_b.Value.LeftPort);
         var end2 = GetCenter(_b.Value.RightPort);
 
-        var distance11 = Vector2.Distance(start1.Pos, end1.Pos);
         var distance12 = Vector2.Distance(start1.Pos, end2.Pos);
-        var distance22 = Vector2.Distance(start2.Pos, end2.Pos);
         var distance21 = Vector2.Distance(start2.Pos, end1.Pos);
 
-        ValueTuple<float, PortPosition, PortPosition> smallest = (distance11, start1, end1);
-
-        if (distance12 < smallest.Item1)
-        {
-            smallest = (distance12, start1, end2);
-        }
-
-        if (distance22 < smallest.Item1)
-        {
-            smallest = (distance22, start2, end2);
-        }
+        ValueTuple<float, PortPosition, PortPosition> smallest = (distance12, start1, end2);
 
         if (distance21 < smallest.Item1)
         {
