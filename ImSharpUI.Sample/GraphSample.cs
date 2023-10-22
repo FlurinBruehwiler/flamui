@@ -40,10 +40,16 @@ public class GraphSample
 {
     public readonly List<Node> Nodes = new()
     {
-        new Node(new Vector2(300, 100), Guid.NewGuid().ToString()),
-        new Node(new Vector2(100, 500), Guid.NewGuid().ToString()),
-        new Node(new Vector2(300, 300), Guid.NewGuid().ToString()),
+
     };
+
+    public GraphSample()
+    {
+        foreach (var _ in Enumerable.Range(0, 50))
+        {
+            Nodes.Add(new Node(new Vector2(Random.Shared.Next(3000), Random.Shared.Next(3000)), Guid.NewGuid().ToString()));
+        }
+    }
 
     public readonly List<Connection> Connections = new();
     public CameraInfo Camera = new(Vector2.Zero, Vector2.Zero, 1);
