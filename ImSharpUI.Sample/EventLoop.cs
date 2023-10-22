@@ -82,7 +82,7 @@ public class EventLoop
                 window.Update();
             }
 
-            Console.WriteLine($"Total: {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds}");
+            // Console.WriteLine($"Total: {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds}");
 
         }
     }

@@ -1,7 +1,9 @@
-﻿using SkiaSharp;
+﻿using System.Diagnostics;
+using SkiaSharp;
 
 namespace ImSharpUISample.UiElements;
 
+[DebuggerDisplay("Line = {Id.Line} Key = {Id.Key}")]
 public abstract class UiElement : IData
 {
     public UiElementId Id { get; set; }

@@ -109,8 +109,6 @@ public partial class UiWindow : IDisposable
 
         // Console.WriteLine($"Setup: {Stopwatch.GetElapsedTime(setup).TotalMilliseconds}");
 
-        Ui.AbsoluteDivs.Clear();
-
         Ui.OpenElementStack.Clear();
         Ui.OpenElementStack.Push(RootContainer);
         Ui.Root = RootContainer;

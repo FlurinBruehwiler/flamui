@@ -245,6 +245,10 @@ public partial class UiContainer
 
         item.ComputedX = parent.ComputedX + item.PAbsolutePosition.Left;
         item.ComputedY = parent.ComputedY + item.PAbsolutePosition.Top;
+        if (item.PAbsolutePosition.Right != default)
+        {
+            item.ComputedX = parent.ComputedX + parent.ComputedWidth + item.PAbsolutePosition.Right;
+        }
     }
 
     private void CalculateAbsoluteSize(UiElement item)

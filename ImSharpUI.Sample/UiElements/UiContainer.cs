@@ -1,11 +1,12 @@
-﻿using SkiaSharp;
+﻿using System.Diagnostics;
+using SkiaSharp;
 using EnumXAlign = ImSharpUISample.XAlign;
 using EnumMAlign = ImSharpUISample.MAlign;
 using EnumDir = ImSharpUISample.Dir;
 
 namespace ImSharpUISample.UiElements;
 
-public partial class UiContainer : UiElementContainer, IUiContainerBuilder
+public partial class UiContainer : UiElementContainer
 {
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
@@ -51,6 +52,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
     public Quadrant ShaddowOffset { get; set; }
     public float ShadowSigma { get; set; }
     public bool PHidden { get; set; }
+    public bool PBlockHit { get; set; }
 
     public Quadrant PAbsolutePosition { get; set; } = new(0, 0, 0, 0);
 
@@ -90,10 +92,7 @@ public partial class UiContainer : UiElementContainer, IUiContainerBuilder
 
     public override void CloseElement()
     {
-        if (PAbsolute)
-        {
-            Ui.AbsoluteDivs.Add(this);
-        }
+
     }
 
     private static readonly SKRoundRect RoundRect = new();

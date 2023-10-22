@@ -5,6 +5,24 @@ using static ImSharpUISample.Ui;
 
 namespace ImSharpUISample;
 
+public record struct Port(UiElement PortElement, PortDirection PortDirection);
+
+public struct ConnectionTarget
+{
+    public Port LeftPort { get; set; }
+    public Port RightPort { get; set; }
+
+    /// <summary>
+    /// the port thats used while the user is making the connection, it shouldn't swap while the user is still dragging
+    /// </summary>
+    public PortDirection ActivePortDirection { get; set; }
+
+    public Port GetActivePort()
+    {
+        return ActivePortDirection == PortDirection.Left ? LeftPort : RightPort;
+    }
+}
+
 public record Node(Vector2 Pos, string Id)
 {
     public Vector2 Pos { get; set; } = Pos;
@@ -16,12 +34,7 @@ public record Node(Vector2 Pos, string Id)
     public bool IsClicked { get; set; }
 };
 
-public record Connection(Node NodeA, Node NodeB)
-{
-    public string Id { get; } = NodeA.Id + NodeB.Id;
-    public UiElement? PortA { get; set; }
-    public UiElement? PortB { get; set; }
-};
+public record Connection(ConnectionTarget A, ConnectionTarget B, string Id);
 
 public class GraphSample
 {
@@ -34,10 +47,8 @@ public class GraphSample
 
     public readonly List<Connection> Connections = new();
     public CameraInfo Camera = new(Vector2.Zero, Vector2.Zero, 1);
-    public Node? DragStart;
-    public Node? DragEnd;
-    public Vector2 DragStartPos;
-    public Vector2 DragEndPos;
+    public ConnectionTarget? DragStart;
+    public ConnectionTarget? DragEnd;
     private Vector2? _mouseDragStartPos;
 
     public void Build()
@@ -67,14 +78,14 @@ public class GraphSample
 
                     foreach (var connection in Connections)
                     {
-                        GetElement<ConnectionLine>(connection.Id).From(connection.PortA, GetCenter).To(connection.PortB, GetCenter);
+                        GetElement<ConnectionLine>(connection.Id).Dynamic(connection.A, connection.B);
                     }
                 End<Camera>();
             DivEnd();
         DivEnd();
     }
 
-    private void HandleNodeSelection(IUiContainerBuilder background)
+    private void HandleNodeSelection(UiContainer background)
     {
         if (Window.IsMouseButtonPressed(MouseButtonKind.Left))
         {
@@ -141,12 +152,6 @@ public class GraphSample
         }
     }
 
-    private static Vector2 GetCenter(UiElement port)
-    {
-        return new Vector2(port.ComputedX + port.ComputedWidth / 2,
-            port.ComputedY + port.ComputedHeight / 2);
-    }
-
     private void HandleConnectionDrag()
     {
         if (DragStart is not null)
@@ -157,21 +162,26 @@ public class GraphSample
                 // SDL_CaptureMouse(SDL_bool.SDL_FALSE);
                 if (DragEnd != null)
                 {
-                    Connections.Add(new Connection(DragStart, DragEnd));
+                    Connections.Add(new Connection(DragStart.Value, DragEnd.Value, Guid.NewGuid().ToString()));
                 }
                 DragStart = null;
             }
             else
             {
-                var end = Camera.ScreenToWorld(Window.MousePosition);
                 if (DragEnd is not null)
-                    end = DragEndPos;
-                GetElement<ConnectionLine>().From(DragStartPos).To(end);
+                {
+                    GetElement<ConnectionLine>().Static(DragStart.Value, DragEnd.Value);
+                }
+                else
+                {
+                    var end = Camera.ScreenToWorld(Window.MousePosition);
+                    GetElement<ConnectionLine>().Static(DragStart.Value, end);
+                }
             }
         }
     }
 
-    private void HandleCameraMovement(IUiContainerBuilder background)
+    private void HandleCameraMovement(UiContainer background)
     {
         if (!background.IsHovered)
             return;

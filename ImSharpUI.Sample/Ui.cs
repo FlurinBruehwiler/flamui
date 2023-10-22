@@ -16,7 +16,6 @@ public static partial class Ui
 {
     public static Stack<ComponentData> OpenComponents = new();
     public static Stack<UiElementContainer> OpenElementStack = new();
-    public static List<UiContainer> AbsoluteDivs = new();
     public static UiWindow Window = null!;
     public static List<UiContainer> DeferedRenderedContainers = new();
     public static UiContainer Root = null!;
@@ -38,8 +37,8 @@ public static partial class Ui
     //     return subStack.CurrentStack.Pop().Children;
     // }
 
-    public static IUiContainerBuilder DivStart(
-        out IUiContainerBuilder uiContainer,
+    public static UiContainer DivStart(
+        out UiContainer uiContainer,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -47,7 +46,7 @@ public static partial class Ui
         return uiContainer = DivStart(key, path, line);
     }
 
-    public static IUiContainerBuilder DivStart(
+    public static UiContainer DivStart(
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -134,7 +133,7 @@ public static partial class Ui
         return text;
     }
 
-    // public static void SetFocus(IUiContainerBuilder uiContainer)
+    // public static void SetFocus(UiContainer uiContainer)
     // {
     //     if (UiWindow is null)
     //         throw new Exception();

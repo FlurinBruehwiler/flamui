@@ -48,13 +48,23 @@ public class NodeComponent
 
                     //Port
                     DivStart().Absolute(left: -10).MAlign(MAlign.Center);
-                        DivStart(out var port).BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Radius(10);
-                            if (port.IsHovered)
-                                port.Color(100, 0, 0);
+                        DivStart(out var portLeft, nodeDiv.Id.Key).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Radius(10);
+                            if (portLeft.IsHovered)
+                                portLeft.Color(100, 0, 0);
 
-                            HandlePort(port);
                         DivEnd();
                     DivEnd();
+
+                    DivStart().Absolute(right: -10).MAlign(MAlign.Center);
+                        DivStart(out var portRight, nodeDiv.Id.Key).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Radius(10);
+                            if (portRight.IsHovered)
+                                portRight.Color(100, 0, 0);
+
+                        DivEnd();
+                    DivEnd();
+
+                    HandlePort(portLeft, portRight, PortDirection.Left);
+                    HandlePort(portLeft, portRight, PortDirection.Right);
 
                     Text("Geometry").VAlign(TextAlign.Center).Size(20);
 
@@ -65,50 +75,47 @@ public class NodeComponent
         DivEnd();
     }
 
-    private void HandlePort(IUiContainerBuilder port)
+    private void HandlePort(UiContainer leftPort, UiContainer rightPort, PortDirection portDirection)
     {
+        var activePort = portDirection == PortDirection.Left ? leftPort : rightPort;
+
         //Port Drag start
-        if (Window.IsMouseButtonPressed(MouseButtonKind.Left) && port.IsHovered)
+        if (Window.IsMouseButtonPressed(MouseButtonKind.Left) && activePort.IsHovered)
         {
             // SDL_CaptureMouse(SDL_bool.SDL_TRUE);
-            _graphSample.DragStart = _node;
-            _graphSample.DragStartPos = GetCenter(port);
+            _graphSample.DragStart = new ConnectionTarget
+            {
+                LeftPort = new Port(leftPort, PortDirection.Left),
+                RightPort = new Port(rightPort, PortDirection.Right),
+                ActivePortDirection = portDirection
+            };
         }
 
         //Snap to Target Port
-        if (_graphSample.DragStart is not null && _graphSample.DragStart != _node)
+        if (_graphSample.DragStart is not null && _graphSample.DragStart.Value.LeftPort.PortElement != leftPort && _graphSample.DragStart.Value.RightPort.PortElement != rightPort)
         {
             var mousePos = _graphSample.Camera.ScreenToWorld(Window.MousePosition);
-            var portCenter = GetCenter(port);
+            var portCenter = GetCenter(activePort);
 
             if (Vector2.Distance(mousePos, portCenter) < 40)
             {
-                _graphSample.DragEnd = _node;
-                _graphSample.DragEndPos = GetCenter(port);
-            }
-        }
-
-        //update positions (todo rework)
-        foreach (var connection in _graphSample.Connections)
-        {
-            if (connection.NodeA == _node)
-            {
-                connection.PortA = (UiElement)port;
-            }
-            if (connection.NodeB == _node)
-            {
-                connection.PortB = (UiElement)port;
+                _graphSample.DragEnd = new ConnectionTarget
+                {
+                    LeftPort = new Port(leftPort, PortDirection.Left),
+                    RightPort = new Port(rightPort, PortDirection.Right),
+                    ActivePortDirection = portDirection
+                };;
             }
         }
     }
 
-    private Vector2 GetCenter(IUiContainerBuilder port)
+    private Vector2 GetCenter(UiContainer port)
     {
         return new Vector2(port.ComputedX + port.ComputedWidth / 2,
             port.ComputedY + port.ComputedHeight / 2);
     }
 
-    private void HandleMovement(Node node, IUiContainerBuilder nodeDiv)
+    private void HandleMovement(Node node, UiContainer nodeDiv)
     {
         var mousePos = _graphSample.Camera.ScreenToWorld(Window.MousePosition);
 

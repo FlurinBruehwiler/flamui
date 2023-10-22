@@ -4,46 +4,42 @@ using SkiaSharp;
 
 namespace ImSharpUISample;
 
+public record struct PortPosition(Vector2 Pos, PortDirection Direction);
+
 public class ConnectionLine : UiElement
 {
-    private Vector2 _start;
-    private Vector2 _end;
-    private UiElement? startElement;
-    private UiElement? endElement;
-    private Func<UiElement, Vector2>? startTransform;
-    private Func<UiElement, Vector2>? endTransform;
+    private Vector2? _end;
+    private ConnectionTarget _a;
+    private ConnectionTarget? _b;
+    private bool _isDynamic;
 
     public override void CleanElement()
     {
-        startElement = null;
-        endElement = null;
-        startTransform = null;
-        endTransform = null;
+        _a = default!;
+        _b = null;
+        _end = null;
+        _isDynamic = false;
     }
 
-    public ConnectionLine From(Vector2 start)
+    public ConnectionLine Static(ConnectionTarget a, Vector2 endPos)
     {
-        _start = start;
+        _a = a;
+        _end = endPos;
         return this;
     }
 
-    public ConnectionLine From(UiElement anchor, Func<UiElement, Vector2> transformFunction)
+    public ConnectionLine Static(ConnectionTarget a, ConnectionTarget b)
     {
-        startElement = anchor;
-        startTransform = transformFunction;
+        _a = a;
+        _b = b;
         return this;
     }
 
-    public ConnectionLine To(UiElement anchor, Func<UiElement, Vector2> transformFunction)
+    public ConnectionLine Dynamic(ConnectionTarget a, ConnectionTarget b)
     {
-        endElement = anchor;
-        endTransform = transformFunction;
-        return this;
-    }
-
-    public ConnectionLine To(Vector2 end)
-    {
-        _end = end;
+        _a = a;
+        _b = b;
+        _isDynamic = true;
         return this;
     }
 
@@ -63,32 +59,114 @@ public class ConnectionLine : UiElement
 
     private static SKPath _path = new();
 
+    private static PortPosition GetCenter(Port port)
+    {
+        return new PortPosition(new Vector2(port.PortElement.ComputedX + port.PortElement.ComputedWidth / 2,
+            port.PortElement.ComputedY + port.PortElement.ComputedHeight / 2), port.PortDirection);
+    }
+
+    private ValueTuple<PortPosition, PortPosition> GetFixPositions()
+    {
+        PortPosition end;
+
+        if (_end is null)
+        {
+            end = GetCenter(_b.Value.GetActivePort());
+        }
+        else
+        {
+            end = new PortPosition(_end.Value, PortDirection.Undefined);
+        }
+
+        var start = GetCenter(_a.GetActivePort());
+
+        return (end, start);
+    }
+
+    private ValueTuple<PortPosition, PortPosition> GetDynamicPositions()
+    {
+        var start1 = GetCenter(_a.LeftPort);
+        var start2 = GetCenter(_a.RightPort);
+        var end1 = GetCenter(_b.Value.LeftPort);
+        var end2 = GetCenter(_b.Value.RightPort);
+
+        var distance11 = Vector2.Distance(start1.Pos, end1.Pos);
+        var distance12 = Vector2.Distance(start1.Pos, end2.Pos);
+        var distance22 = Vector2.Distance(start2.Pos, end2.Pos);
+        var distance21 = Vector2.Distance(start2.Pos, end1.Pos);
+
+        ValueTuple<float, PortPosition, PortPosition> smallest = (distance11, start1, end1);
+
+        if (distance12 < smallest.Item1)
+        {
+            smallest = (distance12, start1, end2);
+        }
+
+        if (distance22 < smallest.Item1)
+        {
+            smallest = (distance22, start2, end2);
+        }
+
+        if (distance21 < smallest.Item1)
+        {
+            smallest = (distance12, start2, end1);
+        }
+
+        return (smallest.Item2, smallest.Item3);
+    }
+
     public override void Render(SKCanvas canvas)
     {
-        if (startElement is not null && startTransform is not null)
+        PortPosition source;
+        PortPosition target;
+
+        if (_isDynamic)
         {
-            _start = startTransform(startElement);
+            (source, target) = GetDynamicPositions();
+        }
+        else
+        {
+            (source, target) = GetFixPositions();
         }
 
-        if (endElement is not null && endTransform is not null)
-        {
-            _start = endTransform(endElement);
-        }
+        var centerX = (source.Pos.X + target.Pos.X) / 2;
 
-        var centerX = (_start.X + _end.X) / 2;
-        var start = new SKPoint(_start.X, _start.Y);
-        var startHandle = new SKPoint(centerX, _start.Y);
-        var endHandle = new SKPoint(centerX, _end.Y);
-        var end = new SKPoint(_end.X, _end.Y);
+        var start = new SKPoint(source.Pos.X, source.Pos.Y);
+        var end = new SKPoint(target.Pos.X, target.Pos.Y);
+
+        _path.MoveTo(start);
+
+        if (target.Pos.X > source.Pos.X && source.Direction == PortDirection.Left ||
+            source.Pos.X > target.Pos.X && target.Direction == PortDirection.Left)
+        {
+            var difX = Math.Abs(source.Pos.X - target.Pos.X);
+
+            var sourceHandle = new SKPoint(RemoveInDirection(source.Pos.X, difX, source.Direction), source.Pos.Y);
+            var targetHandle = new SKPoint(RemoveInDirection(target.Pos.X, difX, target.Direction), target.Pos.Y);
+
+            _path.CubicTo(sourceHandle, targetHandle, end);
+        }
+        else
+        {
+            var startHandle = new SKPoint(centerX, source.Pos.Y);
+            var endHandle = new SKPoint(centerX, target.Pos.Y);
+            _path.CubicTo(startHandle, endHandle, end);
+        }
 
         canvas.DrawCircle(start, 2.5f, _paintEnds);
         canvas.DrawCircle(end, 2.5f, _paintEnds);
 
-        _path.MoveTo(start);
-        _path.CubicTo(startHandle, endHandle, end);
-        _paint.Clone();
         canvas.DrawPath(_path, _paint);
+
         _path.Reset();
+    }
+
+    private float RemoveInDirection(float value, float subtract, PortDirection position)
+    {
+        if (position == PortDirection.Left)
+            return value - subtract;
+
+        return value + subtract;
     }
 
     public override void Layout(UiWindow uiWindow)
@@ -104,4 +182,11 @@ public class ConnectionLine : UiElement
     {
         throw new NotImplementedException();
     }
+}
+
+public enum PortDirection
+{
+    Left,
+    Right,
+    Undefined
 }
