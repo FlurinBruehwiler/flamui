@@ -88,7 +88,7 @@ public class Sidebar : UiComponent
     {
         if (dragZone.IsNewlyHovered)
             SDL_SetCursor(_resizeCursor);
-        if (dragZone.IsNewlyUnHovered)
+        if (dragZone.IsNewlyUnHovered && !_isDragging)
             SDL_SetCursor(_normalCursor);
 
         if (dragZone.IsHovered && Window.IsMouseButtonPressed(MouseButtonKind.Left))
@@ -99,6 +99,7 @@ public class Sidebar : UiComponent
         if (_isDragging && Window.IsMouseButtonReleased(MouseButtonKind.Left))
         {
             _isDragging = false;
+            SDL_SetCursor(_normalCursor);
         }
 
         if (_isDragging)
