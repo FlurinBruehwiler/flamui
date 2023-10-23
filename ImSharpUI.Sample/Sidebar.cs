@@ -35,7 +35,7 @@ public class Sidebar : UiComponent
     public override void Build()
     {
         //Sidebar
-        DivStart(_side.ToString()).Color(43, 45, 48).Width(40).Padding(5).Gap(10);
+        DivStart(_side.ToString()).Color(43, 45, 48).Width(40).Padding(5).Gap(10).BlockHit();
 
             foreach (var toolWindowDefinition in _toolWindowDefinitions)
             {

@@ -4,8 +4,23 @@ namespace ImSharpUISample.ToolWindows;
 
 public class FilePicker : UiComponent
 {
+    private string _input = string.Empty;
+    private string _selected = "Hi";
+
     public override void Build()
     {
-        Text("FilePicker");
+        DivStart().Padding(10).Gap(10);
+            Text("File Picker").Height(30);
+
+            StyledInput(ref _input, "Search");
+
+            StartComponent<DropDown<string>>(out var d).Selected(_selected);
+                d.Option("Hi");
+                d.Option("Mark");
+                d.Option("Joa");
+                d.Option("De Boa");
+                d.Option("Monika");
+            EndComponent<DropDown<string>>().Selected(out _selected);
+        DivEnd();
     }
 }

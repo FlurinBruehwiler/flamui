@@ -21,6 +21,20 @@ public class HitTester
     private void HandleMouseClick(Vector2 clickPos, bool isClick)
     {
         HitTest(_window.RootContainer, clickPos, out _);
+
+        if (_window.IsMouseButtonPressed(MouseButtonKind.Left))
+        {
+            foreach (var windowHoveredDiv in _window.HoveredDivs)
+            {
+                if (windowHoveredDiv.PFocusable)
+                {
+                    _window.ActiveDiv = windowHoveredDiv;
+                    return;
+                }
+            }
+
+            _window.ActiveDiv = null;
+        }
     }
 
     private void HitTest(UiElementContainer div, Vector2 point, out bool blockClick)

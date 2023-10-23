@@ -120,7 +120,7 @@ public static partial class Ui
         return component;
     }
 
-    public static void EndComponent<T>() where T : UiComponent
+    public static T EndComponent<T>() where T : UiComponent
     {
         var (component, isNew) = OpenComponents.Pop();
         if (isNew)
@@ -129,6 +129,7 @@ public static partial class Ui
         }
 
         component.Build();
+        return (T)component;
     }
 
     public static T Get<T>(string key = "",

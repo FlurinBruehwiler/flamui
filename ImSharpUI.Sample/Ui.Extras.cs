@@ -55,49 +55,63 @@ public partial class Ui
     //     ((ModalComponent)componentData.Component).EndModal(ref show, title, children);
     // }
 
-    public static void StyledInput(ref string text, string key = "",
+    public static void StyledInput(ref string text, string placeholder = "", string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var modalInputDiv).PaddingHorizontal(5).Height(25).BorderWidth(1).BorderColor(100, 100, 100).Color(0, 0, 0, 0);
+        DivStart(out var modalInputDiv, key, path, line).Focusable().Radius(2).PaddingHorizontal(5).Height(25).BorderWidth(1).BorderColor(100, 100, 100).Color(0, 0, 0, 0);
             if (modalInputDiv.HasFocusWithin)
+            {
                 modalInputDiv.BorderColor(53, 116, 240).BorderWidth(2);
-            Input(ref text);
+                Input(ref text, true);
+            }
+            else
+            {
+                var uiText = Text(string.IsNullOrEmpty(text) ? placeholder : text).VAlign(TextAlign.Center).Color(200, 200, 200);
+                if (string.IsNullOrEmpty(text))
+                {
+                    uiText.Color(100, 100, 100);
+                }
+            }
         DivEnd();
     }
 
-    public static void Input(ref string text, string key = "",
+    public static void Input(ref string text, bool hasFocus = false, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
         DivStart(out var inputDiv, key, path, line).Focusable();
 
-            var input = Window.TextInput;
-
-            if (!string.IsNullOrEmpty(input) && inputDiv.IsActive)
-                text += Window.TextInput;
-
-            if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
+            if (inputDiv.IsActive || hasFocus)
             {
-                if (Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
-                {
-                    text = text.TrimEnd();
+                var input = Window.TextInput;
 
-                    if (!text.Contains(' '))
-                    {
-                        text = string.Empty;
-                    }
+                if (!string.IsNullOrEmpty(input))
+                    text += Window.TextInput;
 
-                    for (var i = text.Length - 1; i > 0; i--)
-                    {
-                        if (text[i] != ' ') continue;
-                        text = text[..(i + 1)];
-                        break;
-                    }
-                }
-                else
+                if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
                 {
-                    text = text[..^1];
+                    if (Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
+                    {
+                        text = text.TrimEnd();
+
+                        if (!text.Contains(' '))
+                        {
+                            text = string.Empty;
+                        }
+
+                        for (var i = text.Length - 1; i > 0; i--)
+                        {
+                            if (text[i] != ' ') continue;
+                            text = text[..(i + 1)];
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if(!string.IsNullOrEmpty(text))
+                            text = text[..^1];
+                    }
                 }
             }
 
