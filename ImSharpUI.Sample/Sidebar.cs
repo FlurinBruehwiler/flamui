@@ -35,7 +35,7 @@ public class Sidebar : UiComponent
     public override void Build()
     {
         //Sidebar
-        DivStart(_side.ToString()).Color(43, 45, 48).Width(40).Padding(5).Gap(10).BlockHit();
+        DivStart(_side.ToString()).Color(C.Background).Width(40).Padding(5).Gap(10).BlockHit();
 
             foreach (var toolWindowDefinition in _toolWindowDefinitions)
             {
@@ -45,7 +45,7 @@ public class Sidebar : UiComponent
             //Window
             if (_selectedToolWindow is {} selectedToolWindow)
             {
-                DivStart(out var toolWindow, _side.ToString()).ZIndex(1).Color(43, 45, 48).BorderWidth(1).BorderColor(0, 0, 0);
+                DivStart(out var toolWindow, _side.ToString()).ZIndex(1).Color(C.Background).BorderWidth(1).BorderColor(20, 20, 20);
 
                     DivStart(out var dragZone).Absolute().Width(4).BlockHit();
                         if (_side == SidebarSide.Left)
@@ -117,7 +117,7 @@ public class Sidebar : UiComponent
 
     private void SidebarIcon(ToolWindowDefinition toolWindowDefinition)
     {
-        DivStart(out var toolbar, toolWindowDefinition.Path).Radius(5).Padding(3).Height(30).Color(0, 0, 0, 0);
+        DivStart(out var toolbar, toolWindowDefinition.Path).Radius(5).Padding(3).Height(30).Color(C.Transparent);
             if (toolbar.Clicked)
             {
                 if (toolWindowDefinition == _selectedToolWindow)
@@ -132,7 +132,7 @@ public class Sidebar : UiComponent
 
             if (toolWindowDefinition == _selectedToolWindow || toolbar.IsHovered)
             {
-                toolbar.Color(78, 81, 87);
+                toolbar.Color(C.Selected);
             }
             SvgImage(toolWindowDefinition.Path);
         DivEnd();

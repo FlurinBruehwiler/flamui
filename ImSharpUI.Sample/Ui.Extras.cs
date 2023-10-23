@@ -55,22 +55,42 @@ public partial class Ui
     //     ((ModalComponent)componentData.Component).EndModal(ref show, title, children);
     // }
 
+    public static void Checkbox(ref bool enabled, string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1)
+    {
+        DivStart(out var div, key, path, line).Height(15).Width(15).Color(C.Background).BorderColor(C.Border).BorderWidth(1).Radius(2);
+            if (div.Clicked)
+            {
+                enabled = !enabled;
+            }
+
+            if (enabled)
+            {
+                div.Color(C.Blue);
+                div.BorderWidth(0);
+                SvgImage("./Icons/check.svg");
+            }
+
+        DivEnd();
+    }
+
     public static void StyledInput(ref string text, string placeholder = "", string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var modalInputDiv, key, path, line).Focusable().Radius(2).PaddingHorizontal(5).Height(25).BorderWidth(1).BorderColor(100, 100, 100).Color(0, 0, 0, 0);
+        DivStart(out var modalInputDiv, key, path, line).Focusable().Radius(2).PaddingHorizontal(5).Height(25).BorderWidth(1).BorderColor(C.Border).Color(C.Transparent);
             if (modalInputDiv.HasFocusWithin)
             {
-                modalInputDiv.BorderColor(53, 116, 240).BorderWidth(2);
+                modalInputDiv.BorderColor(C.Blue).BorderWidth(2);
                 Input(ref text, true);
             }
             else
             {
-                var uiText = Text(string.IsNullOrEmpty(text) ? placeholder : text).VAlign(TextAlign.Center).Color(200, 200, 200);
+                var uiText = Text(string.IsNullOrEmpty(text) ? placeholder : text).VAlign(TextAlign.Center).Color(C.Text);
                 if (string.IsNullOrEmpty(text))
                 {
-                    uiText.Color(100, 100, 100);
+                    uiText.Color(C.Border);
                 }
             }
         DivEnd();
@@ -115,7 +135,7 @@ public partial class Ui
                 }
             }
 
-            Text(text).VAlign(TextAlign.Center).Color(200, 200, 200);
+            Text(text).VAlign(TextAlign.Center).Color(C.Text);
 
         DivEnd();
     }

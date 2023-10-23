@@ -15,21 +15,23 @@ public class DropDown<T> : UiComponent where T : notnull
 
     public override void Build()
     {
-        DivStart(out var dropDownDiv).Radius(2).Height(25).Focusable().Padding(5).BorderColor(100, 100, 100).BorderWidth(1).Color(57, 59, 64).Dir(Dir.Horizontal);
-            Text(_selectedOption.ToString()!).VAlign(TextAlign.Center).Color(200, 200, 200);
+        DivStart(out var dropDownDiv).Radius(2).Height(25).Focusable().Padding(5).BorderColor(C.Border).BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
+            Text(_selectedOption.ToString()!).VAlign(TextAlign.Center).Color(C.Text);
             DivStart().Width(15);//ToDo, make it so that we can enforce a certain aspect ratio
                 SvgImage("./Icons/expand_more.svg");
             DivEnd();
             if (_isExpanded)
             {
-                DivStart().Height(25 * _options.Count + 10).Clip().Padding(5).Color(43, 45, 48).Absolute(top:30).Radius(5).BorderWidth(1).BorderColor(100, 100, 100).Shadow(5, top:5).ShadowColor(0, 0, 0);
+                //ToDo we really need to improve the layouting system!!!!
+                //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
+                DivStart().Height(25 * _options.Count + 10).Clip().Padding(5).Color(C.Background).Absolute(top:30).Radius(5).BorderWidth(1).BorderColor(C.Border).Shadow(5, top:5).ShadowColor(0, 0, 0);
                     if (!string.IsNullOrEmpty(_filterText))
                     {
                         var lastFilterText = _filterText;
 
                         DivStart().Height(25).Padding(5).PaddingBottom(3).Gap(2);
                             Input(ref _filterText, true);
-                            DivStart().Height(1).Color(100, 100, 100);
+                            DivStart().Height(1).Color(C.Border);
                             DivEnd();
                         DivEnd();
 
@@ -43,7 +45,7 @@ public class DropDown<T> : UiComponent where T : notnull
                     foreach (var option in _filteredOptions)
                     {
                         var str = option.ToString()!;
-                        DivStart(out var optionDiv, str).Height(25).Color(0, 0, 0, 0).Padding(5).Radius(3);
+                        DivStart(out var optionDiv, str).Height(25).Color(C.Transparent).Padding(5).Radius(3);
                             if (optionDiv.Clicked)
                             {
                                 _selectedOption = option;
@@ -59,9 +61,14 @@ public class DropDown<T> : UiComponent where T : notnull
                             {
                                 optionDiv.Color(46, 67, 110);
                             }
-                            Text(str).VAlign(TextAlign.Center).Color(200, 200, 200);
+                            Text(str).VAlign(TextAlign.Center).Color(C.Text);
                         DivEnd();
                         index++;
+                    }
+
+                    if (_filteredOptions.Count == 0)
+                    {
+                        Text("Nothing to show").HAlign(TextAlign.Center).VAlign(TextAlign.Center).Color(C.Text);
                     }
                 DivEnd();
             }
@@ -98,7 +105,7 @@ public class DropDown<T> : UiComponent where T : notnull
             }
 
             if (dropDownDiv.HasFocusWithin)
-                dropDownDiv.BorderWidth(2).BorderColor(53, 116, 240);
+                dropDownDiv.BorderWidth(2).BorderColor(C.Blue);
 
             if (_isExpanded && !dropDownDiv.HasFocusWithin)
                 Close();

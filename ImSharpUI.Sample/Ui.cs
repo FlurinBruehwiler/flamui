@@ -149,14 +149,15 @@ public static partial class Ui
         return text;
     }
 
-    public static UiSvg SvgImage(string src,
+    public static UiSvg SvgImage(string src, ColorDefinition? colorDefinition = null,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var text = OpenElementStack.Peek().AddChild<UiSvg>(new UiElementId(key, path, line));
-        text.Src = src;
-        return text;
+        var svg = OpenElementStack.Peek().AddChild<UiSvg>(new UiElementId(key, path, line));
+        svg.ColorDefinition = colorDefinition;
+        svg.Src = src;
+        return svg;
     }
 
     public static UiImage Image(string src,

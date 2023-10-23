@@ -1,4 +1,7 @@
-﻿using SkiaSharp;
+﻿using System.Drawing;
+using SkiaSharp;
+using Svg;
+using Svg.Model;
 using Svg.Skia;
 
 namespace ImSharpUISample.UiElements;
@@ -7,7 +10,7 @@ namespace ImSharpUISample.UiElements;
 public class UiSvg : UiElement
 {
     public string Src { get; set; } = null!;
-
+    public ColorDefinition? ColorDefinition { get; set; }
     private static readonly Dictionary<string, SKSvg> SSvgCache = new();
 
     public override void Render(SKCanvas canvas)
@@ -16,7 +19,12 @@ public class UiSvg : UiElement
         {
             Console.WriteLine($"Loading {Src}");
             svg = new SKSvg();
-            svg.Load(Src);
+            var svgDoc = SvgExtensions.Open(Src);
+            if (ColorDefinition is { } cd)
+            {
+                svgDoc!.Fill = new SvgColourServer(Color.FromArgb(cd.Alpha, cd.Red, cd.Green, cd.Blue));
+            }
+            svg.FromSvgDocument(svgDoc);
             SSvgCache.Add(Src, svg);
         }
 

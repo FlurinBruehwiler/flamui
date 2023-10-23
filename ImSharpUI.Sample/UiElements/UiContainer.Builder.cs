@@ -32,9 +32,21 @@ public partial class UiContainer
         return this;
     }
 
+    public UiContainer Color(ColorDefinition color)
+    {
+        PColor = color;
+        return this;
+    }
+
     public UiContainer BorderColor(byte red, byte green, byte blue, byte alpha = 255)
     {
         PBorderColor = new ColorDefinition(red, green, blue, alpha);
+        return this;
+    }
+
+    public UiContainer BorderColor(ColorDefinition color)
+    {
+        PBorderColor = color;
         return this;
     }
 

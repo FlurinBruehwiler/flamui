@@ -132,7 +132,7 @@ public partial class UiContainer : UiElementContainer
             //blur
             if (PShadowColor is { } blurColor)
             {
-                SBlurPaint.Color = new SKColor(blurColor.Red, blurColor.Green, blurColor.Blue, blurColor.Appha);
+                SBlurPaint.Color = new SKColor(blurColor.Red, blurColor.Green, blurColor.Blue, blurColor.Alpha);
 
                 if (MaskFilterCache.TryGetValue(ShadowSigma, out var maskFilter))
                 {

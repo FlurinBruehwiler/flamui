@@ -44,7 +44,7 @@ public class UiText : UiElement
             return;
 
         Paint.TextSize = PSize;
-        Paint.Color = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Appha);
+        Paint.Color = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Alpha);
 
         var rect = GetRect();
 
