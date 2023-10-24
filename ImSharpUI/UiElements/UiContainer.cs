@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using SkiaSharp;
+﻿using SkiaSharp;
 using EnumXAlign = ImSharpUISample.XAlign;
 using EnumMAlign = ImSharpUISample.MAlign;
 using EnumDir = ImSharpUISample.Dir;

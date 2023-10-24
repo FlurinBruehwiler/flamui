@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using System.Runtime.CompilerServices;
-using System.Security.Principal;
+﻿using System.Runtime.CompilerServices;
 using ImSharpUISample.UiElements;
 using SDL2;
 

@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using EnumXAlign = ImSharpUISample.XAlign;
+﻿using EnumXAlign = ImSharpUISample.XAlign;
 using EnumMAlign = ImSharpUISample.MAlign;
 using EnumDir = ImSharpUISample.Dir;
 

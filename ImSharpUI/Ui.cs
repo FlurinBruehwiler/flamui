@@ -1,8 +1,5 @@
-using System.Collections.ObjectModel;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using ImSharpUISample.UiElements;
-using SDL2;
 
 namespace ImSharpUISample;
 

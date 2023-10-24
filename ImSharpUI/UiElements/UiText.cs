@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace ImSharpUISample.UiElements;
 

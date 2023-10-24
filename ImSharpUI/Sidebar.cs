@@ -1,5 +1,4 @@
-﻿using ImSharpUISample.ToolWindows;
-using ImSharpUISample.UiElements;
+﻿using ImSharpUISample.UiElements;
 using static SDL2.SDL;
 using static ImSharpUISample.Ui;
 

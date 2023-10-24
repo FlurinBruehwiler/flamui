@@ -17,7 +17,6 @@ public class HitTester
         HandleMouseClick(_window.MousePosition, _window.IsMouseButtonDown(MouseButtonKind.Left));
     }
 
-    //todo, set active object
     private void HandleMouseClick(Vector2 clickPos, bool isClick)
     {
         HitTest(_window.RootContainer, clickPos, out _);

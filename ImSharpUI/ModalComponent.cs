@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Numerics;
+﻿using System.Numerics;
 using ImSharpUISample.UiElements;
 using static ImSharpUISample.Ui;
 using static SDL2.SDL;
