@@ -35,15 +35,19 @@ public class Camera : UiElementContainer
     }
     public CameraInfo CameraInfo { get; set; }
 
-    public override void Render(SKCanvas canvas)
+    public override void Render(RenderContext renderContext)
     {
-        canvas.SetMatrix(CameraInfo.GetCameraMatrix());
+        renderContext.Add(new Matrix
+        {
+            SkMatrix = CameraInfo.GetCameraMatrix()
+        });
 
         foreach (var uiElement in Children)
         {
-            uiElement.Render(canvas);
+            uiElement.Render(renderContext);
         }
-        canvas.ResetMatrix();
+
+        renderContext.Add(new ResetMatrix());
     }
 
     public override void Layout(UiWindow uiWindow)

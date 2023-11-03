@@ -1,4 +1,6 @@
-﻿namespace ImSharpUISample;
+﻿using SkiaSharp;
+
+namespace ImSharpUISample;
 
 public record struct Quadrant(int Left, int Right, int Top, int Bottom);
 public record struct AbsolutePosition(int? Left, int? Right, int? Top, int? Bottom);
@@ -54,5 +56,11 @@ public enum XAlign
     Center
 }
 
-public record struct ColorDefinition(byte Red, byte Green, byte Blue, byte Alpha = 255);
+public record struct ColorDefinition(byte Red, byte Green, byte Blue, byte Alpha = 255)
+{
+    public SKColor ToSkColor()
+    {
+        return new SKColor(Red, Green, Blue, Alpha);
+    }
+}
 

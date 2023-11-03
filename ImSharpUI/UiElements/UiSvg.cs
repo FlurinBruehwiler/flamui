@@ -13,7 +13,7 @@ public class UiSvg : UiElement
     public ColorDefinition? ColorDefinition { get; set; }
     private static readonly Dictionary<string, SKSvg> SSvgCache = new();
 
-    public override void Render(SKCanvas canvas)
+    public override void Render(RenderContext renderContext)
     {
         if (!SSvgCache.TryGetValue(Src, out var svg))
         {
@@ -52,7 +52,11 @@ public class UiSvg : UiElement
         matrix.TransX = ComputedX;
         matrix.TransY = ComputedY;
 
-        canvas.DrawPicture(SSvgCache[Src].Picture, ref matrix);
+        renderContext.Add(new Picture
+        {
+            SkPicture = SSvgCache[Src].Picture!,
+            SkMatrix = matrix
+        });
     }
 
     public override void Layout(UiWindow uiWindow)

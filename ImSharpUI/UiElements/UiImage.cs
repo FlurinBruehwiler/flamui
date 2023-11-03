@@ -6,7 +6,7 @@ public class UiImage : UiElement
 {
     public string Src { get; set; } = null!;
 
-    public override void Render(SKCanvas canvas)
+    public override void Render(RenderContext renderContext)
     {
         if (!ImgCache.TryGetValue(Src, out var img))
         {
@@ -35,7 +35,11 @@ public class UiImage : UiElement
             destHeight = ComputedWidth / currentRatio;
         }
 
-        canvas.DrawBitmap(ImgCache[Src], new SKRect(ComputedX, ComputedY, ComputedX + destWidth, ComputedY + destHeight), Paint);
+        renderContext.Add(new Bitmap
+        {
+            Rect = new SKRect(ComputedX, ComputedY, ComputedX + destWidth, ComputedY + destHeight),
+            SkBitmap = ImgCache[Src]
+        });
     }
 
     private static readonly SKPaint Paint = new()

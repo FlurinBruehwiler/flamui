@@ -127,14 +127,10 @@ public partial class UiWindow : IDisposable
         // Console.WriteLine($"Layouting: {Stopwatch.GetElapsedTime(startLayout).TotalMilliseconds}");
 
         var startRendering = Stopwatch.GetTimestamp();
-        RootContainer.Render(surface.Canvas);
+        var renderContext = new RenderContext();
+        RootContainer.Render(renderContext);
+        renderContext.Render(surface.Canvas);
 
-        foreach (var deferedRenderedContainer in Ui.DeferedRenderedContainers)
-        {
-            deferedRenderedContainer.Render(surface.Canvas);
-        }
-
-        Ui.DeferedRenderedContainers.Clear();
 
         Ui.Root = null!;
 

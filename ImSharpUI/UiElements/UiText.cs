@@ -37,11 +37,12 @@ public class UiText : UiElement
         return rect;
     }
 
-    public override void Render(SKCanvas canvas)
+    public override void Render(RenderContext renderContext)
     {
         if (Content == string.Empty)
             return;
 
+        //don't define paint twice!!!! grrr
         Paint.TextSize = PSize;
         Paint.Color = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Alpha);
 
@@ -68,7 +69,17 @@ public class UiText : UiElement
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        canvas.DrawText(Content, actualX, actualY, Paint);
+        renderContext.Add(new Text
+        {
+            Content = Content,
+            X = actualX,
+            Y = actualY,
+            RenderPaint = new TextPaint
+            {
+                SkColor = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Alpha),
+                TextSize = PSize
+            }
+        });
     }
 
     public override void Layout(UiWindow uiWindow)

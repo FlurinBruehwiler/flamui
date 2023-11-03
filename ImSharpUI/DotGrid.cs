@@ -40,7 +40,7 @@ public class DotGrid : UiElement
         return SKShader.CreateBitmap(dotBitmap, SKShaderTileMode.Repeat, SKShaderTileMode.Repeat);
     }
 
-    public override void Render(SKCanvas canvas)
+    public override void Render(RenderContext renderContext)
     {
         // canvas.DrawRect(new SKRect(-5000, -5000, 10_000, 10_000), GridPaint1);
         // canvas.DrawRect(new SKRect(-5000, -5000, 10_000, 10_000), GridPaint2);

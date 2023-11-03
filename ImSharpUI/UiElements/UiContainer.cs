@@ -116,100 +116,83 @@ public partial class UiContainer : UiElementContainer
 
     }
 
-    private static readonly SKRoundRect RoundRect = new();
-    private static readonly Dictionary<float, SKMaskFilter> MaskFilterCache = new();
 
-    public override void Render(SKCanvas canvas)
+    public override void Render(RenderContext renderContext)
     {
         if (ClipToIgnore is not null)
         {
-            canvas.Restore();
+            renderContext.Add(new Restore());
         }
 
         if (PColor is { } color)
         {
-            //blur
+            //shadow
             if (PShadowColor is { } blurColor)
             {
-                SBlurPaint.Color = new SKColor(blurColor.Red, blurColor.Green, blurColor.Blue, blurColor.Alpha);
-
-                if (MaskFilterCache.TryGetValue(ShadowSigma, out var maskFilter))
-                {
-                    SBlurPaint.MaskFilter = maskFilter;
-                }
-                else
-                {
-                    //todo maybe ensure that not no many unused maskfilters get created??? because maskfilters are disposable :) AND immutable grrrr
-                    SBlurPaint.MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Outer, ShadowSigma, false);
-                    MaskFilterCache.Add(ShadowSigma, SBlurPaint.MaskFilter);
-                }
-
                 float borderRadius = PRadius + PBorderWidth;
 
-                if (PRadius != 0)
+                //todo replace with readable code or something
+                renderContext.Add(new Rect
                 {
-                    //todo replace with readable code or something
-                    canvas.DrawRoundRect(ComputedX - PBorderWidth + ShaddowOffset.Left,
-                        ComputedY - PBorderWidth + ShaddowOffset.Top,
-                        ComputedWidth + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
-                        ComputedHeight + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
-                        borderRadius, borderRadius, SBlurPaint);
-                }
-                else
-                {
-                    canvas.DrawRect(ComputedX - PBorderWidth + ShaddowOffset.Left,
-                        ComputedY - PBorderWidth + ShaddowOffset.Top,
-                        ComputedWidth + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
-                        ComputedHeight + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
-                        SBlurPaint);
-                }
+                    X = ComputedX - PBorderWidth + ShaddowOffset.Left,
+                    Y = ComputedY - PBorderWidth + ShaddowOffset.Top,
+                    H = ComputedWidth + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
+                    W = ComputedHeight + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
+                    Radius = PRadius == 0 ? 0 : borderRadius,
+                    RenderPaint = new ShadowPaint
+                    {
+                        ShadowSigma = ShadowSigma,
+                        SkColor = blurColor.ToSkColor()
+                    }
+                });
             }
 
-
-            if (PRadius != 0)
+            renderContext.Add(new Rect
             {
-                canvas.DrawRoundRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight, PRadius, PRadius,
-                    GetColor(color));
-            }
-            else
-            {
-                canvas.DrawRect(ComputedX, ComputedY, ComputedWidth, ComputedHeight,
-                    GetColor(color));
-            }
+                X = ComputedX,
+                Y = ComputedY,
+                W = ComputedWidth,
+                H = ComputedHeight,
+                Radius = PRadius,
+                RenderPaint = new PlaintPaint
+                {
+                    SkColor = color.ToSkColor()
+                }
+            });
         }
+
         if (PBorderWidth != 0 && PBorderColor is {} borderColor)
         {
-            canvas.Save();
+            renderContext.Add(new Save());
 
-            if (PRadius != 0)
+            float borderRadius = PRadius + PBorderWidth;
+
+            renderContext.Add(new RectClip
             {
-                float borderRadius = PRadius + PBorderWidth;
+                X = ComputedX,
+                Y = ComputedY,
+                W = ComputedWidth,
+                H = ComputedHeight,
+                Radius = PRadius
+            });
 
-                RoundRect.SetRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius, PRadius);
-                canvas.ClipRoundRect(RoundRect, SKClipOperation.Difference, antialias: true);
-
-                canvas.DrawRoundRect(ComputedX - PBorderWidth,
-                    ComputedY - PBorderWidth,
-                    ComputedWidth + 2 * PBorderWidth,
-                    ComputedHeight + 2 * PBorderWidth,
-                    borderRadius,
-                    borderRadius,
-                    GetColor(borderColor));
-            }
-            else
+            renderContext.Add(new Rect
             {
-                canvas.ClipRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), SKClipOperation.Difference, true);
+                X = ComputedX - PBorderWidth,
+                Y = ComputedY - PBorderWidth,
+                W = ComputedWidth + 2 * PBorderWidth,
+                H = ComputedHeight + 2 * PBorderWidth,
+                Radius = borderRadius,
+                RenderPaint = new PlaintPaint
+                {
+                    SkColor = borderColor.ToSkColor()
+                }
+            });
 
-                canvas.DrawRect(ComputedX - PBorderWidth, ComputedY - PBorderWidth,
-                    ComputedWidth + 2 * PBorderWidth, ComputedHeight + 2 * PBorderWidth,
-                    GetColor(borderColor));
-            }
-
-            canvas.Restore();
+            renderContext.Add(new Restore());
         }
 
-
-        ClipContent(canvas);
+        ClipContent(renderContext);
 
         foreach (var childElement in Children)
         {
@@ -218,40 +201,39 @@ public partial class UiContainer : UiElementContainer
                 continue;
             }
 
-            //if differenz Z-index, defer rendering
-            if (childElement is UiContainer uiContainer && uiContainer.PZIndex != 0)
-            {
-                Ui.DeferedRenderedContainers.Add(uiContainer);
-                continue;
-            }
+            // //if differenz Z-index, defer rendering
+            // if (childElement is UiContainer uiContainer && uiContainer.PZIndex != 0)
+            // {
+            //     // Ui.DeferedRenderedContainers.Add(uiContainer); ToDo
+            //     continue;
+            // }
 
-            childElement.Render(canvas);
+            childElement.Render(renderContext);
         }
 
         if (NeedsClip())
         {
-            canvas.Restore();
+            renderContext.Add(new Restore());
         }
 
         //reapply clip
-        ClipToIgnore?.ClipContent(canvas);
+        ClipToIgnore?.ClipContent(renderContext);
     }
 
-    public void ClipContent(SKCanvas canvas)
+    private void ClipContent(RenderContext renderContext)
     {
         if (NeedsClip())
         {
-            canvas.Save();
+            renderContext.Add(new Save());
 
-            if (PRadius != 0)
+            renderContext.Add(new RectClip
             {
-                RoundRect.SetRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight), PRadius, PRadius);
-                canvas.ClipRoundRect(RoundRect, antialias: true);
-            }
-            else
-            {
-                canvas.ClipRect(SKRect.Create(ComputedX, ComputedY, ComputedWidth, ComputedHeight));
-            }
+                X = ComputedX,
+                Y = ComputedY,
+                W = ComputedWidth,
+                H = ComputedHeight,
+                Radius = PRadius
+            });
         }
     }
 

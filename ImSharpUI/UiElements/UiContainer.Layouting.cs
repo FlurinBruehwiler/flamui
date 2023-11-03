@@ -17,13 +17,6 @@ public partial class UiContainer
         IsAntialias = true
     };
 
-    public static SKPaint GetColor(ColorDefinition colorDefinition)
-    {
-        SPaint.Color = new SKColor(colorDefinition.Red, colorDefinition.Green, colorDefinition.Blue,
-            colorDefinition.Alpha);
-        return SPaint;
-    }
-
     private void ComputeSize()
     {
         switch (PDir)

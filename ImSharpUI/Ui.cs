@@ -14,7 +14,6 @@ public static partial class Ui
     public static Stack<ValueTuple<UiComponent, bool>> OpenComponents = new();
     public static Stack<UiElementContainer> OpenElementStack = new();
     public static UiWindow Window = null!;
-    public static List<UiContainer> DeferedRenderedContainers = new();
     public static UiContainer Root = null!;
     // public static SubStack StartSubStack(UiContainer temporaryContainer)
     // {

@@ -57,7 +57,6 @@ public class ConnectionLine : UiElement
         IsAntialias = true,
     };
 
-    private static SKPath _path = new();
 
     private static PortPosition GetCenter(Port port)
     {
@@ -103,7 +102,7 @@ public class ConnectionLine : UiElement
         return (smallest.Item2, smallest.Item3);
     }
 
-    public override void Render(SKCanvas canvas)
+    public override void Render(RenderContext renderContext)
     {
         PortPosition source;
         PortPosition target;
@@ -122,31 +121,45 @@ public class ConnectionLine : UiElement
         var start = new SKPoint(source.Pos.X, source.Pos.Y);
         var end = new SKPoint(target.Pos.X, target.Pos.Y);
 
-        _path.MoveTo(start);
+        SKPoint startHandle;
+        SKPoint endHandle;
 
         if (target.Pos.X > source.Pos.X && source.Direction == PortDirection.Left ||
             source.Pos.X > target.Pos.X && target.Direction == PortDirection.Left)
         {
             var difX = Math.Abs(source.Pos.X - target.Pos.X);
 
-            var sourceHandle = new SKPoint(RemoveInDirection(source.Pos.X, difX, source.Direction), source.Pos.Y);
-            var targetHandle = new SKPoint(RemoveInDirection(target.Pos.X, difX, target.Direction), target.Pos.Y);
-
-            _path.CubicTo(sourceHandle, targetHandle, end);
+            startHandle = new SKPoint(RemoveInDirection(source.Pos.X, difX, source.Direction), source.Pos.Y);
+            endHandle = new SKPoint(RemoveInDirection(target.Pos.X, difX, target.Direction), target.Pos.Y);
         }
         else
         {
-            var startHandle = new SKPoint(centerX, source.Pos.Y);
-            var endHandle = new SKPoint(centerX, target.Pos.Y);
-            _path.CubicTo(startHandle, endHandle, end);
+            startHandle = new SKPoint(centerX, source.Pos.Y);
+            endHandle = new SKPoint(centerX, target.Pos.Y);
         }
 
-        canvas.DrawCircle(start, 2.5f, _paintEnds);
-        canvas.DrawCircle(end, 2.5f, _paintEnds);
+        renderContext.Add(new Circle
+        {
+            SkPaint = _paintEnds,
+            Pos = start,
+            Radius = 2.5f
+        });
 
-        canvas.DrawPath(_path, _paint);
+        renderContext.Add(new Circle
+        {
+            SkPaint = _paintEnds,
+            Pos = end,
+            Radius = 2.5f
+        });
 
-        _path.Reset();
+        renderContext.Add(new Path
+        {
+            SkPaint = _paint,
+            Start = start,
+            StartHandle = startHandle,
+            EndHandle = endHandle,
+            End = end
+        });
     }
 
     private float RemoveInDirection(float value, float subtract, PortDirection position)
