@@ -23,8 +23,43 @@ public class RenderContext
         renderSection.Renderables.Add(renderable);
     }
 
-    public void Render(SKCanvas canvas)
+    public bool Render(SKCanvas canvas, RenderContext lastRenderContext)
     {
+        foreach (var (key, value) in RenderSections)
+        {
+            if (!lastRenderContext.RenderSections.TryGetValue(key, out var lastRenderSection))
+            {
+                Rerender(canvas);
+                return true;
+            }
+
+            if (lastRenderSection.Renderables.Count != value.Renderables.Count)
+            {
+                Rerender(canvas);
+                return true;
+            }
+
+            for (var i = 0; i < value.Renderables.Count; i++)
+            {
+                var renderable = value.Renderables[i];
+                var lastRerenderable = lastRenderSection.Renderables[i];
+
+                if (!renderable.UiEquals(lastRerenderable))
+                {
+                    Rerender(canvas);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static int rerenderCount;
+
+    private void Rerender(SKCanvas canvas)
+    {
+        // Console.WriteLine($"Rerender: {++rerenderCount}");
         foreach (var (_, value) in RenderSections.OrderBy(x => x.Key))
         {
             value.Render(canvas);
@@ -59,6 +94,7 @@ public class RenderSection
 public interface IRenderable
 {
     public void Render(SKCanvas canvas);
+    public bool UiEquals(IRenderable renderable);
 }
 
 public struct Save : IRenderable
@@ -67,6 +103,11 @@ public struct Save : IRenderable
     {
         canvas.Save();
     }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        return renderable is Save;
+    }
 }
 
 public struct Restore : IRenderable
@@ -74,6 +115,11 @@ public struct Restore : IRenderable
     public void Render(SKCanvas canvas)
     {
         canvas.Restore();
+    }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        return renderable is Restore;
     }
 }
 
@@ -100,6 +146,19 @@ public struct RectClip : IRenderable
             canvas.ClipRoundRect(RoundRect, ClipOperation, antialias: true);
         }
     }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        if (renderable is not RectClip rectClip)
+            return false;
+
+        return rectClip.X == X
+               && rectClip.Y == Y
+               && rectClip.W == W
+               && rectClip.H == H
+               && rectClip.Radius == Radius
+               && rectClip.ClipOperation == ClipOperation;
+    }
 }
 
 public struct Rect : IRenderable
@@ -122,6 +181,19 @@ public struct Rect : IRenderable
             canvas.DrawRoundRect(X, Y, W, H, Radius, Radius, RenderPaint.GetPaint());
         }
     }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        if (renderable is not Rect rect)
+            return false;
+
+        return rect.X == X
+               && rect.Y == Y
+               && rect.W == W
+               && rect.H == H
+               && rect.Radius == Radius
+               && rect.RenderPaint.PaintEquals(RenderPaint);
+    }
 }
 
 public struct Bitmap : IRenderable
@@ -134,6 +206,14 @@ public struct Bitmap : IRenderable
     {
         canvas.DrawBitmap(SkBitmap, Rect, Paint);
     }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        if (renderable is not Bitmap bitmap)
+            return false;
+
+        return bitmap.Rect == Rect;
+    }
 }
 
 public struct Picture : IRenderable
@@ -144,6 +224,11 @@ public struct Picture : IRenderable
     public void Render(SKCanvas canvas)
     {
         canvas.DrawPicture(SkPicture, ref SkMatrix);
+    }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        return renderable is Picture;
     }
 }
 
@@ -158,6 +243,14 @@ public struct Text : IRenderable
     {
         canvas.DrawText(Content, X, Y, RenderPaint.GetPaint());
     }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        if (renderable is not Text text)
+            return false;
+
+        return text.Content == Content && text.X == X && text.Y == Y && text.RenderPaint.PaintEquals(RenderPaint);
+    }
 }
 
 public struct Matrix : IRenderable
@@ -168,6 +261,14 @@ public struct Matrix : IRenderable
     {
         canvas.SetMatrix(SkMatrix);
     }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        if (renderable is not Matrix matrix)
+            return false;
+
+        return matrix.SkMatrix == SkMatrix;
+    }
 }
 
 public struct ResetMatrix : IRenderable
@@ -175,6 +276,11 @@ public struct ResetMatrix : IRenderable
     public void Render(SKCanvas canvas)
     {
         canvas.ResetMatrix();
+    }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        return renderable is ResetMatrix;
     }
 }
 
@@ -187,6 +293,14 @@ public struct Circle : IRenderable
     public void Render(SKCanvas canvas)
     {
         canvas.DrawCircle(Pos, Radius, SkPaint);
+    }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        if (renderable is not Circle circle)
+            return false;
+
+        return circle.Pos == Pos && circle.Radius == Radius;
     }
 }
 
@@ -209,11 +323,21 @@ public struct Path : IRenderable
 
         _path.Reset();
     }
+
+    public bool UiEquals(IRenderable renderable)
+    {
+        if (renderable is not Path path)
+            return false;
+
+        return path.Start == Start && path.StartHandle == StartHandle && path.EndHandle == EndHandle &&
+               path.End == End;
+    }
 }
 
 public interface IRenderPaint
 {
     SKPaint GetPaint();
+    bool PaintEquals(IRenderPaint renderPaint);
 }
 
 public struct TextPaint : IRenderPaint
@@ -228,6 +352,14 @@ public struct TextPaint : IRenderPaint
         Paint.TextSize = TextSize;
         Paint.Color = SkColor;
         return Paint;
+    }
+
+    public bool PaintEquals(IRenderPaint renderPaint)
+    {
+        if (renderPaint is not TextPaint textPaint)
+            return false;
+
+        return textPaint.TextSize == TextSize && textPaint.SkColor == SkColor;
     }
 
     private static SKPaint MakeTextPaint()
@@ -261,6 +393,14 @@ public struct ShadowPaint : IRenderPaint
         Paint.MaskFilter = maskFilter;
         return Paint;
     }
+
+    public bool PaintEquals(IRenderPaint renderPaint)
+    {
+        if (renderPaint is not ShadowPaint shadowPaint)
+            return false;
+
+        return shadowPaint.SkColor == SkColor && shadowPaint.ShadowSigma == ShadowSigma;
+    }
 }
 
 public struct PlaintPaint : IRenderPaint
@@ -272,6 +412,14 @@ public struct PlaintPaint : IRenderPaint
     {
         Paint.Color = SkColor;
         return Paint;
+    }
+
+    public bool PaintEquals(IRenderPaint renderPaint)
+    {
+        if (renderPaint is not PlaintPaint plaintPaint)
+            return false;
+
+        return plaintPaint.SkColor == SkColor;
     }
 }
 

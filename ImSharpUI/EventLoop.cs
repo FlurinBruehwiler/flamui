@@ -82,8 +82,16 @@ public class EventLoop
                 window.Update();
             }
 
-            // Console.WriteLine($"Total: {Stopwatch.GetElapsedTime(startTime).TotalMilliseconds}");
+            var length = Stopwatch.GetElapsedTime(startTime).TotalMilliseconds;
 
+            // Console.WriteLine(length);
+
+            if (length < 15)
+            {
+                var sleeplength = (int)(16.0f - length);
+                Console.WriteLine(sleeplength);
+                Thread.Sleep(sleeplength);
+            }
         }
     }
 }

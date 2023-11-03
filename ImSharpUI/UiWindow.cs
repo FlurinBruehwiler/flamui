@@ -90,6 +90,7 @@ public partial class UiWindow : IDisposable
     }
 
     private readonly BddGraph _bddGraph = new();
+    private RenderContext _lastRenderContext = new();
 
     public void Update()
     {
@@ -129,7 +130,8 @@ public partial class UiWindow : IDisposable
         var startRendering = Stopwatch.GetTimestamp();
         var renderContext = new RenderContext();
         RootContainer.Render(renderContext);
-        renderContext.Render(surface.Canvas);
+        var renderHappened = renderContext.Render(surface.Canvas, _lastRenderContext);
+        _lastRenderContext = renderContext;
 
 
         Ui.Root = null!;
@@ -150,7 +152,8 @@ public partial class UiWindow : IDisposable
         }
         HoveredDivs.Clear();
 
-        SDL_GL_SwapWindow(_windowHandle);
+        if(renderHappened)
+            SDL_GL_SwapWindow(_windowHandle);
 
         // Console.WriteLine($"Finilizing: {Stopwatch.GetElapsedTime(finilizingStart).TotalMilliseconds}");
 
