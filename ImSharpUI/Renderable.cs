@@ -5,13 +5,19 @@ namespace ImSharpUISample;
 public class RenderContext
 {
     public Dictionary<int, RenderSection> RenderSections = new();
+    public Stack<int> ZIndexes = new();
 
-    public void Add(IRenderable renderable, int zIndex = 0)
+    public RenderContext()
     {
-        if (!RenderSections.TryGetValue(zIndex, out var renderSection))
+        ZIndexes.Push(0);
+    }
+
+    public void Add(IRenderable renderable)
+    {
+        if (!RenderSections.TryGetValue(ZIndexes.Peek(), out var renderSection))
         {
             renderSection = new RenderSection();
-            RenderSections.Add(zIndex, renderSection);
+            RenderSections.Add(ZIndexes.Peek(), renderSection);
         }
 
         renderSection.Renderables.Add(renderable);
@@ -23,6 +29,16 @@ public class RenderContext
         {
             value.Render(canvas);
         }
+    }
+
+    public void SetIndex(int idx)
+    {
+        ZIndexes.Push(idx);
+    }
+
+    public void Restore()
+    {
+        ZIndexes.Pop();
     }
 }
 
@@ -70,17 +86,18 @@ public struct RectClip : IRenderable
     public required float W;
     public required float H;
     public required float Radius;
+    public required SKClipOperation ClipOperation;
 
     public void Render(SKCanvas canvas)
     {
         if (Radius == 0)
         {
-            canvas.ClipRect(SKRect.Create(X, Y, W, H), SKClipOperation.Difference, true);
+            canvas.ClipRect(SKRect.Create(X, Y, W, H), ClipOperation, true);
         }
         else
         {
             RoundRect.SetRect(SKRect.Create(X, Y, W, H), Radius, Radius);
-            canvas.ClipRoundRect(RoundRect, SKClipOperation.Difference, antialias: true);
+            canvas.ClipRoundRect(RoundRect, ClipOperation, antialias: true);
         }
     }
 }

@@ -119,6 +119,11 @@ public partial class UiContainer : UiElementContainer
 
     public override void Render(RenderContext renderContext)
     {
+        if (PZIndex != 0)
+        {
+            renderContext.SetIndex(PZIndex);
+        }
+
         if (ClipToIgnore is not null)
         {
             renderContext.Add(new Restore());
@@ -136,8 +141,8 @@ public partial class UiContainer : UiElementContainer
                 {
                     X = ComputedX - PBorderWidth + ShaddowOffset.Left,
                     Y = ComputedY - PBorderWidth + ShaddowOffset.Top,
-                    H = ComputedWidth + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
-                    W = ComputedHeight + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
+                    H = ComputedHeight + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
+                    W = ComputedWidth + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
                     Radius = PRadius == 0 ? 0 : borderRadius,
                     RenderPaint = new ShadowPaint
                     {
@@ -173,7 +178,8 @@ public partial class UiContainer : UiElementContainer
                 Y = ComputedY,
                 W = ComputedWidth,
                 H = ComputedHeight,
-                Radius = PRadius
+                Radius = PRadius,
+                ClipOperation = SKClipOperation.Difference
             });
 
             renderContext.Add(new Rect
@@ -201,13 +207,6 @@ public partial class UiContainer : UiElementContainer
                 continue;
             }
 
-            // //if differenz Z-index, defer rendering
-            // if (childElement is UiContainer uiContainer && uiContainer.PZIndex != 0)
-            // {
-            //     // Ui.DeferedRenderedContainers.Add(uiContainer); ToDo
-            //     continue;
-            // }
-
             childElement.Render(renderContext);
         }
 
@@ -218,6 +217,11 @@ public partial class UiContainer : UiElementContainer
 
         //reapply clip
         ClipToIgnore?.ClipContent(renderContext);
+
+        if (PZIndex != 0)
+        {
+            renderContext.Restore();
+        }
     }
 
     private void ClipContent(RenderContext renderContext)
@@ -232,7 +236,8 @@ public partial class UiContainer : UiElementContainer
                 Y = ComputedY,
                 W = ComputedWidth,
                 H = ComputedHeight,
-                Radius = PRadius
+                Radius = PRadius,
+                ClipOperation = SKClipOperation.Intersect
             });
         }
     }

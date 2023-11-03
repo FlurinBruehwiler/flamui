@@ -61,7 +61,7 @@ public class NodeGraph
     {
         DragEnd = null;
 
-        DivStart().Clip();
+        DivStart().ZIndex(-1).Clip();
             DivStart(out var background).Color(29, 29, 29);
                 Start<Camera>().Info(Camera);
                     HandleCameraMovement(background);

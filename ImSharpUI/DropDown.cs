@@ -24,7 +24,7 @@ public class DropDown<T> : UiComponent where T : notnull
             {
                 //ToDo we really need to improve the layouting system!!!!
                 //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
-                DivStart().Height(25 * _options.Count + 10).Clip().Padding(5).Color(C.Background).Absolute(top:30).Radius(5).BorderWidth(1).BorderColor(C.Border).Shadow(5, top:5).ShadowColor(0, 0, 0);
+                DivStart().Height(25 * _options.Count + 10).Clip().ZIndex(100).Padding(5).Color(C.Background).Absolute(top:30).Radius(5).BorderWidth(1).BorderColor(C.Border).Shadow(5, top:5).ShadowColor(0, 0, 0);
                     if (!string.IsNullOrEmpty(_filterText))
                     {
                         var lastFilterText = _filterText;
