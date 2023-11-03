@@ -91,6 +91,7 @@ public partial class UiWindow : IDisposable
 
     private readonly BddGraph _bddGraph = new();
     private RenderContext _lastRenderContext = new();
+    private RenderContext _renderContext = new();
 
     public void Update()
     {
@@ -128,10 +129,12 @@ public partial class UiWindow : IDisposable
         // Console.WriteLine($"Layouting: {Stopwatch.GetElapsedTime(startLayout).TotalMilliseconds}");
 
         var startRendering = Stopwatch.GetTimestamp();
-        var renderContext = new RenderContext();
-        RootContainer.Render(renderContext);
-        var renderHappened = renderContext.Render(surface.Canvas, _lastRenderContext);
-        _lastRenderContext = renderContext;
+        RootContainer.Render(_renderContext);
+        var renderHappened = _renderContext.Render(surface.Canvas, _lastRenderContext);
+
+        _lastRenderContext.Reset();
+        //swap Render Contexts
+        (_lastRenderContext, _renderContext) = (_renderContext, _lastRenderContext);
 
 
         Ui.Root = null!;

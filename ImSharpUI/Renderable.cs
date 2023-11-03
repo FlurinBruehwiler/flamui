@@ -12,6 +12,14 @@ public class RenderContext
         ZIndexes.Push(0);
     }
 
+    public void Reset()
+    {
+        foreach (var (key, value) in RenderSections)
+        {
+            value.Renderables.Clear();
+        }
+    }
+
     public void Add(IRenderable renderable)
     {
         if (!RenderSections.TryGetValue(ZIndexes.Peek(), out var renderSection))
@@ -71,7 +79,7 @@ public class RenderContext
         ZIndexes.Push(idx);
     }
 
-    public void Restore()
+    public void RestoreZIndex()
     {
         ZIndexes.Pop();
     }

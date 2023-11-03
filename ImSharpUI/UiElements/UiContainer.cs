@@ -220,7 +220,7 @@ public partial class UiContainer : UiElementContainer
 
         if (PZIndex != 0)
         {
-            renderContext.Restore();
+            renderContext.RestoreZIndex();
         }
     }
 
