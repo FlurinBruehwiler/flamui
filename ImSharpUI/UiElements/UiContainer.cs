@@ -116,7 +116,6 @@ public partial class UiContainer : UiElementContainer
 
     }
 
-
     public override void Render(RenderContext renderContext)
     {
         if (PZIndex != 0)

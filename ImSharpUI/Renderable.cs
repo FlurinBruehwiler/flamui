@@ -87,7 +87,6 @@ public class RenderContext
 
 public class RenderSection
 {
-    public int ZIndex;
     public List<IRenderable> Renderables = new();
 
     public void Render(SKCanvas canvas)

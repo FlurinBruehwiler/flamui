@@ -84,12 +84,12 @@ public class EventLoop
 
             var length = Stopwatch.GetElapsedTime(startTime).TotalMilliseconds;
 
-            // Console.WriteLine(length);
+            Console.WriteLine(length);
 
             if (length < 15)
             {
                 var sleeplength = (int)(16.0f - length);
-                Console.WriteLine(sleeplength);
+                // Console.WriteLine(sleeplength);
                 Thread.Sleep(sleeplength);
             }
         }
