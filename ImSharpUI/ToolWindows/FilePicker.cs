@@ -1,4 +1,5 @@
-﻿using static ImSharpUISample.Ui;
+﻿using ImSharpUISample.UiElements;
+using static ImSharpUISample.Ui;
 
 namespace ImSharpUISample.ToolWindows;
 
@@ -24,6 +25,11 @@ public class FilePicker : UiComponent
                 d.Option("De Boa");
                 d.Option("Monika");
             EndComponent<DropDown<string>>().Selected(out _selected);
+
+            if(Button("Next", primary: true))
+                Console.WriteLine("clicked");
+
+            Button("Cancel");
 
         DivEnd();
     }

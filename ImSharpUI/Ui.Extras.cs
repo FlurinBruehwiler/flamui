@@ -73,6 +73,26 @@ public partial class Ui
         DivEnd();
     }
 
+    public static bool Button(string text, bool primary = false, string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1)
+    {
+        DivStart(out var btn, key, path, line).Height(23).Width(70).Radius(2);
+            if (primary)
+            {
+                btn.Color(C.Blue).BorderWidth(0);
+            }
+            else
+            {
+                btn.BorderWidth(1).BorderColor(C.Border).Color(C.Transparent);
+            }
+
+            Text(text).VAlign(TextAlign.Center).HAlign(TextAlign.Center);
+        DivEnd();
+
+        return btn.Clicked;
+    }
+
     public static void StyledInput(ref string text, string placeholder = "", string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)

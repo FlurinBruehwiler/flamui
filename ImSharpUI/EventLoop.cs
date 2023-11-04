@@ -84,7 +84,7 @@ public class EventLoop
 
             var length = Stopwatch.GetElapsedTime(startTime).TotalMilliseconds;
 
-            Console.WriteLine(length);
+            // Console.WriteLine(length);
 
             if (length < 15)
             {
