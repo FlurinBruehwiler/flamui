@@ -44,7 +44,7 @@ public class Sidebar : UiComponent
             //Window
             if (_selectedToolWindow is {} selectedToolWindow)
             {
-                DivStart(out var toolWindow, _side.ToString()).ZIndex(1).Color(C.Background).BorderWidth(1).BorderColor(20, 20, 20);
+                DivStart(out var toolWindow, _side.ToString()).ZIndex(1).BlockHit().Color(C.Background).BorderWidth(1).BorderColor(20, 20, 20);
 
                     DivStart(out var dragZone).Absolute().Width(4).BlockHit();
                         if (_side == SidebarSide.Left)

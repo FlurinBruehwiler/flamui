@@ -1,4 +1,6 @@
-﻿using SkiaSharp;
+﻿using System.Numerics;
+using ImSharpUISample.UiElements;
+using SkiaSharp;
 
 namespace ImSharpUISample;
 
@@ -61,6 +63,11 @@ public class RenderContext
         }
 
         return false;
+    }
+
+    public void HitTest(SKPoint point)
+    {
+
     }
 
     private static int rerenderCount;
@@ -176,6 +183,7 @@ public struct Rect : IRenderable
     public required float H;
     public required float Radius;
     public required IRenderPaint RenderPaint;
+    public UiContainer? UiContainer;
 
     public void Render(SKCanvas canvas)
     {
@@ -200,6 +208,12 @@ public struct Rect : IRenderable
                && rect.H == H
                && rect.Radius == Radius
                && rect.RenderPaint.PaintEquals(RenderPaint);
+    }
+
+    public bool HitTest(Vector2 pos)
+    {
+        return X <= pos.X && X + W >= pos.X && Y <= pos.Y &&
+               Y + H >= pos.Y;
     }
 }
 
@@ -275,6 +289,11 @@ public struct Matrix : IRenderable
             return false;
 
         return matrix.SkMatrix == SkMatrix;
+    }
+
+    public SKPoint ProjectPoint(SKPoint poin)
+    {
+        return SkMatrix.MapPoint(poin);
     }
 }
 

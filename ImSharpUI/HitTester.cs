@@ -43,8 +43,9 @@ public class HitTester
         var projectedPoint = div.ProjectPoint(point);
         var anyChildBlocksHit = false;
 
-        foreach (var child in div.Children)
+        for (var i = div.Children.Count - 1; i >= 0; i--)
         {
+            var child = div.Children[i];
             if (child is not UiElementContainer divChild)
                 continue;
 
