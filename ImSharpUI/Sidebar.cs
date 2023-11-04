@@ -1,6 +1,4 @@
 ﻿using ImSharpUISample.UiElements;
-using static SDL2.SDL;
-using static ImSharpUISample.Ui;
 
 namespace ImSharpUISample;
 
@@ -23,8 +21,8 @@ public class Sidebar : UiComponent
     private bool _isDragging = false;
 
     //ToDo free cursor with https://wiki.libsdl.org/SDL2/SDL_FreeCursor
-    private IntPtr _resizeCursor = SDL_CreateSystemCursor(SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEWE);
-    private IntPtr _normalCursor = SDL_CreateSystemCursor(SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW);
+    private readonly IntPtr _resizeCursor = SDL_CreateSystemCursor(SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEWE);
+    private readonly IntPtr _normalCursor = SDL_CreateSystemCursor(SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW);
 
     public override void OnInitialized()
     {
@@ -116,7 +114,7 @@ public class Sidebar : UiComponent
 
     private void SidebarIcon(ToolWindowDefinition toolWindowDefinition)
     {
-        DivStart(out var toolbar, toolWindowDefinition.Path).Radius(5).Padding(3).Height(30).Color(C.Transparent);
+        DivStart(out var toolbar, toolWindowDefinition.Path).Rounded(5).Padding(3).Height(30).Color(C.Transparent);
             if (toolbar.Clicked)
             {
                 if (toolWindowDefinition == _selectedToolWindow)

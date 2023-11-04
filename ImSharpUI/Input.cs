@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using static SDL2.SDL;
 
 namespace ImSharpUISample;
 

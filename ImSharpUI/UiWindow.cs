@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using ImSharpUISample.UiElements;
 using SkiaSharp;
-using static SDL2.SDL;
 
 namespace ImSharpUISample;
 

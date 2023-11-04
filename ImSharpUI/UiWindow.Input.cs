@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using static SDL2.SDL;
 
 namespace ImSharpUISample;
 

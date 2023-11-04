@@ -1,5 +1,4 @@
-﻿using static SDL2.SDL;
-using ImSharpUISample;
+﻿using ImSharpUISample;
 
 var eventLoop = new EventLoop();
 var windowHandle = SDL_CreateWindow("SDL2 C# OpenGL",

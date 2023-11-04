@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using ImSharpUISample.UiElements;
 using SDL2;
-using static ImSharpUISample.Ui;
 
 namespace ImSharpUISample;
 
@@ -150,7 +149,7 @@ public class ChatAppSample
                     var index = 0;
                     foreach (var chat in _chats)
                     {
-                        DivStart(out var chatDiv, chat.Name).Color(58, 59, 64).Height(50).Radius(4).Dir(Dir.Horizontal).XAlign(XAlign.Center).PaddingEx(left:10).Gap(5);
+                        DivStart(out var chatDiv, chat.Name).Color(58, 59, 64).Height(50).Rounded(4).Dir(Dir.Horizontal).XAlign(XAlign.Center).PaddingEx(left:10).Gap(5);
                             if (chatDiv.IsHovered)
                                 chatDiv.Color(88, 89, 94);
 
@@ -161,7 +160,7 @@ public class ChatAppSample
                                 _selectedChat = index;
 
                             //Profile Picture
-                            DivStart().Width(30).Height(30).Clip().Radius(15);
+                            DivStart().Width(30).Height(30).Clip().Rounded(15);
                                 Image("profile.jpg");
                             DivEnd();
 
@@ -190,7 +189,7 @@ public class ChatAppSample
                     foreach (var message in selectedChat.Messages)
                     {
                         DivStart(message.Id).Height(30).Dir(Dir.Horizontal).Gap(10);
-                            DivStart().Width(30).Height(30).Clip().Radius(15);
+                            DivStart().Width(30).Height(30).Clip().Rounded(15);
                                 Image("profile.jpg");
                             DivEnd();
                             DivStart();
@@ -205,7 +204,7 @@ public class ChatAppSample
                 DivEnd();
 
                 //input box
-                DivStart(out var inputDiv).Height(40).Color(58, 62, 67).Radius(3).PaddingLeft(10).BorderColor(200, 0,0).BorderWidth(0).Focusable();
+                DivStart(out var inputDiv).Height(40).Color(58, 62, 67).Rounded(3).PaddingLeft(10).BorderColor(200, 0,0).BorderWidth(0).Focusable();
 
                     if (inputDiv.HasFocusWithin)
                         inputDiv.BorderWidth(2);

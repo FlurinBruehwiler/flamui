@@ -1,5 +1,7 @@
-﻿using ImSharpUISample.ToolWindows;
-using static ImSharpUISample.Ui;
+﻿global using static ImSharpUISample.Ui;
+global using static SDL2.SDL;
+using ImSharpUISample.ToolWindows;
+
 
 namespace ImSharpUISample;
 

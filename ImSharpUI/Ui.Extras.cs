@@ -57,7 +57,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var div, key, path, line).Height(15).Width(15).Color(C.Background).BorderColor(C.Border).BorderWidth(1).Radius(2);
+        DivStart(out var div, key, path, line).Height(15).Width(15).Color(C.Background).BorderColor(C.Border).BorderWidth(1).Rounded(2);
             if (div.Clicked)
             {
                 enabled = !enabled;
@@ -77,7 +77,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var btn, key, path, line).Height(23).Width(70).Radius(2);
+        DivStart(out var btn, key, path, line).Height(23).Width(70).Rounded(2);
             if (primary)
             {
                 btn.Color(C.Blue).BorderWidth(0);
@@ -97,7 +97,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var modalInputDiv, key, path, line).Focusable().Radius(2).PaddingHorizontal(5).Height(25).BorderWidth(1).BorderColor(C.Border).Color(C.Transparent);
+        DivStart(out var modalInputDiv, key, path, line).Focusable().Rounded(2).PaddingHorizontal(5).Height(25).BorderWidth(1).BorderColor(C.Border).Color(C.Transparent);
             if (modalInputDiv.HasFocusWithin)
             {
                 modalInputDiv.BorderColor(C.Blue).BorderWidth(2);

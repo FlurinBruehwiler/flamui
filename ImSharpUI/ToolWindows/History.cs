@@ -1,6 +1,4 @@
-﻿using static ImSharpUISample.Ui;
-
-namespace ImSharpUISample.ToolWindows;
+﻿namespace ImSharpUISample.ToolWindows;
 
 public class History : UiComponent
 {

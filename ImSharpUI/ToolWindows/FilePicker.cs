@@ -1,7 +1,4 @@
-﻿using ImSharpUISample.UiElements;
-using static ImSharpUISample.Ui;
-
-namespace ImSharpUISample.ToolWindows;
+﻿namespace ImSharpUISample.ToolWindows;
 
 public class FilePicker : UiComponent
 {

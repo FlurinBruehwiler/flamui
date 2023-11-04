@@ -78,7 +78,7 @@ public partial class UiContainer
         return this;
     }
 
-    public UiContainer Radius(int radius)
+    public UiContainer Rounded(int radius)
     {
         PRadius = radius;
         return this;

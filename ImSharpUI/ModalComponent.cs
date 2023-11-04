@@ -1,7 +1,5 @@
 ﻿using System.Numerics;
 using ImSharpUISample.UiElements;
-using static ImSharpUISample.Ui;
-using static SDL2.SDL;
 
 namespace ImSharpUISample;
 
@@ -36,7 +34,7 @@ public class ModalComponent
 
         DivStart().Absolute(Root).XAlign(XAlign.Center).MAlign(MAlign.Center).ZIndex(1).Hidden(!show);
 
-            DivStart(out var modalDiv).Clip().Color(39, 41, 44).Width(400).Height(200).Radius(10).BorderWidth(2).BorderColor(58, 62, 67);
+            DivStart(out var modalDiv).Clip().Color(39, 41, 44).Width(400).Height(200).Rounded(10).BorderWidth(2).BorderColor(58, 62, 67);
 
                 if (_wasShown && Window.IsMouseButtonPressed(MouseButtonKind.Left))
                 {
@@ -97,10 +95,10 @@ public class ModalComponent
 
                     //Footer
                     DivStart().Height(25).Dir(Dir.Horizontal).MAlign(MAlign.FlexEnd).Gap(10);
-                        DivStart().Width(70).Color(53, 116, 240).Radius(3);
+                        DivStart().Width(70).Color(53, 116, 240).Rounded(3);
                             Text("Next").VAlign(TextAlign.Center).HAlign(TextAlign.Center).Color(230, 230, 230);
                         DivEnd();
-                        DivStart(out var cancelButton).Width(70).Color(43, 45, 48).Radius(3).BorderWidth(1).BorderColor(100, 100, 100);
+                        DivStart(out var cancelButton).Width(70).Color(43, 45, 48).Rounded(3).BorderWidth(1).BorderColor(100, 100, 100);
                             if (cancelButton.Clicked)
                                 show = false;
 

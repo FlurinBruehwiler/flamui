@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using static SDL2.SDL;
 
 namespace ImSharpUISample;
 

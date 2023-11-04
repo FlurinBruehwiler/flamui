@@ -1,7 +1,5 @@
 ﻿using System.Numerics;
 using ImSharpUISample.UiElements;
-using static SDL2.SDL;
-using static ImSharpUISample.Ui;
 
 namespace ImSharpUISample;
 
@@ -38,6 +36,9 @@ public record Connection(ConnectionTarget A, ConnectionTarget B, string Id);
 
 public class NodeGraph
 {
+    private readonly IntPtr _dragCursor = SDL_CreateSystemCursor(SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL);
+    private readonly IntPtr _normalCursor = SDL_CreateSystemCursor(SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW);
+
     public readonly List<Node> Nodes = new()
     {
 
@@ -155,6 +156,8 @@ public class NodeGraph
         }
     }
 
+    private Vector2? creationDialogPos;
+
     private void HandleConnectionDrag()
     {
         if (DragStart is not null)
@@ -166,6 +169,10 @@ public class NodeGraph
                 if (DragEnd != null)
                 {
                     Connections.Add(new Connection(DragStart.Value, DragEnd.Value, Guid.NewGuid().ToString()));
+                }
+                else
+                {
+                    creationDialogPos = Window.MousePosition;
                 }
                 DragStart = null;
             }
@@ -182,19 +189,39 @@ public class NodeGraph
                 }
             }
         }
+
+        if (creationDialogPos is {} pos)
+        {
+            var dialog = GetComponent<ObjectCreationDialog>().Build(pos);
+            if (dialog.IsCancelled)
+                creationDialogPos = null;
+        }
     }
+
+    private bool _isCameraDragging;
 
     private void HandleCameraMovement(UiContainer background)
     {
-        if (!background.IsHovered)
+        if (!background.ContainsPoint(Window.MousePosition))
             return;
 
         if (Window.IsMouseButtonDown(MouseButtonKind.Middle) || Window.IsMouseButtonDown(MouseButtonKind.Left) &&
             (Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LCTRL) || Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_SPACE)))
         {
+            if (!_isCameraDragging) //start drag
+            {
+                SDL_SetCursor(_dragCursor);
+            }
+
+            _isCameraDragging = true;
             var delta = Window.MouseDelta;
             delta *= -1.0f / Camera.Zoom;
             Camera.Target += delta;
+        }
+        else if (_isCameraDragging) //stop drag
+        {
+            _isCameraDragging = false;
+            SDL_SetCursor(_normalCursor);
         }
 
         var scrollDelta = Window.ScrollDelta;

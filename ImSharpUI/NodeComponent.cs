@@ -1,7 +1,5 @@
 ﻿using System.Numerics;
 using ImSharpUISample.UiElements;
-using static SDL2.SDL;
-using static ImSharpUISample.Ui;
 
 namespace ImSharpUISample;
 
@@ -17,7 +15,7 @@ public class NodeComponent
         _nodeGraph = nodeGraph;
         DivStart(out var nodeDiv, LastKey).Shadow(5, top: 5).ShadowColor(0, 0, 0).Clip().BlockHit()
             .BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48)
-            .Radius(10).Width(300).Height(150);
+            .Rounded(10).Width(300).Height(150);
 
             if (_node.IsSelected)
             {
@@ -48,7 +46,7 @@ public class NodeComponent
 
                     //Port
                     DivStart().Absolute(left: -10).MAlign(MAlign.Center);
-                        DivStart(out var portLeft, nodeDiv.Id.Key).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Radius(10);
+                        DivStart(out var portLeft, nodeDiv.Id.Key).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
                             if (portLeft.IsHovered)
                                 portLeft.Color(0, 255, 195);
 
@@ -56,7 +54,7 @@ public class NodeComponent
                     DivEnd();
 
                     DivStart().Absolute(right: -10).MAlign(MAlign.Center);
-                        DivStart(out var portRight, nodeDiv.Id.Key).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Radius(10);
+                        DivStart(out var portRight, nodeDiv.Id.Key).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
                             if (portRight.IsHovered)
                                 portRight.Color(0, 255, 195);
 
