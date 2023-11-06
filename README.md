@@ -1,4 +1,4 @@
-## ImSharpUI
+flamui
 A C# immediate mode desktop GUI framework.
 
 Immediate mode means that you don't have to worry about state, the entire UI gets rebuilt every frame.
