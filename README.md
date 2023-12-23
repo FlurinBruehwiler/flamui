@@ -8,3 +8,8 @@ There are a few optimizations to make this "fast":
 3. No unnecessary draw calls (only redraw what has changed)
 
 From a technical standpoint, the framework uses Skia for the rendering and SDL2 to manage Windows, Input, Graphics Context, etc
+
+## Sample App Demo
+
+https://github.com/FlurinBruehwiler/flamui/assets/47397416/cb77530a-873b-417c-aee7-f64d6607793c
+
