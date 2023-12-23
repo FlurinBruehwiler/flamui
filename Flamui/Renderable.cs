@@ -95,6 +95,7 @@ public class RenderContext
 public class RenderSection
 {
     public List<IRenderable> Renderables = new();
+    public List<ValueType> PerformantRenderables = new();
 
     public void Render(SKCanvas canvas)
     {

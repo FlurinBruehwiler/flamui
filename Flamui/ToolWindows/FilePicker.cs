@@ -17,10 +17,10 @@ public class FilePicker : UiComponent
 
             StartComponent<DropDown<string>>(out var d).Selected(_selected);
                 d.Option("Hi");
-                d.Option("Mark");
-                d.Option("Joa");
-                d.Option("De Boa");
-                d.Option("Monika");
+                d.Option("Hello World");
+                d.Option("abc");
+                d.Option("cda");
+                d.Option("flamui");
             EndComponent<DropDown<string>>().Selected(out _selected);
 
             if(Button("Next", primary: true))
