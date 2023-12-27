@@ -72,6 +72,8 @@ public class EventLoop
 
     public void RunRenderThread()
     {
+        SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+
         while (true)
         {
             var startTime = Stopwatch.GetTimestamp();

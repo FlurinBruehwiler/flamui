@@ -10,7 +10,9 @@ public class ObjectCreationDialog
 
     public ObjectCreationDialog Build(Vector2 position)
     {
-        DivStart(out var div).BlockHit().ZIndex(2).Width(200).Height(70).Rounded(2).Padding(5).Absolute(disablePositioning: true).Color(C.Background).Gap(10).BorderWidth(1).BorderColor(C.Border);
+        DivStart(out var div).BlockHit().ZIndex(2).Width(200).Height(70).Rounded(2).Padding(5)
+            .Absolute(disablePositioning: true).Color(C.Background).Gap(10).BorderWidth(1).BorderColor(C.Border);
+
             div.ComputedBounds.X = position.X;
             div.ComputedBounds.Y = position.Y;
 
@@ -25,8 +27,16 @@ public class ObjectCreationDialog
             StyledInput(ref _name, "Name");
         DivEnd();
 
-        if (div is { IsNew: false, HasFocusWithin: false } && Window.ActiveDiv is not null)
-            IsCancelled = true;
+        if (div is { IsNew: false, HasFocusWithin: false })
+        {
+            if (Window.IsMouseButtonPressed(MouseButtonKind.Left))
+            {
+                if (!div.ContainsPoint(Window.MousePosition))
+                {
+                    IsCancelled = true;
+                }
+            }
+        }
 
         return this;
     }
