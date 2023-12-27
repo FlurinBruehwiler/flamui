@@ -52,7 +52,7 @@ public class ModalComponent
                     if (show && Window.IsMouseButtonPressed(MouseButtonKind.Left) && headerDiv.ContainsPoint(mousePos))
                     {
                         _isDragging = true;
-                        _dragOffset = new Vector2(modalDiv.ComputedX - mousePos.X, modalDiv.ComputedY - mousePos.Y);
+                        _dragOffset = new Vector2(modalDiv.ComputedBounds.X - mousePos.X, modalDiv.ComputedBounds.Y - mousePos.Y);
                         SDL_CaptureMouse(SDL_bool.SDL_TRUE);
                     }
 
@@ -65,8 +65,8 @@ public class ModalComponent
                     if (_isDragging)
                     {
                         modalDiv.Absolute(disablePositioning: true);
-                        modalDiv.ComputedX = mousePos.X + _dragOffset.X;
-                        modalDiv.ComputedY = mousePos.Y + _dragOffset.Y;
+                        modalDiv.ComputedBounds.X = mousePos.X + _dragOffset.X;
+                        modalDiv.ComputedBounds.Y = mousePos.Y + _dragOffset.Y;
                     }
 
                     //Title

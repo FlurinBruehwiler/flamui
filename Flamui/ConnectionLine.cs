@@ -60,8 +60,8 @@ public class ConnectionLine : UiElement
 
     private static PortPosition GetCenter(Port port)
     {
-        return new PortPosition(new Vector2(port.PortElement.ComputedX + port.PortElement.ComputedWidth / 2,
-            port.PortElement.ComputedY + port.PortElement.ComputedHeight / 2), port.PortDirection);
+        return new PortPosition(new Vector2(port.PortElement.ComputedBounds.X + port.PortElement.ComputedBounds.W / 2,
+            port.PortElement.ComputedBounds.Y + port.PortElement.ComputedBounds.H / 2), port.PortDirection);
     }
 
     private ValueTuple<PortPosition, PortPosition> GetFixPositions()

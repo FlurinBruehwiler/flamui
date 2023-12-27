@@ -25,12 +25,12 @@ public class UiText : UiElement
 
     private SKRect GetRect()
     {
-        var key = new TextPathCacheItem(Content, ComputedX, ComputedY);
+        var key = new TextPathCacheItem(Content, ComputedBounds.X, ComputedBounds.Y);
         if (TextPathCache.TryGetValue(key, out var rect))
         {
             return rect;
         }
-        var path = Paint.GetTextPath(Content, ComputedX, ComputedY);
+        var path = Paint.GetTextPath(Content, ComputedBounds.X, ComputedBounds.Y);
         path.GetBounds(out rect);
         path.Dispose();
         TextPathCache.Add(key, rect);
@@ -50,21 +50,21 @@ public class UiText : UiElement
 
         Paint.GetFontMetrics(out var metrics);
 
-        var actualX = ComputedX;
-        var actualY = ComputedY;
+        var actualX = ComputedBounds.X;
+        var actualY = ComputedBounds.Y;
 
         actualY += PvAlign switch
         {
             TextAlign.Start => PSize,
-            TextAlign.End => ComputedHeight,
-            TextAlign.Center => ComputedHeight / 2 - (metrics.Ascent + metrics.Descent) / 2,
+            TextAlign.End => ComputedBounds.H,
+            TextAlign.Center => ComputedBounds.H / 2 - (metrics.Ascent + metrics.Descent) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
 
         actualX += PhAlign switch
         {
-            TextAlign.End => ComputedWidth - rect.Width,
-            TextAlign.Center => ComputedWidth / 2 - rect.Width / 2,
+            TextAlign.End => ComputedBounds.W - rect.Width,
+            TextAlign.Center => ComputedBounds.W / 2 - rect.Width / 2,
             TextAlign.Start => 0,
             _ => throw new ArgumentOutOfRangeException()
         };

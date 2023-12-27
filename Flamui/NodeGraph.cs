@@ -135,8 +135,8 @@ public class NodeGraph
             var yMin = Math.Min(mousePos.Y, startPos.Y);
 
             DivStart(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning:true);
-            selectionDiv.ComputedX = xMin;
-            selectionDiv.ComputedY = yMin;
+            selectionDiv.ComputedBounds.X = xMin;
+            selectionDiv.ComputedBounds.Y = yMin;
             selectionDiv.Width(xMax - xMin);
             selectionDiv.Height(yMax - yMin);
             DivEnd();

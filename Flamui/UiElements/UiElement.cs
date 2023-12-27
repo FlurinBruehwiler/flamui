@@ -10,13 +10,7 @@ public abstract class UiElement : IData
 
     public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
 
-    public float ComputedHeight { get; set; }
-
-    public float ComputedWidth { get; set; }
-
-    public float ComputedX { get; set; }
-
-    public float ComputedY { get; set; }
+    public Bounds ComputedBounds;
     public abstract void Render(RenderContext renderContext);
     public abstract void Layout(UiWindow uiWindow);
     public abstract bool LayoutHasChanged();

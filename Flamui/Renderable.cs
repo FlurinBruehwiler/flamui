@@ -33,19 +33,17 @@ public class RenderContext
         renderSection.Renderables.Add(renderable);
     }
 
-    public bool Render(SKCanvas canvas, RenderContext lastRenderContext)
+    public bool RequiresRerender(RenderContext lastRenderContext)
     {
         foreach (var (key, value) in RenderSections)
         {
             if (!lastRenderContext.RenderSections.TryGetValue(key, out var lastRenderSection))
             {
-                Rerender(canvas);
                 return true;
             }
 
             if (lastRenderSection.Renderables.Count != value.Renderables.Count)
             {
-                Rerender(canvas);
                 return true;
             }
 
@@ -56,7 +54,6 @@ public class RenderContext
 
                 if (!renderable.UiEquals(lastRerenderable))
                 {
-                    Rerender(canvas);
                     return true;
                 }
             }
@@ -65,14 +62,9 @@ public class RenderContext
         return false;
     }
 
-    public void HitTest(SKPoint point)
-    {
-
-    }
-
     private static int rerenderCount;
 
-    private void Rerender(SKCanvas canvas)
+    public void Rerender(SKCanvas canvas)
     {
         // Console.WriteLine($"Rerender: {++rerenderCount}");
         foreach (var (_, value) in RenderSections.OrderBy(x => x.Key))
@@ -106,10 +98,21 @@ public class RenderSection
     }
 }
 
+public interface IClickable
+{
+    public UiElement UiElement { get; set; }
+    public Bounds Bounds { get; set; }
+}
+
 public interface IRenderable
 {
     public void Render(SKCanvas canvas);
     public bool UiEquals(IRenderable renderable);
+}
+
+public interface IMatrixable
+{
+    SKPoint ProjectPoint(SKPoint poin);
 }
 
 public struct Save : IRenderable
@@ -138,14 +141,40 @@ public struct Restore : IRenderable
     }
 }
 
-public struct RectClip : IRenderable
+public struct Bounds
 {
-    private static readonly SKRoundRect RoundRect = new();
-
     public required float X;
     public required float Y;
     public required float W;
     public required float H;
+
+    public bool ContainsPoint(Vector2 point)
+    {
+        var withinX = point.X >= X && point.X <= X + W;
+        var withinY = point.Y >= Y && point.Y <= Y + H;
+
+        return withinX && withinY;
+    }
+
+    public SKRect ToRect()
+    {
+        return SKRect.Create(X, Y, W, H);
+    }
+
+    public bool BoundsEquals(Bounds otherBounds)
+    {
+        return otherBounds.X == X
+            && otherBounds.Y == Y
+            && otherBounds.W == W
+            && otherBounds.H == H;
+    }
+}
+
+public struct RectClip : IRenderable
+{
+    private static readonly SKRoundRect RoundRect = new();
+
+    public required Bounds Bounds { get; set; }
     public required float Radius;
     public required SKClipOperation ClipOperation;
 
@@ -153,11 +182,11 @@ public struct RectClip : IRenderable
     {
         if (Radius == 0)
         {
-            canvas.ClipRect(SKRect.Create(X, Y, W, H), ClipOperation, true);
+            canvas.ClipRect(Bounds.ToRect(), ClipOperation, true);
         }
         else
         {
-            RoundRect.SetRect(SKRect.Create(X, Y, W, H), Radius, Radius);
+            RoundRect.SetRect(Bounds.ToRect(), Radius, Radius);
             canvas.ClipRoundRect(RoundRect, ClipOperation, antialias: true);
         }
     }
@@ -167,34 +196,28 @@ public struct RectClip : IRenderable
         if (renderable is not RectClip rectClip)
             return false;
 
-        return rectClip.X == X
-               && rectClip.Y == Y
-               && rectClip.W == W
-               && rectClip.H == H
+        return rectClip.Bounds.BoundsEquals(Bounds)
                && rectClip.Radius == Radius
                && rectClip.ClipOperation == ClipOperation;
     }
 }
 
-public struct Rect : IRenderable
+public struct Rect : IRenderable, IClickable
 {
-    public required float X;
-    public required float Y;
-    public required float W;
-    public required float H;
+    public required UiElement UiElement { get; set; }
+    public required Bounds Bounds { get; set; }
     public required float Radius;
     public required IRenderPaint RenderPaint;
-    public UiContainer? UiContainer;
 
     public void Render(SKCanvas canvas)
     {
         if (Radius == 0)
         {
-            canvas.DrawRect(X, Y, W, H, RenderPaint.GetPaint());
+            canvas.DrawRect(Bounds.ToRect(), RenderPaint.GetPaint());
         }
         else
         {
-            canvas.DrawRoundRect(X, Y, W, H, Radius, Radius, RenderPaint.GetPaint());
+            canvas.DrawRoundRect(Bounds.ToRect(), Radius, Radius, RenderPaint.GetPaint());
         }
     }
 
@@ -203,30 +226,21 @@ public struct Rect : IRenderable
         if (renderable is not Rect rect)
             return false;
 
-        return rect.X == X
-               && rect.Y == Y
-               && rect.W == W
-               && rect.H == H
+        return rect.Bounds.BoundsEquals(Bounds)
                && rect.Radius == Radius
                && rect.RenderPaint.PaintEquals(RenderPaint);
-    }
-
-    public bool HitTest(Vector2 pos)
-    {
-        return X <= pos.X && X + W >= pos.X && Y <= pos.Y &&
-               Y + H >= pos.Y;
     }
 }
 
 public struct Bitmap : IRenderable
 {
-    public required SKRect Rect;
+    public required Bounds Bounds;
     public required SKBitmap SkBitmap;
     private static readonly SKPaint Paint = Helpers.GetNewAntialiasedPaint();
 
     public void Render(SKCanvas canvas)
     {
-        canvas.DrawBitmap(SkBitmap, Rect, Paint);
+        canvas.DrawBitmap(SkBitmap, Bounds.ToRect(), Paint);
     }
 
     public bool UiEquals(IRenderable renderable)
@@ -234,11 +248,11 @@ public struct Bitmap : IRenderable
         if (renderable is not Bitmap bitmap)
             return false;
 
-        return bitmap.Rect == Rect;
+        return bitmap.Bounds.BoundsEquals(Bounds);
     }
 }
 
-public struct Picture : IRenderable
+public struct Picture : IRenderable //ToDo, should also be clickable
 {
     public required SKPicture SkPicture;
     public required SKMatrix SkMatrix;
@@ -254,7 +268,7 @@ public struct Picture : IRenderable
     }
 }
 
-public struct Text : IRenderable
+public struct Text : IRenderable //ToDo should also be clickable
 {
     public required string Content;
     public required float X;
@@ -275,7 +289,7 @@ public struct Text : IRenderable
     }
 }
 
-public struct Matrix : IRenderable
+public struct Matrix : IRenderable, IMatrixable
 {
     public required SKMatrix SkMatrix;
 
@@ -298,7 +312,7 @@ public struct Matrix : IRenderable
     }
 }
 
-public struct ResetMatrix : IRenderable
+public struct ResetMatrix : IRenderable, IMatrixable
 {
     public void Render(SKCanvas canvas)
     {
@@ -309,9 +323,14 @@ public struct ResetMatrix : IRenderable
     {
         return renderable is ResetMatrix;
     }
+
+    public SKPoint ProjectPoint(SKPoint poin)
+    {
+        return poin;//todo
+    }
 }
 
-public struct Circle : IRenderable
+public struct Circle : IRenderable //ToDo, should also be clickable
 {
     public required SKPaint SkPaint;
     public required SKPoint Pos;
@@ -331,7 +350,7 @@ public struct Circle : IRenderable
     }
 }
 
-public struct Path : IRenderable
+public struct Path : IRenderable //ToDo maybe should also be clickable
 {
     public required SKPoint Start;
     public required SKPoint StartHandle;

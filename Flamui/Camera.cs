@@ -57,11 +57,11 @@ public class Camera : UiElementContainer
             //todo big refactor needed, because wtf
             if (uiElement.PWidth.Kind == SizeKind.Pixel)
             {
-                uiElement.ComputedWidth = uiElement.PWidth.Value;
+                uiElement.ComputedBounds.W = uiElement.PWidth.Value;
             }
             if (uiElement.PHeight.Kind == SizeKind.Pixel)
             {
-                uiElement.ComputedHeight = uiElement.PHeight.Value;
+                uiElement.ComputedBounds.H = uiElement.PHeight.Value;
             }
             uiElement.Layout(uiWindow);
         }

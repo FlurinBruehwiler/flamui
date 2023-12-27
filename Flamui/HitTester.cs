@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Flamui.UiElements;
+using SkiaSharp;
 
 namespace Flamui;
 
@@ -14,20 +15,15 @@ public class HitTester
 
     public void HandleHitTest()
     {
-        HandleMouseClick(_window.MousePosition, _window.IsMouseButtonDown(MouseButtonKind.Left));
-    }
-
-    private void HandleMouseClick(Vector2 clickPos, bool isClick)
-    {
-        HitTest(_window.RootContainer, clickPos, out _);
+        HitTest(_window.MousePosition);
 
         if (_window.IsMouseButtonPressed(MouseButtonKind.Left))
         {
-            foreach (var windowHoveredDiv in _window.HoveredDivs)
+            foreach (var windowHoveredDiv in _window.HoveredElements)
             {
-                if (windowHoveredDiv.PFocusable)
+                if (windowHoveredDiv is UiContainer {PFocusable:true} uiContainer)
                 {
-                    _window.ActiveDiv = windowHoveredDiv;
+                    _window.ActiveDiv = uiContainer;
                     return;
                 }
             }
@@ -36,40 +32,42 @@ public class HitTester
         }
     }
 
-    private void HitTest(UiElementContainer div, Vector2 point, out bool blockClick)
+    private void HitTest(Vector2 point)
     {
-        blockClick = false;
+        var hitElements = new List<UiElement>();
 
-        var projectedPoint = div.ProjectPoint(point);
-        var anyChildBlocksHit = false;
-
-        for (var i = div.Children.Count - 1; i >= 0; i--)
+        //from back to front
+        foreach (var (_, value) in _window.LastRenderContext.RenderSections.OrderBy(x => x.Key))
         {
-            var child = div.Children[i];
-            if (child is not UiElementContainer divChild)
-                continue;
-
-            HitTest(divChild, projectedPoint, out var childBlocksHit);
-            if (childBlocksHit)
+            foreach (var renderable in value.Renderables)
             {
-                anyChildBlocksHit = true;
-                break;
+                if (renderable is IMatrixable matrixable)
+                {
+                    var res = matrixable.ProjectPoint(new SKPoint(point.X, point.Y));
+                    point = new Vector2(res.X, res.Y);
+                }
+
+                if (renderable is IClickable clickable)
+                {
+                    if (clickable.Bounds.ContainsPoint(point))
+                    {
+                        hitElements.Add(clickable.UiElement);
+                    }
+                }
             }
         }
 
-        if (anyChildBlocksHit)
+        //from front to back
+        for (var i = hitElements.Count - 1; i >= 0; i--)
         {
-            blockClick = true;
-            return;
-        }
+            var hitElement = hitElements[i];
+            _window.HoveredElements.Add(hitElement);
 
-        if (div.ContainsPoint(point))
-        {
-            if (div is UiContainer uiContainer)
+            if (hitElement is UiContainer { PBlockHit: true })
             {
-                _window.HoveredDivs.Add(uiContainer);
-                blockClick = uiContainer.PBlockHit;
+                return;
             }
         }
+
     }
 }

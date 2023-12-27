@@ -20,7 +20,7 @@ public partial class UiContainer : UiElementContainer
             if (!Ui.Window.IsMouseButtonPressed(MouseButtonKind.Left))
                 return false;
 
-            if (Ui.Window.HoveredDivs.Contains(this))
+            if (Ui.Window.HoveredElements.Contains(this))
             {
                 return true;
             }
@@ -62,7 +62,7 @@ public partial class UiContainer : UiElementContainer
             if (Ui.Window is null)
                 throw new Exception();
 
-            return Ui.Window.HoveredDivs.Contains(this);
+            return Ui.Window.HoveredElements.Contains(this);
         }
     }
 
@@ -73,7 +73,7 @@ public partial class UiContainer : UiElementContainer
             if (Ui.Window is null)
                 throw new Exception();
 
-            return !Ui.Window.OldHoveredDivs.Contains(this) && Ui.Window.HoveredDivs.Contains(this);
+            return !Ui.Window.OldHoveredElements.Contains(this) && Ui.Window.HoveredElements.Contains(this);
         }
     }
 
@@ -84,7 +84,7 @@ public partial class UiContainer : UiElementContainer
             if (Ui.Window is null)
                 throw new Exception();
 
-            return Ui.Window.OldHoveredDivs.Contains(this) && !Ui.Window.HoveredDivs.Contains(this);
+            return Ui.Window.OldHoveredElements.Contains(this) && !Ui.Window.HoveredElements.Contains(this);
         }
     }
 
@@ -138,10 +138,14 @@ public partial class UiContainer : UiElementContainer
                 //todo replace with readable code or something
                 renderContext.Add(new Rect
                 {
-                    X = ComputedX - PBorderWidth + ShaddowOffset.Left,
-                    Y = ComputedY - PBorderWidth + ShaddowOffset.Top,
-                    H = ComputedHeight + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
-                    W = ComputedWidth + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
+                    UiElement = this,
+                    Bounds = new Bounds
+                    {
+                        X = ComputedBounds.X - PBorderWidth + ShaddowOffset.Left,
+                        Y = ComputedBounds.Y - PBorderWidth + ShaddowOffset.Top,
+                        H = ComputedBounds.H + 2 * PBorderWidth - ShaddowOffset.Top - ShaddowOffset.Bottom,
+                        W = ComputedBounds.W + 2 * PBorderWidth - ShaddowOffset.Left - ShaddowOffset.Right,
+                    },
                     Radius = PRadius == 0 ? 0 : borderRadius,
                     RenderPaint = new ShadowPaint
                     {
@@ -153,10 +157,8 @@ public partial class UiContainer : UiElementContainer
 
             renderContext.Add(new Rect
             {
-                X = ComputedX,
-                Y = ComputedY,
-                W = ComputedWidth,
-                H = ComputedHeight,
+                UiElement = this,
+                Bounds = ComputedBounds,
                 Radius = PRadius,
                 RenderPaint = new PlaintPaint
                 {
@@ -173,20 +175,21 @@ public partial class UiContainer : UiElementContainer
 
             renderContext.Add(new RectClip
             {
-                X = ComputedX,
-                Y = ComputedY,
-                W = ComputedWidth,
-                H = ComputedHeight,
+                Bounds = ComputedBounds,
                 Radius = PRadius,
                 ClipOperation = SKClipOperation.Difference
             });
 
             renderContext.Add(new Rect
             {
-                X = ComputedX - PBorderWidth,
-                Y = ComputedY - PBorderWidth,
-                W = ComputedWidth + 2 * PBorderWidth,
-                H = ComputedHeight + 2 * PBorderWidth,
+                UiElement = this,
+                Bounds = new Bounds
+                {
+                    X = ComputedBounds.X - PBorderWidth,
+                    Y = ComputedBounds.Y - PBorderWidth,
+                    W = ComputedBounds.W + 2 * PBorderWidth,
+                    H = ComputedBounds.H + 2 * PBorderWidth,
+                },
                 Radius = borderRadius,
                 RenderPaint = new PlaintPaint
                 {
@@ -231,10 +234,7 @@ public partial class UiContainer : UiElementContainer
 
             renderContext.Add(new RectClip
             {
-                X = ComputedX,
-                Y = ComputedY,
-                W = ComputedWidth,
-                H = ComputedHeight,
+                Bounds = ComputedBounds,
                 Radius = PRadius,
                 ClipOperation = SKClipOperation.Intersect
             });
@@ -256,9 +256,9 @@ public partial class UiContainer : UiElementContainer
 
         if (PCanScroll)
         {
-            if (contentSize > ComputedHeight)
+            if (contentSize > ComputedBounds.H)
             {
-                ScrollPos = Math.Clamp(ScrollPos + uiWindow.ScrollDelta * 20, 0, contentSize - ComputedHeight);
+                ScrollPos = Math.Clamp(ScrollPos + uiWindow.ScrollDelta * 20, 0, contentSize - ComputedBounds.H);
             }
             else
             {
@@ -273,7 +273,7 @@ public partial class UiContainer : UiElementContainer
                 continue;
             }
 
-            childElement.ComputedY -= ScrollPos;
+            childElement.ComputedBounds.Y -= ScrollPos;
             childElement.Layout(uiWindow);
         }
     }

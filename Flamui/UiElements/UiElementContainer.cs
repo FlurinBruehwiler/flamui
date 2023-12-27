@@ -60,7 +60,7 @@ public abstract class UiElementContainer : UiElement
 
     public bool ContainsPoint(Vector2 pos)
     {
-        return ComputedX <= pos.X && ComputedX + ComputedWidth >= pos.X && ComputedY <= pos.Y &&
-               ComputedY + ComputedHeight >= pos.Y;
+        return ComputedBounds.X <= pos.X && ComputedBounds.X + ComputedBounds.W >= pos.X && ComputedBounds.Y <= pos.Y &&
+               ComputedBounds.Y + ComputedBounds.H >= pos.Y;
     }
 }

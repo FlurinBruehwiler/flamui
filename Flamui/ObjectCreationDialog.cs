@@ -11,8 +11,8 @@ public class ObjectCreationDialog
     public ObjectCreationDialog Build(Vector2 position)
     {
         DivStart(out var div).BlockHit().ZIndex(2).Width(200).Height(70).Rounded(2).Padding(5).Absolute(disablePositioning: true).Color(C.Background).Gap(10).BorderWidth(1).BorderColor(C.Border);
-            div.ComputedX = position.X;
-            div.ComputedY = position.Y;
+            div.ComputedBounds.X = position.X;
+            div.ComputedBounds.Y = position.Y;
 
             StartComponent<DropDown<string>>(out var d).Selected(_selected).StartAs(StartingState.Opened);
                 d.Option("Hi");

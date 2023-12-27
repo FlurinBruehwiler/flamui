@@ -56,8 +56,8 @@ public partial class UiWindow : IDisposable
         }
     }
 
-    public List<UiContainer> HoveredDivs { get; set; } = new();
-    public List<UiContainer> OldHoveredDivs { get; set; } = new();
+    public List<UiElement> HoveredElements { get; set; } = new();
+    public List<UiElement> OldHoveredElements { get; set; } = new();
 
     public UiWindow(IntPtr windowHandle)
     {
@@ -89,19 +89,49 @@ public partial class UiWindow : IDisposable
     }
 
     private readonly BddGraph _bddGraph = new();
-    private RenderContext _lastRenderContext = new();
-    private RenderContext _renderContext = new();
+    public RenderContext LastRenderContext = new();
+    public RenderContext RenderContext = new();
 
     public void Update()
     {
-        Ui.Window = this;
+        Window = this;
 
-        var startEventHandling = Stopwatch.GetTimestamp();
-        _input.HandleEvents(Events);
+        ProcessInputs();
+        HitDetection();
+        BuildUi();
+        Layout();
+        var renderHappened = Render();
+        WaitForNextFrame(renderHappened);
+
+        //ToDo cleanup
+        _input.OnAfterFrame();
+
+        OldHoveredElements.Clear();
+        foreach (var uiContainer in HoveredElements)
+        {
+            OldHoveredElements.Add(uiContainer);
+        }
+        HoveredElements.Clear();
+    }
+
+    private void HitDetection()
+    {
         _hitTester.HandleHitTest();
-        // Console.WriteLine($"EventHandling: {Stopwatch.GetElapsedTime(startEventHandling).TotalMilliseconds}");
+    }
 
-        var setup = Stopwatch.GetTimestamp();
+    private bool Render()
+    {
+        CreateRenderInstructions();
+        return RenderToCanvas();
+    }
+
+    private void CreateRenderInstructions()
+    {
+        RootContainer.Render(RenderContext);
+    }
+
+    private bool RenderToCanvas()
+    {
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
         using var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
@@ -109,56 +139,54 @@ public partial class UiWindow : IDisposable
 
         surface.Canvas.Clear();
 
-        // Console.WriteLine($"Setup: {Stopwatch.GetElapsedTime(setup).TotalMilliseconds}");
+        var requiresRerender = RenderContext.RequiresRerender(LastRenderContext);
 
-        Ui.OpenElementStack.Clear();
-        Ui.OpenElementStack.Push(RootContainer);
-        Ui.Root = RootContainer;
-        RootContainer.ComputedWidth = width;
-        RootContainer.ComputedHeight = height;
+        if (requiresRerender)
+        {
+            RenderContext.Rerender(surface.Canvas);
+        }
 
-        RootContainer.OpenElement();
-
-        var startBuild = Stopwatch.GetTimestamp();
-        _bddGraph.Build();
-        // Console.WriteLine($"Building: {Stopwatch.GetElapsedTime(startBuild).TotalMilliseconds}");
-
-        var startLayout = Stopwatch.GetTimestamp();
-        RootContainer.Layout(this);
-        // Console.WriteLine($"Layouting: {Stopwatch.GetElapsedTime(startLayout).TotalMilliseconds}");
-
-        var startRendering = Stopwatch.GetTimestamp();
-        RootContainer.Render(_renderContext);
-        var renderHappened = _renderContext.Render(surface.Canvas, _lastRenderContext);
-
-        _lastRenderContext.Reset();
+        LastRenderContext.Reset();
         //swap Render Contexts
-        (_lastRenderContext, _renderContext) = (_renderContext, _lastRenderContext);
-
-
-        Ui.Root = null!;
+        (LastRenderContext, RenderContext) = (RenderContext, LastRenderContext);
 
         surface.Canvas.Flush();
 
-        // Console.WriteLine($"Rendering: {Stopwatch.GetElapsedTime(startRendering).TotalMilliseconds}");
 
-        Ui.Window = null!;
+        return requiresRerender;
+    }
 
-        var finilizingStart = Stopwatch.GetTimestamp();
+    private void ProcessInputs()
+    {
+        _input.HandleEvents(Events);
+    }
 
-        _input.OnAfterFrame();
-        OldHoveredDivs.Clear();
-        foreach (var uiContainer in HoveredDivs)
-        {
-            OldHoveredDivs.Add(uiContainer);
-        }
-        HoveredDivs.Clear();
+    private void BuildUi()
+    {
+        SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
+        OpenElementStack.Clear();
+        OpenElementStack.Push(RootContainer);
+        Root = RootContainer;
+        RootContainer.ComputedBounds.W = width;
+        RootContainer.ComputedBounds.H = height;
+
+        RootContainer.OpenElement();
+
+        _bddGraph.Build();
+    }
+
+    private void Layout()
+    {
+        RootContainer.Layout(this);
+    }
+
+    private void WaitForNextFrame(bool renderHappened)
+    {
         if(renderHappened)
             SDL_GL_SwapWindow(_windowHandle);
 
-        // Console.WriteLine($"Finilizing: {Stopwatch.GetElapsedTime(finilizingStart).TotalMilliseconds}");
-
+        //ToDo
     }
 
     public void Dispose()

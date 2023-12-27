@@ -18,7 +18,7 @@ public class UiImage : UiElement
         if (img is null)
             return;
 
-        var availableRatio = ComputedWidth / ComputedHeight;
+        var availableRatio = ComputedBounds.W / ComputedBounds.H;
         var currentRatio = img.Width / img.Height;
 
         float destHeight;
@@ -26,18 +26,18 @@ public class UiImage : UiElement
 
         if (availableRatio > currentRatio) //Height is the limiting factor
         {
-            destHeight = ComputedHeight;
-            destWidth = currentRatio * ComputedHeight;
+            destHeight = ComputedBounds.H;
+            destWidth = currentRatio * ComputedBounds.H;
         }
         else //Width is the limiting factor
         {
-            destWidth = ComputedWidth;
-            destHeight = ComputedWidth / currentRatio;
+            destWidth = ComputedBounds.W;
+            destHeight = ComputedBounds.W / currentRatio;
         }
 
         renderContext.Add(new Bitmap
         {
-            Rect = new SKRect(ComputedX, ComputedY, ComputedX + destWidth, ComputedY + destHeight),
+            Bounds = ComputedBounds with { W = destWidth, H = destHeight },
             SkBitmap = ImgCache[Src]
         });
     }

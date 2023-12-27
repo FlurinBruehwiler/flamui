@@ -109,8 +109,8 @@ public class NodeComponent
 
     private Vector2 GetCenter(UiContainer port)
     {
-        return new Vector2(port.ComputedX + port.ComputedWidth / 2,
-            port.ComputedY + port.ComputedHeight / 2);
+        return new Vector2(port.ComputedBounds.X + port.ComputedBounds.W / 2,
+            port.ComputedBounds.Y + port.ComputedBounds.H / 2);
     }
 
     private void HandleMovement(Node node, UiContainer nodeDiv)
@@ -152,11 +152,11 @@ public class NodeComponent
             _node.Pos = mousePos + _node.DragOffset;
         }
 
-        _node.Width = nodeDiv.ComputedWidth;
-        _node.Height = nodeDiv.ComputedHeight;
+        _node.Width = nodeDiv.ComputedBounds.W;
+        _node.Height = nodeDiv.ComputedBounds.H;
 
-        nodeDiv.ComputedX = _node.Pos.X;
-        nodeDiv.ComputedY = _node.Pos.Y;
+        nodeDiv.ComputedBounds.X = _node.Pos.X;
+        nodeDiv.ComputedBounds.Y = _node.Pos.Y;
     }
 
     private void SelectNode(Node node)
