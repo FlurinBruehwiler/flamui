@@ -1,6 +1,8 @@
-﻿namespace Flamui.ToolWindows;
+﻿using Flamui;
 
-public class FilePicker : UiComponent
+namespace Sample.ToolWindows;
+
+public class FilePicker : FlamuiComponent
 {
     private string _input = string.Empty;
     private string _selected = "Hi";

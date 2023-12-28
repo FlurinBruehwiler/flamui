@@ -2,6 +2,17 @@
 
 namespace Flamui.UiElements;
 
+public interface IData
+{
+    public UiElementId Id { get; set; }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class BuilderAttribute : Attribute
+{
+
+}
+
 [DebuggerDisplay("Line = {Id.Line} Key = {Id.Key}")]
 public abstract class UiElement : IData
 {

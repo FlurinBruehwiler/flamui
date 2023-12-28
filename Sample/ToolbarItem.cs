@@ -1,4 +1,4 @@
-﻿namespace Flamui;
+﻿namespace Sample;
 
 public class ToolbarItem<T>
 {

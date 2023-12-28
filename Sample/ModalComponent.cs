@@ -3,17 +3,6 @@ using Flamui.UiElements;
 
 namespace Flamui;
 
-public interface IData
-{
-    public UiElementId Id { get; set; }
-}
-
-[AttributeUsage(AttributeTargets.Method)]
-public class BuilderAttribute : Attribute
-{
-
-}
-
 public class ModalComponent
 {
     private bool _wasShown;

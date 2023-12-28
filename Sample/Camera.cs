@@ -23,8 +23,6 @@ public record struct CameraInfo(Vector2 Offset, Vector2 Target, float Zoom)
     }
 };
 
-public record struct Data(object Obj, UiElementId Id);
-
 
 public class Camera : UiElementContainer
 {

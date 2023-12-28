@@ -11,7 +11,7 @@ public class SubStack
 
 public static partial class Ui
 {
-    public static Stack<ValueTuple<UiComponent, bool>> OpenComponents = new();
+    public static Stack<ValueTuple<FlamuiComponent, bool>> OpenComponents = new();
     public static Stack<UiElementContainer> OpenElementStack = new();
     public static UiWindow Window = null!;
     public static UiContainer Root = null!;
@@ -109,14 +109,14 @@ public static partial class Ui
 
     public static T StartComponent<T>(out T component, string key = "",
         [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : UiComponent
+        [CallerLineNumber] int line = -1) where T : FlamuiComponent
     {
         component = (T)GetComponentInternal(typeof(T), new UiElementId(key, path, line), out var isNew);
         OpenComponents.Push((component, isNew));
         return component;
     }
 
-    public static T EndComponent<T>() where T : UiComponent
+    public static T EndComponent<T>() where T : FlamuiComponent
     {
         var (component, isNew) = OpenComponents.Pop();
         if (isNew)

@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
+using Flamui;
 
-namespace Flamui;
+namespace Sample;
 
 public class ObjectCreationDialog
 {

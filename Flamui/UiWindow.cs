@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using Flamui.UiElements;
 using SkiaSharp;
 
@@ -8,6 +7,7 @@ namespace Flamui;
 public partial class UiWindow : IDisposable
 {
     private readonly IntPtr _windowHandle;
+    private readonly FlamuiComponent _rootComponent;
     private readonly IntPtr _openGlContextHandle;
     private readonly GRContext _grContext;
     public uint Id;
@@ -59,10 +59,11 @@ public partial class UiWindow : IDisposable
     public List<UiElement> HoveredElements { get; set; } = new();
     public List<UiElement> OldHoveredElements { get; set; } = new();
 
-    public UiWindow(IntPtr windowHandle)
+    public UiWindow(IntPtr windowHandle, FlamuiComponent rootComponent)
     {
         _hitTester = new HitTester(this);
         _windowHandle = windowHandle;
+        _rootComponent = rootComponent;
         Id = SDL_GetWindowID(_windowHandle);
 
         _openGlContextHandle = SDL_GL_CreateContext(_windowHandle);
@@ -88,7 +89,6 @@ public partial class UiWindow : IDisposable
         });
     }
 
-    private readonly BddGraph _bddGraph = new();
     public RenderContext LastRenderContext = new();
     public RenderContext RenderContext = new();
 
@@ -172,7 +172,7 @@ public partial class UiWindow : IDisposable
 
         RootContainer.OpenElement();
 
-        _bddGraph.Build();
+        _rootComponent.Build();
     }
 
     private void Layout()

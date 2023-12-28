@@ -35,9 +35,12 @@ public class FlamuiApp
             throw new Exception();
         }
 
+
+        var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
+
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            _eventLoop.Windows.Add(new UiWindow(windowHandle));
+            _eventLoop.Windows.Add(new UiWindow(windowHandle, rootComponent));
         });
     }
 

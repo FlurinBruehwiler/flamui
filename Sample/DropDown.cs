@@ -3,7 +3,7 @@ using SDL2;
 
 namespace Flamui;
 
-public class DropDown<T> : UiComponent where T : notnull
+public class DropDown<T> : FlamuiComponent where T : notnull
 {
     private List<T> _options = new();
     private List<T> _filteredOptions;

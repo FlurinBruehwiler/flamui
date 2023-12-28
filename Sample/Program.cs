@@ -1,9 +1,10 @@
 ﻿using Flamui;
+using Sample;
 
 var builder = FlamuiApp.CreateBuilder();
 
 var app = builder.Build();
 
-app.CreateWindow<FlamuiComponent>("Sample App");
+app.CreateWindow<RootComponent>("Sample App");
 
 app.Run();

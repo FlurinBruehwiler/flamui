@@ -1,6 +1,11 @@
-﻿namespace Flamui;
+namespace Flamui;
 
-public class FlamuiComponent
+public abstract class FlamuiComponent
 {
-    
+    public virtual void OnInitialized()
+    {
+
+    }
+
+    public abstract void Build();
 }

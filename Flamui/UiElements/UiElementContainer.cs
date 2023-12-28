@@ -2,6 +2,8 @@
 
 namespace Flamui.UiElements;
 
+public record struct Data(object Obj, UiElementId Id);
+
 public abstract class UiElementContainer : UiElement
 {
     public List<UiElement> Children { get; set; } = new();

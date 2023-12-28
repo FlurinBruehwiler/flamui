@@ -1,18 +1,9 @@
-﻿using Flamui.UiElements;
+﻿using Flamui;
+using Flamui.UiElements;
 
-namespace Flamui;
+namespace Sample;
 
-public abstract class UiComponent
-{
-    public virtual void OnInitialized()
-    {
-
-    }
-
-    public abstract void Build();
-}
-
-public class Sidebar : UiComponent
+public class Sidebar : FlamuiComponent
 {
     private SidebarSide _side;
     private int _windowWidth = 300;
@@ -60,7 +51,7 @@ public class Sidebar : UiComponent
                     else
                         toolWindow.Absolute(left: -_windowWidth);
 
-                    var comp = (UiComponent)GetComponent(selectedToolWindow.WindowComponent, selectedToolWindow.Path);
+                    var comp = (FlamuiComponent)GetComponent(selectedToolWindow.WindowComponent, selectedToolWindow.Path);
                     comp.Build();
                 DivEnd();
             }
@@ -70,7 +61,7 @@ public class Sidebar : UiComponent
         _toolWindowDefinitions.Clear();
     }
 
-    public void ToolWindow<T>(string icon) where T : UiComponent
+    public void ToolWindow<T>(string icon) where T : FlamuiComponent
     {
         //ToDo remove memory allocation
         _toolWindowDefinitions.Add(new ToolWindowDefinition($"./Icons/{icon}.svg", typeof(T)));
