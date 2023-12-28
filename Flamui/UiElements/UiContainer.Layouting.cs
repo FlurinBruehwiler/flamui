@@ -19,6 +19,11 @@ public partial class UiContainer
 
     private void ComputeSize()
     {
+        if (Id.Key == "semmel")
+        {
+            Console.Write("");
+        }
+
         switch (PDir)
         {
             case EnumDir.Horizontal or EnumDir.RowReverse:
