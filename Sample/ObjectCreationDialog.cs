@@ -27,7 +27,11 @@ public class ObjectCreationDialog
                         d.Option("flamui");
                     EndComponent<DropDown<string>>().Selected(out _selected);
 
-                    StyledInput(ref _name, "Name");
+                    var input = StyledInput(ref _name, "Name");
+                    if (input.HasFocusWithin && Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN))
+                    {
+                        IsCancelled = true;
+                    }
                 DivEnd();
             DivEnd();
         DivEnd();

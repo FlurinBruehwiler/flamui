@@ -57,10 +57,15 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var div, key, path, line).Height(15).Width(15).Color(C.Background).BorderColor(C.Border).BorderWidth(1).Rounded(2);
+        DivStart(out var div, key, path, line).Height(15).Focusable().Width(15).Color(C.Background).BorderColor(C.Border).BorderWidth(1).Rounded(2);
             if (div.Clicked)
             {
                 enabled = !enabled;
+            }
+
+            if (div.HasFocusWithin)
+            {
+                div.BorderColor(C.Blue).BorderWidth(2);
             }
 
             if (enabled)
@@ -77,7 +82,8 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var btn, key, path, line).Height(23).Width(70).Rounded(2);
+        DivStart(out var btn, key, path, line).Height(23).Width(70).Rounded(2).Focusable();
+
             if (primary)
             {
                 btn.Color(C.Blue).BorderWidth(0);
@@ -87,13 +93,18 @@ public partial class Ui
                 btn.BorderWidth(1).BorderColor(C.Border).Color(C.Transparent);
             }
 
+            if (btn.HasFocusWithin)
+            {
+                btn.BorderColor(C.Blue).BorderWidth(2);
+            }
+
             Text(text).VAlign(TextAlign.Center).HAlign(TextAlign.Center);
         DivEnd();
 
         return btn.Clicked;
     }
 
-    public static void StyledInput(ref string text, string placeholder = "", string key = "",
+    public static UiContainer StyledInput(ref string text, string placeholder = "", string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
@@ -101,7 +112,7 @@ public partial class Ui
             if (modalInputDiv.HasFocusWithin)
             {
                 modalInputDiv.BorderColor(C.Blue).BorderWidth(2);
-                Input(ref text, true);
+                Input(ref text);
             }
             else
             {
@@ -112,15 +123,17 @@ public partial class Ui
                 }
             }
         DivEnd();
+
+        return modalInputDiv;
     }
 
     public static void Input(ref string text, bool hasFocus = false, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var inputDiv, key, path, line).Focusable();
+        DivStart(key, path, line);
 
-            if (inputDiv.IsActive || hasFocus)
+            if (hasFocus)
             {
                 var input = Window.TextInput;
 

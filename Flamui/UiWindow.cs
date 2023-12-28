@@ -41,6 +41,7 @@ public partial class UiWindow : IDisposable
 
     private readonly Input _input = new();
     private readonly HitTester _hitTester;
+    private readonly TabIndexManager _tabIndexManager = new();
 
     public UiContainer? ActiveDiv
     {
@@ -162,19 +163,10 @@ public partial class UiWindow : IDisposable
     private void ProcessInputs()
     {
         _input.HandleEvents(Events);
-        HandleTab();
+        _tabIndexManager.HandleTab();
     }
 
-    private void HandleTab()
-    {
-        if (IsKeyPressed(SDL_Scancode.SDL_SCANCODE_TAB))
-        {
-            if (ActiveDiv is not null)
-            {
-                //find next focusable div in tree
-            }
-        }
-    }
+
 
     private void BuildUi()
     {
