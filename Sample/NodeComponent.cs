@@ -118,7 +118,7 @@ public class NodeComponent
     {
         var mousePos = _nodeGraph.Camera.ScreenToWorld(Window.MousePosition);
 
-        if (Window.IsMouseButtonPressed(MouseButtonKind.Left) && nodeDiv.IsHovered)
+        if (nodeDiv.Clicked)
         {
             SDL_CaptureMouse(SDL_bool.SDL_TRUE);
             if (!node.IsSelected)

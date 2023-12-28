@@ -14,13 +14,13 @@ public partial class UiContainer : UiElementContainer
     {
         get
         {
-            if (Ui.Window is null)
+            if (Window is null)
                 throw new Exception();
 
-            if (!Ui.Window.IsMouseButtonPressed(MouseButtonKind.Left))
+            if (!Window.IsMouseButtonPressed(MouseButtonKind.Left))
                 return false;
 
-            if (Ui.Window.HoveredElements.Contains(this))
+            if (Window.HoveredElements.Contains(this))
             {
                 return true;
             }
@@ -59,10 +59,10 @@ public partial class UiContainer : UiElementContainer
     {
         get
         {
-            if (Ui.Window is null)
+            if (Window is null)
                 throw new Exception();
 
-            return Ui.Window.HoveredElements.Contains(this);
+            return Window.HoveredElements.Contains(this);
         }
     }
 
@@ -70,10 +70,10 @@ public partial class UiContainer : UiElementContainer
     {
         get
         {
-            if (Ui.Window is null)
+            if (Window is null)
                 throw new Exception();
 
-            return !Ui.Window.OldHoveredElements.Contains(this) && Ui.Window.HoveredElements.Contains(this);
+            return !Window.OldHoveredElements.Contains(this) && Window.HoveredElements.Contains(this);
         }
     }
 
@@ -81,10 +81,10 @@ public partial class UiContainer : UiElementContainer
     {
         get
         {
-            if (Ui.Window is null)
+            if (Window is null)
                 throw new Exception();
 
-            return Ui.Window.OldHoveredElements.Contains(this) && !Ui.Window.HoveredElements.Contains(this);
+            return Window.OldHoveredElements.Contains(this) && !Window.HoveredElements.Contains(this);
         }
     }
 

@@ -28,7 +28,9 @@ public record Node(Vector2 Pos, string Id)
     public float Width { get; set; }
     public float Height { get; set; }
     public bool IsSelected { get; set; }
-    public bool IsDragging;
+
+    public bool IsDragging { get; set; }
+
     public Vector2 DragOffset;
     public bool IsClicked { get; set; }
 };
@@ -97,7 +99,7 @@ public class NodeGraph
             var dragStartNode = Nodes.FirstOrDefault(static x => x.IsClicked);
             if (dragStartNode is not null)
             {
-                Nodes.Remove(dragStartNode);
+                Nodes.Remove(dragStartNode);//bring to front :)
                 Nodes.Add(dragStartNode);
                 foreach (var node in Nodes)
                 {
@@ -130,6 +132,7 @@ public class NodeGraph
         if (_mouseDragStartPos is { } startPos)
         {
             var mousePos = Camera.ScreenToWorld(Window.MousePosition);
+
             var xMax = Math.Max(mousePos.X, startPos.X);
             var yMax = Math.Max(mousePos.Y, startPos.Y);
             var xMin = Math.Min(mousePos.X, startPos.X);

@@ -308,7 +308,7 @@ public struct Matrix : IRenderable, IMatrixable
 
     public SKPoint ProjectPoint(SKPoint poin)
     {
-        return SkMatrix.MapPoint(poin);
+        return SkMatrix.Invert().MapPoint(poin);
     }
 }
 
