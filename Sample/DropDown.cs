@@ -7,18 +7,18 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 {
     private List<T> _options = new();
     private List<T> _filteredOptions;
-    private T _selectedOption;
+    private T? _selectedOption;
     private StartingState _startingState = StartingState.None;
     private int _hoveredOption;
     private bool _isExpanded;
-    private string _filterText = string.Empty;
+    private string? _filterText;
 
     public override void Build()
     {
         DivStart(out var dropDownDiv).Rounded(2).Height(25).Focusable().Padding(5).BorderColor(C.Border).BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
             HandleStart(dropDownDiv);
 
-            Text(_selectedOption.ToString()!).VAlign(TextAlign.Center).Color(C.Text);
+            Text(_selectedOption?.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);
             DivStart().Width(15);//ToDo, make it so that we can enforce a certain aspect ratio
                 SvgImage("./Icons/expand_more.svg");
             DivEnd();
@@ -27,7 +27,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                 //ToDo we really need to improve the layouting system!!!!
                 //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
                 DivStart().BlockHit().Height(25 * _options.Count + 10).Clip().ZIndex(100).Padding(5).Color(C.Background).Absolute(top:30).Rounded(5).BorderWidth(1).BorderColor(C.Border).Shadow(5, top:5).ShadowColor(0, 0, 0);
-                    if (!string.IsNullOrEmpty(_filterText))
+                    if (_filterText is not null)
                     {
                         var lastFilterText = _filterText;
 
@@ -99,9 +99,8 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                     }
                 }
 
-                if (!string.IsNullOrEmpty(Window.TextInput) && string.IsNullOrEmpty(_filterText))
+                if (!string.IsNullOrEmpty(Window.TextInput) && _filterText is not null)
                 {
-                    _filterText = Window.TextInput;
                     UpdateFilteredOptions();
                 }
             }
@@ -136,11 +135,12 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                 break;
             case StartingState.Focused:
                 break;
+            case StartingState.Filtered:
+                _filterText = string.Empty;
+                goto case StartingState.Opened;
             case StartingState.Opened:
                 Window.ActiveDiv = dropDownDiv;
                 Open();
-                break;
-            case StartingState.Filtered:
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -164,7 +164,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
     {
         _hoveredOption = _options.IndexOf(_selectedOption);
         _isExpanded = true;
-        _filterText = string.Empty;
+        _filterText = _startingState == StartingState.Filtered ? string.Empty : null;
         _filteredOptions = _options.ToList();
     }
 
@@ -173,7 +173,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
         _isExpanded = false;
     }
 
-    public DropDown<T> Selected(T selectedOption)
+    public DropDown<T> Selected(T? selectedOption)
     {
         _selectedOption = selectedOption;
         return this;

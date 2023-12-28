@@ -5,7 +5,7 @@ namespace Sample;
 
 public class ObjectCreationDialog
 {
-    private string _selected = "His";
+    private string? _selected;
     private string _name = string.Empty;
     public bool IsCancelled;
 
@@ -19,7 +19,7 @@ public class ObjectCreationDialog
                     div.ComputedBounds.X = position.X;
                     div.ComputedBounds.Y = position.Y;
 
-                    StartComponent<DropDown<string>>(out var d).Selected(_selected).StartAs(StartingState.Opened);
+                    StartComponent<DropDown<string>>(out var d).Selected(_selected).StartAs(StartingState.Filtered);
                         d.Option("Hi");
                         d.Option("Hello World");
                         d.Option("abc");

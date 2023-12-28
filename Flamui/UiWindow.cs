@@ -14,7 +14,11 @@ public partial class UiWindow : IDisposable
 
     // private UiContainer? _hoveredContainer;
     private UiContainer? _activeContainer;
-    public readonly UiContainer RootContainer = new();
+
+    public readonly UiContainer RootContainer = new()
+    {
+        Id = new UiElementId(),
+    };
     public readonly ConcurrentQueue<SDL_Event> Events = new();
 
     // private UiContainer? HoveredDiv
@@ -158,6 +162,18 @@ public partial class UiWindow : IDisposable
     private void ProcessInputs()
     {
         _input.HandleEvents(Events);
+        HandleTab();
+    }
+
+    private void HandleTab()
+    {
+        if (IsKeyPressed(SDL_Scancode.SDL_SCANCODE_TAB))
+        {
+            if (ActiveDiv is not null)
+            {
+                //find next focusable div in tree
+            }
+        }
     }
 
     private void BuildUi()
