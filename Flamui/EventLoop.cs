@@ -8,6 +8,8 @@ public class EventLoop
 
     public EventLoop()
     {
+        FlamuiSynchronizationContext.Install();
+
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         {
             // Handle initialization error
@@ -70,7 +72,20 @@ public class EventLoop
         return null;
     }
 
-    public void RunRenderThread()
+    public void RunUiThread()
+    {
+        try
+        {
+            RunUiThreadInternal();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    private void RunUiThreadInternal()
     {
         SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
@@ -81,6 +96,13 @@ public class EventLoop
             foreach (var window in Windows)
             {
                 window.Update();
+            }
+
+            Dispatcher.UIThread.Queue.RunPendingTasks();
+
+            foreach (var uiWindow in Windows)
+            {
+                uiWindow.SwapWindow();
             }
 
             var length = Stopwatch.GetElapsedTime(startTime).TotalMilliseconds;

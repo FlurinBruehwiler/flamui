@@ -13,6 +13,10 @@ public class FlamuiApp
         services.AddSingleton(this);
 
         Services = services.BuildServiceProvider();
+
+        var uiThread = new Thread(_eventLoop.RunUiThread);
+        Dispatcher.UIThread = new Dispatcher(uiThread);
+        uiThread.Start();
     }
 
     public void CreateWindow<TRootComponent>(string title) where TRootComponent : FlamuiComponent
@@ -31,13 +35,14 @@ public class FlamuiApp
             throw new Exception();
         }
 
-        _eventLoop.Windows.Add(new UiWindow(windowHandle));
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            _eventLoop.Windows.Add(new UiWindow(windowHandle));
+        });
     }
 
     public void Run()
     {
-        _ = new Thread(_eventLoop.RunRenderThread);
-
         _eventLoop.RunMainThread();
     }
 

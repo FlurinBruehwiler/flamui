@@ -100,8 +100,7 @@ public partial class UiWindow : IDisposable
         HitDetection();
         BuildUi();
         Layout();
-        var renderHappened = Render();
-        WaitForNextFrame(renderHappened);
+        Render();
 
         //ToDo cleanup
         _input.OnAfterFrame();
@@ -119,10 +118,10 @@ public partial class UiWindow : IDisposable
         _hitTester.HandleHitTest();
     }
 
-    private bool Render()
+    private void Render()
     {
         CreateRenderInstructions();
-        return RenderToCanvas();
+        RenderToCanvas();
     }
 
     private void CreateRenderInstructions()
@@ -130,7 +129,7 @@ public partial class UiWindow : IDisposable
         RootContainer.Render(RenderContext);
     }
 
-    private bool RenderToCanvas()
+    private void RenderToCanvas()
     {
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
@@ -153,7 +152,7 @@ public partial class UiWindow : IDisposable
         surface.Canvas.Flush();
 
 
-        return requiresRerender;
+        _renderHappened = requiresRerender;
     }
 
     private void ProcessInputs()
@@ -181,9 +180,11 @@ public partial class UiWindow : IDisposable
         RootContainer.Layout(this);
     }
 
-    private void WaitForNextFrame(bool renderHappened)
+    private bool _renderHappened;
+
+    public void SwapWindow()
     {
-        if(renderHappened)
+        if(_renderHappened)
             SDL_GL_SwapWindow(_windowHandle);
 
         //ToDo
