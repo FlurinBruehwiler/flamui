@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
+using Flamui;
 using Flamui.UiElements;
-using Sample;
 
-namespace Flamui;
+namespace Sample;
 
 public class NodeComponent
 {

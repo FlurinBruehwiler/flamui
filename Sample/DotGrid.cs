@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
+using Flamui;
 using Flamui.UiElements;
 using SkiaSharp;
 
-namespace Flamui;
+namespace Sample;
 
 public class DotGrid : UiElement
 {

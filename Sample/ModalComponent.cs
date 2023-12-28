@@ -1,7 +1,8 @@
 ﻿using System.Numerics;
+using Flamui;
 using Flamui.UiElements;
 
-namespace Flamui;
+namespace Sample;
 
 public class ModalComponent
 {

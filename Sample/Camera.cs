@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
+using Flamui;
 using Flamui.UiElements;
 using SkiaSharp;
 
-namespace Flamui;
+namespace Sample;
 
 public record struct CameraInfo(Vector2 Offset, Vector2 Target, float Zoom)
 {
@@ -31,6 +32,7 @@ public class Camera : UiElementContainer
         CameraInfo = cameraInfo;
         return this;
     }
+
     public CameraInfo CameraInfo { get; set; }
 
     public override void Render(RenderContext renderContext)

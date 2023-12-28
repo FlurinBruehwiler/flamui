@@ -1,7 +1,7 @@
-﻿using Flamui.UiElements;
-using SDL2;
+﻿using Flamui;
+using Flamui.UiElements;
 
-namespace Flamui;
+namespace Sample;
 
 public class DropDown<T> : FlamuiComponent where T : notnull
 {
@@ -77,7 +77,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
             if (_isExpanded)
             {
-                if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+                if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN))
                 {
                     if (_hoveredOption != -1)
                     {
@@ -85,13 +85,13 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                         Close();
                     }
                 }
-                else if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_DOWN))
+                else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_DOWN))
                 {
                     if (_hoveredOption < _filteredOptions.Count - 1)
                     {
                         _hoveredOption++;
                     }
-                }else if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_UP))
+                }else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_UP))
                 {
                     if (_hoveredOption > 0)
                     {

@@ -1,9 +1,10 @@
 ﻿using System.Numerics;
+using Flamui;
 using Flamui.UiElements;
-using Sample;
 using SkiaSharp;
+using Path = Flamui.Path;
 
-namespace Flamui;
+namespace Sample;
 
 public record struct PortPosition(Vector2 Pos, PortDirection Direction);
 
