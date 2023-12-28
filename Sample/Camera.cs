@@ -37,9 +37,11 @@ public class Camera : UiElementContainer
 
     public override void Render(RenderContext renderContext)
     {
+        var matrix = CameraInfo.GetCameraMatrix();
+
         renderContext.Add(new Matrix
         {
-            SkMatrix = CameraInfo.GetCameraMatrix()
+            SkMatrix = matrix
         });
 
         foreach (var uiElement in Children)
@@ -47,7 +49,10 @@ public class Camera : UiElementContainer
             uiElement.Render(renderContext);
         }
 
-        renderContext.Add(new ResetMatrix());
+        renderContext.Add(new Matrix
+        {
+            SkMatrix = matrix.Invert()
+        });
     }
 
     public override void Layout(UiWindow uiWindow)

@@ -312,24 +312,6 @@ public struct Matrix : IRenderable, IMatrixable
     }
 }
 
-public struct ResetMatrix : IRenderable, IMatrixable
-{
-    public void Render(SKCanvas canvas)
-    {
-        canvas.ResetMatrix();
-    }
-
-    public bool UiEquals(IRenderable renderable)
-    {
-        return renderable is ResetMatrix;
-    }
-
-    public SKPoint ProjectPoint(SKPoint poin)
-    {
-        return poin;//todo
-    }
-}
-
 public struct Circle : IRenderable //ToDo, should also be clickable
 {
     public required SKPaint SkPaint;

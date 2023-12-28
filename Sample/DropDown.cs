@@ -15,6 +15,11 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
     public override void Build()
     {
+        if (_filterText is null && Window.TextInput != string.Empty)
+        {
+            _filterText = string.Empty;
+        }
+
         DivStart(out var dropDownDiv).Rounded(2).Height(25).Focusable().Padding(5).BorderColor(C.Border).BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
             HandleStart(dropDownDiv);
 
@@ -75,51 +80,68 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                 DivEnd();
             }
 
-            if (_isExpanded)
-            {
-                if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN))
-                {
-                    if (_hoveredOption != -1)
-                    {
-                        _selectedOption = _filteredOptions[_hoveredOption];
-                        Close();
-                    }
-                }
-                else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_DOWN))
-                {
-                    if (_hoveredOption < _filteredOptions.Count - 1)
-                    {
-                        _hoveredOption++;
-                    }
-                }else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_UP))
-                {
-                    if (_hoveredOption > 0)
-                    {
-                        _hoveredOption--;
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(Window.TextInput) && _filterText is not null)
-                {
-                    UpdateFilteredOptions();
-                }
-            }
-
-            if (dropDownDiv.HasFocusWithin)
-                dropDownDiv.BorderWidth(2).BorderColor(C.Blue);
-
-            if (_isExpanded && !dropDownDiv.HasFocusWithin)
-                Close();
-
-            if (dropDownDiv.Clicked)
-            {
-                if(_isExpanded)
-                    Close();
-                else
-                    Open();
-            }
         DivEnd();
 
+        if (dropDownDiv.HasFocusWithin)
+        {
+            dropDownDiv.BorderWidth(2).BorderColor(C.Blue);
+            if (!_isExpanded && (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN) || Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_SPACE)))
+            {
+                Open();
+                goto end;
+            }
+        }
+
+        if (_isExpanded)
+        {
+            if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN))
+            {
+                if (_hoveredOption != -1)
+                {
+                    _selectedOption = _filteredOptions[_hoveredOption];
+                    Close();
+                    goto end;
+                }
+            }
+            else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_DOWN))
+            {
+                if (_hoveredOption < _filteredOptions.Count - 1)
+                {
+                    _hoveredOption++;
+                }
+            }else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_UP))
+            {
+                if (_hoveredOption > 0)
+                {
+                    _hoveredOption--;
+                }
+            }else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_ESCAPE))
+            {
+                Close();
+                goto end;
+            }
+
+            if (!string.IsNullOrEmpty(Window.TextInput) && _filterText is not null)
+            {
+                UpdateFilteredOptions();
+            }
+        }
+
+        if (_isExpanded && !dropDownDiv.HasFocusWithin)
+        {
+            Close();
+            goto end;
+        }
+
+        if (dropDownDiv.Clicked)
+        {
+            if(_isExpanded)
+                Close();
+            else
+                Open();
+        }
+
+        end:
         _options.Clear();
     }
 

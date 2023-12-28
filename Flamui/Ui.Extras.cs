@@ -66,6 +66,12 @@ public partial class Ui
             if (div.HasFocusWithin)
             {
                 div.BorderColor(C.Blue).BorderWidth(2);
+
+                if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_SPACE) ||
+                    Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN))
+                {
+                    enabled = !enabled;
+                }
             }
 
             if (enabled)
@@ -112,7 +118,7 @@ public partial class Ui
             if (modalInputDiv.HasFocusWithin)
             {
                 modalInputDiv.BorderColor(C.Blue).BorderWidth(2);
-                Input(ref text);
+                Input(ref text, true);
             }
             else
             {
@@ -140,9 +146,9 @@ public partial class Ui
                 if (!string.IsNullOrEmpty(input))
                     text += Window.TextInput;
 
-                if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
+                if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_BACKSPACE))
                 {
-                    if (Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
+                    if (Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LCTRL))
                     {
                         text = text.TrimEnd();
 
