@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using Flamui.UiElements;
 using SkiaSharp;
 
@@ -8,6 +9,7 @@ public partial class UiWindow : IDisposable
 {
     private readonly IntPtr _windowHandle;
     private readonly FlamuiComponent _rootComponent;
+    public readonly IServiceProvider ServiceProvider;
     private readonly IntPtr _openGlContextHandle;
     private readonly GRContext _grContext;
     public uint Id;
@@ -64,11 +66,12 @@ public partial class UiWindow : IDisposable
     public List<UiElement> HoveredElements { get; set; } = new();
     public List<UiElement> OldHoveredElements { get; set; } = new();
 
-    public UiWindow(IntPtr windowHandle, FlamuiComponent rootComponent)
+    public UiWindow(IntPtr windowHandle, FlamuiComponent rootComponent, IServiceProvider serviceProvider)
     {
         _hitTester = new HitTester(this);
         _windowHandle = windowHandle;
         _rootComponent = rootComponent;
+        ServiceProvider = serviceProvider;
         Id = SDL_GetWindowID(_windowHandle);
 
         _openGlContextHandle = SDL_GL_CreateContext(_windowHandle);
@@ -101,11 +104,16 @@ public partial class UiWindow : IDisposable
     {
         Window = this;
 
+
         ProcessInputs();
         HitDetection();
         BuildUi();
         Layout();
+
+
         Render();
+
+
 
         //ToDo cleanup
         _input.OnAfterFrame();
@@ -116,6 +124,7 @@ public partial class UiWindow : IDisposable
             OldHoveredElements.Add(uiContainer);
         }
         HoveredElements.Clear();
+
     }
 
     private void HitDetection()
@@ -141,21 +150,27 @@ public partial class UiWindow : IDisposable
         using var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
         using var surface = SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
-        surface.Canvas.Clear();
-
         var requiresRerender = RenderContext.RequiresRerender(LastRenderContext);
 
+        //todo wtf is happening grrrr it makes 0 sense
         if (requiresRerender)
         {
+            var start = Stopwatch.GetTimestamp();
+
+
+            surface.Canvas.Clear();
+
             RenderContext.Rerender(surface.Canvas);
+
+            surface.Canvas.Flush();
+
+            Console.WriteLine(Stopwatch.GetElapsedTime(start).TotalMilliseconds);
+
         }
 
         LastRenderContext.Reset();
         //swap Render Contexts
         (LastRenderContext, RenderContext) = (RenderContext, LastRenderContext);
-
-        surface.Canvas.Flush();
-
 
         _renderHappened = requiresRerender;
     }
@@ -165,8 +180,6 @@ public partial class UiWindow : IDisposable
         _input.HandleEvents(Events);
         _tabIndexManager.HandleTab();
     }
-
-
 
     private void BuildUi()
     {

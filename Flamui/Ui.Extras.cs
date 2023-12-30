@@ -58,7 +58,7 @@ public partial class Ui
         [CallerLineNumber] int line = -1)
     {
         DivStart(out var div, key, path, line).Height(15).Focusable().Width(15).Color(C.Background).BorderColor(C.Border).BorderWidth(1).Rounded(2);
-            if (div.Clicked)
+            if (div.IsClicked)
             {
                 enabled = !enabled;
             }
@@ -107,7 +107,7 @@ public partial class Ui
             Text(text).VAlign(TextAlign.Center).HAlign(TextAlign.Center);
         DivEnd();
 
-        return btn.Clicked;
+        return btn.IsClicked;
     }
 
     public static UiContainer StyledInput(ref string text, string placeholder = "", string key = "",

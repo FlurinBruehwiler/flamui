@@ -66,8 +66,9 @@ public class RenderContext
 
     public void Rerender(SKCanvas canvas)
     {
-        // Console.WriteLine($"Rerender: {++rerenderCount}");
-        foreach (var (_, value) in RenderSections.OrderBy(x => x.Key))
+        var sections = RenderSections.OrderBy(x => x.Key).ToList();
+
+        foreach (var (_, value) in sections)
         {
             value.Render(canvas);
         }
@@ -86,8 +87,7 @@ public class RenderContext
 
 public class RenderSection
 {
-    public List<IRenderable> Renderables = new();
-    public List<ValueType> PerformantRenderables = new();
+    public List<IRenderable> Renderables = new(1000);
 
     public void Render(SKCanvas canvas)
     {

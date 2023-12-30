@@ -7,7 +7,7 @@ public class FlamuiSynchronizationContext : SynchronizationContext
         if (Current is FlamuiSynchronizationContext)
             return;
 
-        SetSynchronizationContext(new FlamuiSynchronizationContext());
+        // SetSynchronizationContext(new FlamuiSynchronizationContext());
     }
 
     //non blocking, i.e. return immediately

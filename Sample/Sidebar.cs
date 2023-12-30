@@ -35,7 +35,7 @@ public class Sidebar : FlamuiComponent
             {
                 DivStart(out var toolWindow, _side.ToString()).ZIndex(1).BlockHit().Color(C.Background).BorderWidth(1).BorderColor(20, 20, 20);
 
-                    DivStart(out var dragZone).Absolute().Width(4).BlockHit();
+                    DivStart(out var dragZone).Absolute().Width(4).BlockHit().Color(0, 0, 0, 0);
                         if (_side == SidebarSide.Left)
                             dragZone.Absolute(right: -2);
                         else

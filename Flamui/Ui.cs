@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Flamui.UiElements;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Flamui;
 
@@ -11,7 +12,7 @@ public class SubStack
 
 public static partial class Ui
 {
-    public static Stack<ValueTuple<FlamuiComponent, bool>> OpenComponents = new();
+    public static Stack<ValueTuple<IFlamuiComponent, bool>> OpenComponents = new();
     public static Stack<UiElementContainer> OpenElementStack = new();
     public static UiWindow Window = null!;
     public static UiContainer Root = null!;
@@ -100,32 +101,60 @@ public static partial class Ui
         }
 
         wasNewlyCreated = true;
-        var newData = Activator.CreateInstance(type);
+        var newData = ActivatorUtilities.CreateInstance(Window.ServiceProvider, type);
         if (newData is null)
             throw new Exception();
         parentContainer.Data.Add(new Data(newData, id));
+
+        if (newData is IFlamuiComponent flamuiComponent)
+        {
+            flamuiComponent.OnInitialized();//todo make betta :)
+        }
+
         return newData;
     }
 
     public static T StartComponent<T>(out T component, string key = "",
         [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : FlamuiComponent
+        [CallerLineNumber] int line = -1) where T : OpenCloseComponent
     {
         component = (T)GetComponentInternal(typeof(T), new UiElementId(key, path, line), out var isNew);
         OpenComponents.Push((component, isNew));
+        component.Open();
         return component;
     }
 
-    public static T EndComponent<T>() where T : FlamuiComponent
+    public static T StartComponent<T, TParameter>(out T component, TParameter parameter, string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1) where T : OpenCloseComponent<TParameter>
     {
-        var (component, isNew) = OpenComponents.Pop();
-        if (isNew)
-        {
-            component.OnInitialized();
-        }
+        component = (T)GetComponentInternal(typeof(T), new UiElementId(key, path, line), out var isNew);
+        component.Parameteres = parameter;
+        OpenComponents.Push((component, isNew));
+        component.Open();
+        return component;
+    }
 
-        component.Build();
-        return (T)component;
+    public static T EndComponent<T>() where T : OpenCloseComponent
+    {
+        var (component, _) = OpenComponents.Pop();
+
+        var t = (T)component;
+
+        t.Close();
+
+        return t;
+    }
+
+    public static T EndComponent<T, TParameter>() where T : OpenCloseComponent<TParameter>
+    {
+        var (component, _) = OpenComponents.Pop();
+
+        var t = (T)component;
+
+        t.Close();
+
+        return t;
     }
 
     public static T Get<T>(string key = "",

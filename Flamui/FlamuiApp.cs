@@ -12,7 +12,8 @@ public class FlamuiApp
     {
         services.AddSingleton(this);
 
-        Services = services.BuildServiceProvider();
+        var rootProvider = services.BuildServiceProvider();
+        Services = rootProvider.CreateScope().ServiceProvider;
 
         var uiThread = new Thread(_eventLoop.RunUiThread);
         Dispatcher.UIThread = new Dispatcher(uiThread);
@@ -40,7 +41,7 @@ public class FlamuiApp
 
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            _eventLoop.Windows.Add(new UiWindow(windowHandle, rootComponent));
+            _eventLoop.Windows.Add(new UiWindow(windowHandle, rootComponent, Services));
         });
     }
 

@@ -10,7 +10,7 @@ public partial class UiContainer : UiElementContainer
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
 
-    public bool Clicked
+    public bool IsClicked
     {
         get
         {
