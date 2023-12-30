@@ -10,8 +10,4 @@
       <ProjectReference Include="..\Flamui\Flamui.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Graph\" />
-    </ItemGroup>
-
 </Project>
