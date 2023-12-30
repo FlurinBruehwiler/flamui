@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flamui", "Flamui\Flamui.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample", "Sample\Sample.csproj", "{D837AA01-1805-43DC-A7CE-D38BF78DC127}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flamui.Components", "Flamui.Components\Flamui.Components.csproj", "{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{D837AA01-1805-43DC-A7CE-D38BF78DC127}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D837AA01-1805-43DC-A7CE-D38BF78DC127}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D837AA01-1805-43DC-A7CE-D38BF78DC127}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
