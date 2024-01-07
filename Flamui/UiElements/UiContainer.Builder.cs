@@ -54,6 +54,13 @@ public partial class UiContainer
         return this;
     }
 
+    public UiContainer Border(int borderWidth, ColorDefinition color)
+    {
+        PBorderWidth = borderWidth;
+        PBorderColor = color;
+        return this;
+    }
+
     // public UiContainer MAlign(MAlign mAlign)
     // {
     //     PmAlign = mAlign;
@@ -117,6 +124,12 @@ public partial class UiContainer
     public UiContainer Height(float height)
     {
         PHeight = new SizeDefinition(height, SizeKind.Pixel);
+        return this;
+    }
+
+    public UiContainer ShrinkHeight()
+    {
+        PShrinkHeight = true;
         return this;
     }
 

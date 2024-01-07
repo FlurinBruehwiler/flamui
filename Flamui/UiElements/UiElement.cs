@@ -19,8 +19,8 @@ public abstract class UiElement : IData
     public UiElementId Id { get; set; }
     public UiElementContainer Parent { get; set; }
     public SizeDefinition PWidth { get; set; } = new(100, SizeKind.Percentage);
-
     public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
+    public bool PShrinkHeight { get; set; }
 
     public Bounds ComputedBounds;
 

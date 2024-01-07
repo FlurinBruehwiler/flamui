@@ -11,4 +11,8 @@
       <ProjectReference Include="..\Flamui.Components\Flamui.Components.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="ClrHeapAllocationAnalyzer" Version="3.0.0" />
+    </ItemGroup>
+
 </Project>

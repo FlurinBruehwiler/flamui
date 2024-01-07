@@ -1,5 +1,4 @@
-﻿using Flamui;
-using Sample.ToolWindows;
+using Flamui;
 
 namespace Sample;
 
@@ -7,21 +6,16 @@ public class RootComponent : FlamuiComponent
 {
     public override void Build()
     {
-        DivStart().Dir(Dir.Horizontal);
+        DivStart().Padding(10);
+            DivStart().Gap(10).Padding(10).Border(2, C.Blue).ShrinkHeight();
+            for (var i = 0; i < 10; i++)
+            {
+                var key = S(i, static x => x.ToString());
+                DivStart(key).Height(50).Border(2, C.Blue).Rounded(3);
 
-            StartComponent<Sidebar>(out var l).Side(SidebarSide.Left);
-                l.ToolWindow<FilePicker>("folder");
-                l.ToolWindow<History>("history");
-                l.ToolWindow<DetailView>("account_tree");
-            EndComponent<Sidebar>();
-
-            GetComponent<NodeGraph>().Build();
-
-            StartComponent<Sidebar>(out var r).Side(SidebarSide.Right);
-                r.ToolWindow<DetailView>("info");
-                r.ToolWindow<DetailView>("shelves");
-            EndComponent<Sidebar>();
-
+                DivEnd();
+            }
+            DivEnd();
         DivEnd();
     }
 }

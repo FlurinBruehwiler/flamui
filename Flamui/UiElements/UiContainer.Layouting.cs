@@ -19,6 +19,10 @@ public partial class UiContainer
 
     private void ComputeSize()
     {
+        //1. layout() fixed size and shrinkable children
+        //2. Calculate size of remaining percentage based children
+        //3. layout() percentage children
+
         switch (PDir)
         {
             case EnumDir.Horizontal or EnumDir.RowReverse:
@@ -122,7 +126,6 @@ public partial class UiContainer
             _ => throw new ArgumentOutOfRangeException()
         };
     }
-
 
     private void ComputeColumnSize()
     {
