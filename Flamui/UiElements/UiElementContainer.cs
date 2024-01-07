@@ -2,16 +2,14 @@
 
 namespace Flamui.UiElements;
 
-public record struct Data(object Obj, UiElementId Id);
-
 public abstract class UiElementContainer : UiElement
 {
     public List<UiElement> Children { get; set; } = new();
     public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
     private Dictionary<UiElementId, object>? _oldDataById;
-    private List<Data>? _data;
+    private  Dictionary<UiElementId, object>? _data;
     public Dictionary<UiElementId, object> OldDataById => _oldDataById ??= new Dictionary<UiElementId, object>();
-    public List<Data> Data => _data ??= new List<Data>();//maybe change do dictionary, but maybe this is slower, should benchmark it
+    public Dictionary<UiElementId, object> Data => _data ??= new  Dictionary<UiElementId, object>();//maybe change do dictionary, but maybe this is slower, should benchmark it
 
     public T AddChild<T>(UiElementId uiElementId) where T : UiElement, new()
     {
@@ -50,7 +48,7 @@ public abstract class UiElementContainer : UiElement
         OldDataById.Clear();
         foreach (var o in Data)
         {
-            OldDataById.Add(o.Id, o.Obj);
+            OldDataById.Add(o.Key, o.Value);
         }
 
         Data.Clear();

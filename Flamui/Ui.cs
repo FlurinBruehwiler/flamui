@@ -96,7 +96,7 @@ public static partial class Ui
         var parentContainer = OpenElementStack.Peek();
         if (parentContainer.OldDataById.TryGetValue(id, out var data))
         {
-            parentContainer.Data.Add(new Data(data, id));
+            parentContainer.Data.Add(id, data);
             return data;
         }
 
@@ -104,7 +104,7 @@ public static partial class Ui
         var newData = ActivatorUtilities.CreateInstance(Window.ServiceProvider, type);
         if (newData is null)
             throw new Exception();
-        parentContainer.Data.Add(new Data(newData, id));
+        parentContainer.Data.Add(id, newData);
 
         if (newData is IFlamuiComponent flamuiComponent)
         {
@@ -155,6 +155,27 @@ public static partial class Ui
         t.Close();
 
         return t;
+    }
+
+    public static T GetData<T>(T initialValue, out UiElementId id, string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1) where T : notnull
+    {
+        id = new UiElementId(key, path, line);
+        var parentContainer = OpenElementStack.Peek();
+        if (parentContainer.OldDataById.TryGetValue(id, out var data))
+        {
+            parentContainer.Data.Add(id, data);
+            return (T)data;
+        }
+        parentContainer.Data.Add(id, initialValue);
+        return initialValue;
+    }
+
+    public static void SetData<T>(string value, UiElementId id) where T : notnull
+    {
+        var parentContainer = OpenElementStack.Peek();
+        parentContainer.Data[id] = value;
     }
 
     public static T Get<T>(string key = "",
