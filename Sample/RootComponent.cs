@@ -7,10 +7,10 @@ public class RootComponent : FlamuiComponent
     private readonly Queue<(int, int)> _snake = new();
     private (int, int) _head;
 
-    private (int, int) direction;
+    private (int, int) _direction;
 
-    private int counter;
-    private (int, int) food;
+    private int _counter;
+    private (int, int) _food;
 
     public RootComponent()
     {
@@ -22,28 +22,28 @@ public class RootComponent : FlamuiComponent
         _snake.Clear();
         _head = (5, 5);
         _snake.Enqueue(_head);
-        food = (1, 8);
-        direction = (0, 1);
+        _food = (1, 8);
+        _direction = (0, 1);
     }
 
-    private const int width = 20;
-    private const int height = 10;
+    private const int Width = 20;
+    private const int Height = 10;
 
     private void Move()
     {
-        _head = (_head.Item1 + direction.Item1, _head.Item2 + direction.Item2);
-        if (_head.Item1 == width)
+        _head = (_head.Item1 + _direction.Item1, _head.Item2 + _direction.Item2);
+        if (_head.Item1 == Width)
         {
             _head.Item1 = 0;
         }else if (_head.Item1 == -1)
         {
-            _head.Item1 = width - 1;
-        }else if (_head.Item2 == height)
+            _head.Item1 = Width - 1;
+        }else if (_head.Item2 == Height)
         {
             _head.Item2 = 0;
         }else if (_head.Item2 == -1)
         {
-            _head.Item2 = height - 1;
+            _head.Item2 = Height - 1;
         }
 
         if (_snake.Contains(_head))
@@ -55,45 +55,45 @@ public class RootComponent : FlamuiComponent
 
     public override void Build()
     {
-        if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_W) && direction != (0, 1))
+        if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_W) && _direction != (0, 1))
         {
-            direction = (0, -1);
+            _direction = (0, -1);
         }
-        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_S) && direction != (0, -1))
+        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_S) && _direction != (0, -1))
         {
-            direction = (0, 1);
+            _direction = (0, 1);
         }
-        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_D) && direction != (-1, 0))
+        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_D) && _direction != (-1, 0))
         {
-            direction = (1, 0);
+            _direction = (1, 0);
         }
-        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_A) && direction != (1, 0))
+        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_A) && _direction != (1, 0))
         {
-            direction = (-1, 0);
+            _direction = (-1, 0);
         }
 
-        counter++;
-        if (counter == 10)
+        _counter++;
+        if (_counter == 10)
         {
-            counter = 0;
+            _counter = 0;
 
             _snake.Dequeue();
             Move();
         }
 
-        if (_snake.Contains(food))
+        if (_snake.Contains(_food))
         {
             Move();
-            food = (Random.Shared.Next(0, width), Random.Shared.Next(0, height));
+            _food = (Random.Shared.Next(0, Width), Random.Shared.Next(0, Height));
         }
 
         DivStart().Padding(20);
             DivStart().Gap(10).Padding(50).Border(2, C.Blue);
-            for (var y = 0; y < height; y++)
+            for (var y = 0; y < Height; y++)
             {
                 var key = S(y, static x => x.ToString());
                 DivStart(key).Height(50).Rounded(3).Color(C.Transparent).Dir(Dir.Horizontal).Gap(10);
-                    for (var x = 0; x < width; x++)
+                    for (var x = 0; x < Width; x++)
                     {
                         var innerkey = S(x, static x => x.ToString());
                         DivStart(out var div, innerkey).Height(50).Width(50).Border(2, C.Border).Rounded(3).Color(C.Transparent).Focusable().Padding(5);
@@ -107,7 +107,7 @@ public class RootComponent : FlamuiComponent
                                 div.Color(0, 0, 255);
                             }
 
-                            if (food == (x, y))
+                            if (_food == (x, y))
                             {
                                 div.Color(200, 0, 0);
                             }
