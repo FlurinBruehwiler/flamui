@@ -2,7 +2,6 @@ using System.Diagnostics;
 using Flamui;
 using Flamui.Components;
 using Flamui.UiElements;
-using Text = Flamui.Text;
 
 namespace Sample.TimeTracker;
 
@@ -10,7 +9,6 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
 {
     private string _newEntryName = string.Empty;
     private TimeTrackEntry? _activeTimeTrackEntry;
-    private bool _isPaused = false;
 
     public override void Build()
     {
@@ -57,8 +55,13 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
 
             if (_activeTimeTrackEntry is null)
             {
-                DivStart().Height(0); //ugly
+                DivStart().Height(20); //ugly
                     Text("No entry active!").Color(200, 0, 0).VAlign(TextAlign.Center);
+                DivEnd();
+            }
+            else
+            {
+                DivStart().Height(20); //ugly
                 DivEnd();
             }
 
