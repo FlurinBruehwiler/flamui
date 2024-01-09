@@ -29,6 +29,14 @@ public partial class UiContainer : UiElementContainer
         }
     }
 
+    public bool IsDoubleClicked
+    {
+        get
+        {
+            return true;
+        }
+    }
+
     public int PZIndex { get; set; }
     public bool PFocusable { get; set; }
     public bool IsNew { get; set; } = true;

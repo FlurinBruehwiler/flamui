@@ -24,7 +24,7 @@ public class DropDown<T> : OpenCloseComponent where T : notnull
             _filterText = string.Empty;
         }
 
-        DivStart(out var dropDownDiv).Rounded(2).Height(25).Focusable().Padding(5).BorderColor(C.Border).BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
+        DivStart(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(C.Border).BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
             HandleStart(dropDownDiv);
 
             Text(_selectedOption?.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);

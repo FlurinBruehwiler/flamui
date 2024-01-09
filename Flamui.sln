@@ -5,9 +5,13 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flamui", "Flamui\Flamui.csproj", "{83D3FFE3-9F15-4D48-98FB-256FD0366FDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample", "Sample\Sample.csproj", "{D837AA01-1805-43DC-A7CE-D38BF78DC127}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Snake", "Sample.Snake\Sample.Snake.csproj", "{D837AA01-1805-43DC-A7CE-D38BF78DC127}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flamui.Components", "Flamui.Components\Flamui.Components.csproj", "{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{9C94658C-B59B-4FC7-AAC4-837C0D481C45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.TimeTracker", "Sample.TimeTracker\Sample.TimeTracker.csproj", "{713407E2-984B-42B4-9AF4-DBF151175EC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +34,13 @@ Global
 		{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA54FD3D-15A4-4A05-8E3F-407E6D950D4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{713407E2-984B-42B4-9AF4-DBF151175EC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{713407E2-984B-42B4-9AF4-DBF151175EC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{713407E2-984B-42B4-9AF4-DBF151175EC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{713407E2-984B-42B4-9AF4-DBF151175EC1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D837AA01-1805-43DC-A7CE-D38BF78DC127} = {9C94658C-B59B-4FC7-AAC4-837C0D481C45}
+		{713407E2-984B-42B4-9AF4-DBF151175EC1} = {9C94658C-B59B-4FC7-AAC4-837C0D481C45}
 	EndGlobalSection
 EndGlobal

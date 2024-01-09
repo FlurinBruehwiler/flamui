@@ -256,6 +256,7 @@ public struct Picture : IRenderable //ToDo, should also be clickable
 {
     public required SKPicture SkPicture;
     public required SKMatrix SkMatrix;
+    public required string Src;
 
     public void Render(SKCanvas canvas)
     {
@@ -264,7 +265,10 @@ public struct Picture : IRenderable //ToDo, should also be clickable
 
     public bool UiEquals(IRenderable renderable)
     {
-        return renderable is Picture;
+        if (renderable is not Picture pic)
+            return false;
+
+        return pic.Src == Src;
     }
 }
 

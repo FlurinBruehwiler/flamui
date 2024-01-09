@@ -2,6 +2,16 @@
 
 namespace Flamui;
 
+public class WindowOptions
+{
+    public int Width { get; set; } = 1800;
+    public int Height { get; set; } = 900;
+    public SizeConstraint? MinSize { get; set; }
+    public SizeConstraint? MaxSize { get; set; }
+}
+
+public record class SizeConstraint(int Width, int Height);
+
 public class FlamuiApp
 {
     public IServiceProvider Services { get; private set; }
@@ -20,14 +30,26 @@ public class FlamuiApp
         uiThread.Start();
     }
 
-    public void CreateWindow<TRootComponent>(string title) where TRootComponent : FlamuiComponent
+    public void CreateWindow<TRootComponent>(string title, WindowOptions? options = null) where TRootComponent : FlamuiComponent
     {
+        options ??= new WindowOptions();
+
         var windowHandle = SDL_CreateWindow(title,
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
-            1800,
-            900,
+            options.Width,
+            options.Height,
             SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+
+        if (options.MinSize is not null)
+        {
+            SDL_SetWindowMinimumSize(windowHandle, options.MinSize.Width, options.MinSize.Height);
+        }
+
+        if (options.MaxSize is not null)
+        {
+            SDL_SetWindowMaximumSize(windowHandle, options.MaxSize.Width, options.MaxSize.Height);
+        }
 
         if (windowHandle == IntPtr.Zero)
         {

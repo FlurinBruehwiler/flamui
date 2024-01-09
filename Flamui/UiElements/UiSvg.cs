@@ -55,7 +55,8 @@ public class UiSvg : UiElement
         renderContext.Add(new Picture
         {
             SkPicture = SSvgCache[Src].Picture!,
-            SkMatrix = matrix
+            SkMatrix = matrix,
+            Src = Src
         });
     }
 

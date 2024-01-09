@@ -5,7 +5,7 @@ var builder = FlamuiApp.CreateBuilder();
 
 var app = builder.Build();
 
-app.CreateWindow<RootComponent>("Sample");
+app.CreateWindow<RootComponent>("Sample.Snake");
 
 app.Run();
 

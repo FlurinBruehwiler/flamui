@@ -12,7 +12,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="ClrHeapAllocationAnalyzer" Version="3.0.0" />
+      <None Update="Icons\*.svg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

@@ -155,7 +155,7 @@ public partial class UiWindow : IDisposable
         //todo wtf is happening grrrr it makes 0 sense
         if (requiresRerender)
         {
-            var start = Stopwatch.GetTimestamp();
+            // var start = Stopwatch.GetTimestamp();
 
 
             surface.Canvas.Clear();
@@ -164,7 +164,7 @@ public partial class UiWindow : IDisposable
 
             surface.Canvas.Flush();
 
-            Console.WriteLine(Stopwatch.GetElapsedTime(start).TotalMilliseconds);
+            // Console.WriteLine(Stopwatch.GetElapsedTime(start).TotalMilliseconds);
 
         }
 

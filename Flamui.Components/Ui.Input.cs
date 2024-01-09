@@ -6,7 +6,7 @@ namespace Flamui.Components;
 
 public static partial class Ui
 {
-    public static void Input(ref string text, bool hasFocus = false, string key = "",
+    public static UiText Input(ref string text, bool hasFocus = false, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
@@ -45,8 +45,10 @@ public static partial class Ui
             }
         }
 
-        Text(text).VAlign(TextAlign.Center).Color(C.Text);
+        var txt = Text(text).VAlign(TextAlign.Center).Color(C.Text);
 
         DivEnd();
+
+        return txt;
     }
 }
