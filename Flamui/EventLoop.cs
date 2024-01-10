@@ -59,6 +59,8 @@ public class EventLoop
         }
 
         SDL_Quit();
+
+        Environment.Exit(0);
     }
 
     private UiWindow? GetWindow(uint windowId)

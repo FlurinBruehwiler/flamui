@@ -14,7 +14,7 @@ public class TimeTrackEntry(string name)
 
     public void Deactivate()
     {
-        SpentTime = DateTime.Now - ActiveSince!.Value;
+        SpentTime += DateTime.Now - ActiveSince!.Value;
         ActiveSince = null;
     }
 
