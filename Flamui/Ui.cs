@@ -75,7 +75,7 @@ public static partial class Ui
 
     public static T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
+        [CallerLineNumber] int line = -1) where T : IFlamuiComponent
     {
         var id = new UiElementId(key, path, line);
         return (T)GetComponentInternal(typeof(T), id, out _);
