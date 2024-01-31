@@ -1,4 +1,5 @@
 ﻿using Flamui;
+using Sample.ComponentGallery;
 
 var builder = FlamuiApp.CreateBuilder();
 
@@ -8,12 +9,4 @@ app.CreateWindow<RootComponent>("Sample.ComponentGallery");
 
 app.Run();
 
-public partial class RootComponent : FlamuiComponent
-{
-    public required string Input { get; set; }
 
-    public override void Build()
-    {
-
-    }
-}

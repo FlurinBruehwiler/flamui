@@ -10,8 +10,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Flamui.SourceGenerators\Flamui.SourceGenerators.csproj" 
-                        PrivateAssets="all"
-                        ExcludeAssets="compile;runtime" />
+                        OutputItemType="Analyzer"
+                        ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\Flamui\Flamui.csproj" />
     </ItemGroup>
 
