@@ -67,10 +67,10 @@ public class MethodGenerator : IIncrementalGenerator
 
             var hasRequiredModifier = HasModifier(propertySyntax, SyntaxKind.RequiredKeyword);
 
-            parameters.Add(new ComponentParameter(propertySyntax.Identifier.Text, propertyType, hasRequiredModifier));
+            parameters.Add(new ComponentParameter(propertySyntax.Identifier.Text, propertyType, hasRequiredModifier, true));
         }
 
-        return new ComponentParameters(classDeclarationSyntax.Identifier.Text, parameters);
+        return new ComponentParameters(classDeclarationSyntax.Identifier.Text, GetNamespace(classDeclarationSyntax), parameters);
     }
 
     //todo
@@ -142,7 +142,7 @@ public class MethodGenerator : IIncrementalGenerator
             // generate the source code and add it to the output
             string result = SourceGenerationHelper.GenerateExtensionClass(value);
             // Create a separate partial class file for each enum
-            context.AddSource($"FlamuiSourceGenerators.{value.Name}.g.cs", SourceText.From(result, Encoding.UTF8));
+            context.AddSource($"FlamuiSourceGenerators.{value.ComponentName}.g.cs", SourceText.From(result, Encoding.UTF8));
         }
     }
 
@@ -151,11 +151,11 @@ public class MethodGenerator : IIncrementalGenerator
     {
         // If we don't have a namespace at all we'll return an empty string
         // This accounts for the "default namespace" case
-        string nameSpace = string.Empty;
+        var nameSpace = string.Empty;
 
         // Get the containing syntax node for the type declaration
         // (could be a nested type, for example)
-        SyntaxNode? potentialNamespaceParent = syntax.Parent;
+        var potentialNamespaceParent = syntax.Parent;
 
         // Keep moving "out" of nested classes etc until we get to a namespace
         // or until we run out of parents

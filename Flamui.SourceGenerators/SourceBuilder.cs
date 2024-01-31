@@ -63,6 +63,13 @@ public class SourceBuilder
         return this;
     }
 
+    public SourceBuilder AppendFormat(string format, object arg0, object arg1, object arg2, object arg3)
+    {
+        AppendIndent();
+        _sb.AppendFormat(format, arg0, arg1, arg2, arg3);
+        return this;
+    }
+
     private void AppendIndent()
     {
         if (_isEmptyLine)

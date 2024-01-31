@@ -8,6 +8,12 @@ namespace Flamui;
 [System.AttributeUsage(System.AttributeTargets.Property)]
 public class ParameterAttribute : System.Attribute
 {
+
+    public ParameterAttribute(bool isRef = false)
+    {
+
+    }
+
 }
 ";
 
@@ -15,14 +21,16 @@ public class ParameterAttribute : System.Attribute
     {
         var sb = new SourceBuilder();
 
-        sb.AppendLine("namespace Sample.ComponentGallery;");
+        sb.AppendFormat("namespace {0};", componentParameters.ComponentNamespace).AppendLine();
         sb.AppendLine();
 
-        sb.Append("public partial class ").AppendLine(componentParameters.Name);
+        sb.AppendFormat("public partial struct {0}Builder", componentParameters.ComponentName).AppendLine();
         sb.AppendLine("{");
         sb.AddIndent();
 
-        BuildCreateMethod(sb, componentParameters);
+        BuildFields(sb, componentParameters);
+
+        BuildConstructor(sb, componentParameters);
 
         foreach (var parameter in componentParameters.Parameters.AsSpan())
         {
@@ -31,8 +39,10 @@ public class ParameterAttribute : System.Attribute
 
             sb.AppendLine();
 
-            BuildExtensionMethod(sb, parameter, componentParameters.Name);
+            BuildParameterMethods(sb, parameter, componentParameters.ComponentName);
         }
+
+        BuildBuildMethod(sb, componentParameters);
 
         sb.RemoveIndent();
         sb.AppendLine("}");
@@ -40,15 +50,14 @@ public class ParameterAttribute : System.Attribute
         return sb.ToString();
     }
 
-    private static void BuildExtensionMethod(SourceBuilder sb, ComponentParameter parameter, string typeName)
+    private static void BuildParameterMethods(SourceBuilder sb, ComponentParameter parameter, string typeName)
     {
 
-        sb.AppendFormat("public {0} Set{1}({2} value)", typeName, parameter.Name, parameter.Type);
+        sb.AppendFormat("public unsafe {0}Builder {1}({2}{3} value)", typeName, parameter.Name, parameter.IsRef ? "ref " : string.Empty, parameter.Type);
         sb.AppendLine("{");
         sb.AddIndent();
 
-        sb.AppendFormat("this.{0} = value;", parameter.Name);
-        sb.AppendLine();
+        BuildFieldAssignement(sb, parameter);
 
         sb.AppendLine("return this;");
 
@@ -56,19 +65,33 @@ public class ParameterAttribute : System.Attribute
         sb.AppendLine("}");
     }
 
-    private static void BuildCreateMethod(SourceBuilder sb, ComponentParameters componentParameters)
+
+    private static void BuildFields(SourceBuilder sb, ComponentParameters componentParameters)
     {
-        sb.AppendFormat("public static {0} Create(", componentParameters.Name);
+        sb.AppendFormat("private {0} _component;", componentParameters.ComponentName);
+
+        foreach (var parameter in componentParameters.Parameters.AsSpan())
+        {
+            if (parameter.IsRef)
+            {
+                sb.AppendFormat("private {0}* {1};", parameter.Type, parameter.Name);
+            }
+        }
+    }
+
+    private static void BuildConstructor(SourceBuilder sb, ComponentParameters componentParameters)
+    {
+        sb.AppendFormat("public {0}Builder(", componentParameters.ComponentName);
 
         bool isFirstParameter = true;
-        bool test = false;
+        bool hasAnyParameters = false;
 
         foreach (var parameter in componentParameters.Parameters.AsSpan())
         {
             if(!parameter.Mandatory)
                 continue;
 
-            test = true;
+            hasAnyParameters = true;
 
             if (!isFirstParameter)
             {
@@ -81,7 +104,7 @@ public class ParameterAttribute : System.Attribute
             sb.Append(parameter.Name);
         }
 
-        if (test)
+        if (hasAnyParameters)
         {
             sb.Append(", ");
         }
@@ -91,7 +114,7 @@ public class ParameterAttribute : System.Attribute
         sb.AddIndent();
 
         //body
-        sb.AppendFormat("{0} component = Flamui.Ui.GetComponent<{0}>(key, path, line);", componentParameters.Name);
+        sb.AppendFormat("_component = Flamui.Ui.GetComponent<{0}>(key, path, line);", componentParameters.ComponentName);
         sb.AppendLine();
 
         foreach (var parameter in componentParameters.Parameters.AsSpan())
@@ -99,13 +122,46 @@ public class ParameterAttribute : System.Attribute
             if(!parameter.Mandatory)
                 continue;
 
-            sb.AppendFormat("component.{0} = {1};", parameter.Name, parameter.Name);
-            sb.AppendLine();
+            BuildFieldAssignement(sb, parameter);
         }
-
-        sb.AppendLine("return component;");
 
         sb.RemoveIndent();
         sb.AppendLine("}");
+    }
+
+    private static void BuildFieldAssignement(SourceBuilder sb, ComponentParameter componentParameter)
+    {
+        sb.AppendFormat("_component.{0} = {0};", componentParameter.Name, componentParameter.Name).AppendLine();
+
+        if (!componentParameter.IsRef)
+            return;
+
+        sb.AppendFormat("fixed ({0}* ptr = &{1})", componentParameter.Type, componentParameter.Name).AppendLine();
+        sb.AppendLine("{");
+        sb.AddIndent();
+
+        sb.AppendFormat("_{0} = ptr;", componentParameter.Name);
+
+        sb.RemoveIndent();
+        sb.AppendLine("}");
+        sb.AppendLine();
+    }
+
+    private static void BuildBuildMethod(SourceBuilder sb, ComponentParameters parameters)
+    {
+        sb.AppendLine();
+        sb.AppendLine("public void Build()");
+        sb.AppendLine("{");
+        sb.AddIndent();
+
+        sb.AppendLine("_component.Build();");
+
+        foreach (var parameter in parameters.Parameters.AsSpan())
+        {
+            if (parameter.IsRef)
+            {
+                sb.AppendFormat("_component.{0} = *_{0};", parameter.Name);
+            }
+        }
     }
 }
