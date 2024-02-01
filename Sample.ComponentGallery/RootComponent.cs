@@ -13,7 +13,7 @@ public class Parameter2Attribute : System.Attribute
 
 public partial class RootComponent : FlamuiComponent
 {
-    [Parameter2(true)]
+    [Parameter2(isRef:true)]
     public required string Input { get; set; }
 
     [Parameter]
@@ -22,8 +22,6 @@ public partial class RootComponent : FlamuiComponent
     public override void Build()
     {
     }
-
-
 }
 
 public unsafe partial struct RootComponentBuilder

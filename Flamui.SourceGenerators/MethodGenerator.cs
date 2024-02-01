@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -6,9 +7,13 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Flamui.SourceGenerators;
 
+// https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md
+
 [Generator]
 public class MethodGenerator : IIncrementalGenerator
 {
+    private const string EnumExtensionsAttribute = "Flamui.ParameterAttribute";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Add the marker attribute to the compilation
@@ -16,13 +21,19 @@ public class MethodGenerator : IIncrementalGenerator
             "EnumExtensionsAttribute.g.cs",
             SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
 
-        IncrementalValuesProvider<ComponentParameters?> componentsToGenerate = context.SyntaxProvider.CreateSyntaxProvider(
+        var componentsToGenerate = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: Filter, transform: Transform)
             .Where(static m => m is not null);
 
+        var compilationAndComponents
+            = context.CompilationProvider.Combine(componentsToGenerate.Collect());
+
         // Generate source code for each enum found
-        context.RegisterSourceOutput(componentsToGenerate,
-            static (spc, source) => Execute(source, spc));
+        context.RegisterSourceOutput(compilationAndComponents,
+            static (spc, source) =>
+            {
+                Execute(source.Compilation, source.Components, spc);
+            });
     }
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
@@ -30,7 +41,7 @@ public class MethodGenerator : IIncrementalGenerator
         return syntaxNode is ClassDeclarationSyntax { BaseList.Types.Count: >= 1 };
     }
 
-    private ComponentParameters? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
+    private PropertyDeclarationSyntax? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
     {
         var classDeclarationSyntax = (ClassDeclarationSyntax)syntaxContext.Node;
 
@@ -41,14 +52,15 @@ public class MethodGenerator : IIncrementalGenerator
         {
             if (IsInheritingFrom(baseTypeSyntax, "FlamuiComponent"))
             {
-                return GetComponentParameters(classDeclarationSyntax);
+                return GetComponentParameters(classDeclarationSyntax, syntaxContext.SemanticModel);
             }
         }
 
         return null;
     }
 
-    private ComponentParameters? GetComponentParameters(ClassDeclarationSyntax classDeclarationSyntax)
+    private ComponentParameters? GetComponentParameters(ClassDeclarationSyntax classDeclarationSyntax,
+        SemanticModel semanticModel)
     {
         if (classDeclarationSyntax.Members.Count == 0)
             return null;
@@ -60,17 +72,24 @@ public class MethodGenerator : IIncrementalGenerator
             if(member is not PropertyDeclarationSyntax propertySyntax)
                 continue;
 
-            if (!TryGetAttribute(propertySyntax, "Parameter", out var attribute)) //todo, check if parameter is a "ref"
+            if (!TryGetAttribute(propertySyntax, "Parameter", semanticModel, out var attribute)) //todo, check if parameter is a "ref"
                 continue;
+
+            var isRef = IsRefParameter(attribute);
 
             var propertyType = GetPropertyType(propertySyntax);
 
             var hasRequiredModifier = HasModifier(propertySyntax, SyntaxKind.RequiredKeyword);
 
-            parameters.Add(new ComponentParameter(propertySyntax.Identifier.Text, propertyType, hasRequiredModifier, true));
+            parameters.Add(new ComponentParameter(propertySyntax.Identifier.Text, propertyType, hasRequiredModifier, isRef));
         }
 
         return new ComponentParameters(classDeclarationSyntax.Identifier.Text, GetNamespace(classDeclarationSyntax), parameters);
+    }
+
+    private bool IsRefParameter(AttributeSyntax attribute)
+    {
+
     }
 
     //todo
@@ -103,8 +122,16 @@ public class MethodGenerator : IIncrementalGenerator
         return propertyTypeName;
     }
 
-    private bool TryGetAttribute(PropertyDeclarationSyntax propertySyntax, string attributeName, out AttributeSyntax attributeSyntax)
+    private bool TryGetAttribute(PropertyDeclarationSyntax propertySyntax, string attributeName,
+        SemanticModel semanticModel, out AttributeSyntax attributeSyntax)
     {
+        attributeSyntax = null!;
+
+        if (semanticModel.GetDeclaredSymbol(propertySyntax) is not IPropertySymbol propertySymbol)
+        {
+            return false;
+        }
+
         foreach (var attributeList in propertySyntax.AttributeLists)
         {
             foreach (var attribute in attributeList.Attributes)
@@ -137,6 +164,8 @@ public class MethodGenerator : IIncrementalGenerator
 
     static void Execute(ComponentParameters? enumToGenerate, SourceProductionContext context)
     {
+
+
         if (enumToGenerate is { } value)
         {
             // generate the source code and add it to the output
