@@ -16,8 +16,19 @@ public partial class RootComponent : FlamuiComponent
     [Parameter]
     public required string Input { get; set; }
 
+    [Parameter(true)]
+    public required bool IsEnabled { get; set; }
+
+    [Parameter(isRef: true)]
+    public required float Average { get; set; }
+
+    [Parameter]
+    public float Median { get; set; }
+
     [Parameter]
     public bool ShouldShow { get; set; }
+
+    public bool IsReadyonly { get; set; }
 
     public override void Build()
     {

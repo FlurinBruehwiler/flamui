@@ -1,7 +1,5 @@
-using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
@@ -12,8 +10,6 @@ namespace Flamui.SourceGenerators;
 [Generator]
 public class MethodGenerator : IIncrementalGenerator
 {
-    private const string EnumExtensionsAttribute = "Flamui.ParameterAttribute";
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Add the marker attribute to the compilation
@@ -21,19 +17,56 @@ public class MethodGenerator : IIncrementalGenerator
             "EnumExtensionsAttribute.g.cs",
             SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
 
-        var componentsToGenerate = context.SyntaxProvider.CreateSyntaxProvider(
+        var flamuiComponents = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: Filter, transform: Transform)
             .Where(static m => m is not null);
 
-        var compilationAndComponents
-            = context.CompilationProvider.Combine(componentsToGenerate.Collect());
+        var res = flamuiComponents.Select(static (tuple, _) =>
+        {
+            if (tuple is null)
+                return default;
+
+            return TypeSymbolToComponent(tuple.Value.Item1, tuple.Value.Item2);
+        });
 
         // Generate source code for each enum found
-        context.RegisterSourceOutput(compilationAndComponents,
-            static (spc, source) =>
+        context.RegisterSourceOutput(res,
+            static (spc, component) =>
             {
-                Execute(source.Compilation, source.Components, spc);
+                Execute(component, spc);
             });
+    }
+
+    private static FlamuiComponentSg TypeSymbolToComponent(INamedTypeSymbol component, GeneratorSyntaxContext syntaxContext)
+    {
+        //ToDo
+        //var attributeClass = syntaxContext.SemanticModel.Compilation.GetTypeByMetadataName("Flamui.ParameterAttribute");
+
+        var parameters = new List<ComponentParameter>();
+
+        foreach (var symbol in component.GetMembers())
+        {
+            if(symbol is not IPropertySymbol propertySymbol)
+                continue;
+
+            foreach (var attributeData in propertySymbol.GetAttributes())
+            {
+                if(attributeData.AttributeClass is null)
+                    continue;
+
+                if(attributeData.AttributeClass.Name != "ParameterAttribute"
+                   || attributeData.AttributeClass.ContainingNamespace.Name != "Flamui")
+                    continue;
+
+                var isRequired = propertySymbol.IsRequired;
+                var isRef = attributeData.ConstructorArguments.Any(x => x.Value?.ToString() == "true");
+
+                parameters.Add(new ComponentParameter(propertySymbol.Name, propertySymbol.Type.GetFullName(), isRequired, isRef));
+                break;
+            }
+        }
+
+        return new FlamuiComponentSg(component.Name, component.ContainingNamespace.Name, component.GetFullName(), parameters);
     }
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
@@ -41,183 +74,36 @@ public class MethodGenerator : IIncrementalGenerator
         return syntaxNode is ClassDeclarationSyntax { BaseList.Types.Count: >= 1 };
     }
 
-    private PropertyDeclarationSyntax? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
+    private (INamedTypeSymbol, GeneratorSyntaxContext)? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
     {
         var classDeclarationSyntax = (ClassDeclarationSyntax)syntaxContext.Node;
 
         if (classDeclarationSyntax.BaseList is null)
             return null;
 
-        foreach (var baseTypeSyntax in classDeclarationSyntax.BaseList.Types)
+        var symbol = syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax);
+
+        if (symbol is not INamedTypeSymbol namedTypeSymbol)
+            return null;
+
+        if (namedTypeSymbol.BaseType is null)
+            return null;
+
+        var flamuiComponent = syntaxContext.SemanticModel.Compilation.GetTypeByMetadataName("Flamui.FlamuiComponent");
+
+        if (SymbolEqualityComparer.Default.Equals(flamuiComponent, namedTypeSymbol.BaseType))
         {
-            if (IsInheritingFrom(baseTypeSyntax, "FlamuiComponent"))
-            {
-                return GetComponentParameters(classDeclarationSyntax, syntaxContext.SemanticModel);
-            }
+            return (namedTypeSymbol, syntaxContext);
         }
 
         return null;
     }
 
-    private ComponentParameters? GetComponentParameters(ClassDeclarationSyntax classDeclarationSyntax,
-        SemanticModel semanticModel)
+    static void Execute(FlamuiComponentSg component, SourceProductionContext context)
     {
-        if (classDeclarationSyntax.Members.Count == 0)
-            return null;
-
-        List<ComponentParameter> parameters = new();
-
-        foreach (var member in classDeclarationSyntax.Members)
-        {
-            if(member is not PropertyDeclarationSyntax propertySyntax)
-                continue;
-
-            if (!TryGetAttribute(propertySyntax, "Parameter", semanticModel, out var attribute)) //todo, check if parameter is a "ref"
-                continue;
-
-            var isRef = IsRefParameter(attribute);
-
-            var propertyType = GetPropertyType(propertySyntax);
-
-            var hasRequiredModifier = HasModifier(propertySyntax, SyntaxKind.RequiredKeyword);
-
-            parameters.Add(new ComponentParameter(propertySyntax.Identifier.Text, propertyType, hasRequiredModifier, isRef));
-        }
-
-        return new ComponentParameters(classDeclarationSyntax.Identifier.Text, GetNamespace(classDeclarationSyntax), parameters);
+        // generate the source code and add it to the output
+        var result = SourceGenerationHelper.GenerateExtensionClass(component);
+        // Create a separate partial class file for each enum
+        context.AddSource($"FlamuiSourceGenerators.{component.ComponentNamespace}.g.cs", SourceText.From(result, Encoding.UTF8));
     }
-
-    private bool IsRefParameter(AttributeSyntax attribute)
-    {
-
-    }
-
-    //todo
-    private string GetFullName(BaseTypeDeclarationSyntax typeDeclarationSyntax)
-    {
-        return $"{GetNamespace(typeDeclarationSyntax)}.{typeDeclarationSyntax.Identifier.Text}";
-    }
-
-    private bool HasModifier(PropertyDeclarationSyntax propertySyntax, SyntaxKind modifierKind)
-    {
-        foreach (var modifier in propertySyntax.Modifiers)
-        {
-            if (modifier.IsKind(modifierKind))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private string GetPropertyType(PropertyDeclarationSyntax propertySyntax)
-    {
-        // Access the type of the property
-        var propertyTypeSyntax = propertySyntax.Type;
-
-        // Get the type name as a string
-        string propertyTypeName = propertyTypeSyntax.ToString();
-
-        return propertyTypeName;
-    }
-
-    private bool TryGetAttribute(PropertyDeclarationSyntax propertySyntax, string attributeName,
-        SemanticModel semanticModel, out AttributeSyntax attributeSyntax)
-    {
-        attributeSyntax = null!;
-
-        if (semanticModel.GetDeclaredSymbol(propertySyntax) is not IPropertySymbol propertySymbol)
-        {
-            return false;
-        }
-
-        foreach (var attributeList in propertySyntax.AttributeLists)
-        {
-            foreach (var attribute in attributeList.Attributes)
-            {
-                if (attribute.Name.ToString() == attributeName)
-                {
-                    attributeSyntax = attribute;
-                    return true;
-                }
-            }
-        }
-
-        attributeSyntax = null!;
-        return false;
-    }
-
-    private bool IsInheritingFrom(BaseTypeSyntax baseType, string targetClassName)
-    {
-        if (baseType is SimpleBaseTypeSyntax simpleBaseType)
-        {
-            if (simpleBaseType.Type is IdentifierNameSyntax identifierName)
-            {
-                return identifierName.Identifier.Text == targetClassName;
-            }
-            // Handle other types of base types if needed
-        }
-
-        return false;
-    }
-
-    static void Execute(ComponentParameters? enumToGenerate, SourceProductionContext context)
-    {
-
-
-        if (enumToGenerate is { } value)
-        {
-            // generate the source code and add it to the output
-            string result = SourceGenerationHelper.GenerateExtensionClass(value);
-            // Create a separate partial class file for each enum
-            context.AddSource($"FlamuiSourceGenerators.{value.ComponentName}.g.cs", SourceText.From(result, Encoding.UTF8));
-        }
-    }
-
-    // determine the namespace the class/enum/struct is declared in, if any
-    static string GetNamespace(BaseTypeDeclarationSyntax syntax)
-    {
-        // If we don't have a namespace at all we'll return an empty string
-        // This accounts for the "default namespace" case
-        var nameSpace = string.Empty;
-
-        // Get the containing syntax node for the type declaration
-        // (could be a nested type, for example)
-        var potentialNamespaceParent = syntax.Parent;
-
-        // Keep moving "out" of nested classes etc until we get to a namespace
-        // or until we run out of parents
-        while (potentialNamespaceParent != null &&
-               potentialNamespaceParent is not NamespaceDeclarationSyntax
-               && potentialNamespaceParent is not FileScopedNamespaceDeclarationSyntax)
-        {
-            potentialNamespaceParent = potentialNamespaceParent.Parent;
-        }
-
-        // Build up the final namespace by looping until we no longer have a namespace declaration
-        if (potentialNamespaceParent is BaseNamespaceDeclarationSyntax namespaceParent)
-        {
-            // We have a namespace. Use that as the type
-            nameSpace = namespaceParent.Name.ToString();
-
-            // Keep moving "out" of the namespace declarations until we
-            // run out of nested namespace declarations
-            while (true)
-            {
-                if (namespaceParent.Parent is not NamespaceDeclarationSyntax parent)
-                {
-                    break;
-                }
-
-                // Add the outer namespace as a prefix to the final namespace
-                nameSpace = $"{namespaceParent.Name}.{nameSpace}";
-                namespaceParent = parent;
-            }
-        }
-
-        // return the final namespace
-        return nameSpace;
-    }
-
 }
