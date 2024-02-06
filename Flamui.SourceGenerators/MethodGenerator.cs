@@ -15,7 +15,7 @@ public class MethodGenerator : IIncrementalGenerator
         // Add the marker attribute to the compilation
         context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
             "EnumExtensionsAttribute.g.cs",
-            SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
+            SourceText.From(BuilderClassGenerator.Attribute, Encoding.UTF8)));
 
         var flamuiComponents = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: Filter, transform: Transform)
@@ -29,12 +29,17 @@ public class MethodGenerator : IIncrementalGenerator
             return TypeSymbolToComponent(tuple.Value.Item1, tuple.Value.Item2);
         });
 
-        // Generate source code for each enum found
-        context.RegisterSourceOutput(res,
-            static (spc, component) =>
-            {
-                Execute(component, spc);
-            });
+        context.RegisterSourceOutput(res, (ctx, component) =>
+        {
+            var result = BuilderClassGenerator.Generate(component);
+            ctx.AddSource($"FlamuiSourceGenerators.{component.ComponentFullName}Builder.g.cs", SourceText.From(result, Encoding.UTF8));
+        });
+
+        context.RegisterSourceOutput(res, (ctx, component) =>
+        {
+            var result = CreateMethodGenerator.Generate(component);
+            ctx.AddSource($"FlamuiSourceGenerators.{component.ComponentFullName}.g.cs", SourceText.From(result, Encoding.UTF8));
+        });
     }
 
     private static FlamuiComponentSg TypeSymbolToComponent(INamedTypeSymbol component, GeneratorSyntaxContext syntaxContext)
@@ -55,7 +60,7 @@ public class MethodGenerator : IIncrementalGenerator
                     continue;
 
                 if(attributeData.AttributeClass.Name != "ParameterAttribute"
-                   || attributeData.AttributeClass.ContainingNamespace.Name != "Flamui")
+                   || attributeData.AttributeClass.ContainingNamespace.ToDisplayString() != "Flamui")
                     continue;
 
                 var isRequired = propertySymbol.IsRequired;
@@ -66,7 +71,7 @@ public class MethodGenerator : IIncrementalGenerator
             }
         }
 
-        return new FlamuiComponentSg(component.Name, component.ContainingNamespace.Name, component.GetFullName(), parameters);
+        return new FlamuiComponentSg(component.Name, component.ContainingNamespace.ToDisplayString(), component.GetFullName(), parameters);
     }
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
@@ -97,13 +102,5 @@ public class MethodGenerator : IIncrementalGenerator
         }
 
         return null;
-    }
-
-    static void Execute(FlamuiComponentSg component, SourceProductionContext context)
-    {
-        // generate the source code and add it to the output
-        var result = SourceGenerationHelper.GenerateExtensionClass(component);
-        // Create a separate partial class file for each enum
-        context.AddSource($"FlamuiSourceGenerators.{component.ComponentNamespace}.g.cs", SourceText.From(result, Encoding.UTF8));
     }
 }
