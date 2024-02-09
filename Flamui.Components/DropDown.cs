@@ -3,7 +3,7 @@ using SDL2;
 
 namespace Flamui.Components;
 
-public class DropDown<T> : OpenCloseComponent where T : notnull
+public class DropDown<T> : FlamuiComponent where T : notnull
 {
     private List<T> _options = new();
     private List<T> _filteredOptions;
@@ -13,12 +13,7 @@ public class DropDown<T> : OpenCloseComponent where T : notnull
     private bool _isExpanded;
     private string? _filterText;
 
-    public override void Open()
-    {
-        _options.Clear();
-    }
-
-    public override void Close()
+    public override void Build()
     {
         if (_filterText is null && Window.TextInput != string.Empty)
         {

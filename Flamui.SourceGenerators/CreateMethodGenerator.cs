@@ -1,4 +1,3 @@
-using System.Text;
 
 namespace Flamui.SourceGenerators;
 
@@ -8,10 +7,10 @@ public static class CreateMethodGenerator
     {
         var sb = new SourceBuilder();
 
-        sb.AppendFormat("namespace {0};", component.ComponentNamespace).AppendLine();
+        sb.AppendFormat("namespace {0};", component.Component.ContainingNamespace.ToDisplayString()).AppendLine();
         sb.AppendLine();
 
-        sb.AppendFormat("public partial class {0}", component.ComponentName).AppendLine();
+        sb.AppendFormat("public partial class {0}", component.Component.ToString()).AppendLine();
         sb.AppendLine("{");
         sb.AddIndent();
 
@@ -25,7 +24,7 @@ public static class CreateMethodGenerator
 
     private static void BuildConstructor(SourceBuilder sb, FlamuiComponentSg component)
     {
-        sb.AppendFormat("public static {0}Builder Create(", component.ComponentName);
+        sb.AppendFormat("public static {0}Builder Create(", component.Component.Name);
 
         bool isFirstParameter = true;
         bool hasAnyParameters = false;
@@ -60,7 +59,7 @@ public static class CreateMethodGenerator
         sb.AddIndent();
 
         //body
-        sb.AppendFormat("var component = Flamui.Ui.GetComponent<{0}>(key, path, line);", component.ComponentFullName);
+        sb.AppendFormat("var component = Flamui.Ui.GetComponent<{0}>(key, path, line);", component.Component.ToDisplayString());
         sb.AppendLine();
 
         foreach (var parameter in component.Parameters.AsSpan())
@@ -71,7 +70,7 @@ public static class CreateMethodGenerator
             BuildFieldAssignement(sb, parameter);
         }
 
-        sb.AppendFormat("return new {0}Builder(component);", component.ComponentName).AppendLine();
+        sb.AppendFormat("return new {0}Builder(component);", component.Component.Name).AppendLine();
 
         sb.RemoveIndent();
         sb.AppendLine("}");

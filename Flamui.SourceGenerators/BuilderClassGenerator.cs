@@ -21,10 +21,10 @@ public class ParameterAttribute : System.Attribute
     {
         var sb = new SourceBuilder();
 
-        sb.AppendFormat("namespace {0};", component.ComponentNamespace).AppendLine();
+        sb.AppendFormat("namespace {0};", component.Component.ContainingNamespace.ToDisplayString()).AppendLine();
         sb.AppendLine();
 
-        sb.AppendFormat("public partial struct {0}Builder", component.ComponentName).AppendLine();
+        sb.AppendFormat("public partial struct {0}Builder", component.Component.Name).AppendLine();
         sb.AppendLine("{");
         sb.AddIndent();
 
@@ -39,7 +39,7 @@ public class ParameterAttribute : System.Attribute
 
             sb.AppendLine();
 
-            BuildParameterMethods(sb, parameter, component.ComponentName);
+            BuildParameterMethods(sb, parameter, component.Component.Name);
         }
 
         BuildBuildMethod(sb, component);
@@ -52,11 +52,11 @@ public class ParameterAttribute : System.Attribute
 
     private static void BuildConstructor(SourceBuilder sb, FlamuiComponentSg component)
     {
-        sb.AppendFormat("public {0}Builder({1} component)", component.ComponentName, component.ComponentFullName).AppendLine();
+        sb.AppendFormat("public {0}Builder({1} component)", component.Component.Name, component.Component.ToDisplayString()).AppendLine();
         sb.AppendLine("{");
         sb.AddIndent();
 
-        sb.AppendLine("_component = component;");
+        sb.AppendLine("Component = component;");
 
         sb.RemoveIndent();
         sb.AppendLine("}");
@@ -77,10 +77,9 @@ public class ParameterAttribute : System.Attribute
         sb.AppendLine("}");
     }
 
-
     private static void BuildFields(SourceBuilder sb, FlamuiComponentSg flamuiComponentSg)
     {
-        sb.AppendFormat("private {0} _component;", flamuiComponentSg.ComponentFullName).AppendLine();
+        sb.AppendFormat("public {0} Component {{ get; }}", flamuiComponentSg.Component.ToDisplayString()).AppendLine();
 
         foreach (var parameter in flamuiComponentSg.Parameters.AsSpan())
         {
@@ -93,11 +92,9 @@ public class ParameterAttribute : System.Attribute
         sb.AppendLine();
     }
 
-
-
     private static void BuildFieldAssignement(SourceBuilder sb, ComponentParameter componentParameter)
     {
-        sb.AppendFormat("_component.{0} = {0};", componentParameter.Name, componentParameter.Name).AppendLine();
+        sb.AppendFormat("Component.{0} = {0};", componentParameter.Name, componentParameter.Name).AppendLine();
 
         if (!componentParameter.IsRef)
             return;
@@ -120,13 +117,13 @@ public class ParameterAttribute : System.Attribute
         sb.AppendLine("{");
         sb.AddIndent();
 
-        sb.AppendLine("_component.Build();");
+        sb.AppendLine("Component.Build();");
 
         foreach (var parameter in sg.Parameters.AsSpan())
         {
             if (parameter.IsRef)
             {
-                sb.AppendFormat("_component.{0} = *_{0};", parameter.Name);
+                sb.AppendFormat("Component.{0} = *_{0};", parameter.Name);
             }
         }
 

@@ -32,13 +32,13 @@ public class MethodGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(res, (ctx, component) =>
         {
             var result = BuilderClassGenerator.Generate(component);
-            ctx.AddSource($"FlamuiSourceGenerators.{component.ComponentFullName}Builder.g.cs", SourceText.From(result, Encoding.UTF8));
+            ctx.AddSource($"FlamuiSourceGenerators.{component.FullName.Replace("<", "_").Replace(">", "_")}Builder.g.cs", SourceText.From(result, Encoding.UTF8));
         });
 
         context.RegisterSourceOutput(res, (ctx, component) =>
         {
             var result = CreateMethodGenerator.Generate(component);
-            ctx.AddSource($"FlamuiSourceGenerators.{component.ComponentFullName}.g.cs", SourceText.From(result, Encoding.UTF8));
+            ctx.AddSource($"FlamuiSourceGenerators.{component.FullName.Replace("<", "_").Replace(">", "_")}.g.cs", SourceText.From(result, Encoding.UTF8));
         });
     }
 
@@ -71,7 +71,7 @@ public class MethodGenerator : IIncrementalGenerator
             }
         }
 
-        return new FlamuiComponentSg(component.Name, component.ContainingNamespace.ToDisplayString(), component.GetFullName(), parameters);
+        return new FlamuiComponentSg(parameters, component, component.ToDisplayString());
     }
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)

@@ -1,17 +1,18 @@
-﻿namespace Flamui.SourceGenerators;
+﻿using Microsoft.CodeAnalysis;
+
+namespace Flamui.SourceGenerators;
 
 public readonly record struct FlamuiComponentSg
 {
-    public readonly string ComponentName;
-    public readonly string ComponentNamespace;
-    public readonly string ComponentFullName;
+    public readonly INamedTypeSymbol Component;
+    public readonly string FullName;
+
     public readonly EquatableArray<ComponentParameter> Parameters;
 
-    public FlamuiComponentSg(string componentName, string componentNamespace, string componentFullName, List<ComponentParameter> parameters)
+    public FlamuiComponentSg(List<ComponentParameter> parameters, INamedTypeSymbol component, string fullName)
     {
-        ComponentName = componentName;
-        ComponentNamespace = componentNamespace;
-        ComponentFullName = componentFullName;
+        Component = component;
+        FullName = fullName;
         Parameters = new EquatableArray<ComponentParameter>(parameters.ToArray());
     }
 }

@@ -1,4 +1,5 @@
 using Flamui;
+using Flamui.Components;
 
 namespace Sample.ComponentGallery;
 
@@ -12,6 +13,6 @@ public partial class RootComponent : FlamuiComponent
 
     public override void Build()
     {
-        Create("").ShouldShow(true).Build();
+
     }
 }

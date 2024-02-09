@@ -11,7 +11,7 @@ using Flamui;
 
 namespace Sample.ComponentGallery;
 
-public partial class RootComponent : FlamuiComponent
+public partial class RootComponent<T> : FlamuiComponent
 {
     [Parameter]
     public required string Input { get; set; }
