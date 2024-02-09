@@ -4,24 +4,24 @@ using SDL2;
 
 namespace Flamui.Components;
 
-public static partial class Ui
+public static partial class UiExtensions
 {
-    public static UiText Input(ref string text, bool hasFocus = false, string key = "",
+    public static UiText Input(this Flamui.Ui ui, ref string text, bool hasFocus = false, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(key, path, line);
+        ui.DivStart(key, path, line);
 
         if (hasFocus)
         {
-            var input = Window.TextInput;
+            var input = ui.Window.TextInput;
 
             if (!string.IsNullOrEmpty(input))
-                text += Window.TextInput;
+                text += ui.Window.TextInput;
 
-            if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
+            if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
             {
-                if (Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
+                if (ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
                 {
                     text = text.TrimEnd();
 
@@ -45,9 +45,9 @@ public static partial class Ui
             }
         }
 
-        var txt = Text(text).VAlign(TextAlign.Center).Color(C.Text);
+        var txt = ui.Text(text).VAlign(TextAlign.Center).Color(C.Text);
 
-        DivEnd();
+        ui.DivEnd();
 
         return txt;
     }

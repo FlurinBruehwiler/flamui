@@ -1,4 +1,5 @@
 ﻿using Flamui.UiElements;
+using SDL2;
 
 namespace Flamui.Components;
 
@@ -89,7 +90,7 @@ public class DropDown<T> : OpenCloseComponent where T : notnull
         if (dropDownDiv.HasFocusWithin)
         {
             dropDownDiv.BorderWidth(2).BorderColor(C.Blue);
-            if (!_isExpanded && (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN) || Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_SPACE)))
+            if (!_isExpanded && (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN) || Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
             {
                 OpenMenu();
                 return;
@@ -98,7 +99,7 @@ public class DropDown<T> : OpenCloseComponent where T : notnull
 
         if (_isExpanded)
         {
-            if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN))
+            if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
             {
                 if (_hoveredOption != -1)
                 {
@@ -107,19 +108,19 @@ public class DropDown<T> : OpenCloseComponent where T : notnull
                     return;
                 }
             }
-            else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_DOWN))
+            else if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_DOWN))
             {
                 if (_hoveredOption < _filteredOptions.Count - 1)
                 {
                     _hoveredOption++;
                 }
-            }else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_UP))
+            }else if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_UP))
             {
                 if (_hoveredOption > 0)
                 {
                     _hoveredOption--;
                 }
-            }else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_ESCAPE))
+            }else if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE))
             {
                 CloseMenu();
                 return;

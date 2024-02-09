@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using Flamui.UiElements;
 using SkiaSharp;
 
@@ -17,10 +16,7 @@ public partial class UiWindow : IDisposable
     // private UiContainer? _hoveredContainer;
     private UiContainer? _activeContainer;
 
-    public readonly UiContainer RootContainer = new()
-    {
-        Id = new UiElementId(),
-    };
+    public readonly UiContainer RootContainer;
     public readonly ConcurrentQueue<SDL_Event> Events = new();
 
     // private UiContainer? HoveredDiv
@@ -44,6 +40,7 @@ public partial class UiWindow : IDisposable
     private readonly Input _input = new();
     private readonly HitTester _hitTester;
     private readonly TabIndexManager _tabIndexManager = new();
+    private readonly Ui _ui = new();
 
     public UiContainer? ActiveDiv
     {
@@ -74,6 +71,7 @@ public partial class UiWindow : IDisposable
         ServiceProvider = serviceProvider;
         Id = SDL_GetWindowID(_windowHandle);
 
+
         _openGlContextHandle = SDL_GL_CreateContext(_windowHandle);
         if (_openGlContextHandle == IntPtr.Zero)
         {
@@ -95,6 +93,14 @@ public partial class UiWindow : IDisposable
         {
             AvoidStencilBuffers = true
         });
+
+        _ui.Window = this;
+
+        RootContainer = new(this)
+        {
+            Id = new UiElementId(),
+        };
+
     }
 
     public RenderContext LastRenderContext = new();
@@ -102,9 +108,6 @@ public partial class UiWindow : IDisposable
 
     public void Update()
     {
-        Window = this;
-
-
         ProcessInputs();
         HitDetection();
         BuildUi();
@@ -178,22 +181,22 @@ public partial class UiWindow : IDisposable
     private void ProcessInputs()
     {
         _input.HandleEvents(Events);
-        _tabIndexManager.HandleTab();
+        _tabIndexManager.HandleTab(this);
     }
 
     private void BuildUi()
     {
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
-        OpenElementStack.Clear();
-        OpenElementStack.Push(RootContainer);
-        Root = RootContainer;
+        _ui.OpenElementStack.Clear();
+        _ui.OpenElementStack.Push(RootContainer);
+        _ui.Root = RootContainer;
         RootContainer.ComputedBounds.W = width;
         RootContainer.ComputedBounds.H = height;
 
         RootContainer.OpenElement();
 
-        _rootComponent.Build();
+        _rootComponent.Build(_ui);
     }
 
     private void Layout()

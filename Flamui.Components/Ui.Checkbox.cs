@@ -3,13 +3,13 @@ using SDL2;
 
 namespace Flamui.Components;
 
-public static partial class Ui
+public static partial class UiExtensions
 {
-    public static void Checkbox(ref bool enabled, string key = "",
+    public static void Checkbox(this Flamui.Ui ui, ref bool enabled, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var div, key, path, line).Height(15).Focusable().Width(15).Color(C.Background).BorderColor(C.Border).BorderWidth(1).Rounded(2);
+        ui.DivStart(out var div, key, path, line).Height(15).Focusable().Width(15).Color(C.Background).BorderColor(C.Border).BorderWidth(1).Rounded(2);
         if (div.IsClicked)
         {
             enabled = !enabled;
@@ -19,8 +19,8 @@ public static partial class Ui
         {
             div.BorderColor(C.Blue).BorderWidth(2);
 
-            if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE) ||
-                Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+            if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE) ||
+                ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
             {
                 enabled = !enabled;
             }
@@ -30,9 +30,9 @@ public static partial class Ui
         {
             div.Color(C.Blue);
             div.BorderWidth(0);
-            SvgImage("./Icons/check.svg");
+            ui.SvgImage("./Icons/check.svg");
         }
 
-        DivEnd();
+        ui.DivEnd();
     }
 }

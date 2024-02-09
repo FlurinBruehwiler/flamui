@@ -4,28 +4,28 @@ namespace Flamui;
 
 public class TabIndexManager
 {
-    public void HandleTab()
+    public void HandleTab(UiWindow window)
     {
-        if (!Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_TAB))
+        if (!window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_TAB))
             return;
 
-        if (Window.ActiveDiv is null)
+        if (window.ActiveDiv is null)
             return;
 
-        var shouldSearchBackwards = Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LSHIFT) || Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_RSHIFT);
+        var shouldSearchBackwards = window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LSHIFT) || window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_RSHIFT);
 
         if (shouldSearchBackwards)
         {
-            if (GetPreviousFocusable(Window.ActiveDiv, skipSelfCheck: true) is { } previousFocusable)
+            if (GetPreviousFocusable(window.ActiveDiv, skipSelfCheck: true) is { } previousFocusable)
             {
-                Window.ActiveDiv = previousFocusable;
+                window.ActiveDiv = previousFocusable;
             }
         }
         else
         {
-            if (GetNextFocusable(Window.ActiveDiv, skipSelfCheck: true) is { } nextFocusable)
+            if (GetNextFocusable(window.ActiveDiv, skipSelfCheck: true) is { } nextFocusable)
             {
-                Window.ActiveDiv = nextFocusable;
+                window.ActiveDiv = nextFocusable;
             }
         }
     }

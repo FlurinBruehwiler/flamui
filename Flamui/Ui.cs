@@ -10,13 +10,13 @@ public class SubStack
     public required Stack<UiContainer> CurrentStack { get; set; }
 }
 
-public static partial class Ui
+public partial class Ui
 {
-    public static Stack<ValueTuple<IFlamuiComponent, bool>> OpenComponents = new();
-    public static Stack<UiElementContainer> OpenElementStack = new();
-    public static UiWindow Window = null!;
-    public static UiContainer Root = null!;
-    // public static SubStack StartSubStack(UiContainer temporaryContainer)
+    public Stack<ValueTuple<FlamuiComponent, bool>> OpenComponents = new();
+    public Stack<UiElementContainer> OpenElementStack = new();
+    public UiWindow Window = null!;
+    public UiContainer Root = null!;
+    // public SubStack StartSubStack(UiContainer temporaryContainer)
     // {
     //     var substack = new SubStack //ToDo resuse to avoid memory allocation
     //     {
@@ -28,13 +28,13 @@ public static partial class Ui
     //     return substack;
     // }
 
-    // public static List<UiElement> EndSubStack(SubStack subStack)
+    // public List<UiElement> EndSubStack(SubStack subStack)
     // {
     //     OpenElementStack = subStack.PreviousSubStack;
     //     return subStack.CurrentStack.Pop().Children;
     // }
 
-    public static UiContainer DivStart(
+    public UiContainer DivStart(
         out UiContainer uiContainer,
         string key = "",
         [CallerFilePath] string path = "",
@@ -43,7 +43,7 @@ public static partial class Ui
         return uiContainer = DivStart(key, path, line);
     }
 
-    public static UiContainer DivStart(
+    public UiContainer DivStart(
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -51,12 +51,12 @@ public static partial class Ui
         return Start<UiContainer>(key, path, line);
     }
 
-    public static void DivEnd()
+    public void DivEnd()
     {
         End<UiContainer>();
     }
 
-    public static T Start<T>(string key = "",
+    public T Start<T>(string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1) where T : UiElementContainer, new()
     {
@@ -66,22 +66,22 @@ public static partial class Ui
         return el;
     }
 
-    public static void End<T>() where T : UiElementContainer, new()
+    public void End<T>() where T : UiElementContainer, new()
     {
         OpenElementStack.Pop().CloseElement();
     }
 
-    public static string LastKey;
+    public string LastKey;
 
-    public static T GetComponent<T>(string key = "",
+    public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : IFlamuiComponent
+        [CallerLineNumber] int line = -1) where T : FlamuiComponent
     {
         var id = new UiElementId(key, path, line);
         return (T)GetComponentInternal(typeof(T), id, out _);
     }
 
-    public static object GetComponent(Type type, string key = "",
+    public object GetComponent(Type type, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
@@ -89,7 +89,7 @@ public static partial class Ui
         return GetComponentInternal(type, id, out _);
     }
 
-    private static object GetComponentInternal(Type type, UiElementId id, out bool wasNewlyCreated)
+    private object GetComponentInternal(Type type, UiElementId id, out bool wasNewlyCreated)
     {
         wasNewlyCreated = false;
         LastKey = id.Key;
@@ -106,7 +106,7 @@ public static partial class Ui
             throw new Exception();
         parentContainer.Data.Add(id, newData);
 
-        if (newData is IFlamuiComponent flamuiComponent)
+        if (newData is FlamuiComponent flamuiComponent)
         {
             flamuiComponent.OnInitialized();//todo make betta :)
         }
@@ -114,50 +114,7 @@ public static partial class Ui
         return newData;
     }
 
-    public static T StartComponent<T>(out T component, string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : OpenCloseComponent
-    {
-        component = (T)GetComponentInternal(typeof(T), new UiElementId(key, path, line), out var isNew);
-        OpenComponents.Push((component, isNew));
-        component.Open();
-        return component;
-    }
-
-    public static T StartComponent<T, TParameter>(out T component, TParameter parameter, string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : OpenCloseComponent<TParameter>
-    {
-        component = (T)GetComponentInternal(typeof(T), new UiElementId(key, path, line), out var isNew);
-        component.Parameteres = parameter;
-        OpenComponents.Push((component, isNew));
-        component.Open();
-        return component;
-    }
-
-    public static T EndComponent<T>() where T : OpenCloseComponent
-    {
-        var (component, _) = OpenComponents.Pop();
-
-        var t = (T)component;
-
-        t.Close();
-
-        return t;
-    }
-
-    public static T EndComponent<T, TParameter>() where T : OpenCloseComponent<TParameter>
-    {
-        var (component, _) = OpenComponents.Pop();
-
-        var t = (T)component;
-
-        t.Close();
-
-        return t;
-    }
-
-    public static T GetData<T>(T initialValue, out UiElementId id, string key = "",
+    public T GetData<T>(T initialValue, out UiElementId id, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1) where T : notnull
     {
@@ -172,20 +129,20 @@ public static partial class Ui
         return initialValue;
     }
 
-    public static void SetData<T>(string value, UiElementId id) where T : notnull
+    public void SetData<T>(string value, UiElementId id) where T : notnull
     {
         var parentContainer = OpenElementStack.Peek();
         parentContainer.Data[id] = value;
     }
 
-    public static T Get<T>(string key = "",
+    public T Get<T>(string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1) where T : UiElement, new()
     {
         return OpenElementStack.Peek().AddChild<T>(new UiElementId(key, path, line));
     }
 
-    public static UiText Text(string content,
+    public UiText Text(string content,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -195,7 +152,7 @@ public static partial class Ui
         return text;
     }
 
-    public static UiSvg SvgImage(string src, ColorDefinition? colorDefinition = null,
+    public UiSvg SvgImage(string src, ColorDefinition? colorDefinition = null,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -206,7 +163,7 @@ public static partial class Ui
         return svg;
     }
 
-    public static UiImage Image(string src,
+    public UiImage Image(string src,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -216,7 +173,7 @@ public static partial class Ui
         return text;
     }
 
-    // public static void SetFocus(UiContainer uiContainer)
+    // public void SetFocus(UiContainer uiContainer)
     // {
     //     if (UiWindow is null)
     //         throw new Exception();
@@ -227,7 +184,7 @@ public static partial class Ui
     //     UiWindow.ActiveDiv = (UiContainer)uiContainer;
     // }
 
-    public static void InvokeAsync(Func<Task> fun)
+    public void InvokeAsync(Func<Task> fun)
     {
     }
 }

@@ -5,7 +5,7 @@ using EnumDir = Flamui.Dir;
 
 namespace Flamui.UiElements;
 
-public partial class UiContainer : UiElementContainer
+public partial class UiContainer(UiWindow window) : UiElementContainer
 {
     public bool FocusIn { get; set; }
     public bool FocusOut { get; set; }
@@ -14,13 +14,13 @@ public partial class UiContainer : UiElementContainer
     {
         get
         {
-            if (Window is null)
+            if (window is null)
                 throw new Exception();
 
-            if (!Window.IsMouseButtonPressed(MouseButtonKind.Left))
+            if (!window.IsMouseButtonPressed(MouseButtonKind.Left))
                 return false;
 
-            if (Window.HoveredElements.Contains(this))
+            if (window.HoveredElements.Contains(this))
             {
                 return true;
             }
@@ -67,10 +67,10 @@ public partial class UiContainer : UiElementContainer
     {
         get
         {
-            if (Window is null)
+            if (window is null)
                 throw new Exception();
 
-            return Window.HoveredElements.Contains(this);
+            return window.HoveredElements.Contains(this);
         }
     }
 
@@ -78,10 +78,10 @@ public partial class UiContainer : UiElementContainer
     {
         get
         {
-            if (Window is null)
+            if (window is null)
                 throw new Exception();
 
-            return !Window.OldHoveredElements.Contains(this) && Window.HoveredElements.Contains(this);
+            return !window.OldHoveredElements.Contains(this) && window.HoveredElements.Contains(this);
         }
     }
 
@@ -89,10 +89,10 @@ public partial class UiContainer : UiElementContainer
     {
         get
         {
-            if (Window is null)
+            if (window is null)
                 throw new Exception();
 
-            return Window.OldHoveredElements.Contains(this) && !Window.HoveredElements.Contains(this);
+            return window.OldHoveredElements.Contains(this) && !window.HoveredElements.Contains(this);
         }
     }
 

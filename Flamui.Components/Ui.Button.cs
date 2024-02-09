@@ -3,13 +3,13 @@ using Flamui.UiElements;
 
 namespace Flamui.Components;
 
-public static partial class Ui
+public static partial class UiExtensions
 {
-    public static bool Button(string text, bool primary = false, float width = 70, bool focusable = true, string key = "",
+    public static bool Button(this Flamui.Ui ui, string text, bool primary = false, float width = 70, bool focusable = true, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        DivStart(out var btn, key, path, line).Height(23).Width(width).Rounded(2).Focusable(focusable);
+        ui.DivStart(out var btn, key, path, line).Height(23).Width(width).Rounded(2).Focusable(focusable);
 
             if (primary)
             {
@@ -25,8 +25,8 @@ public static partial class Ui
                 btn.BorderColor(C.Blue).BorderWidth(2);
             }
 
-            Text(text).VAlign(TextAlign.Center).HAlign(TextAlign.Center).Color(C.Text);
-        DivEnd();
+            ui.Text(text).VAlign(TextAlign.Center).HAlign(TextAlign.Center).Color(C.Text);
+        ui.DivEnd();
 
         return btn.IsClicked;
     }
