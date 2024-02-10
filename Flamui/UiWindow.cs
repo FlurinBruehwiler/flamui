@@ -96,9 +96,10 @@ public partial class UiWindow : IDisposable
 
         _ui.Window = this;
 
-        RootContainer = new(this)
+        RootContainer = new()
         {
             Id = new UiElementId(),
+            Window = this
         };
 
     }

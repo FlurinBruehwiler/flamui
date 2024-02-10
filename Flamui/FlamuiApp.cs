@@ -4,8 +4,8 @@ namespace Flamui;
 
 public class WindowOptions
 {
-    public int Width { get; set; } = 1800;
-    public int Height { get; set; } = 900;
+    public int Width { get; set; } = 900;
+    public int Height { get; set; } = 500;
     public SizeConstraint? MinSize { get; set; }
     public SizeConstraint? MaxSize { get; set; }
 }

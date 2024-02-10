@@ -23,6 +23,7 @@ public abstract class UiElement : IData
     public bool PShrinkHeight { get; set; }
 
     public Bounds ComputedBounds;
+    public UiWindow Window { get; set; }
 
     public UiElement? GetPreviousSibling()
     {

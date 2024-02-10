@@ -22,7 +22,8 @@ public abstract class UiElementContainer : UiElement
         var newChild = new T
         {
             Id = uiElementId,
-            Parent = this
+            Parent = this,
+            Window = Window
         };
 
         Children.Add(newChild);

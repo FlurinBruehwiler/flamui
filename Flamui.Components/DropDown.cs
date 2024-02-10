@@ -8,7 +8,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
     private List<T> _options = new();
     private List<T> _filteredOptions;
 
-    [Parameter(true)]
+    [RefParameter]
     public required T SelectedOption { get; set; }
     private StartingState _startingState = StartingState.None;
     private int _hoveredOption;
@@ -22,13 +22,16 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             _filterText = string.Empty;
         }
 
-        ui.DivStart(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(C.Border).BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
+        ui.DivStart(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(C.Border)
+            .BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
+
             HandleStart(ui, dropDownDiv);
 
             ui.Text(SelectedOption?.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);
             ui.DivStart().Width(15);//ToDo, make it so that we can enforce a certain aspect ratio
                 ui.SvgImage("./Icons/expand_more.svg");
             ui.DivEnd();
+
             if (_isExpanded)
             {
                 //ToDo we really need to improve the layouting system!!!!
@@ -142,6 +145,8 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             else
                 OpenMenu();
         }
+
+        _options.Clear();
     }
 
     private void HandleStart(Ui ui, UiContainer dropDownDiv)

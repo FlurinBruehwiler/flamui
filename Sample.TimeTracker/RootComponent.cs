@@ -25,8 +25,8 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
                         b.Component.Option(ttf);
                     }
 
-                    b.Build();
-                    // storageService.OpenTimeTrackFile = x;
+                    b.Build(out var x);
+                    storageService.OpenTimeTrackFile = x;
                 }
 
                 if (ui.Button("Edit default entries", width: 150))

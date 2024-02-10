@@ -18,9 +18,17 @@ public class MethodGenerator : IIncrementalGenerator
 namespace Flamui;
 
 [AttributeUsage(AttributeTargets.Property)]
-public class ParameterAttribute(bool isRef = false) : Attribute
+public class ParameterAttribute : Attribute
 {
-    public bool IsRef { get; } = isRef;
+}
+");
+
+            x.AddSource("FlamuiSourceGenerators.RefParameterAttribute.cs", @"
+namespace Flamui;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class RefParameterAttribute : Attribute
+{
 }
 ");
         });
@@ -65,12 +73,21 @@ public class ParameterAttribute(bool isRef = false) : Attribute
                 if(attributeData.AttributeClass is null)
                     continue;
 
-                if(attributeData.AttributeClass.Name != "ParameterAttribute"
-                   || attributeData.AttributeClass.ContainingNamespace.ToDisplayString() != "Flamui")
+                if(attributeData.AttributeClass.ContainingNamespace.ToDisplayString() != "Flamui")
                     continue;
 
+                var isRef = false;
+
+                if (attributeData.AttributeClass.Name == "RefParameterAttribute")
+                {
+                    isRef = true;
+                }
+                else if (attributeData.AttributeClass.Name != "ParameterAttribute")
+                {
+                    continue;
+                }
+
                 var isRequired = propertySymbol.IsRequired;
-                var isRef = attributeData.ConstructorArguments.Any(x => x.Value?.ToString() == "true");
 
                 parameters.Add(new ComponentParameter(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), isRequired, isRef));
                 break;
