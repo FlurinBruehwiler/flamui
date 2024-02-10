@@ -8,4 +8,9 @@ public static class SymbolExtensions
     {
         return $"{typeSymbol.ContainingNamespace.ToDisplayString()}.{typeSymbol.ToDisplayString()}";
     }
+
+    public static string ToFileName(this string str)
+    {
+        return str.Replace("<", "_").Replace(">", "_");
+    }
 }

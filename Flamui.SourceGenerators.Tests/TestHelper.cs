@@ -24,7 +24,10 @@ public static class TestHelper
         // Run the source generator!
         driver = driver.RunGenerators(compilation);
 
+        var settings = new VerifySettings();
+        settings.UseDirectory("ExpectedOutput");
+
         // Use verify to snapshot test the source generator output!
-        return Verifier.Verify(driver);
+        return Verifier.Verify(driver, settings);
     }
 }

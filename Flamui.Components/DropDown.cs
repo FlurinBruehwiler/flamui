@@ -7,40 +7,42 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 {
     private List<T> _options = new();
     private List<T> _filteredOptions;
-    private T? _selectedOption;
+
+    [Parameter(true)]
+    public required T SelectedOption { get; set; }
     private StartingState _startingState = StartingState.None;
     private int _hoveredOption;
     private bool _isExpanded;
     private string? _filterText;
 
-    public override void Build()
+    public override void Build(Ui ui)
     {
-        if (_filterText is null && Window.TextInput != string.Empty)
+        if (_filterText is null && ui.Window.TextInput != string.Empty)
         {
             _filterText = string.Empty;
         }
 
-        DivStart(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(C.Border).BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
-            HandleStart(dropDownDiv);
+        ui.DivStart(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(C.Border).BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
+            HandleStart(ui, dropDownDiv);
 
-            Text(_selectedOption?.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);
-            DivStart().Width(15);//ToDo, make it so that we can enforce a certain aspect ratio
-                SvgImage("./Icons/expand_more.svg");
-            DivEnd();
+            ui.Text(SelectedOption?.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);
+            ui.DivStart().Width(15);//ToDo, make it so that we can enforce a certain aspect ratio
+                ui.SvgImage("./Icons/expand_more.svg");
+            ui.DivEnd();
             if (_isExpanded)
             {
                 //ToDo we really need to improve the layouting system!!!!
                 //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
-                DivStart().BlockHit().Height(25 * _options.Count + 10).Clip().ZIndex(100).Padding(5).Color(C.Background).Absolute(top:30).Rounded(5).BorderWidth(1).BorderColor(C.Border).Shadow(5, top:5).ShadowColor(0, 0, 0);
+                ui.DivStart().BlockHit().Height(25 * _options.Count + 10).Clip().ZIndex(100).Padding(5).Color(C.Background).Absolute(top:30).Rounded(5).BorderWidth(1).BorderColor(C.Border).Shadow(5, top:5).ShadowColor(0, 0, 0);
                     if (_filterText is not null)
                     {
                         var lastFilterText = _filterText;
 
-                        DivStart().Height(25).Padding(5).PaddingBottom(3).Gap(2);
-                            Input(ref _filterText, true);
-                            DivStart().Height(1).Color(C.Border);
-                            DivEnd();
-                        DivEnd();
+                        ui.DivStart().Height(25).Padding(5).PaddingBottom(3).Gap(2);
+                            ui.Input(ref _filterText, true);
+                            ui.DivStart().Height(1).Color(C.Border);
+                            ui.DivEnd();
+                        ui.DivEnd();
 
                         if (lastFilterText != _filterText)
                         {
@@ -52,10 +54,10 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                     foreach (var option in _filteredOptions)
                     {
                         var str = option.ToString()!;
-                        DivStart(out var optionDiv, str).Height(25).Color(C.Transparent).Padding(5).Rounded(3);
+                        ui.DivStart(out var optionDiv, str).Height(25).Color(C.Transparent).Padding(5).Rounded(3);
                             if (optionDiv.IsClicked)
                             {
-                                _selectedOption = option;
+                                SelectedOption = option;
                                 CloseMenu();
                             }
 
@@ -68,24 +70,24 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                             {
                                 optionDiv.Color(46, 67, 110);
                             }
-                            Text(str).VAlign(TextAlign.Center).Color(C.Text);
-                        DivEnd();
+                            ui.Text(str).VAlign(TextAlign.Center).Color(C.Text);
+                        ui.DivEnd();
                         index++;
                     }
 
                     if (_filteredOptions.Count == 0)
                     {
-                        Text("Nothing to show").HAlign(TextAlign.Center).VAlign(TextAlign.Center).Color(C.Text);
+                        ui.Text("Nothing to show").HAlign(TextAlign.Center).VAlign(TextAlign.Center).Color(C.Text);
                     }
-                DivEnd();
+                ui.DivEnd();
             }
 
-        DivEnd();
+        ui.DivEnd();
 
         if (dropDownDiv.HasFocusWithin)
         {
             dropDownDiv.BorderWidth(2).BorderColor(C.Blue);
-            if (!_isExpanded && (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN) || Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
+            if (!_isExpanded && (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN) || ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
             {
                 OpenMenu();
                 return;
@@ -94,34 +96,34 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
         if (_isExpanded)
         {
-            if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+            if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
             {
                 if (_hoveredOption != -1)
                 {
-                    _selectedOption = _filteredOptions[_hoveredOption];
+                    SelectedOption = _filteredOptions[_hoveredOption];
                     CloseMenu();
                     return;
                 }
             }
-            else if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_DOWN))
+            else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_DOWN))
             {
                 if (_hoveredOption < _filteredOptions.Count - 1)
                 {
                     _hoveredOption++;
                 }
-            }else if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_UP))
+            }else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_UP))
             {
                 if (_hoveredOption > 0)
                 {
                     _hoveredOption--;
                 }
-            }else if (Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE))
+            }else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE))
             {
                 CloseMenu();
                 return;
             }
 
-            if (!string.IsNullOrEmpty(Window.TextInput) && _filterText is not null)
+            if (!string.IsNullOrEmpty(ui.Window.TextInput) && _filterText is not null)
             {
                 UpdateFilteredOptions();
             }
@@ -142,7 +144,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
         }
     }
 
-    private void HandleStart(UiContainer dropDownDiv)
+    private void HandleStart(Ui ui, UiContainer dropDownDiv)
     {
         if (!dropDownDiv.IsNew)
             return;
@@ -158,7 +160,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                 _filterText = string.Empty;
                 goto case StartingState.Opened;
             case StartingState.Opened:
-                Window.ActiveDiv = dropDownDiv;
+                ui.Window.ActiveDiv = dropDownDiv;
                 OpenMenu();
                 break;
             default:
@@ -181,7 +183,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
     private void OpenMenu()
     {
-        _hoveredOption = _options.IndexOf(_selectedOption);
+        _hoveredOption = _options.IndexOf(SelectedOption);
         _isExpanded = true;
         _filterText = _startingState == StartingState.Filtered ? string.Empty : null;
         _filteredOptions = _options.ToList();
@@ -190,18 +192,6 @@ public class DropDown<T> : FlamuiComponent where T : notnull
     private void CloseMenu()
     {
         _isExpanded = false;
-    }
-
-    public DropDown<T> Selected(T? selectedOption)
-    {
-        _selectedOption = selectedOption;
-        return this;
-    }
-
-    public DropDown<T> Selected(out T selectedOption)
-    {
-        selectedOption = _selectedOption;
-        return this;
     }
 
     public DropDown<T> StartAs(StartingState startingState)

@@ -53,21 +53,21 @@ public class RootComponent : FlamuiComponent
         _snake.Enqueue(_head);
     }
 
-    public override void Build()
+    public override void Build(Ui ui)
     {
-        if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_W) && _direction != (0, 1))
+        if (ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_W) && _direction != (0, 1))
         {
             _direction = (0, -1);
         }
-        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_S) && _direction != (0, -1))
+        else if (ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_S) && _direction != (0, -1))
         {
             _direction = (0, 1);
         }
-        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_D) && _direction != (-1, 0))
+        else if (ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_D) && _direction != (-1, 0))
         {
             _direction = (1, 0);
         }
-        else if (Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_A) && _direction != (1, 0))
+        else if (ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_A) && _direction != (1, 0))
         {
             _direction = (-1, 0);
         }
@@ -87,16 +87,16 @@ public class RootComponent : FlamuiComponent
             _food = (Random.Shared.Next(0, Width), Random.Shared.Next(0, Height));
         }
 
-        DivStart().Padding(20);
-            DivStart().Gap(10).Padding(50).Border(2, C.Blue);
+        ui.DivStart().Padding(20);
+        ui.DivStart().Gap(10).Padding(50).Border(2, C.Blue);
             for (var y = 0; y < Height; y++)
             {
                 var key = S(y, static x => x.ToString());
-                DivStart(key).Height(50).Rounded(3).Color(C.Transparent).Dir(Dir.Horizontal).Gap(10);
+                ui.DivStart(key).Height(50).Rounded(3).Color(C.Transparent).Dir(Dir.Horizontal).Gap(10);
                     for (var x = 0; x < Width; x++)
                     {
                         var innerkey = S(x, static x => x.ToString());
-                        DivStart(out var div, innerkey).Height(50).Width(50).Border(2, C.Border).Rounded(3).Color(C.Transparent).Focusable().Padding(5);
+                        ui.DivStart(out var div, innerkey).Height(50).Width(50).Border(2, C.Border).Rounded(3).Color(C.Transparent).Focusable().Padding(5);
                             if (_snake.Contains((x, y)))
                             {
                                 div.Color(C.Blue);
@@ -111,11 +111,11 @@ public class RootComponent : FlamuiComponent
                             {
                                 div.Color(200, 0, 0);
                             }
-                        DivEnd();
+                            ui.DivEnd();
                     }
-                DivEnd();
+                    ui.DivEnd();
             }
-            DivEnd();
-        DivEnd();
+            ui.DivEnd();
+            ui.DivEnd();
     }
 }

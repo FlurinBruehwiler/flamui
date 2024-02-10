@@ -12,10 +12,18 @@ public class MethodGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Add the marker attribute to the compilation
-        context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
-            "EnumExtensionsAttribute.g.cs",
-            SourceText.From(BuilderClassGenerator.Attribute, Encoding.UTF8)));
+        context.RegisterPostInitializationOutput(x =>
+        {
+            x.AddSource("FlamuiSourceGenerators.ParameterAttribute.cs", @"
+namespace Flamui;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class ParameterAttribute(bool isRef = false) : Attribute
+{
+    public bool IsRef { get; } = isRef;
+}
+");
+        });
 
         var flamuiComponents = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: Filter, transform: Transform)
@@ -32,20 +40,18 @@ public class MethodGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(res, (ctx, component) =>
         {
             var result = BuilderClassGenerator.Generate(component);
-            ctx.AddSource($"FlamuiSourceGenerators.{component.FullName.Replace("<", "_").Replace(">", "_")}Builder.g.cs", SourceText.From(result, Encoding.UTF8));
-        });
+            ctx.AddSource($"FlamuiSourceGenerators.{component.FullName.ToFileName()}Builder.g.cs",
+                SourceText.From(result, Encoding.UTF8));
 
-        context.RegisterSourceOutput(res, (ctx, component) =>
-        {
-            var result = CreateMethodGenerator.Generate(component);
-            ctx.AddSource($"FlamuiSourceGenerators.{component.FullName.Replace("<", "_").Replace(">", "_")}.g.cs", SourceText.From(result, Encoding.UTF8));
+            var result2 = CreateMethodGenerator.Generate(component);
+            ctx.AddSource($"FlamuiSourceGenerators.{component.FullName.ToFileName()}.g.cs",
+                SourceText.From(result2, Encoding.UTF8));
         });
     }
 
     private static FlamuiComponentSg TypeSymbolToComponent(INamedTypeSymbol component, GeneratorSyntaxContext syntaxContext)
     {
-        //ToDo
-        //var attributeClass = syntaxContext.SemanticModel.Compilation.GetTypeByMetadataName("Flamui.ParameterAttribute");
+        // var attributeClass = syntaxContext.SemanticModel.Compilation.GetTypeByMetadataName("Flamui.ParameterAttribute");
 
         var parameters = new List<ComponentParameter>();
 
@@ -66,7 +72,7 @@ public class MethodGenerator : IIncrementalGenerator
                 var isRequired = propertySymbol.IsRequired;
                 var isRef = attributeData.ConstructorArguments.Any(x => x.Value?.ToString() == "true");
 
-                parameters.Add(new ComponentParameter(propertySymbol.Name, propertySymbol.Type.GetFullName(), isRequired, isRef));
+                parameters.Add(new ComponentParameter(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), isRequired, isRef));
                 break;
             }
         }

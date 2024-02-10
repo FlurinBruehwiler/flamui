@@ -5,7 +5,7 @@ namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static void Checkbox(this Flamui.Ui ui, ref bool enabled, string key = "",
+    public static void Checkbox(this Ui ui, ref bool enabled, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {

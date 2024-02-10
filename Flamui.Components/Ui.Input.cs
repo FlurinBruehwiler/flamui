@@ -6,7 +6,7 @@ namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static UiText Input(this Flamui.Ui ui, ref string text, bool hasFocus = false, string key = "",
+    public static UiText Input(this Ui ui, ref string text, bool hasFocus = false, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {

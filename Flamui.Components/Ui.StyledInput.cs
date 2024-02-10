@@ -5,7 +5,7 @@ namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static UiContainer StyledInput(this Flamui.Ui ui, ref string text, string placeholder = "", string key = "",
+    public static UiContainer StyledInput(this Ui ui, ref string text, string placeholder = "", string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {

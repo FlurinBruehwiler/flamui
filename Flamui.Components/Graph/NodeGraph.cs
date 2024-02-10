@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using Flamui.UiElements;
+using SDL2;
 
 namespace Flamui.Components.Graph;
 
@@ -45,10 +46,10 @@ public record struct ConnectionToDraw(
     string NodeIdB,
     string ConnectionFieldIdB);
 
-public class NodeGraph : OpenCloseComponent
+public class NodeGraph : FlamuiComponent
 {
-    private readonly IntPtr _dragCursor = SDL_CreateSystemCursor(SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL);
-    private readonly IntPtr _normalCursor = SDL_CreateSystemCursor(SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW);
+    private readonly IntPtr _dragCursor = SDL.SDL_CreateSystemCursor(SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL);
+    private readonly IntPtr _normalCursor = SDL.SDL_CreateSystemCursor(SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW);
     private Vector2? _creationDialogPos;
 
     public readonly List<Node> Nodes = [];
@@ -62,76 +63,73 @@ public class NodeGraph : OpenCloseComponent
 
     private UiContainer _background;
 
-    public override void Open()
+    public override void Build(Ui ui)
     {
         Nodes.Clear();
 
         DragEnd = null;
 
-        DivStart().ZIndex(-1).Clip();
-            DivStart(out _background).Color(29, 29, 29);
-                Start<Camera>().Info(Camera);
-                    HandleCameraMovement();
+        ui.DivStart().ZIndex(-1).Clip();
+        ui.DivStart(out _background).Color(29, 29, 29);
+        ui.Start<Camera>().Info(Camera);
+                    HandleCameraMovement(ui);
 
-                    Get<DotGrid>();
-    }
+                    ui.Get<DotGrid>();
 
-    public override void Close()
-    {
                     foreach (var node in Nodes)
                     {
-                        node.NodeComponent.Update();
+                        node.NodeComponent.Update(ui);
                     }
 
                     foreach (var connectionToDraw in _connectionsToDraw)
                     {
-                        DrawConnectionInternal(connectionToDraw);
+                        DrawConnectionInternal(ui, connectionToDraw);
                     }
 
-                    HandleNodeSelection();
+                    HandleNodeSelection(ui);
 
-                    HandleDragSelection();
+                    HandleDragSelection(ui);
 
-                    HandleConnectionDrag();
-                End<Camera>();
-            DivEnd();
-        DivEnd();
+                    HandleConnectionDrag(ui);
+                    ui.End<Camera>();
+                    ui.DivEnd();
+                    ui.DivEnd();
 
-        _connectionsToDraw.Clear();
+                    _connectionsToDraw.Clear();
 
-        OldNodes.Clear();
+                    OldNodes.Clear();
 
-        foreach (var node in Nodes)
-        {
-            node.ConnectionTargets.Clear();
-            OldNodes.Add(node.Key, node);
-        }
+                    foreach (var node in Nodes)
+                    {
+                        node.ConnectionTargets.Clear();
+                        OldNodes.Add(node.Key, node);
+                    }
     }
 
-    public void StartNode(string key, string name, out NodeComponent n)
-    {
-        if (!OldNodes.TryGetValue(key, out var node))
-        {
-            node = new Node(new Vector2(Random.Shared.Next(3000), Random.Shared.Next(2000)), key, name);
-        }
-
-        Nodes.Add(node);
-
-        // ReSharper disable once RedundantTypeArgumentsOfMethod
-        node.NodeComponent = StartComponent<NodeComponent, NcParam>(out n, new NcParam(node, this), name);
-    }
-
-    public void EndNode()
-    {
-        EndComponent<NodeComponent, NcParam>();
-    }
+    // public void StartNode(Ui ui, string key, string name, out NodeComponent n)
+    // {
+    //     if (!OldNodes.TryGetValue(key, out var node))
+    //     {
+    //         node = new Node(new Vector2(Random.Shared.Next(3000), Random.Shared.Next(2000)), key, name);
+    //     }
+    //
+    //     Nodes.Add(node);
+    //
+    //     // ReSharper disable once RedundantTypeArgumentsOfMethod
+    //     node.NodeComponent = ui.CreateNodeComponent(node, this, name).Component;
+    // }
+    //
+    // public void EndNode()
+    // {
+    //     EndComponent<NodeComponent, NcParam>();
+    // }
 
     public void DrawConnection(string nodeIdA, string connectionFieldIdA, string nodeIdB, string connectionFieldIdB)
     {
         _connectionsToDraw.Add(new ConnectionToDraw(nodeIdA, connectionFieldIdA, nodeIdB, connectionFieldIdB));
     }
 
-    private void DrawConnectionInternal(ConnectionToDraw connectionToDraw)
+    private void DrawConnectionInternal(Ui ui, ConnectionToDraw connectionToDraw)
     {
         ConnectionTarget targetA = new();
         ConnectionTarget targetB = new();
@@ -160,13 +158,13 @@ public class NodeGraph : OpenCloseComponent
 
         var connection = new Connection(targetA, targetB);
         //todo remove string allocation
-        Get<ConnectionLine>($"{connectionToDraw.NodeIdA}.{connectionToDraw.ConnectionFieldIdA}-{connectionToDraw.NodeIdB}.{connectionToDraw.ConnectionFieldIdB}")
+        ui.Get<ConnectionLine>($"{connectionToDraw.NodeIdA}.{connectionToDraw.ConnectionFieldIdA}-{connectionToDraw.NodeIdB}.{connectionToDraw.ConnectionFieldIdB}")
             .Dynamic(connection.A, connection.B);
     }
 
-    private void HandleNodeSelection()
+    private void HandleNodeSelection(Ui ui)
     {
-        if (Window.IsMouseButtonPressed(MouseButtonKind.Left))
+        if (ui.Window.IsMouseButtonPressed(MouseButtonKind.Left))
         {
             var dragStartNode = Nodes.FirstOrDefault(static x => x.IsClicked);
             if (dragStartNode is not null)
@@ -180,12 +178,12 @@ public class NodeGraph : OpenCloseComponent
 
                     node.IsClicked = false;
                     node.IsDragging = true;
-                    node.DragOffset = node.Pos - Camera.ScreenToWorld(Window.MousePosition);
+                    node.DragOffset = node.Pos - Camera.ScreenToWorld(ui.Window.MousePosition);
                 }
             }
-            else if(_background.ContainsPoint(Window.MousePosition))
+            else if(_background.ContainsPoint(ui.Window.MousePosition))
             {
-                if(!Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LSHIFT))
+                if(!ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LSHIFT))
                 {
                     foreach (var node in Nodes)
                     {
@@ -193,33 +191,33 @@ public class NodeGraph : OpenCloseComponent
                     }
                 }
 
-                SDL_CaptureMouse(SDL_bool.SDL_TRUE);
-                _mouseDragStartPos = Camera.ScreenToWorld(Window.MousePosition);
+                SDL.SDL_CaptureMouse(SDL.SDL_bool.SDL_TRUE);
+                _mouseDragStartPos = Camera.ScreenToWorld(ui.Window.MousePosition);
             }
         }
     }
 
-    private void HandleDragSelection()
+    private void HandleDragSelection(Ui ui)
     {
         if (_mouseDragStartPos is { } startPos)
         {
-            var mousePos = Camera.ScreenToWorld(Window.MousePosition);
+            var mousePos = Camera.ScreenToWorld(ui.Window.MousePosition);
 
             var xMax = Math.Max(mousePos.X, startPos.X);
             var yMax = Math.Max(mousePos.Y, startPos.Y);
             var xMin = Math.Min(mousePos.X, startPos.X);
             var yMin = Math.Min(mousePos.Y, startPos.Y);
 
-            DivStart(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning:true);
+            ui.DivStart(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning:true);
             selectionDiv.ComputedBounds.X = xMin;
             selectionDiv.ComputedBounds.Y = yMin;
             selectionDiv.Width(xMax - xMin);
             selectionDiv.Height(yMax - yMin);
-            DivEnd();
+            ui.DivEnd();
 
-            if (Window.IsMouseButtonReleased(MouseButtonKind.Left))
+            if (ui.Window.IsMouseButtonReleased(MouseButtonKind.Left))
             {
-                SDL_CaptureMouse(SDL_bool.SDL_FALSE);
+                SDL.SDL_CaptureMouse(SDL.SDL_bool.SDL_FALSE);
                 _mouseDragStartPos = null;
                 foreach (var node in Nodes)
                 {
@@ -232,11 +230,11 @@ public class NodeGraph : OpenCloseComponent
         }
     }
 
-    private void HandleConnectionDrag()
+    private void HandleConnectionDrag(Ui ui)
     {
         if (DragStart is not null)
         {
-            if (Window.IsMouseButtonReleased(MouseButtonKind.Left))
+            if (ui.Window.IsMouseButtonReleased(MouseButtonKind.Left))
             {
                 //Connection Drag end
                 // SDL_CaptureMouse(SDL_bool.SDL_FALSE);
@@ -246,7 +244,7 @@ public class NodeGraph : OpenCloseComponent
                 }
                 else
                 {
-                    _creationDialogPos = Window.MousePosition;
+                    _creationDialogPos = ui.Window.MousePosition;
                 }
                 DragStart = null;
             }
@@ -254,12 +252,12 @@ public class NodeGraph : OpenCloseComponent
             {
                 if (DragEnd is not null)
                 {
-                    Get<ConnectionLine>().Static(DragStart.Value, DragEnd.Value);
+                    ui.Get<ConnectionLine>().Static(DragStart.Value, DragEnd.Value);
                 }
                 else
                 {
-                    var end = Camera.ScreenToWorld(Window.MousePosition);
-                    Get<ConnectionLine>().Static(DragStart.Value, end);
+                    var end = Camera.ScreenToWorld(ui.Window.MousePosition);
+                    ui.Get<ConnectionLine>().Static(DragStart.Value, end);
                 }
             }
         }
@@ -275,36 +273,36 @@ public class NodeGraph : OpenCloseComponent
 
     private bool _isCameraDragging;
 
-    private void HandleCameraMovement()
+    private void HandleCameraMovement(Ui ui)
     {
-        if (!_background.ContainsPoint(Window.MousePosition))
+        if (!_background.ContainsPoint(ui.Window.MousePosition))
             return;
 
-        if (Window.IsMouseButtonDown(MouseButtonKind.Middle) || Window.IsMouseButtonDown(MouseButtonKind.Left) &&
-            (Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LCTRL) || Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_SPACE)))
+        if (ui.Window.IsMouseButtonDown(MouseButtonKind.Middle) || ui.Window.IsMouseButtonDown(MouseButtonKind.Left) &&
+            (ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL) || ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
         {
             if (!_isCameraDragging) //start drag
             {
-                SDL_SetCursor(_dragCursor);
+                SDL.SDL_SetCursor(_dragCursor);
             }
 
             _isCameraDragging = true;
-            var delta = Window.MouseDelta;
+            var delta = ui.Window.MouseDelta;
             delta *= -1.0f / Camera.Zoom;
             Camera.Target += delta;
         }
         else if (_isCameraDragging) //stop drag
         {
             _isCameraDragging = false;
-            SDL_SetCursor(_normalCursor);
+            SDL.SDL_SetCursor(_normalCursor);
         }
 
-        var scrollDelta = Window.ScrollDelta;
+        var scrollDelta = ui.Window.ScrollDelta;
 
         if (scrollDelta != 0)
         {
-            var mouseWorldPos =  Camera.ScreenToWorld(Window.MousePosition);
-            Camera.Offset = Window.MousePosition;
+            var mouseWorldPos =  Camera.ScreenToWorld(ui.Window.MousePosition);
+            Camera.Offset = ui.Window.MousePosition;
             Camera.Target = mouseWorldPos;
 
             const float zoomIncrement = 0.125f;

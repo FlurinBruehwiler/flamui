@@ -4,7 +4,7 @@ namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static bool SquareButton(this Flamui.Ui ui, string icon, string key = "",
+    public static bool SquareButton(this Ui ui, string icon, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
