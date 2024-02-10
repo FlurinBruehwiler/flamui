@@ -1,6 +1,8 @@
 # flamui
 A C# immediate mode desktop GUI framework.
 
+**This project is still in development!!!**
+
 Immediate mode means that you don't have to worry about state, the entire UI gets rebuilt every frame.
 There are a few optimizations to make this "fast":
 1. Zero memory allocation per Frame (if nothing changes)
