@@ -254,7 +254,7 @@ public partial class UiContainer : UiElementContainer
         return PCanScroll || IsClipped;
     }
 
-    public override void Layout(UiWindow uiWindow)
+    public override void Layout()
     {
         IsNew = false;
 
@@ -262,11 +262,21 @@ public partial class UiContainer : UiElementContainer
 
         var contentSize = ComputePosition();
 
+        if (PShrinkHeight)
+        {
+            ComputedBounds.H = contentSize.Heght;
+        }
+
+        if (PShirnkWidth)
+        {
+            ComputedBounds.W = contentSize.Width;
+        }
+
         if (PCanScroll)
         {
-            if (contentSize > ComputedBounds.H)
+            if (contentSize.Heght > ComputedBounds.H)
             {
-                ScrollPos = Math.Clamp(ScrollPos + uiWindow.ScrollDelta * 20, 0, contentSize - ComputedBounds.H);
+                ScrollPos = Math.Clamp(ScrollPos + Window.ScrollDelta * 20, 0, contentSize.Heght - ComputedBounds.H);
             }
             else
             {
@@ -282,7 +292,6 @@ public partial class UiContainer : UiElementContainer
             }
 
             childElement.ComputedBounds.Y -= ScrollPos;
-            childElement.Layout(uiWindow);
         }
     }
 }

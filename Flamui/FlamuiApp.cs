@@ -58,7 +58,6 @@ public class FlamuiApp
             throw new Exception();
         }
 
-
         var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
 
         Dispatcher.UIThread.InvokeAsync(() =>

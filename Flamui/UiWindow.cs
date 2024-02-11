@@ -109,6 +109,12 @@ public partial class UiWindow : IDisposable
 
     public void Update()
     {
+        var success = SDL_GL_MakeCurrent(_windowHandle, _openGlContextHandle);
+        if (success != 0)
+        {
+            throw new Exception();
+        }
+
         ProcessInputs();
         HitDetection();
         BuildUi();
@@ -202,13 +208,19 @@ public partial class UiWindow : IDisposable
 
     private void Layout()
     {
-        RootContainer.Layout(this);
+        RootContainer.Layout();
     }
 
     private bool _renderHappened;
 
     public void SwapWindow()
     {
+        var success = SDL_GL_MakeCurrent(_windowHandle, _openGlContextHandle);
+        if (success != 0)
+        {
+            throw new Exception();
+        }
+
         if(_renderHappened)
             SDL_GL_SwapWindow(_windowHandle);
 

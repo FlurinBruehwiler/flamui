@@ -46,7 +46,7 @@ public class DotGrid : UiElement
         // canvas.DrawRect(new SKRect(-5000, -5000, 10_000, 10_000), GridPaint2);
     }
 
-    public override void Layout(UiWindow uiWindow)
+    public override void Layout()
     {
     }
 

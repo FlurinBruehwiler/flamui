@@ -54,7 +54,7 @@ public class Camera : UiElementContainer
         });
     }
 
-    public override void Layout(UiWindow uiWindow)
+    public override void Layout()
     {
         foreach (var uiElement in Children)
         {
@@ -67,7 +67,7 @@ public class Camera : UiElementContainer
             {
                 uiElement.ComputedBounds.H = uiElement.PHeight.Value;
             }
-            uiElement.Layout(uiWindow);
+            uiElement.Layout();
         }
     }
 

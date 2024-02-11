@@ -23,43 +23,52 @@ public partial class UiContainer
         //2. Calculate size of remaining percentage based children
         //3. layout() percentage children
 
+        foreach (var child in Children)
+        {
+            if (child.PShrinkHeight)
+            {
+                child.Layout();
+            }
+        }
+
         switch (PDir)
         {
-            case EnumDir.Horizontal or EnumDir.RowReverse:
+            case EnumDir.Horizontal:
                 ComputeRowSize();
                 break;
-            case EnumDir.Vertical or EnumDir.ColumnReverse:
+            case EnumDir.Vertical:
                 ComputeColumnSize();
                 break;
         }
+
+        foreach (var child in Children)
+        {
+            if (!child.PShrinkHeight)
+            {
+                child.Layout();
+            }
+        }
     }
 
-    private float ComputePosition()
+    private Size ComputePosition()
     {
         switch (PmAlign)
         {
             case EnumMAlign.FlexStart:
                 return RenderFlexStart();
             case EnumMAlign.FlexEnd:
-                RenderFlexEnd();
-                break;
+                return RenderFlexEnd();
             case EnumMAlign.Center:
-                RenderCenter();
-                break;
+                return RenderCenter();
             case EnumMAlign.SpaceBetween:
-                RenderSpaceBetween();
-                break;
+                return RenderSpaceBetween();
             case EnumMAlign.SpaceAround:
-                RenderSpaceAround();
-                break;
+                return RenderSpaceAround();
             case EnumMAlign.SpaceEvenly:
-                RenderSpaceEvenly();
-                break;
+                return RenderSpaceEvenly();
             default:
                 throw new ArgumentOutOfRangeException();
         }
-
-        return 0;
     }
 
     private float GetCrossAxisOffset(UiElement item)
@@ -77,8 +86,8 @@ public partial class UiContainer
     {
         return PDir switch
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => ComputedBounds.W - (PPadding.Left + PPadding.Right),
-            EnumDir.Vertical or EnumDir.ColumnReverse => ComputedBounds.H - (PPadding.Top + PPadding.Bottom),
+            EnumDir.Horizontal => ComputedBounds.W - (PPadding.Left + PPadding.Right),
+            EnumDir.Vertical => ComputedBounds.H - (PPadding.Top + PPadding.Bottom),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -87,8 +96,8 @@ public partial class UiContainer
     {
         return PDir switch
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => ComputedBounds.H - (PPadding.Top + PPadding.Bottom),
-            EnumDir.Vertical or EnumDir.ColumnReverse => ComputedBounds.W - (PPadding.Left + PPadding.Right),
+            EnumDir.Horizontal => ComputedBounds.H - (PPadding.Top + PPadding.Bottom),
+            EnumDir.Vertical => ComputedBounds.W - (PPadding.Left + PPadding.Right),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -97,32 +106,43 @@ public partial class UiContainer
     {
         return PDir switch
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => item.ComputedBounds.W,
-            EnumDir.Vertical or EnumDir.ColumnReverse => item.ComputedBounds.H,
+            EnumDir.Horizontal => item.ComputedBounds.W,
+            EnumDir.Vertical => item.ComputedBounds.H,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     private float GetItemMainAxisFixedLength(UiElement item)
     {
-        return PDir switch
+        switch (PDir)
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => item.PWidth.Kind == SizeKind.Percentage
-                ? 0
-                : item.PWidth.GetDpiAwareValue(),
-            EnumDir.Vertical or EnumDir.ColumnReverse => item.PHeight.Kind == SizeKind.Percentage
-                ? 0
-                : item.PHeight.GetDpiAwareValue(),
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            case EnumDir.Horizontal:
+                if (item.PWidth.Kind == SizeKind.Percentage)
+                    return 0;
+
+                if (item.PShrinkHeight)
+                    return item.ComputedBounds.W;
+
+                return item.PWidth.GetDpiAwareValue();
+            case EnumDir.Vertical:
+                if (item.PHeight.Kind == SizeKind.Percentage)
+                    return 0;
+
+                if (item.PShrinkHeight)
+                    return item.ComputedBounds.W;
+
+                return item.PHeight.GetDpiAwareValue();
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     private float GetItemCrossAxisLength(UiElement item)
     {
         return PDir switch
         {
-            EnumDir.Horizontal or EnumDir.RowReverse => item.ComputedBounds.H,
-            EnumDir.Vertical or EnumDir.ColumnReverse => item.ComputedBounds.W,
+            EnumDir.Horizontal => item.ComputedBounds.H,
+            EnumDir.Vertical => item.ComputedBounds.W,
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -163,19 +183,26 @@ public partial class UiContainer
                 continue;
             }
 
-            item.ComputedBounds.H = item.PHeight.Kind switch
+            if (!item.PShrinkHeight)
             {
-                SizeKind.Percentage => item.PHeight.Value * sizePerPercent,
-                SizeKind.Pixel => item.PHeight.GetDpiAwareValue(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            item.ComputedBounds.W = item.PWidth.Kind switch
+                item.ComputedBounds.H = item.PHeight.Kind switch
+                {
+                    SizeKind.Percentage => item.PHeight.Value * sizePerPercent,
+                    SizeKind.Pixel => item.PHeight.GetDpiAwareValue(),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
+
+            if (!item.PShirnkWidth)
             {
-                SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
-                SizeKind.Percentage => (float)((ComputedBounds.W - (PPadding.Left + PPadding.Right)) *
-                                               item.PWidth.Value * 0.01),
-                _ => throw new ArgumentOutOfRangeException()
-            };
+                item.ComputedBounds.W = item.PWidth.Kind switch
+                {
+                    SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
+                    SizeKind.Percentage => (float)((ComputedBounds.W - (PPadding.Left + PPadding.Right)) *
+                                                   item.PWidth.Value * 0.01),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
         }
     }
 
@@ -186,12 +213,12 @@ public partial class UiContainer
 
         foreach (var child in Children)
         {
-            if (child is not UiContainer { PAbsolute: true })
+            if (child is UiContainer { PAbsolute: true })
+                continue;
+
+            if (child.PWidth.Kind == SizeKind.Percentage)
             {
-                if (child.PWidth.Kind == SizeKind.Percentage)
-                {
-                    totalPercentage += child.PWidth.Value;
-                }
+                totalPercentage += child.PWidth.Value;
             }
         }
 
@@ -214,19 +241,26 @@ public partial class UiContainer
                 continue;
             }
 
-            item.ComputedBounds.W = item.PWidth.Kind switch
+            if (!item.PShirnkWidth)
             {
-                SizeKind.Percentage => item.PWidth.Value * sizePerPercent,
-                SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            item.ComputedBounds.H = item.PHeight.Kind switch
+                item.ComputedBounds.W = item.PWidth.Kind switch
+                {
+                    SizeKind.Percentage => item.PWidth.Value * sizePerPercent,
+                    SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
+
+            if (!item.PShrinkHeight)
             {
-                SizeKind.Pixel => item.PHeight.GetDpiAwareValue(),
-                SizeKind.Percentage => (float)(ComputedBounds.H * item.PHeight.Value * 0.01 -
-                                               (PPadding.Top + PPadding.Bottom)),
-                _ => throw new ArgumentOutOfRangeException()
-            };
+                item.ComputedBounds.H = item.PHeight.Kind switch
+                {
+                    SizeKind.Pixel => item.PHeight.GetDpiAwareValue(),
+                    SizeKind.Percentage => (float)(ComputedBounds.H * item.PHeight.Value * 0.01 -
+                                                   (PPadding.Top + PPadding.Bottom)),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
         }
     }
 
@@ -314,9 +348,10 @@ public partial class UiContainer
         return GetMainAxisLength() - sum;
     }
 
-    private float RenderFlexStart()
+    private Size RenderFlexStart()
     {
         var mainOffset = 0f;
+        var crossSize = 0f;
 
         foreach (var child in Children)
         {
@@ -328,12 +363,26 @@ public partial class UiContainer
 
             DrawWithMainOffset(mainOffset, child);
             mainOffset += GetItemMainAxisLength(child) + PGap;
+
+            var childCrossSize = GetItemCrossAxisLength(child);
+            if (childCrossSize > crossSize)
+                crossSize += childCrossSize;
         }
 
-        return mainOffset - PGap;
+        var mainSize = mainOffset - PGap;
+
+        var vertialPadding = PPadding.Top + PPadding.Bottom;
+        var horizontalPadding = PPadding.Left + PPadding.Right;
+
+        return PDir switch
+        {
+            EnumDir.Horizontal => new Size(mainSize + vertialPadding, crossSize + horizontalPadding),
+            EnumDir.Vertical => new Size(crossSize + vertialPadding, mainSize + horizontalPadding),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
-    private void RenderFlexEnd()
+    private Size RenderFlexEnd()
     {
         var mainOffset = RemainingMainAxisSize();
 
@@ -348,9 +397,11 @@ public partial class UiContainer
             DrawWithMainOffset(mainOffset, child);
             mainOffset += GetItemMainAxisLength(child) + PGap;
         }
+
+        return new Size();
     }
 
-    private void RenderCenter()
+    private Size RenderCenter()
     {
         var mainOffset = RemainingMainAxisSize() / 2;
 
@@ -365,9 +416,11 @@ public partial class UiContainer
             DrawWithMainOffset(mainOffset, child);
             mainOffset += GetItemMainAxisLength(child) + PGap;
         }
+
+        return new Size();
     }
 
-    private void RenderSpaceBetween()
+    private Size RenderSpaceBetween()
     {
         var totalRemaining = RemainingMainAxisSize();
         var space = totalRemaining / (Children.Count - 1);
@@ -385,9 +438,11 @@ public partial class UiContainer
             DrawWithMainOffset(mainOffset, child);
             mainOffset += GetItemMainAxisLength(child) + space + PGap;
         }
+
+        return new Size();
     }
 
-    private void RenderSpaceAround()
+    private Size RenderSpaceAround()
     {
         var totalRemaining = RemainingMainAxisSize();
         var space = totalRemaining / Children.Count / 2;
@@ -406,9 +461,11 @@ public partial class UiContainer
             DrawWithMainOffset(mainOffset, child);
             mainOffset += GetItemMainAxisLength(child) + space + PGap;
         }
+
+        return new Size();
     }
 
-    private void RenderSpaceEvenly()
+    private Size RenderSpaceEvenly()
     {
         var totalRemaining = RemainingMainAxisSize();
         var space = totalRemaining / (Children.Count + 1);
@@ -426,6 +483,8 @@ public partial class UiContainer
             DrawWithMainOffset(mainOffset, child);
             mainOffset += GetItemMainAxisLength(child) + space + PGap;
         }
+
+        return new Size();
     }
 
     private void DrawWithMainOffset(float mainOffset, UiElement item)
@@ -436,18 +495,9 @@ public partial class UiContainer
                 item.ComputedBounds.X = mainOffset;
                 item.ComputedBounds.Y = GetCrossAxisOffset(item);
                 break;
-            case EnumDir.RowReverse:
-                item.ComputedBounds.X = ComputedBounds.W - (PPadding.Left + PPadding.Right) - mainOffset -
-                                  item.ComputedBounds.W;
-                item.ComputedBounds.Y = GetCrossAxisOffset(item);
-                break;
             case EnumDir.Vertical:
                 item.ComputedBounds.X = GetCrossAxisOffset(item);
                 item.ComputedBounds.Y = mainOffset;
-                break;
-            case EnumDir.ColumnReverse:
-                item.ComputedBounds.X = GetCrossAxisOffset(item);
-                item.ComputedBounds.Y = ComputedBounds.H - mainOffset - item.ComputedBounds.H;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

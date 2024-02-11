@@ -7,12 +7,6 @@ public interface IData
     public UiElementId Id { get; set; }
 }
 
-[AttributeUsage(AttributeTargets.Method)]
-public class BuilderAttribute : Attribute
-{
-
-}
-
 [DebuggerDisplay("Line = {Id.Line} Key = {Id.Key}")]
 public abstract class UiElement : IData
 {
@@ -21,6 +15,7 @@ public abstract class UiElement : IData
     public SizeDefinition PWidth { get; set; } = new(100, SizeKind.Percentage);
     public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
     public bool PShrinkHeight { get; set; }
+    public bool PShirnkWidth { get; set; }
 
     public Bounds ComputedBounds;
     public UiWindow Window { get; set; }
@@ -53,7 +48,7 @@ public abstract class UiElement : IData
         return null;
     }
     public abstract void Render(RenderContext renderContext);
-    public abstract void Layout(UiWindow uiWindow);
+    public abstract void Layout();
     public abstract bool LayoutHasChanged();
     public abstract bool HasChanges();
 
@@ -64,3 +59,5 @@ public abstract class UiElement : IData
 }
 
 public record struct UiElementId(string Key, string Path, int Line);
+
+public record struct Size(float Width, float Heght);

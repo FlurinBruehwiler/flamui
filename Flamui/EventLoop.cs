@@ -10,16 +10,19 @@ public class EventLoop
     {
         FlamuiSynchronizationContext.Install();
 
+        Console.WriteLine(Environment.CurrentManagedThreadId);
+
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         {
             // Handle initialization error
-            Console.WriteLine($"SDL_Init Error: {SDL_GetError()}");
             throw new Exception();
         }
     }
 
     public void RunMainThread()
     {
+        Console.WriteLine(Environment.CurrentManagedThreadId);
+
         var quit = false;
         while (!quit)
         {
@@ -93,6 +96,7 @@ public class EventLoop
 
         while (true)
         {
+
             var startTime = Stopwatch.GetTimestamp();
 
             foreach (var window in Windows)

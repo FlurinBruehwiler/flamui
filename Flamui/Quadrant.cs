@@ -44,9 +44,7 @@ public enum MAlign
 public enum Dir
 {
     Horizontal,
-    RowReverse,
     Vertical,
-    ColumnReverse
 }
 
 public enum XAlign

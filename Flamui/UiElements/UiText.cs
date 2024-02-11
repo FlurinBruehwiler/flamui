@@ -82,7 +82,7 @@ public class UiText : UiElement
         });
     }
 
-    public override void Layout(UiWindow uiWindow)
+    public override void Layout()
     {
     }
 

@@ -133,6 +133,12 @@ public partial class UiContainer
         return this;
     }
 
+    public UiContainer ShrinkWidth()
+    {
+        PShirnkWidth = true;
+        return this;
+    }
+
     public UiContainer Clip(bool isClipped = true)
     {
         IsClipped = isClipped;

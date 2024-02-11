@@ -170,7 +170,7 @@ public class ConnectionLine : UiElement
         return value + subtract;
     }
 
-    public override void Layout(UiWindow uiWindow)
+    public override void Layout()
     {
     }
 
