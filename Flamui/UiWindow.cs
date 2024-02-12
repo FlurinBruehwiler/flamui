@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using Flamui.UiElements;
-using Sample.ComponentGallery;
 using SkiaSharp;
 
 namespace Flamui;
@@ -196,11 +195,11 @@ public partial class UiWindow : IDisposable
 
     private void DrawDebugOverlay(RenderContext renderContext)
     {
-        if (DebugWindow.SelectedUiElement is not null && DebugWindow.SelectedUiElement.Window == this)
+        if (DebugSelectedUiElement is not null && DebugSelectedUiElement.Window == this)
         {
             renderContext.Add(new Save());
 
-            var rect = DebugWindow.SelectedUiElement.ComputedBounds;
+            var rect = DebugSelectedUiElement.ComputedBounds;
 
             renderContext.Add(new RectClip
             {

@@ -1,25 +1,30 @@
-using Flamui;
+using Flamui.Components;
 using Flamui.UiElements;
 
-namespace Sample.ComponentGallery;
+namespace Flamui;
 
 public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 {
-    public static UiElement? SelectedUiElement;
+
 
     public override void Build(Ui ui)
     {
         var otherWindow = eventLoop.Windows.First(x => x != ui.Window);
 
+        ui.DivStart().Padding(3).ShrinkHeight();
+            ui.Button("Select");
+        ui.DivEnd();
+
+        //ToDo, fix size bug, because the header is actually shrunken and not 50%
         ui.DivStart().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(C.Background);
             ui.DivStart().Gap(5);
                 DisplayUiElement(ui, otherWindow.RootContainer,  39210, 1);
             ui.DivEnd();
 
             ui.DivStart();
-                if (SelectedUiElement is not null)
+                if (Ui.DebugSelectedUiElement is not null)
                 {
-                    DisplayDetail(ui, SelectedUiElement);
+                    DisplayDetail(ui, Ui.DebugSelectedUiElement);
                 }
             ui.DivEnd();
 
@@ -36,10 +41,10 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 
         if (div.IsClicked)
         {
-            SelectedUiElement = uiElement;
+            Ui.DebugSelectedUiElement = uiElement;
         }
 
-        if (SelectedUiElement == uiElement)
+        if (Ui.DebugSelectedUiElement == uiElement)
         {
             div.Color(C.Selected);
         }

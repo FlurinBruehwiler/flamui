@@ -1,7 +1,12 @@
+using Flamui.UiElements;
+
 namespace Flamui;
 
 public partial class Ui
 {
+    //todo find better solution because putting this here is just stupid :)
+    public static UiElement? DebugSelectedUiElement;
+
     private static Dictionary<int, string> _cachedStrings = new();
 
     public static string S<T1>(T1 param1)
