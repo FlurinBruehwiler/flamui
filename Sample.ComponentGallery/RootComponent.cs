@@ -4,7 +4,7 @@ using SDL2;
 
 namespace Sample.ComponentGallery;
 
-public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
+public class RootComponent : FlamuiComponent
 {
     private string _selectedOption = "Mark";
     private bool _checkboxState;
@@ -37,10 +37,5 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
             ui.Button("Click be (primary)", primary:true, width: 150);
 
         ui.DivEnd();
-
-        if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_F12))
-        {
-            flamuiApp.CreateWindow<DebugWindow>("Debug window");
-        }
     }
 }

@@ -4,6 +4,20 @@ public partial class Ui
 {
     private static Dictionary<int, string> _cachedStrings = new();
 
+    public static string S<T1>(T1 param1)
+        where T1 : notnull
+    {
+        var hash = param1.GetHashCode();
+        if (_cachedStrings.TryGetValue(hash, out var cachedValue))
+        {
+            return cachedValue;
+        }
+
+        var value = param1.ToString();
+        _cachedStrings.Add(hash, value);
+        return value;
+    }
+
     public static string S<T1>(T1 param1, Func<T1, string> map)
         where T1 : notnull
     {

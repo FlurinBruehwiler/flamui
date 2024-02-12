@@ -21,6 +21,7 @@ public class FlamuiApp
     internal FlamuiApp(IServiceCollection services)
     {
         services.AddSingleton(this);
+        services.AddSingleton(_eventLoop);
 
         var rootProvider = services.BuildServiceProvider();
         Services = rootProvider.CreateScope().ServiceProvider;
