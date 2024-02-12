@@ -1,6 +1,5 @@
 using Flamui;
 using Flamui.Components;
-using SDL2;
 
 namespace Sample.ComponentGallery;
 
@@ -12,8 +11,6 @@ public class RootComponent : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-
-
         ui.DivStart().Padding(10).Color(C.Background).Gap(10);
 
             ui.DivStart().Width(150).ShrinkHeight();

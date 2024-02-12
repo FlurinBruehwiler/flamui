@@ -168,6 +168,11 @@ public struct Bounds
             && otherBounds.W == W
             && otherBounds.H == H;
     }
+
+    public override string ToString()
+    {
+        return $"x:{X}, y:{Y}, w:{W}, h:{H}";
+    }
 }
 
 public struct RectClip : IRenderable

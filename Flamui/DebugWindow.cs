@@ -5,7 +5,7 @@ namespace Sample.ComponentGallery;
 
 public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 {
-    private UiElement? _selectedUiElement;
+    public static UiElement? SelectedUiElement;
 
     public override void Build(Ui ui)
     {
@@ -17,9 +17,9 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
             ui.DivEnd();
 
             ui.DivStart();
-                if (_selectedUiElement is not null)
+                if (SelectedUiElement is not null)
                 {
-                    DisplayDetail(ui, _selectedUiElement);
+                    DisplayDetail(ui, SelectedUiElement);
                 }
             ui.DivEnd();
 
@@ -36,10 +36,10 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 
         if (div.IsClicked)
         {
-            _selectedUiElement = uiElement;
+            SelectedUiElement = uiElement;
         }
 
-        if (_selectedUiElement == uiElement)
+        if (SelectedUiElement == uiElement)
         {
             div.Color(C.Selected);
         }

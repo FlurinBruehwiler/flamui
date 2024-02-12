@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Flamui.UiElements;
+using Sample.ComponentGallery;
 using SkiaSharp;
 
 namespace Flamui;
@@ -102,7 +103,12 @@ public partial class UiWindow : IDisposable
             Window = this
         };
 
+        DebugPaint = Helpers.GetNewAntialiasedPaint();
+        DebugPaint.Color = C.Blue.ToSkColor();
+
     }
+
+    private SKPaint DebugPaint;
 
     public RenderContext LastRenderContext = new();
     public RenderContext RenderContext = new();
@@ -153,6 +159,8 @@ public partial class UiWindow : IDisposable
         RootContainer.Render(RenderContext);
     }
 
+
+
     private void RenderToCanvas()
     {
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
@@ -160,17 +168,29 @@ public partial class UiWindow : IDisposable
         using var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
         using var surface = SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
-        var requiresRerender = RenderContext.RequiresRerender(LastRenderContext);
+        var requiresRerender = true;//RenderContext.RequiresRerender(LastRenderContext);
 
         //todo wtf is happening grrrr it makes 0 sense
-        if (requiresRerender)
+        if (requiresRerender)//todo enable again
         {
             // var start = Stopwatch.GetTimestamp();
-
 
             surface.Canvas.Clear();
 
             RenderContext.Rerender(surface.Canvas);
+
+            if (DebugWindow.SelectedUiElement is not null && DebugWindow.SelectedUiElement.Window == this)
+            {
+                surface.Canvas.Save();
+
+                var rect = DebugWindow.SelectedUiElement.ComputedBounds.ToRect();
+                surface.Canvas.ClipRect(rect, SKClipOperation.Difference);
+
+                rect.Inflate(2, 2);
+                surface.Canvas.DrawRect(rect, DebugPaint);
+
+                surface.Canvas.Restore();
+            }
 
             surface.Canvas.Flush();
 
