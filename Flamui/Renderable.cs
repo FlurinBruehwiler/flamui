@@ -169,6 +169,17 @@ public struct Bounds
             && otherBounds.H == H;
     }
 
+    public Bounds Inflate(float x, float y)
+    {
+        return new Bounds
+        {
+            X = X - x,
+            Y = Y - y,
+            W = W + 2 * x,
+            H = H + 2 * y
+        };
+    }
+
     public override string ToString()
     {
         return $"x:{X}, y:{Y}, w:{W}, h:{H}";

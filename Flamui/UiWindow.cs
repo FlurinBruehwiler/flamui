@@ -168,29 +168,18 @@ public partial class UiWindow : IDisposable
         using var renderTarget = new GRBackendRenderTarget(width, height, 0, 8, new GRGlFramebufferInfo(0, 0x8058));
         using var surface = SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKColorType.Rgba8888);
 
-        var requiresRerender = true;//RenderContext.RequiresRerender(LastRenderContext);
+        DrawDebugOverlay(RenderContext);
+
+        var requiresRerender = RenderContext.RequiresRerender(LastRenderContext);
 
         //todo wtf is happening grrrr it makes 0 sense
-        if (requiresRerender)//todo enable again
+        if (requiresRerender)
         {
             // var start = Stopwatch.GetTimestamp();
 
             surface.Canvas.Clear();
 
             RenderContext.Rerender(surface.Canvas);
-
-            if (DebugWindow.SelectedUiElement is not null && DebugWindow.SelectedUiElement.Window == this)
-            {
-                surface.Canvas.Save();
-
-                var rect = DebugWindow.SelectedUiElement.ComputedBounds.ToRect();
-                surface.Canvas.ClipRect(rect, SKClipOperation.Difference);
-
-                rect.Inflate(2, 2);
-                surface.Canvas.DrawRect(rect, DebugPaint);
-
-                surface.Canvas.Restore();
-            }
 
             surface.Canvas.Flush();
 
@@ -203,6 +192,35 @@ public partial class UiWindow : IDisposable
         (LastRenderContext, RenderContext) = (RenderContext, LastRenderContext);
 
         _renderHappened = requiresRerender;
+    }
+
+    private void DrawDebugOverlay(RenderContext renderContext)
+    {
+        if (DebugWindow.SelectedUiElement is not null && DebugWindow.SelectedUiElement.Window == this)
+        {
+            renderContext.Add(new Save());
+
+            var rect = DebugWindow.SelectedUiElement.ComputedBounds;
+
+            renderContext.Add(new RectClip
+            {
+                Bounds = rect,
+                ClipOperation = SKClipOperation.Difference,
+                Radius = 0
+            });
+
+            renderContext.Add(new Rect
+            {
+                Bounds = rect.Inflate(2, 2),
+                Radius = 0,
+                RenderPaint = new PlaintPaint
+                {
+                    SkColor = C.Blue.ToSkColor()
+                },
+                UiElement = null
+            });
+
+        }
     }
 
     private void ProcessInputs()
