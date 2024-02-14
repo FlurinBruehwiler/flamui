@@ -40,7 +40,7 @@ public partial class UiWindow : IDisposable
     private readonly Input _input = new();
     private readonly HitTester _hitTester;
     private readonly TabIndexManager _tabIndexManager = new();
-    private readonly Ui _ui = new();
+    public readonly Ui Ui = new();
 
     public UiContainer? ActiveDiv
     {
@@ -94,7 +94,7 @@ public partial class UiWindow : IDisposable
             AvoidStencilBuffers = true
         });
 
-        _ui.Window = this;
+        Ui.Window = this;
 
         RootContainer = new()
         {
@@ -232,15 +232,15 @@ public partial class UiWindow : IDisposable
     {
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
-        _ui.OpenElementStack.Clear();
-        _ui.OpenElementStack.Push(RootContainer);
-        _ui.Root = RootContainer;
+        Ui.OpenElementStack.Clear();
+        Ui.OpenElementStack.Push(RootContainer);
+        Ui.Root = RootContainer;
         RootContainer.ComputedBounds.W = width;
         RootContainer.ComputedBounds.H = height;
 
         RootContainer.OpenElement();
 
-        _rootComponent.Build(_ui);
+        _rootComponent.Build(Ui);
     }
 
     private void Layout()

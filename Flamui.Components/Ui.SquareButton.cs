@@ -8,8 +8,8 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        ui.DivStart(out var btn, key, path, line).Height(30).Width(30).Rounded(2).Focusable().Color(C.Transparent);
-
+        using (ui.Div(out var btn, key, path, line).Height(30).Width(30).Rounded(2).Focusable().Color(C.Transparent))
+        {
             if (btn.HasFocusWithin)
             {
                 btn.BorderColor(C.Blue).BorderWidth(2);
@@ -17,8 +17,8 @@ public static partial class UiExtensions
 
             ui.SvgImage(icon, C.Text);
 
-        ui.DivEnd();
+            return btn.IsClicked;
 
-        return btn.IsClicked;
+        }
     }
 }

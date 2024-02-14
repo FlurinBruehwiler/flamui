@@ -1,5 +1,6 @@
 using Flamui;
 using Sample;
+using Sample.Snake;
 
 var builder = FlamuiApp.CreateBuilder();
 

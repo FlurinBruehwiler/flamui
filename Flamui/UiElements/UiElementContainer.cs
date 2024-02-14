@@ -2,7 +2,7 @@
 
 namespace Flamui.UiElements;
 
-public abstract class UiElementContainer : UiElement
+public abstract class UiElementContainer : UiElement, IDisposable
 {
     public List<UiElement> Children { get; set; } = new();
     public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
@@ -55,14 +55,14 @@ public abstract class UiElementContainer : UiElement
         Data.Clear();
     }
 
-    public virtual void CloseElement()
-    {
-
-    }
-
     public bool ContainsPoint(Vector2 pos)
     {
         return ComputedBounds.X <= pos.X && ComputedBounds.X + ComputedBounds.W >= pos.X && ComputedBounds.Y <= pos.Y &&
                ComputedBounds.Y + ComputedBounds.H >= pos.Y;
+    }
+
+    public void Dispose()
+    {
+        Window.Ui.OpenElementStack.Pop();
     }
 }

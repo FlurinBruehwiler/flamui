@@ -5,52 +5,54 @@ namespace Flamui;
 
 public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 {
-
-
     public override void Build(Ui ui)
     {
         var otherWindow = eventLoop.Windows.First(x => x != ui.Window);
 
-        ui.DivStart().Padding(3).ShrinkHeight();
+        using (ui.Div().Padding(3).ShrinkHeight())
+        {
             ui.Button("Select");
-        ui.DivEnd();
+        }
 
         //ToDo, fix size bug, because the header is actually shrunken and not 50%
-        ui.DivStart().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(C.Background);
-            ui.DivStart().Gap(5);
-                DisplayUiElement(ui, otherWindow.RootContainer,  39210, 1);
-            ui.DivEnd();
+        using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(C.Background))
+        {
+            using (ui.Div().Gap(5))
+            {
+                DisplayUiElement(ui, otherWindow.RootContainer, 39210, 1);
+            }
 
-            ui.DivStart();
+            using (ui.Div())
+            {
                 if (Ui.DebugSelectedUiElement is not null)
                 {
                     DisplayDetail(ui, Ui.DebugSelectedUiElement);
                 }
-            ui.DivEnd();
-
-        ui.DivEnd();
+            }
+        }
     }
 
     private void DisplayUiElement(Ui ui, UiElement uiElement, int parentHash, int indentationLevel)
     {
         var key = Ui.S(uiElement.Id.GetHashCode() + parentHash);
 
-        ui.DivStart(out var div, key).PaddingLeft(indentationLevel * 10).Height(20).Border(1, C.Border).Rounded(2);
+        using (ui.Div(out var div, key).PaddingLeft(indentationLevel * 10).Height(20).Border(1, C.Border).Rounded(2))
+        {
             ui.Text(ToString(uiElement));
-        ui.DivEnd();
 
-        if (div.IsClicked)
-        {
-            Ui.DebugSelectedUiElement = uiElement;
-        }
+            if (div.IsClicked)
+            {
+                Ui.DebugSelectedUiElement = uiElement;
+            }
 
-        if (Ui.DebugSelectedUiElement == uiElement)
-        {
-            div.Color(C.Selected);
-        }
-        else
-        {
-            div.Color(C.Transparent);
+            if (Ui.DebugSelectedUiElement == uiElement)
+            {
+                div.Color(C.Selected);
+            }
+            else
+            {
+                div.Color(C.Transparent);
+            }
         }
 
         if (uiElement is UiElementContainer container)
@@ -66,9 +68,10 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
     {
         foreach (var propertyInfo in uiElement.GetType().GetProperties())
         {
-            ui.DivStart(propertyInfo.Name).Height(20);
+            using (ui.Div(propertyInfo.Name).Height(20))
+            {
                 ui.Text($"{propertyInfo.Name}: {propertyInfo.GetValue(uiElement)}");
-            ui.DivEnd();
+            }
         }
     }
 

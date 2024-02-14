@@ -34,26 +34,21 @@ public partial class Ui
     //     return subStack.CurrentStack.Pop().Children;
     // }
 
-    public UiContainer DivStart(
+    public UiContainer Div(
         out UiContainer uiContainer,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        return uiContainer = DivStart(key, path, line);
+        return uiContainer = Div(key, path, line);
     }
 
-    public UiContainer DivStart(
+    public UiContainer Div(
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
         return Start<UiContainer>(key, path, line);
-    }
-
-    public void DivEnd()
-    {
-        End<UiContainer>();
     }
 
     public T Start<T>(string key = "",
@@ -66,10 +61,6 @@ public partial class Ui
         return el;
     }
 
-    public void End<T>() where T : UiElementContainer, new()
-    {
-        OpenElementStack.Pop().CloseElement();
-    }
 
     public string LastKey;
 

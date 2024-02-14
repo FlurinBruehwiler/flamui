@@ -119,11 +119,6 @@ public partial class UiContainer : UiElementContainer
     public float ScrollPos { get; set; }
     public bool IsClipped { get; set; }
 
-    public override void CloseElement()
-    {
-
-    }
-
     public override void Render(RenderContext renderContext)
     {
         if (PZIndex != 0)

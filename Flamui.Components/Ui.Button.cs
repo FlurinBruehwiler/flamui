@@ -9,8 +9,8 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        ui.DivStart(out var btn, key, path, line).Height(23).Width(width).Rounded(2).Focusable(focusable);
-
+        using (ui.Div(out var btn, key, path, line).Height(23).Width(width).Rounded(2).Focusable(focusable))
+        {
             if (primary)
             {
                 btn.Color(C.Blue).BorderWidth(0);
@@ -26,8 +26,8 @@ public static partial class UiExtensions
             }
 
             ui.Text(text).VAlign(TextAlign.Center).HAlign(TextAlign.Center).Color(C.Text);
-        ui.DivEnd();
 
-        return btn.IsClicked;
+            return btn.IsClicked;
+        }
     }
 }

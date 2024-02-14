@@ -1,6 +1,6 @@
 using Flamui;
 
-namespace Sample;
+namespace Sample.Snake;
 
 public class RootComponent : FlamuiComponent
 {
@@ -87,35 +87,40 @@ public class RootComponent : FlamuiComponent
             _food = (Random.Shared.Next(0, Width), Random.Shared.Next(0, Height));
         }
 
-        ui.DivStart().Padding(20);
-        ui.DivStart().Gap(10).Padding(50).Border(2, C.Blue);
-            for (var y = 0; y < Height; y++)
+        using (ui.Div().Padding(20))
+        {
+            using (ui.Div().Gap(10).Padding(50).Border(2, C.Blue))
             {
-                var key = S(y, static x => x.ToString());
-                ui.DivStart(key).Height(50).Rounded(3).Color(C.Transparent).Dir(Dir.Horizontal).Gap(10);
-                    for (var x = 0; x < Width; x++)
+                for (var y = 0; y < Height; y++)
+                {
+                    var key = S(y, static x => x.ToString());
+                    using (ui.Div(key).Height(50).Rounded(3).Color(C.Transparent).Dir(Dir.Horizontal).Gap(10))
                     {
-                        var innerkey = S(x, static x => x.ToString());
-                        ui.DivStart(out var div, innerkey).Height(50).Width(50).Border(2, C.Border).Rounded(3).Color(C.Transparent).Focusable().Padding(5);
-                            if (_snake.Contains((x, y)))
+                        for (var x = 0; x < Width; x++)
+                        {
+                            var innerkey = S(x, static x => x.ToString());
+                            using (ui.Div(out var div, innerkey).Height(50).Width(50).Border(2, C.Border).Rounded(3)
+                                       .Color(C.Transparent).Focusable().Padding(5))
                             {
-                                div.Color(C.Blue);
-                            }
+                                if (_snake.Contains((x, y)))
+                                {
+                                    div.Color(C.Blue);
+                                }
 
-                            if (_head == (x, y))
-                            {
-                                div.Color(0, 0, 255);
-                            }
+                                if (_head == (x, y))
+                                {
+                                    div.Color(0, 0, 255);
+                                }
 
-                            if (_food == (x, y))
-                            {
-                                div.Color(200, 0, 0);
+                                if (_food == (x, y))
+                                {
+                                    div.Color(200, 0, 0);
+                                }
                             }
-                            ui.DivEnd();
+                        }
                     }
-                    ui.DivEnd();
+                }
             }
-            ui.DivEnd();
-            ui.DivEnd();
+        }
     }
 }

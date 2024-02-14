@@ -10,45 +10,44 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        ui.DivStart(key, path, line);
-
-        if (hasFocus)
+        using (ui.Div(key, path, line))
         {
-            var input = ui.Window.TextInput;
-
-            if (!string.IsNullOrEmpty(input))
-                text += ui.Window.TextInput;
-
-            if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
+            if (hasFocus)
             {
-                if (ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
-                {
-                    text = text.TrimEnd();
+                var input = ui.Window.TextInput;
 
-                    if (!text.Contains(' '))
-                    {
-                        text = string.Empty;
-                    }
+                if (!string.IsNullOrEmpty(input))
+                    text += ui.Window.TextInput;
 
-                    for (var i = text.Length - 1; i > 0; i--)
-                    {
-                        if (text[i] != ' ') continue;
-                        text = text[..(i + 1)];
-                        break;
-                    }
-                }
-                else
+                if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
                 {
-                    if(!string.IsNullOrEmpty(text))
-                        text = text[..^1];
+                    if (ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
+                    {
+                        text = text.TrimEnd();
+
+                        if (!text.Contains(' '))
+                        {
+                            text = string.Empty;
+                        }
+
+                        for (var i = text.Length - 1; i > 0; i--)
+                        {
+                            if (text[i] != ' ') continue;
+                            text = text[..(i + 1)];
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if(!string.IsNullOrEmpty(text))
+                            text = text[..^1];
+                    }
                 }
             }
+
+            var txt = ui.Text(text).VAlign(TextAlign.Center).Color(C.Text);
+
+            return txt;
         }
-
-        var txt = ui.Text(text).VAlign(TextAlign.Center).Color(C.Text);
-
-        ui.DivEnd();
-
-        return txt;
     }
 }

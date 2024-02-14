@@ -11,7 +11,9 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        ui.DivStart(out var modalInputDiv, key, path, line).Focusable().Rounded(2).PaddingHorizontal(5).Height(25).BorderWidth(1).BorderColor(C.Border).Color(C.Transparent);
+        using (ui.Div(out var modalInputDiv, key, path, line).Focusable().Rounded(2).PaddingHorizontal(5).Height(25)
+                   .BorderWidth(1).BorderColor(C.Border).Color(C.Transparent))
+        {
             if (modalInputDiv.HasFocusWithin)
             {
                 modalInputDiv.BorderColor(C.Blue).BorderWidth(2);
@@ -19,8 +21,7 @@ public static partial class UiExtensions
 
             ui.Input(ref text, modalInputDiv.HasFocusWithin);
 
-            ui.DivEnd();
-
-        return modalInputDiv;
+            return modalInputDiv;
+        }
     }
 }

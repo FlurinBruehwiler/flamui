@@ -22,30 +22,37 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             _filterText = string.Empty;
         }
 
-        ui.DivStart(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(C.Border)
-            .BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal);
-
+        using (ui.Div(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(C.Border)
+                   .BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal))
+        {
             HandleStart(ui, dropDownDiv);
 
             ui.Text(SelectedOption?.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);
-            ui.DivStart().Width(15);//ToDo, make it so that we can enforce a certain aspect ratio
+            using (ui.Div().Width(15))//ToDo, make it so that we can enforce a certain aspect ratio
+            {
                 ui.SvgImage("./Icons/expand_more.svg");
-            ui.DivEnd();
+            }
 
             if (_isExpanded)
             {
                 //ToDo we really need to improve the layouting system!!!!
                 //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
-                ui.DivStart().BlockHit().Height(25 * _options.Count + 10).Clip().ZIndex(100).Padding(5).Color(C.Background).Absolute(top:30).Rounded(5).BorderWidth(1).BorderColor(C.Border).Shadow(5, top:5).ShadowColor(0, 0, 0);
+                using (ui.Div().BlockHit().Height(25 * _options.Count + 10).Clip().ZIndex(100).Padding(5)
+                           .Color(C.Background).Absolute(top: 30).Rounded(5).BorderWidth(1).BorderColor(C.Border)
+                           .Shadow(5, top: 5).ShadowColor(0, 0, 0))
+                {
                     if (_filterText is not null)
                     {
                         var lastFilterText = _filterText;
 
-                        ui.DivStart().Height(25).Padding(5).PaddingBottom(3).Gap(2);
+                        using (ui.Div().Height(25).Padding(5).PaddingBottom(3).Gap(2))
+                        {
                             ui.Input(ref _filterText, true);
-                            ui.DivStart().Height(1).Color(C.Border);
-                            ui.DivEnd();
-                        ui.DivEnd();
+                            using (ui.Div().Height(1).Color(C.Border))
+                            {
+
+                            }
+                        }
 
                         if (lastFilterText != _filterText)
                         {
@@ -57,7 +64,8 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                     foreach (var option in _filteredOptions)
                     {
                         var str = option.ToString()!;
-                        ui.DivStart(out var optionDiv, str).Height(25).Color(C.Transparent).Padding(5).Rounded(3);
+                        using (ui.Div(out var optionDiv, str).Height(25).Color(C.Transparent).Padding(5).Rounded(3))
+                        {
                             if (optionDiv.IsClicked)
                             {
                                 SelectedOption = option;
@@ -74,7 +82,8 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                                 optionDiv.Color(46, 67, 110);
                             }
                             ui.Text(str).VAlign(TextAlign.Center).Color(C.Text);
-                        ui.DivEnd();
+                        }
+
                         index++;
                     }
 
@@ -82,71 +91,70 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                     {
                         ui.Text("Nothing to show").HAlign(TextAlign.Center).VAlign(TextAlign.Center).Color(C.Text);
                     }
-                ui.DivEnd();
+                }
             }
 
-        ui.DivEnd();
-
-        if (dropDownDiv.HasFocusWithin)
-        {
-            dropDownDiv.BorderWidth(2).BorderColor(C.Blue);
-            if (!_isExpanded && (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN) || ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
+            if (dropDownDiv.HasFocusWithin)
             {
-                OpenMenu();
-                return;
-            }
-        }
-
-        if (_isExpanded)
-        {
-            if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
-            {
-                if (_hoveredOption != -1)
+                dropDownDiv.BorderWidth(2).BorderColor(C.Blue);
+                if (!_isExpanded && (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN) || ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
                 {
-                    SelectedOption = _filteredOptions[_hoveredOption];
-                    CloseMenu();
+                    OpenMenu();
                     return;
                 }
             }
-            else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_DOWN))
+
+            if (_isExpanded)
             {
-                if (_hoveredOption < _filteredOptions.Count - 1)
+                if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
                 {
-                    _hoveredOption++;
+                    if (_hoveredOption != -1)
+                    {
+                        SelectedOption = _filteredOptions[_hoveredOption];
+                        CloseMenu();
+                        return;
+                    }
                 }
-            }else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_UP))
-            {
-                if (_hoveredOption > 0)
+                else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_DOWN))
                 {
-                    _hoveredOption--;
+                    if (_hoveredOption < _filteredOptions.Count - 1)
+                    {
+                        _hoveredOption++;
+                    }
+                }else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_UP))
+                {
+                    if (_hoveredOption > 0)
+                    {
+                        _hoveredOption--;
+                    }
+                }else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE))
+                {
+                    CloseMenu();
+                    return;
                 }
-            }else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE))
+
+                if (!string.IsNullOrEmpty(ui.Window.TextInput) && _filterText is not null)
+                {
+                    UpdateFilteredOptions();
+                }
+            }
+
+            if (_isExpanded && !dropDownDiv.HasFocusWithin)
             {
                 CloseMenu();
                 return;
             }
 
-            if (!string.IsNullOrEmpty(ui.Window.TextInput) && _filterText is not null)
+            if (dropDownDiv.IsClicked)
             {
-                UpdateFilteredOptions();
+                if(_isExpanded)
+                    CloseMenu();
+                else
+                    OpenMenu();
             }
-        }
 
-        if (_isExpanded && !dropDownDiv.HasFocusWithin)
-        {
-            CloseMenu();
-            return;
+            _options.Clear();
         }
-
-        if (dropDownDiv.IsClicked)
-        {
-            if(_isExpanded)
-                CloseMenu();
-            else
-                OpenMenu();
-        }
-
-        _options.Clear();
     }
 
     private void HandleStart(Ui ui, UiContainer dropDownDiv)

@@ -17,37 +17,43 @@ public class NodeComponent : FlamuiComponent
     
     public override void Build(Ui ui)
     {
-        ui.DivStart(out _nodeDiv, ui.LastKey).Shadow(5, top: 5).ShadowColor(0, 0, 0).Clip().BlockHit()
-            .BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48)
-            .Rounded(10).Width(300).Height(550); //todo auto hight calculation
-
+        using (ui.Div(out _nodeDiv, ui.LastKey).Shadow(5, top: 5).ShadowColor(0, 0, 0).Clip().BlockHit()
+                   .BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48)
+                   .Rounded(10).Width(300).Height(550)) //todo auto hight calculation
+        {
             if (Node.IsSelected)
             {
                 _nodeDiv.BorderColor(255, 255, 255);
             }
 
             //Header
-            ui.DivStart().Color(29, 29, 29).Height(50).Dir(Dir.Horizontal);
+            using (ui.Div().Color(29, 29, 29).Height(50).Dir(Dir.Horizontal))
+            {
 
-            ui.DivStart().Width(50);
-            ui.SvgImage("./Icons/expand_more.svg");
-            ui.DivEnd();
-            ui.DivStart();
-            ui.Text(Node.Name).Size(25).VAlign(TextAlign.Center).Color(224, 224, 224);
-            ui.DivEnd();
-            ui.DivEnd();
+                using (ui.Div().Width(50))
+                {
+                    ui.SvgImage("./Icons/expand_more.svg");
+
+                }
+
+                using (ui.Div())
+                {
+                    ui.Text(Node.Name).Size(25).VAlign(TextAlign.Center).Color(224, 224, 224);
+                }
+
+            }
+
 
             //Border
-            ui.DivStart().Height(3).Color(24, 24, 24);
-            ui.DivEnd();
+            using (ui.Div().Height(3).Color(24, 24, 24))
+            {
+
+            }
 
             //Body
-            ui.DivStart();
-
-            //End Body
-            ui.DivEnd();
-
-            ui.DivEnd();
+            // ui.Div();
+            //ToDo
+        }
     }
 
     public void Update(Ui ui)
@@ -57,11 +63,10 @@ public class NodeComponent : FlamuiComponent
 
     public void AddField(Ui ui, string content, string key)
     {
-        ui.DivStart(key).Height(50).PaddingLeft(20);
-
-        ui.Text($"{key} {content}").VAlign(TextAlign.Center).Size(20);
-
-        ui.DivEnd();
+        using (ui.Div(key).Height(50).PaddingLeft(20))
+        {
+            ui.Text($"{key} {content}").VAlign(TextAlign.Center).Size(20);
+        }
     }
 
     public void AddConnectionField(Ui ui, string content, string key)
@@ -71,35 +76,35 @@ public class NodeComponent : FlamuiComponent
             Id = key
         };
 
-        ui.DivStart(key).Height(50).PaddingLeft(20);
+        ui.Div(key).Height(50).PaddingLeft(20);
 
             //Port
-            ui.DivStart(out var left).Absolute(left: -10).MAlign(MAlign.Center);
+            ui.Div(out var left).Absolute(left: -10).MAlign(MAlign.Center);
                 connectionTarget.LeftPort = new Port(left, PortDirection.Left);
 
-                ui.DivStart(out var portLeft).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(_nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
+                ui.Div(out var portLeft).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(_nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
                     if (portLeft.IsHovered)
                         portLeft.Color(0, 255, 195);
 
-                    ui.DivEnd();
-                    ui.DivEnd();
+                    // ui.DivEnd();
+                    // ui.DivEnd();
 
-                    ui.DivStart(out var right).Absolute(right: -10).MAlign(MAlign.Center);
+                    ui.Div(out var right).Absolute(right: -10).MAlign(MAlign.Center);
                 connectionTarget.RightPort = new Port(right, PortDirection.Right);
 
-                ui.DivStart(out var portRight).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(_nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
+                ui.Div(out var portRight).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(_nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
                     if (portRight.IsHovered)
                         portRight.Color(0, 255, 195);
 
-                    ui.DivEnd();
-                    ui.DivEnd();
+                    // ui.DivEnd();
+                    // ui.DivEnd();
 
             HandlePort(ui, portLeft, portRight, PortDirection.Left);
             HandlePort(ui, portLeft, portRight, PortDirection.Right);
 
             ui.Text($"{key} {content}").VAlign(TextAlign.Center).Size(20);
 
-            ui.DivEnd();
+            // ui.DivEnd();
 
         Node.ConnectionTargets.Add(connectionTarget);
     }

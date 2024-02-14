@@ -69,41 +69,44 @@ public class NodeGraph : FlamuiComponent
 
         DragEnd = null;
 
-        ui.DivStart().ZIndex(-1).Clip();
-        ui.DivStart(out _background).Color(29, 29, 29);
-        ui.Start<Camera>().Info(Camera);
-                    HandleCameraMovement(ui);
+        using (ui.Div().ZIndex(-1).Clip())
+        {
+            using (ui.Div(out _background).Color(29, 29, 29))
+            {
+                ui.Start<Camera>().Info(Camera);
+                HandleCameraMovement(ui);
 
-                    ui.Get<DotGrid>();
+                ui.Get<DotGrid>();
 
-                    foreach (var node in Nodes)
-                    {
-                        node.NodeComponent.Update(ui);
-                    }
+                foreach (var node in Nodes)
+                {
+                    node.NodeComponent.Update(ui);
+                }
 
-                    foreach (var connectionToDraw in _connectionsToDraw)
-                    {
-                        DrawConnectionInternal(ui, connectionToDraw);
-                    }
+                foreach (var connectionToDraw in _connectionsToDraw)
+                {
+                    DrawConnectionInternal(ui, connectionToDraw);
+                }
 
-                    HandleNodeSelection(ui);
+                HandleNodeSelection(ui);
 
-                    HandleDragSelection(ui);
+                HandleDragSelection(ui);
 
-                    HandleConnectionDrag(ui);
-                    ui.End<Camera>();
-                    ui.DivEnd();
-                    ui.DivEnd();
+                HandleConnectionDrag(ui);
+                // ui.End<Camera>();//ToDo
+            }
+        }
 
-                    _connectionsToDraw.Clear();
 
-                    OldNodes.Clear();
+        _connectionsToDraw.Clear();
 
-                    foreach (var node in Nodes)
-                    {
-                        node.ConnectionTargets.Clear();
-                        OldNodes.Add(node.Key, node);
-                    }
+        OldNodes.Clear();
+
+        foreach (var node in Nodes)
+        {
+            node.ConnectionTargets.Clear();
+            OldNodes.Add(node.Key, node);
+        }
     }
 
     // public void StartNode(Ui ui, string key, string name, out NodeComponent n)
@@ -158,7 +161,8 @@ public class NodeGraph : FlamuiComponent
 
         var connection = new Connection(targetA, targetB);
         //todo remove string allocation
-        ui.Get<ConnectionLine>($"{connectionToDraw.NodeIdA}.{connectionToDraw.ConnectionFieldIdA}-{connectionToDraw.NodeIdB}.{connectionToDraw.ConnectionFieldIdB}")
+        ui.Get<ConnectionLine>(
+                $"{connectionToDraw.NodeIdA}.{connectionToDraw.ConnectionFieldIdA}-{connectionToDraw.NodeIdB}.{connectionToDraw.ConnectionFieldIdB}")
             .Dynamic(connection.A, connection.B);
     }
 
@@ -169,7 +173,7 @@ public class NodeGraph : FlamuiComponent
             var dragStartNode = Nodes.FirstOrDefault(static x => x.IsClicked);
             if (dragStartNode is not null)
             {
-                Nodes.Remove(dragStartNode);//bring to front :) //todo make actually work with new system
+                Nodes.Remove(dragStartNode); //bring to front :) //todo make actually work with new system
                 Nodes.Add(dragStartNode);
                 foreach (var node in Nodes)
                 {
@@ -181,9 +185,9 @@ public class NodeGraph : FlamuiComponent
                     node.DragOffset = node.Pos - Camera.ScreenToWorld(ui.Window.MousePosition);
                 }
             }
-            else if(_background.ContainsPoint(ui.Window.MousePosition))
+            else if (_background.ContainsPoint(ui.Window.MousePosition))
             {
-                if(!ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LSHIFT))
+                if (!ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LSHIFT))
                 {
                     foreach (var node in Nodes)
                     {
@@ -208,12 +212,13 @@ public class NodeGraph : FlamuiComponent
             var xMin = Math.Min(mousePos.X, startPos.X);
             var yMin = Math.Min(mousePos.Y, startPos.Y);
 
-            ui.DivStart(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning:true);
-            selectionDiv.ComputedBounds.X = xMin;
-            selectionDiv.ComputedBounds.Y = yMin;
-            selectionDiv.Width(xMax - xMin);
-            selectionDiv.Height(yMax - yMin);
-            ui.DivEnd();
+            using (ui.Div(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning: true))
+            {
+                selectionDiv.ComputedBounds.X = xMin;
+                selectionDiv.ComputedBounds.Y = yMin;
+                selectionDiv.Width(xMax - xMin);
+                selectionDiv.Height(yMax - yMin);
+            }
 
             if (ui.Window.IsMouseButtonReleased(MouseButtonKind.Left))
             {
@@ -246,6 +251,7 @@ public class NodeGraph : FlamuiComponent
                 {
                     _creationDialogPos = ui.Window.MousePosition;
                 }
+
                 DragStart = null;
             }
             else
@@ -279,7 +285,8 @@ public class NodeGraph : FlamuiComponent
             return;
 
         if (ui.Window.IsMouseButtonDown(MouseButtonKind.Middle) || ui.Window.IsMouseButtonDown(MouseButtonKind.Left) &&
-            (ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL) || ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
+            (ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL) ||
+             ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
         {
             if (!_isCameraDragging) //start drag
             {
@@ -301,7 +308,7 @@ public class NodeGraph : FlamuiComponent
 
         if (scrollDelta != 0)
         {
-            var mouseWorldPos =  Camera.ScreenToWorld(ui.Window.MousePosition);
+            var mouseWorldPos = Camera.ScreenToWorld(ui.Window.MousePosition);
             Camera.Offset = ui.Window.MousePosition;
             Camera.Target = mouseWorldPos;
 
@@ -325,4 +332,3 @@ public class NodeGraph : FlamuiComponent
         return true;
     }
 }
-
