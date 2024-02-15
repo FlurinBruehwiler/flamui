@@ -1,7 +1,7 @@
 using Flamui.Components;
 using Flamui.UiElements;
 
-namespace Flamui;
+namespace Flamui.DebugWindow;
 
 public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 {
@@ -17,6 +17,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
         //ToDo, fix size bug, because the header is actually shrunken and not 50%
         using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(C.Background))
         {
+
             using (ui.Div().Gap(5))
             {
                 DisplayUiElement(ui, otherWindow.RootContainer, 39210, 1);

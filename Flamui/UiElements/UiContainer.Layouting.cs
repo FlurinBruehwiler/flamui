@@ -25,7 +25,7 @@ public partial class UiContainer
 
         foreach (var child in Children)
         {
-            if (child.PShrinkHeight)
+            if (child.PHeight.Kind == SizeKind.Shrink)//todo, what about width
             {
                 child.Layout();
             }
@@ -43,7 +43,7 @@ public partial class UiContainer
 
         foreach (var child in Children)
         {
-            if (!child.PShrinkHeight)
+            if (child.PHeight.Kind != SizeKind.Shrink)//todo, what about width
             {
                 child.Layout();
             }
@@ -117,19 +117,19 @@ public partial class UiContainer
         switch (PDir)
         {
             case EnumDir.Horizontal:
+                if (item.PWidth.Kind == SizeKind.Shrink)
+                    return item.ComputedBounds.W;
+
                 if (item.PWidth.Kind == SizeKind.Percentage)
                     return 0;
 
-                if (item.PShrinkHeight)
-                    return item.ComputedBounds.W;
-
                 return item.PWidth.GetDpiAwareValue();
             case EnumDir.Vertical:
+                if (item.PHeight.Kind == SizeKind.Shrink)
+                    return item.ComputedBounds.H;
+
                 if (item.PHeight.Kind == SizeKind.Percentage)
                     return 0;
-
-                if (item.PShrinkHeight)
-                    return item.ComputedBounds.W;
 
                 return item.PHeight.GetDpiAwareValue();
             default:
@@ -183,7 +183,7 @@ public partial class UiContainer
                 continue;
             }
 
-            if (!item.PShrinkHeight)
+            if (item.PHeight.Kind != SizeKind.Shrink)
             {
                 item.ComputedBounds.H = item.PHeight.Kind switch
                 {
@@ -193,7 +193,7 @@ public partial class UiContainer
                 };
             }
 
-            if (!item.PShirnkWidth)
+            if (item.PWidth.Kind != SizeKind.Shrink)
             {
                 item.ComputedBounds.W = item.PWidth.Kind switch
                 {
@@ -241,7 +241,7 @@ public partial class UiContainer
                 continue;
             }
 
-            if (!item.PShirnkWidth)
+            if (item.PWidth.Kind != SizeKind.Shrink)
             {
                 item.ComputedBounds.W = item.PWidth.Kind switch
                 {
@@ -251,7 +251,7 @@ public partial class UiContainer
                 };
             }
 
-            if (!item.PShrinkHeight)
+            if (item.PHeight.Kind != SizeKind.Shrink)
             {
                 item.ComputedBounds.H = item.PHeight.Kind switch
                 {

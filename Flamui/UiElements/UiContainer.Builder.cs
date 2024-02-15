@@ -129,13 +129,13 @@ public partial class UiContainer
 
     public UiContainer ShrinkHeight()
     {
-        PShrinkHeight = true;
+        PHeight = new SizeDefinition(0, SizeKind.Shrink);
         return this;
     }
 
     public UiContainer ShrinkWidth()
     {
-        PShirnkWidth = true;
+        PWidth = new SizeDefinition(0, SizeKind.Shrink);
         return this;
     }
 

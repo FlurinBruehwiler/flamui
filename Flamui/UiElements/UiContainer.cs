@@ -257,12 +257,12 @@ public partial class UiContainer : UiElementContainer
 
         var contentSize = ComputePosition();
 
-        if (PShrinkHeight)
+        if (PHeight.Kind == SizeKind.Shrink)
         {
             ComputedBounds.H = contentSize.Heght;
         }
 
-        if (PShirnkWidth)
+        if (PWidth.Kind == SizeKind.Shrink)
         {
             ComputedBounds.W = contentSize.Width;
         }

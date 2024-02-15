@@ -8,7 +8,8 @@ public record struct AbsolutePosition(int? Left, int? Right, int? Top, int? Bott
 public enum SizeKind
 {
     Percentage,
-    Pixel
+    Pixel,
+    Shrink
 }
 
 public struct SizeDefinition
