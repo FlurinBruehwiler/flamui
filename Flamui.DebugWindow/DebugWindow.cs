@@ -7,11 +7,16 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
+        ui.Window.IsDebugWindow = true;
+
         var otherWindow = eventLoop.Windows.First(x => x != ui.Window);
 
         using (ui.Div().Padding(3).ShrinkHeight())
         {
-            ui.Button("Select");
+            if (ui.Button("Select"))
+            {
+                Ui.DebugSelectionModelEnabled = !Ui.DebugSelectionModelEnabled;
+            }
         }
 
         //ToDo, fix size bug, because the header is actually shrunken and not 50%

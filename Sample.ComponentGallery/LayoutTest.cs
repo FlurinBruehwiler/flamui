@@ -6,17 +6,15 @@ public class LayoutTest : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
-        using (ui.Div().ShrinkHeight().Color(C.Selected))
+        using (ui.Div().Color(C.Border).Dir(Dir.Horizontal))
         {
-            using (ui.Div().Height(50).Width(50).Color(C.Text))
+            for (int i = 0; i < 10; i++)
             {
+                using (ui.Div(Ui.S(i)).Color(C.Text))
+                {
 
+                }
             }
-        }
-
-        using (ui.Div().Color(C.Blue).HeightFraction(90))
-        {
-
         }
     }
 }

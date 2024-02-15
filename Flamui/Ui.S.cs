@@ -6,6 +6,7 @@ public partial class Ui
 {
     //todo find better solution because putting this here is just stupid :)
     public static UiElement? DebugSelectedUiElement;
+    public static bool DebugSelectionModelEnabled;
 
     private static Dictionary<int, string> _cachedStrings = new();
 

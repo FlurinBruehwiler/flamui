@@ -19,35 +19,51 @@ public partial class UiContainer
 
     private void ComputeSize()
     {
-        //1. layout() fixed size and shrinkable children
-        //2. Calculate size of remaining percentage based children
-        //3. layout() percentage children
-
-        foreach (var child in Children)
-        {
-            if (child.PHeight.Kind == SizeKind.Shrink)//todo, what about width
-            {
-                child.Layout();
-            }
-        }
+        //ToDo: fix this ugly code
 
         switch (PDir)
         {
             case EnumDir.Horizontal:
+                foreach (var child in Children)
+                {
+                    if (child.PWidth.Kind == SizeKind.Shrink)
+                    {
+                        child.Layout();
+                    }
+                }
+
                 ComputeRowSize();
+
+                foreach (var child in Children)
+                {
+                    if (child.PWidth.Kind != SizeKind.Shrink)
+                    {
+                        child.Layout();
+                    }
+                }
                 break;
             case EnumDir.Vertical:
+                foreach (var child in Children)
+                {
+                    if (child.PHeight.Kind == SizeKind.Shrink)
+                    {
+                        child.Layout();
+                    }
+                }
+
                 ComputeColumnSize();
+
+                foreach (var child in Children)
+                {
+                    if (child.PHeight.Kind != SizeKind.Shrink)
+                    {
+                        child.Layout();
+                    }
+                }
                 break;
         }
 
-        foreach (var child in Children)
-        {
-            if (child.PHeight.Kind != SizeKind.Shrink)//todo, what about width
-            {
-                child.Layout();
-            }
-        }
+
     }
 
     private Size ComputePosition()

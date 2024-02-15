@@ -12,6 +12,7 @@ public partial class UiWindow : IDisposable
     private readonly IntPtr _openGlContextHandle;
     private readonly GRContext _grContext;
     public uint Id;
+    public bool IsDebugWindow;
 
     // private UiContainer? _hoveredContainer;
     private UiContainer? _activeContainer;
@@ -195,31 +196,53 @@ public partial class UiWindow : IDisposable
 
     private void DrawDebugOverlay(RenderContext renderContext)
     {
+        if (IsDebugWindow)
+            return;
+
+        if (DebugSelectionModelEnabled)
+        {
+            var hoveredElement = HoveredElements.FirstOrDefault(x => x != null);
+            if (hoveredElement != null)
+            {
+                if (IsMouseButtonPressed(MouseButtonKind.Left))
+                {
+                    DebugSelectedUiElement = hoveredElement;
+                    DebugSelectionModelEnabled = false;
+                }
+                else
+                {
+                    DebugOutline(renderContext, hoveredElement.ComputedBounds);
+                }
+            }
+        }
+
         if (DebugSelectedUiElement is not null && DebugSelectedUiElement.Window == this)
         {
-            renderContext.Add(new Save());
-
-            var rect = DebugSelectedUiElement.ComputedBounds;
-
-            renderContext.Add(new RectClip
-            {
-                Bounds = rect,
-                ClipOperation = SKClipOperation.Difference,
-                Radius = 0
-            });
-
-            renderContext.Add(new Rect
-            {
-                Bounds = rect.Inflate(2, 2),
-                Radius = 0,
-                RenderPaint = new PlaintPaint
-                {
-                    SkColor = C.Blue.ToSkColor()
-                },
-                UiElement = null
-            });
-
+            DebugOutline(renderContext, DebugSelectedUiElement.ComputedBounds);
         }
+    }
+
+    private void DebugOutline(RenderContext renderContext, Bounds rect)
+    {
+        renderContext.Add(new Save());
+
+        renderContext.Add(new RectClip
+        {
+            Bounds = rect,
+            ClipOperation = SKClipOperation.Difference,
+            Radius = 0
+        });
+
+        renderContext.Add(new Rect
+        {
+            Bounds = rect.Inflate(2, 2),
+            Radius = 0,
+            RenderPaint = new PlaintPaint
+            {
+                SkColor = C.Blue.ToSkColor()
+            },
+            UiElement = null
+        });
     }
 
     private void ProcessInputs()
