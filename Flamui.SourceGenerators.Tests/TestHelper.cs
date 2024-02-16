@@ -1,5 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using VerifyTests;
+using VerifyXunit;
 
 namespace Flamui.SourceGenerators.Tests;
 

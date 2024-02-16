@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using VerifyTests;
 
 namespace Flamui.SourceGenerators.Tests;
 
