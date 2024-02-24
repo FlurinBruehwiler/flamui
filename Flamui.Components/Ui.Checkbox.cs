@@ -9,8 +9,8 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        using (ui.Div(out var div, key, path, line).Height(15).Focusable().Width(15).Color(C.Background)
-                   .BorderColor(C.Border).BorderWidth(1).Rounded(2))
+        using (ui.Div(out var div, key, path, line).Height(15).Focusable().Width(15).Color(ColorPalette.BackgroundColor)
+                   .BorderColor(ColorPalette.BorderColor).BorderWidth(1).Rounded(2))
         {
             if (div.IsClicked)
             {
@@ -19,7 +19,7 @@ public static partial class UiExtensions
 
             if (div.HasFocusWithin)
             {
-                div.BorderColor(C.Blue).BorderWidth(2);
+                div.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
 
                 if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE) ||
                     ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
@@ -30,7 +30,7 @@ public static partial class UiExtensions
 
             if (enabled)
             {
-                div.Color(C.Blue);
+                div.Color(ColorPalette.AccentColor);
                 div.BorderWidth(0);
                 ui.SvgImage("./Icons/check.svg");
             }

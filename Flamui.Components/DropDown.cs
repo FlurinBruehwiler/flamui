@@ -22,12 +22,12 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             _filterText = string.Empty;
         }
 
-        using (ui.Div(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(C.Border)
-                   .BorderWidth(1).Color(C.Background).Dir(Dir.Horizontal))
+        using (ui.Div(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(ColorPalette.BorderColor)
+                   .BorderWidth(1).Color(ColorPalette.BackgroundColor).Dir(Dir.Horizontal))
         {
             HandleStart(ui, dropDownDiv);
 
-            ui.Text(SelectedOption.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);
+            ui.Text(SelectedOption.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
             using (ui.Div().Width(15))//ToDo, make it so that we can enforce a certain aspect ratio
             {
                 ui.SvgImage("./Icons/expand_more.svg");
@@ -38,7 +38,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                 //ToDo we really need to improve the layouting system!!!!
                 //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
                 using (ui.Div().BlockHit().Height(25 * _options.Count + 10).Clip().ZIndex(100).Padding(5)
-                           .Color(C.Background).Absolute(top: 30).Rounded(5).BorderWidth(1).BorderColor(C.Border)
+                           .Color(ColorPalette.BackgroundColor).Absolute(top: 30).Rounded(5).BorderWidth(1).BorderColor(ColorPalette.BorderColor)
                            .Shadow(5, top: 5).ShadowColor(0, 0, 0))
                 {
                     if (_filterText is not null)
@@ -48,7 +48,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                         using (ui.Div().Height(25).Padding(5).PaddingBottom(3).Gap(2))
                         {
                             ui.Input(ref _filterText, true);
-                            using (ui.Div().Height(1).Color(C.Border))
+                            using (ui.Div().Height(1).Color(ColorPalette.BorderColor))
                             {
 
                             }
@@ -81,7 +81,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                             {
                                 optionDiv.Color(46, 67, 110);
                             }
-                            ui.Text(str).VAlign(TextAlign.Center).Color(C.Text);
+                            ui.Text(str).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
                         }
 
                         index++;
@@ -89,14 +89,14 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
                     if (_filteredOptions.Count == 0)
                     {
-                        ui.Text("Nothing to show").HAlign(TextAlign.Center).VAlign(TextAlign.Center).Color(C.Text);
+                        ui.Text("Nothing to show").HAlign(TextAlign.Center).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
                     }
                 }
             }
 
             if (dropDownDiv.HasFocusWithin)
             {
-                dropDownDiv.BorderWidth(2).BorderColor(C.Blue);
+                dropDownDiv.BorderWidth(2).BorderColor(ColorPalette.AccentColor);
                 if (!_isExpanded && (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN) || ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
                 {
                     OpenMenu();

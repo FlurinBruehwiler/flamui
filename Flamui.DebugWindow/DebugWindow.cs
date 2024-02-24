@@ -20,7 +20,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
         }
 
         //ToDo, fix size bug, because the header is actually shrunken and not 50%
-        using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(C.Background))
+        using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
         {
 
             using (ui.Div().Gap(5))
@@ -42,7 +42,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
     {
         var key = Ui.S(uiElement.Id.GetHashCode() + parentHash);
 
-        using (ui.Div(out var div, key).PaddingLeft(indentationLevel * 10).Height(20).Border(1, C.Border).Rounded(2))
+        using (ui.Div(out var div, key).PaddingLeft(indentationLevel * 10).Height(20).Border(1, ColorPalette.BorderColor).Rounded(2))
         {
             ui.Text(ToString(uiElement));
 
@@ -53,7 +53,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 
             if (Ui.DebugSelectedUiElement == uiElement)
             {
-                div.Color(C.Selected);
+                div.Color(C.Amber300);
             }
             else
             {

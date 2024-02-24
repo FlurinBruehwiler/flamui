@@ -104,7 +104,7 @@ public partial class UiWindow : IDisposable
         };
 
         DebugPaint = Helpers.GetNewAntialiasedPaint();
-        DebugPaint.Color = C.Blue.ToSkColor();
+        DebugPaint.Color = C.Blue800.ToSkColor();
 
     }
 
@@ -175,7 +175,6 @@ public partial class UiWindow : IDisposable
         //todo wtf is happening grrrr it makes 0 sense
         if (requiresRerender)
         {
-            Console.WriteLine("Rerender");
 
             // var start = Stopwatch.GetTimestamp();
 
@@ -241,7 +240,7 @@ public partial class UiWindow : IDisposable
             Radius = 0,
             RenderPaint = new PlaintPaint
             {
-                SkColor = C.Blue.ToSkColor()
+                SkColor = C.Blue800.ToSkColor()
             },
             UiElement = null
         });

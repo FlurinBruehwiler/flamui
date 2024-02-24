@@ -12,10 +12,10 @@ public static partial class UiExtensions
         {
             if (btn.HasFocusWithin)
             {
-                btn.BorderColor(C.Blue).BorderWidth(2);
+                btn.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
             }
 
-            ui.SvgImage(icon, C.Text);
+            ui.SvgImage(icon, ColorPalette.TextColor);
 
             return btn.IsClicked;
 

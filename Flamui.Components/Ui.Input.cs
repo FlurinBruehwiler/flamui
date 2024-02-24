@@ -45,7 +45,7 @@ public static partial class UiExtensions
                 }
             }
 
-            var txt = ui.Text(text).VAlign(TextAlign.Center).Color(C.Text);
+            var txt = ui.Text(text).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
 
             return txt;
         }

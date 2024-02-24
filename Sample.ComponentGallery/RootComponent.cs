@@ -8,10 +8,11 @@ public class RootComponent : FlamuiComponent
     private string _selectedOption = "Mark";
     private bool _checkboxState;
     private string _inputText = string.Empty;
+    private int _counter;
 
     public override void Build(Ui ui)
     {
-        using (ui.Div().Padding(10).Color(C.Background).Gap(10))
+        using (ui.Div().Padding(10).Color(ColorPalette.BackgroundColor).Gap(10))
         {
             using (ui.Div().Width(150).ShrinkHeight())
             {
@@ -32,6 +33,9 @@ public class RootComponent : FlamuiComponent
 
             ui.Button("Click be");
             ui.Button("Click be (primary)", primary:true, width: 150);
+
+            ui.Text(_counter.ToString());
+            _counter++;
         }
     }
 }

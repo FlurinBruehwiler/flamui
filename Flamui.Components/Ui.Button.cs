@@ -13,19 +13,19 @@ public static partial class UiExtensions
         {
             if (primary)
             {
-                btn.Color(C.Blue).BorderWidth(0);
+                btn.Color(ColorPalette.AccentColor).BorderWidth(0);
             }
             else
             {
-                btn.BorderWidth(1).BorderColor(C.Border).Color(C.Transparent);
+                btn.BorderWidth(1).BorderColor(ColorPalette.BorderColor).Color(C.Transparent);
             }
 
             if (btn.HasFocusWithin)
             {
-                btn.BorderColor(C.Blue).BorderWidth(2);
+                btn.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
             }
 
-            ui.Text(text).VAlign(TextAlign.Center).HAlign(TextAlign.Center).Color(C.Text);
+            ui.Text(text).VAlign(TextAlign.Center).HAlign(TextAlign.Center).Color(ColorPalette.TextColor);
 
             return btn.IsClicked;
         }

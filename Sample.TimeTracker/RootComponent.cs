@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Drawing;
 using Flamui;
 using Flamui.Components;
 using Flamui.UiElements;
@@ -12,38 +13,36 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        using (ui.Div().Color(C.Background).PaddingHorizontal(50).PaddingTop(20).Gap(20))
+        using (ui.Div().Color(ColorPalette.BackgroundColor).PaddingHorizontal(50).PaddingTop(20).Gap(20))
         {
             using (ui.Div().Height(30).Dir(Dir.Horizontal).Gap(20).XAlign(XAlign.Center))
-        {
-            if (storageService.TimeTrackFiles.Count > 1)
             {
-                var b = ui.CreateDropDown(storageService.OpenTimeTrackFile);
-
-                foreach (var ttf in storageService.TimeTrackFiles)
+                if (storageService.TimeTrackFiles.Count > 1)
                 {
-                    b.Component.Option(ttf);
+                    var b = ui.CreateDropDown(storageService.OpenTimeTrackFile);
+
+                    foreach (var ttf in storageService.TimeTrackFiles)
+                    {
+                        b.Component.Option(ttf);
+                    }
+
+                    b.Build(out var x);
+                    storageService.OpenTimeTrackFile = x;
                 }
 
-                b.Build(out var x);
-                storageService.OpenTimeTrackFile = x;
+                if (ui.Button("Edit default entries", width: 150))
+                {
+                    var file = TimeTrackFolder.DefaultEntriesFile();
+
+                    Process.Start("explorer.exe", file);
+                }
             }
-
-            if (ui.Button("Edit default entries", width: 150))
-            {
-                var file = TimeTrackFolder.DefaultEntriesFile();
-
-                Process.Start("explorer.exe", file);
-            }
-
-        }
-
 
 
             //Name
             using (ui.Div().XAlign(XAlign.Center).Height(40).Dir(Dir.Horizontal))
             {
-                ui.Text(storageService.OpenTimeTrackFile.ToString()).Size(30).Color(C.Text);
+                ui.Text(storageService.OpenTimeTrackFile.ToString()).Size(30).Color(ColorPalette.TextColor);
 
                 if (storageService.OpenTimeTrackFile.IsCurrentDay())
                 {
@@ -67,28 +66,32 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
             {
                 using (ui.Div().Height(20))
                 {
-                }; //ugly
+                }
+
+                ; //ugly
             }
 
             using (ui.Div().Gap(10))
             {
-                foreach (var timeTrackEntry in storageService.OpenTimeTrackFile.TimeTrackEntries.OrderByDescending(x => x.GetTotalTime()))
+                foreach (var timeTrackEntry in storageService.OpenTimeTrackFile.TimeTrackEntries.OrderByDescending(x =>
+                             x.GetTotalTime()))
                 {
                     var isActiveEntry = timeTrackEntry == _activeTimeTrackEntry;
                     using (ui.Div(timeTrackEntry.Name).Height(20).Dir(Dir.Horizontal))
                     {
-                        ui.Text(timeTrackEntry.Name).Color(isActiveEntry ? C.Blue : C.Text);
-                        ui.Text(timeTrackEntry.GetTotalTimeAsString()).Color(C.Text).Width(70);
+                        ui.Text(timeTrackEntry.Name)
+                            .Color(isActiveEntry ? ColorPalette.AccentColor : ColorPalette.TextColor);
+                        ui.Text(timeTrackEntry.GetTotalTimeAsString()).Color(ColorPalette.TextColor).Width(70);
                         if (!isActiveEntry && storageService.OpenTimeTrackFile.IsCurrentDay())
                         {
-                            if (ui.Button("Activate", width: 80, focusable:false))
+                            if (ui.Button("Activate", width: 80, focusable: false))
                             {
                                 Activate(timeTrackEntry);
                             }
                         }
                         else
                         {
-                            if (ui.Button("Deactivate", width: 80, focusable:false))
+                            if (ui.Button("Deactivate", width: 80, focusable: false))
                             {
                                 timeTrackEntry.Deactivate();
                                 _activeTimeTrackEntry = null;
@@ -97,31 +100,27 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
                     }
                 }
 
-                using (ui.Div().Height(2).Color(C.Border))
+                using (ui.Div().Height(2).Color(ColorPalette.BorderColor))
                 {
-
                 }
 
                 using (ui.Div().Height(20).Dir(Dir.Horizontal))
                 {
-                    ui.Text("Total").Color(C.Text);
-                    ui.Text(storageService.OpenTimeTrackFile.GetTotalTimeString()).Color(C.Text).Width(70);
+                    ui.Text("Total").Color(ColorPalette.TextColor);
+                    ui.Text(storageService.OpenTimeTrackFile.GetTotalTimeString()).Color(ColorPalette.TextColor)
+                        .Width(70);
                     using (ui.Div().Width(70))
                     {
-
                     }
 
-                    using (ui.Div().Height(2).Color(C.Border))
+                    using (ui.Div().Height(2).Color(ColorPalette.BorderColor))
                     {
-
                     }
 
                     HandleNewEntry(ui);
                 }
             }
         }
-
-
     }
 
     private void Activate(TimeTrackEntry entry)

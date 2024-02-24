@@ -1,4 +1,5 @@
 using Flamui;
+using Flamui.Components;
 
 namespace Sample.Snake;
 
@@ -89,7 +90,7 @@ public class RootComponent : FlamuiComponent
 
         using (ui.Div().Padding(20))
         {
-            using (ui.Div().Gap(10).Padding(50).Border(2, C.Blue))
+            using (ui.Div().Gap(10).Padding(50).Border(2, ColorPalette.AccentColor))
             {
                 for (var y = 0; y < Height; y++)
                 {
@@ -99,12 +100,12 @@ public class RootComponent : FlamuiComponent
                         for (var x = 0; x < Width; x++)
                         {
                             var innerkey = S(x, static x => x.ToString());
-                            using (ui.Div(out var div, innerkey).Height(50).Width(50).Border(2, C.Border).Rounded(3)
+                            using (ui.Div(out var div, innerkey).Height(50).Width(50).Border(2, ColorPalette.BorderColor).Rounded(3)
                                        .Color(C.Transparent).Focusable().Padding(5))
                             {
                                 if (_snake.Contains((x, y)))
                                 {
-                                    div.Color(C.Blue);
+                                    div.Color(ColorPalette.AccentColor);
                                 }
 
                                 if (_head == (x, y))

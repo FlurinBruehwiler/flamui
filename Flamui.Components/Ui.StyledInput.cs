@@ -12,11 +12,11 @@ public static partial class UiExtensions
         [CallerLineNumber] int line = -1)
     {
         using (ui.Div(out var modalInputDiv, key, path, line).Focusable().Rounded(2).PaddingHorizontal(5).Height(25)
-                   .BorderWidth(1).BorderColor(C.Border).Color(C.Transparent))
+                   .BorderWidth(1).BorderColor(ColorPalette.BorderColor).Color(C.Transparent))
         {
             if (modalInputDiv.HasFocusWithin)
             {
-                modalInputDiv.BorderColor(C.Blue).BorderWidth(2);
+                modalInputDiv.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
             }
 
             ui.Input(ref text, modalInputDiv.HasFocusWithin);
