@@ -7,6 +7,7 @@ public static class C
     public static ColorDefinition White = new(255, 255, 255);
 
     public static ColorDefinition Slate50 = new(248, 250, 252);
+    public static ColorDefinition Slate100 = new(241, 245, 249);
     public static ColorDefinition Slate200 = new(226, 232, 240);
     public static ColorDefinition Slate300 = new(203, 213, 225);
     public static ColorDefinition Slate400 = new(148, 163, 184);
