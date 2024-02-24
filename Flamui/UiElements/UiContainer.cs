@@ -279,6 +279,14 @@ public partial class UiContainer : UiElementContainer
             }
         }
 
+        foreach (var child in Children)
+        {
+            if (child.GetMainAxisSize().Kind != SizeKind.Shrink)
+            {
+                child.Layout();
+            }
+        }
+
         foreach (var childElement in Children)
         {
             if (childElement is UiContainer { PHidden: true })

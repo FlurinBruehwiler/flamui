@@ -1,5 +1,4 @@
-﻿using SkiaSharp;
-using EnumXAlign = Flamui.XAlign;
+﻿using EnumXAlign = Flamui.XAlign;
 using EnumMAlign = Flamui.MAlign;
 using EnumDir = Flamui.Dir;
 
@@ -7,16 +6,6 @@ namespace Flamui.UiElements;
 
 public partial class UiContainer
 {
-    private static readonly SKPaint SPaint = new()
-    {
-        IsAntialias = true
-    };
-
-    private static readonly SKPaint SBlurPaint = new()
-    {
-        IsAntialias = true
-    };
-
     private void ComputeSize()
     {
         //ToDo: fix this ugly code
@@ -33,14 +22,6 @@ public partial class UiContainer
                 }
 
                 ComputeRowSize();
-
-                foreach (var child in Children)
-                {
-                    if (child.PWidth.Kind != SizeKind.Shrink)
-                    {
-                        child.Layout();
-                    }
-                }
                 break;
             case EnumDir.Vertical:
                 foreach (var child in Children)
@@ -53,13 +34,6 @@ public partial class UiContainer
 
                 ComputeColumnSize();
 
-                foreach (var child in Children)
-                {
-                    if (child.PHeight.Kind != SizeKind.Shrink)
-                    {
-                        child.Layout();
-                    }
-                }
                 break;
         }
 

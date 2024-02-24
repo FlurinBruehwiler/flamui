@@ -15,6 +15,21 @@ public abstract class UiElement : IData
     public SizeDefinition PWidth { get; set; } = new(100, SizeKind.Percentage);
     public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
 
+    public SizeDefinition GetMainAxisSize()
+    {
+        if (Parent is UiContainer uiElement)
+        {
+            if (uiElement.PDir == Dir.Horizontal)
+            {
+                return PWidth;
+            }
+
+            return PHeight;
+        }
+
+        throw new Exception();
+    }
+
     public Bounds ComputedBounds;
     public UiWindow Window { get; set; }
 

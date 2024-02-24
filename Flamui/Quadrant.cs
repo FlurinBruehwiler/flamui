@@ -1,4 +1,6 @@
-﻿using SkiaSharp;
+﻿using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using SkiaSharp;
 
 namespace Flamui;
 
@@ -60,6 +62,14 @@ public record struct ColorDefinition(byte Red, byte Green, byte Blue, byte Alpha
     public SKColor ToSkColor()
     {
         return new SKColor(Red, Green, Blue, Alpha);
+    }
+
+    public static ColorDefinition operator /(ColorDefinition original, byte opacity)
+    {
+        return original with
+        {
+            Alpha = (byte)(original.Alpha / opacity)
+        };
     }
 }
 

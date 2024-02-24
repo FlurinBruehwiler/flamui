@@ -27,7 +27,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
         {
             HandleStart(ui, dropDownDiv);
 
-            ui.Text(SelectedOption?.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);
+            ui.Text(SelectedOption.ToString() ?? string.Empty).VAlign(TextAlign.Center).Color(C.Text);
             using (ui.Div().Width(15))//ToDo, make it so that we can enforce a certain aspect ratio
             {
                 ui.SvgImage("./Icons/expand_more.svg");

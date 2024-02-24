@@ -97,9 +97,9 @@ public partial class UiWindow : IDisposable
 
         Ui.Window = this;
 
-        RootContainer = new()
+        RootContainer = new UiContainer
         {
-            Id = new UiElementId(),
+            Id = new UiElementId("RootElement", "", 0),
             Window = this
         };
 
@@ -175,6 +175,8 @@ public partial class UiWindow : IDisposable
         //todo wtf is happening grrrr it makes 0 sense
         if (requiresRerender)
         {
+            Console.WriteLine("Rerender");
+
             // var start = Stopwatch.GetTimestamp();
 
             surface.Canvas.Clear();
