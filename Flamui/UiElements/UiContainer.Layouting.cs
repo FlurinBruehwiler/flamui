@@ -313,6 +313,11 @@ public partial class UiContainer
         return GetMainAxisLength() - childSum - GetGapSize();
     }
 
+    // private float GetScrollBarWidth()
+    // {
+    //
+    // }
+
     private float GetGapSize()
     {
         if (Children.Count <= 1)

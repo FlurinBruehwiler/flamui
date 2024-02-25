@@ -73,4 +73,4 @@ public abstract class UiElement : IData
 
 public record struct UiElementId(string Key, string Path, int Line);
 
-public record struct Size(float Width, float Heght);
+public record struct Size(float Width, float Height);

@@ -4,8 +4,8 @@ using SkiaSharp;
 
 namespace Flamui;
 
-public record struct Quadrant(int Left, int Right, int Top, int Bottom);
-public record struct AbsolutePosition(int? Left, int? Right, int? Top, int? Bottom);
+public record struct Quadrant(float Left, float Right, float Top, float Bottom);
+public record struct AbsolutePosition(float? Left, float? Right, float? Top, float? Bottom);
 
 public enum SizeKind
 {

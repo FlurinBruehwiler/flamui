@@ -21,10 +21,9 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 
         using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
         {
-
-            using (ui.Div().Gap(5).Scroll().Padding(10))
+            using (ui.Div().Gap(5).Scroll())
             {
-                DisplayUiElement(ui, otherWindow.RootContainer, 39210, 1);
+                DisplayUiElement(ui, otherWindow.RootContainer, 39210, 0);
             }
 
             using (ui.Div())
@@ -41,8 +40,22 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
     {
         var key = Ui.S(uiElement.Id.GetHashCode() + parentHash);
 
-        using (ui.Div(out var div, key).PaddingLeft(indentationLevel * 10).Height(20).Border(1, ColorPalette.BorderColor).Rounded(2))
+        using (ui.Div(out var div, key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Dir(Dir.Horizontal)
+                   .Gap(5).XAlign(XAlign.Center))
         {
+            if (uiElement is UiElementContainer { Children.Count: > 0 })
+            {
+                using (ui.Div().Height(15).Width(15).Color(C.Blue500))
+                {
+                }
+            }
+            else
+            {
+                using (ui.Div().Height(15).Width(15))
+                {
+                }
+            }
+
             ui.Text(ToString(uiElement));
 
             if (div.IsClicked)
@@ -50,9 +63,14 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
                 Ui.DebugSelectedUiElement = uiElement;
             }
 
+
             if (Ui.DebugSelectedUiElement == uiElement)
             {
-                div.Color(C.Amber300);
+                div.Color(C.Black / 5);
+            }
+            else if (div.IsHovered)
+            {
+                div.Color(C.Black / 8);
             }
             else
             {

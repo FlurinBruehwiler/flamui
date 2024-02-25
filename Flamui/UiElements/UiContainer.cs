@@ -7,8 +7,8 @@ namespace Flamui.UiElements;
 
 public partial class UiContainer : UiElementContainer
 {
-    public bool FocusIn { get; set; }
-    public bool FocusOut { get; set; }
+    public bool FocusIn { get; set; } //todo
+    public bool FocusOut { get; set; } //todo
 
     public bool IsClicked
     {
@@ -29,7 +29,7 @@ public partial class UiContainer : UiElementContainer
         }
     }
 
-    public bool IsDoubleClicked
+    public bool IsDoubleClicked //todo
     {
         get
         {
@@ -50,8 +50,8 @@ public partial class UiContainer : UiElementContainer
     public EnumDir PDir { get; set; } = EnumDir.Vertical;
     public MAlign PmAlign { get; set; } = EnumMAlign.FlexStart;
     public XAlign PxAlign { get; set; } = EnumXAlign.FlexStart;
-    public Action? POnClick { get; set; }
-    public bool PAutoFocus { get; set; }
+
+    public bool PAutoFocus { get; set; }//what is this?
     public bool PAbsolute { get; set; }
     public bool DisablePositioning { get; set; }
     public UiContainer? AbsoluteContainer { get; set; }
@@ -248,6 +248,7 @@ public partial class UiContainer : UiElementContainer
     private void ClipContent(RenderContext renderContext)
     {
         if (NeedsClip())
+
         {
             renderContext.Add(new Save());
 
@@ -264,6 +265,7 @@ public partial class UiContainer : UiElementContainer
     {
         return PCanScroll || IsClipped;
     }
+    public Size ContentSize;
 
     public override void Layout()
     {
@@ -271,23 +273,23 @@ public partial class UiContainer : UiElementContainer
 
         ComputeSize();
 
-        var contentSize = ComputePosition();
+        ContentSize = ComputePosition();
 
         if (PHeight.Kind == SizeKind.Shrink)
         {
-            ComputedBounds.H = contentSize.Heght;
+            ComputedBounds.H = ContentSize.Height;
         }
 
         if (PWidth.Kind == SizeKind.Shrink)
         {
-            ComputedBounds.W = contentSize.Width;
+            ComputedBounds.W = ContentSize.Width;
         }
 
         if (PCanScroll)
         {
-            if (contentSize.Heght > ComputedBounds.H)
+            if (ContentSize.Height > ComputedBounds.H)
             {
-                ScrollPos = Math.Clamp(ScrollPos + Window.ScrollDelta * 20, 0, contentSize.Heght - ComputedBounds.H);
+                ScrollPos = Math.Clamp(ScrollPos + Window.ScrollDelta * 20, 0, ContentSize.Height - ComputedBounds.H);
             }
             else
             {

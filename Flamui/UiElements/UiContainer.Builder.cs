@@ -154,10 +154,10 @@ public partial class UiContainer
         return this;
     }
 
-    public UiContainer Absolute(UiContainer? container = null, int? left = null, int? right = null, int? top = null, int? bottom = null, bool disablePositioning = false)
+    public UiContainer Absolute(UiContainer? container = null, float? left = null, float? right = null, float? top = null, float? bottom = null, bool disablePositioning = false)
     {
         PAbsolute = true;
-        AbsoluteContainer = container as UiContainer;
+        AbsoluteContainer = container;
         DisablePositioning = disablePositioning;
         PAbsolutePosition = new AbsolutePosition(left, right, top, bottom);
         return this;
