@@ -19,11 +19,10 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
             }
         }
 
-        //ToDo, fix size bug, because the header is actually shrunken and not 50%
         using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
         {
 
-            using (ui.Div().Gap(5))
+            using (ui.Div().Gap(5).Scroll().Padding(10))
             {
                 DisplayUiElement(ui, otherWindow.RootContainer, 39210, 1);
             }

@@ -205,6 +205,14 @@ public partial class UiContainer : UiElementContainer
 
         ClipContent(renderContext);
 
+        if (PCanScroll)
+        {
+            renderContext.Add(new Matrix
+            {
+                SkMatrix = SKMatrix.CreateTranslation(0, -ScrollPos)
+            });
+        }
+
         foreach (var childElement in Children)
         {
             if (childElement is UiContainer { PHidden: true })
@@ -213,6 +221,14 @@ public partial class UiContainer : UiElementContainer
             }
 
             childElement.Render(renderContext);
+        }
+
+        if (PCanScroll)
+        {
+            renderContext.Add(new Matrix
+            {
+                SkMatrix = SKMatrix.CreateTranslation(0, ScrollPos)
+            });
         }
 
         if (NeedsClip())
@@ -287,14 +303,14 @@ public partial class UiContainer : UiElementContainer
             }
         }
 
-        foreach (var childElement in Children)
-        {
-            if (childElement is UiContainer { PHidden: true })
-            {
-                continue;
-            }
-
-            childElement.ComputedBounds.Y -= ScrollPos;
-        }
+        // foreach (var childElement in Children)
+        // {
+        //     if (childElement is UiContainer { PHidden: true })
+        //     {
+        //         continue;
+        //     }
+        //
+        //     childElement.ComputedBounds.Y -= ScrollPos;
+        // }
     }
 }
