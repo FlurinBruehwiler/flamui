@@ -72,5 +72,27 @@ using(ui.Div().Dir(Dir.Horizontal))
 ```
 
 ## Padding
+Padding can be applied on the parent to insert a gap between the parent and the children.
+
+```csharp
+using(ui.Div().Padding(10))
+{
+  using(ui.Div()){}
+}
+```
+
+Padding can be applied per side.
+
 ## Gap
 
+A gap can be defined on the parent to space the children appart by a certain amount.
+```csharp
+using(ui.Div().Gap(10))
+{
+  using(ui.Div()){}
+  using(ui.Div()){}
+}
+```
+
+## Margin
+Currently, flamui doesn't support margin, the workaround is to add another wrapper div with padding.
