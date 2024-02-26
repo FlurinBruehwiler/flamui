@@ -4,7 +4,7 @@ Flamui uses basic flexbox layouting.
 
 Note: When you play around with layouting, it is strongly recommended to make use of hot reload.
 
-### Size
+## Size
 Per default a container allways tries to fill the maximum amount of space in both width and height.
 
 But this behaviour can be customized:
@@ -20,7 +20,7 @@ using(ui.Div().WidthFraction(50))
 using(ui.Div().ShrinkHeight())
 ```
 
-### Position
+## Position
 The position is defined via the parent div.
 
 ```csharp
@@ -33,6 +33,7 @@ using(ui.Div())
 }
 ```
 
+## MAlign
 The default alignment of the children is "start"
 ```csharp
 using(ui.Div())
@@ -53,7 +54,7 @@ These are the possible main axis alignments.
 ```csharp
 using(ui.Div().MAlign(MAlign.Center))
 ```
-
+## XAlign
 The cross axis (XAlign), is opposit of the main axis.
 These are the possible cross axis alignments.
 - Start (default)
@@ -64,12 +65,12 @@ These are the possible cross axis alignments.
 using(ui.Div().XAlign(XAlign.Center))
 ```
 
+## Direction
 The direction of how the children are layed out can be customized. The default is vertical.
 ```csharp
 using(ui.Div().Dir(Dir.Horizontal))
 ```
 
-
-
-
+## Padding
+## Gap
 
