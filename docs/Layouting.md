@@ -27,9 +27,16 @@ The position is defined via the parent div.
 //The default direction of a div is vertical, that's why the children are below one another
 using(ui.Div())
 {
-  //Both children try to take up 100% of the space, so they are split equally.
+  //Both children try to take up 100% of the space, so they are split equally (50/50).
   using(ui.Div()){}
   using(ui.Div()){}
 }
 ```
+
+The direction of how the children are layed out can be customized. The default is vertical.
+```
+using(ui.Div().Dir(Dir.Horizontal))
+```
+
+
 
