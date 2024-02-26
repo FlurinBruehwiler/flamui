@@ -33,10 +33,43 @@ using(ui.Div())
 }
 ```
 
-The direction of how the children are layed out can be customized. The default is vertical.
+The default alignment of the children is "start"
+```csharp
+using(ui.Div())
+{
+  using(ui.Div().Width(10)){}
+  using(ui.Div().Width(10)){}
+}
 ```
+
+The main axis (MAlign), is the the axis defined by the direction.
+
+These are the possible main axis alignments.
+- Start (default)
+- End
+- Center
+- Between
+
+```csharp
+using(ui.Div().MAlign(MAlign.Center))
+```
+
+The cross axis (XAlign), is opposit of the main axis.
+These are the possible cross axis alignments.
+- Start (default)
+- End
+- Center
+
+```csharp
+using(ui.Div().XAlign(XAlign.Center))
+```
+
+The direction of how the children are layed out can be customized. The default is vertical.
+```csharp
 using(ui.Div().Dir(Dir.Horizontal))
 ```
+
+
 
 
 
