@@ -22,7 +22,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             _filterText = string.Empty;
         }
 
-        using (ui.Div(out var dropDownDiv).Rounded(2).Height(23).Focusable().Padding(5).BorderColor(ColorPalette.BorderColor)
+        using (var dropDownDiv = ui.Div().Rounded(2).Height(23).Focusable().Padding(5).BorderColor(ColorPalette.BorderColor)
                    .BorderWidth(1).Color(ColorPalette.BackgroundColor).Dir(Dir.Horizontal))
         {
             HandleStart(ui, dropDownDiv);
@@ -64,7 +64,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                     foreach (var option in _filteredOptions)
                     {
                         var str = option.ToString()!;
-                        using (ui.Div(out var optionDiv, str).Height(25).Color(C.Transparent).Padding(5).Rounded(3))
+                        using (var optionDiv = ui.Div(str).Height(25).Color(C.Transparent).Padding(5).Rounded(3))
                         {
                             if (optionDiv.IsClicked)
                             {

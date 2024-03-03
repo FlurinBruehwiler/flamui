@@ -1,5 +1,5 @@
 ﻿using Flamui;
-using Flamui.DebugWindow;
+using Flamui.Components;
 using Sample.ComponentGallery;
 
 var builder = FlamuiApp.CreateBuilder();

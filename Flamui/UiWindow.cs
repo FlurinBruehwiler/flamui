@@ -99,7 +99,7 @@ public partial class UiWindow : IDisposable
 
         RootContainer = new UiContainer
         {
-            Id = new UiElementId("RootElement", "", 0),
+            Id = new UiID("RootElement", "", 0),
             Window = this
         };
 

@@ -32,10 +32,15 @@ public class RootComponent : FlamuiComponent
             //
             // ui.Button("Click be");
             // ui.Button("Click be (primary)", primary:true, width: 150);
+            //
+            // using (ui.CascadingValue("oh hi"))
+            // {
+            //
+            // }
 
             for (int i = 0; i < 20; i++)
             {
-                using (ui.Div(out var div, Ui.S(i)).Height(30).Border(2, ColorPalette.BorderColor))
+                using (var div = ui.Div(Ui.S(i)).Height(30).Border(2, ColorPalette.BorderColor))
                 {
                     if (div.IsHovered)
                     {

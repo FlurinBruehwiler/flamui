@@ -100,7 +100,7 @@ public class RootComponent : FlamuiComponent
                         for (var x = 0; x < Width; x++)
                         {
                             var innerkey = S(x, static x => x.ToString());
-                            using (ui.Div(out var div, innerkey).Height(50).Width(50).Border(2, ColorPalette.BorderColor).Rounded(3)
+                            using (var div = ui.Div(innerkey).Height(50).Width(50).Border(2, ColorPalette.BorderColor).Rounded(3)
                                        .Color(C.Transparent).Focusable().Padding(5))
                             {
                                 if (_snake.Contains((x, y)))

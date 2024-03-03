@@ -1,7 +1,6 @@
-using Flamui.Components;
 using Flamui.UiElements;
 
-namespace Flamui.DebugWindow;
+namespace Flamui.Components;
 
 public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 {
@@ -40,7 +39,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
     {
         var key = Ui.S(uiElement.Id.GetHashCode() + parentHash);
 
-        using (ui.Div(out var div, key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Dir(Dir.Horizontal)
+        using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Dir(Dir.Horizontal)
                    .Gap(5).XAlign(XAlign.Center))
         {
             if (uiElement is UiElementContainer { Children.Count: > 0 })

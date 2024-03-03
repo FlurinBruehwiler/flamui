@@ -17,7 +17,7 @@ public class NodeComponent : FlamuiComponent
     
     public override void Build(Ui ui)
     {
-        using (ui.Div(out _nodeDiv, ui.LastKey).Shadow(5, top: 5).ShadowColor(0, 0, 0).Clip().BlockHit()
+        using (_nodeDiv = ui.Div().Shadow(5, top: 5).ShadowColor(0, 0, 0).Clip().BlockHit()
                    .BorderColor(16, 16, 16).BorderWidth(2).Absolute(disablePositioning: true).Color(48, 48, 48)
                    .Rounded(10).Width(300).Height(550)) //todo auto hight calculation
         {
@@ -71,42 +71,46 @@ public class NodeComponent : FlamuiComponent
 
     public void AddConnectionField(Ui ui, string content, string key)
     {
-        var connectionTarget = new ConnectionTarget
-        {
-            Id = key
-        };
+        // var connectionTarget = new ConnectionTarget
+        // {
+        //     Id = key
+        // };
+        //
+        // using (ui.Div(key).Height(50).PaddingLeft(20))
+        // {
+        //     //Port
+        //     using (var left = ui.Div().Absolute(left: -10).MAlign(MAlign.Center))
+        //     {
+        //         connectionTarget.LeftPort = new Port(left, PortDirection.Left);
+        //
+        //         ui.Div(out var portLeft).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(_nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
+        //         if (portLeft.IsHovered)
+        //             portLeft.Color(0, 255, 195);
+        //
+        //         // ui.DivEnd();
+        //         // ui.DivEnd();
+        //
+        //         ui.Div(out var right).Absolute(right: -10).MAlign(MAlign.Center);
+        //         connectionTarget.RightPort = new Port(right, PortDirection.Right);
+        //
+        //         ui.Div(out var portRight).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(_nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
+        //         if (portRight.IsHovered)
+        //             portRight.Color(0, 255, 195);
+        //
+        //         // ui.DivEnd();
+        //     }
+        //
+        //
+        //     HandlePort(ui, portLeft, portRight, PortDirection.Left);
+        //     HandlePort(ui, portLeft, portRight, PortDirection.Right);
+        //
+        //     ui.Text($"{key} {content}").VAlign(TextAlign.Center).Size(20);
+        // }
+        //
 
-        ui.Div(key).Height(50).PaddingLeft(20);
 
-            //Port
-            ui.Div(out var left).Absolute(left: -10).MAlign(MAlign.Center);
-                connectionTarget.LeftPort = new Port(left, PortDirection.Left);
 
-                ui.Div(out var portLeft).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(_nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
-                    if (portLeft.IsHovered)
-                        portLeft.Color(0, 255, 195);
-
-                    // ui.DivEnd();
-                    // ui.DivEnd();
-
-                    ui.Div(out var right).Absolute(right: -10).MAlign(MAlign.Center);
-                connectionTarget.RightPort = new Port(right, PortDirection.Right);
-
-                ui.Div(out var portRight).BlockHit().BorderColor(0, 0, 0).BorderWidth(2).IgnoreClipFrom(_nodeDiv).Color(0, 214, 163).Width(20).Height(20).Rounded(10);
-                    if (portRight.IsHovered)
-                        portRight.Color(0, 255, 195);
-
-                    // ui.DivEnd();
-                    // ui.DivEnd();
-
-            HandlePort(ui, portLeft, portRight, PortDirection.Left);
-            HandlePort(ui, portLeft, portRight, PortDirection.Right);
-
-            ui.Text($"{key} {content}").VAlign(TextAlign.Center).Size(20);
-
-            // ui.DivEnd();
-
-        Node.ConnectionTargets.Add(connectionTarget);
+        // Node.ConnectionTargets.Add(connectionTarget);
     }
 
     private void HandlePort(Ui ui, UiContainer leftPort, UiContainer rightPort, PortDirection portDirection)

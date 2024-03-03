@@ -21,11 +21,11 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
         if (!scrollService.IsScrolling)
             return;
 
-        using (ui.Div(out var track).Width(settings.Width).Padding(settings.Padding))
+        using (var track = ui.Div().Width(settings.Width).Padding(settings.Padding))
         {
             track.Color(track.IsHovered ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (ui.Div(out var thumb).Height(scrollService.BarSize).Absolute(top: scrollService.BarStart).Rounded(settings.ThumbRadius))
+            using (var thumb = ui.Div().Height(scrollService.BarSize).Absolute(top: scrollService.BarStart).Rounded(settings.ThumbRadius))
             {
                 thumb.Color(thumb.IsHovered ? settings.ThumbHoverColor : settings.ThumbColor);
             }

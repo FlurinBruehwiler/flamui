@@ -71,12 +71,12 @@ public class NodeGraph : FlamuiComponent
 
         using (ui.Div().ZIndex(-1).Clip())
         {
-            using (ui.Div(out _background).Color(29, 29, 29))
+            using (_background = ui.Div().Color(29, 29, 29))
             {
-                ui.Start<Camera>().Info(Camera);
-                HandleCameraMovement(ui);
-
-                ui.Get<DotGrid>();
+                // ui.Start<Camera>().Info(Camera);
+                // HandleCameraMovement(ui);
+                //
+                // ui.Get<DotGrid>();
 
                 foreach (var node in Nodes)
                 {
@@ -161,9 +161,9 @@ public class NodeGraph : FlamuiComponent
 
         var connection = new Connection(targetA, targetB);
         //todo remove string allocation
-        ui.Get<ConnectionLine>(
-                $"{connectionToDraw.NodeIdA}.{connectionToDraw.ConnectionFieldIdA}-{connectionToDraw.NodeIdB}.{connectionToDraw.ConnectionFieldIdB}")
-            .Dynamic(connection.A, connection.B);
+        // ui.Get<ConnectionLine>(
+        //         $"{connectionToDraw.NodeIdA}.{connectionToDraw.ConnectionFieldIdA}-{connectionToDraw.NodeIdB}.{connectionToDraw.ConnectionFieldIdB}")
+        //     .Dynamic(connection.A, connection.B);
     }
 
     private void HandleNodeSelection(Ui ui)
@@ -212,7 +212,7 @@ public class NodeGraph : FlamuiComponent
             var xMin = Math.Min(mousePos.X, startPos.X);
             var yMin = Math.Min(mousePos.Y, startPos.Y);
 
-            using (ui.Div(out var selectionDiv).Color(255, 255, 255, 50).Absolute(disablePositioning: true))
+            using (var selectionDiv = ui.Div().Color(255, 255, 255, 50).Absolute(disablePositioning: true))
             {
                 selectionDiv.ComputedBounds.X = xMin;
                 selectionDiv.ComputedBounds.Y = yMin;
@@ -256,15 +256,15 @@ public class NodeGraph : FlamuiComponent
             }
             else
             {
-                if (DragEnd is not null)
-                {
-                    ui.Get<ConnectionLine>().Static(DragStart.Value, DragEnd.Value);
-                }
-                else
-                {
-                    var end = Camera.ScreenToWorld(ui.Window.MousePosition);
-                    ui.Get<ConnectionLine>().Static(DragStart.Value, end);
-                }
+                // if (DragEnd is not null)
+                // {
+                //     ui.Get<ConnectionLine>().Static(DragStart.Value, DragEnd.Value);
+                // }
+                // else
+                // {
+                //     var end = Camera.ScreenToWorld(ui.Window.MousePosition);
+                //     ui.Get<ConnectionLine>().Static(DragStart.Value, end);
+                // }
             }
         }
 

@@ -4,133 +4,71 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Flamui;
 
-public class SubStack
-{
-    public required Stack<UiContainer> PreviousSubStack { get; set; }
-    public required Stack<UiContainer> CurrentStack { get; set; }
-}
-
 public partial class Ui
 {
-    public Stack<ValueTuple<FlamuiComponent, bool>> OpenComponents = new();
-    public Stack<UiElementContainer> OpenElementStack = new();
+    public readonly Stack<IStackItem> OpenElementStack = new();
+
+    private IStackItem OpenElement => OpenElementStack.Peek();
+
     public UiWindow Window = null!;
-    public UiContainer Root = null!;
-    // public SubStack StartSubStack(UiContainer temporaryContainer)
-    // {
-    //     var substack = new SubStack //ToDo resuse to avoid memory allocation
-    //     {
-    //         PreviousSubStack = OpenElementStack,
-    //         CurrentStack = new Stack<UiContainer>()
-    //     };
-    //     OpenElementStack = substack.CurrentStack;
-    //     OpenElementStack.Push(temporaryContainer);
-    //     return substack;
-    // }
-
-    // public List<UiElement> EndSubStack(SubStack subStack)
-    // {
-    //     OpenElementStack = subStack.PreviousSubStack;
-    //     return subStack.CurrentStack.Pop().Children;
-    // }
-
-    public UiContainer Div(
-        out UiContainer uiContainer,
-        string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
-    {
-        return uiContainer = Div(key, path, line);
-    }
-
-    public UiContainer Div(
-        string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
-    {
-        return Start<UiContainer>(key, path, line);
-    }
-
-    public T Start<T>(string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : UiElementContainer, new()
-    {
-        var el = OpenElementStack.Peek().AddChild<T>(new UiElementId(key, path, line));
-        OpenElementStack.Push(el);
-        el.OpenElement();
-        return el;
-    }
-
-
-    public string LastKey;
+    public UiElementContainer Root;
 
     public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1) where T : FlamuiComponent
     {
-        var id = new UiElementId(key, path, line);
-        return (T)GetComponentInternal(typeof(T), id, out _);
+        var id = new UiID(key, path, line);
+        return (T)GetComponentInternal(typeof(T), id);
     }
 
-    public object GetComponent(Type type, string key = "",
+    private object GetComponentInternal(Type type, UiID id)
+    {
+        return GetData(id, type, static (ui, _, type) =>
+        {
+            var comp = (FlamuiComponent)ActivatorUtilities.CreateInstance(ui.Window.ServiceProvider, type);
+            comp.OnInitialized();
+            return comp;
+        });
+    }
+
+    public T GetData<T>(UiID id, Func<Ui, UiID, T> factoryMethod) where T : notnull
+    {
+        return GetData(id, 0, (ui, uiId, _) => factoryMethod(ui, uiId));
+    }
+
+    public T GetData<T, TContext>(UiID id, TContext context, Func<Ui, UiID, TContext, T> factoryMethod) where T : notnull
+    {
+        var parentContainer = OpenElementStack.Peek();
+        if (parentContainer.DataStore.OldDataById.TryGetValue(id, out var data))
+        {
+            parentContainer.DataStore.Data.Add(id, data);
+            return (T)data;
+        }
+
+        var value = factoryMethod(this, id, context);
+        parentContainer.DataStore.Data.Add(id, value);
+        return value;
+    }
+
+    public UiContainer Div(
+        string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiElementId(key, path, line);
-        return GetComponentInternal(type, id, out _);
-    }
-
-    private object GetComponentInternal(Type type, UiElementId id, out bool wasNewlyCreated)
-    {
-        wasNewlyCreated = false;
-        LastKey = id.Key;
-        var parentContainer = OpenElementStack.Peek();
-        if (parentContainer.OldDataById.TryGetValue(id, out var data))
+        var id = new UiID(key, path, line);
+        var div = GetData(id, static (ui, id) => new UiContainer
         {
-            parentContainer.Data.Add(id, data);
-            return data;
-        }
+            Id = id,
+            Window = ui.Window
+        });
 
-        wasNewlyCreated = true;
-        var newData = ActivatorUtilities.CreateInstance(Window.ServiceProvider, type);
-        if (newData is null)
-            throw new Exception();
-        parentContainer.Data.Add(id, newData);
+        OpenElement.AddChild(div);
 
-        if (newData is FlamuiComponent flamuiComponent)
-        {
-            flamuiComponent.OnInitialized();//todo make betta :)
-        }
+        OpenElementStack.Push(div);
 
-        return newData;
-    }
+        div.OpenElement();
 
-    public T GetData<T>(T initialValue, out UiElementId id, string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : notnull
-    {
-        id = new UiElementId(key, path, line);
-        var parentContainer = OpenElementStack.Peek();
-        if (parentContainer.OldDataById.TryGetValue(id, out var data))
-        {
-            parentContainer.Data.Add(id, data);
-            return (T)data;
-        }
-        parentContainer.Data.Add(id, initialValue);
-        return initialValue;
-    }
-
-    public void SetData<T>(string value, UiElementId id) where T : notnull
-    {
-        var parentContainer = OpenElementStack.Peek();
-        parentContainer.Data[id] = value;
-    }
-
-    public T Get<T>(string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : UiElement, new()
-    {
-        return OpenElementStack.Peek().AddChild<T>(new UiElementId(key, path, line));
+        return div;
     }
 
     public UiText Text(string content,
@@ -138,19 +76,47 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var text = OpenElementStack.Peek().AddChild<UiText>(new UiElementId(key, path, line));
+        var id = new UiID(key, path, line);
+        var text = GetData(id, static (ui, id) => new UiText
+        {
+            Id = id,
+            Window = ui.Window,
+        });
+
+        OpenElement.AddChild(text);
+
         text.Content = content;
+
         return text;
     }
+
+    // public IDisposable CascadingValue<T>(T value,
+    //     string key = "",
+    //     [CallerFilePath] string path = "",
+    //     [CallerLineNumber] int line = -1)
+    // {
+    //     var provider = GetData(static () => new CascadingValueProvider<T>(), key, path, line);
+    //
+    //     provider.Data = value;
+    //
+    //     return provider;
+    // }
 
     public UiSvg SvgImage(string src, ColorDefinition? colorDefinition = null,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var svg = OpenElementStack.Peek().AddChild<UiSvg>(new UiElementId(key, path, line));
+        var id = new UiID(key, path, line);
+        var svg = GetData(id, static (ui, id) => new UiSvg
+        {
+            Id = id,
+            Window = ui.Window
+        });
+
         svg.ColorDefinition = colorDefinition;
         svg.Src = src;
+
         return svg;
     }
 
@@ -159,23 +125,16 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var text = OpenElementStack.Peek().AddChild<UiImage>(new UiElementId(key, path, line));
-        text.Src = src;
-        return text;
-    }
+        var id = new UiID(key, path, line);
+        var image = GetData(id, static (ui, id) => new UiImage
+        {
+            Id = id,
+            Window = ui.Window,
+        });
 
-    // public void SetFocus(UiContainer uiContainer)
-    // {
-    //     if (UiWindow is null)
-    //         throw new Exception();
-    //
-    //     if (!((UiContainer)uiContainer).PFocusable)
-    //         throw new Exception();
-    //
-    //     UiWindow.ActiveDiv = (UiContainer)uiContainer;
-    // }
+        image.Src = src;
+        OpenElement.AddChild(image);
 
-    public void InvokeAsync(Func<Task> fun)
-    {
+        return image;
     }
 }

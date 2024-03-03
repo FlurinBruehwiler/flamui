@@ -2,32 +2,19 @@
 
 namespace Flamui.UiElements;
 
-public abstract class UiElementContainer : UiElement, IDisposable
+public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
 {
     public List<UiElement> Children { get; set; } = new();
-    public Dictionary<UiElementId, UiElement> OldChildrenById { get; set; } = new();
-    private Dictionary<UiElementId, object>? _oldDataById;
-    private  Dictionary<UiElementId, object>? _data;
-    public Dictionary<UiElementId, object> OldDataById => _oldDataById ??= new Dictionary<UiElementId, object>();
-    public Dictionary<UiElementId, object> Data => _data ??= new  Dictionary<UiElementId, object>();//maybe change do dictionary, but maybe this is slower, should benchmark it
 
-    public T AddChild<T>(UiElementId uiElementId) where T : UiElement, new()
+    public DataStore DataStore { get; } = new();
+
+    public void AddChild(object obj)
     {
-        if (OldChildrenById.TryGetValue(uiElementId, out var child))
+        if (obj is UiElement uiElement)
         {
-            Children.Add(child);
-            return (T)child;
+            Children.Add(uiElement);
+            uiElement.Parent = this;
         }
-
-        var newChild = new T
-        {
-            Id = uiElementId,
-            Parent = this,
-            Window = Window
-        };
-
-        Children.Add(newChild);
-        return newChild;
     }
 
     public virtual Vector2 ProjectPoint(Vector2 point)
@@ -35,24 +22,10 @@ public abstract class UiElementContainer : UiElement, IDisposable
         return point;
     }
 
-    public virtual void OpenElement()
+    public void OpenElement()
     {
-        OldChildrenById.Clear();
-        foreach (var uiElementClass in Children)
-        {
-            OldChildrenById.Add(uiElementClass.Id, uiElementClass);
-        }
-
+        DataStore.Reset();
         Children.Clear();
-
-
-        OldDataById.Clear();
-        foreach (var o in Data)
-        {
-            OldDataById.Add(o.Key, o.Value);
-        }
-
-        Data.Clear();
     }
 
     public bool ContainsPoint(Vector2 pos)

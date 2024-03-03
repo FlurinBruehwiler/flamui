@@ -103,7 +103,7 @@ public partial class UiContainer : UiElementContainer
             if (IsActive)
                 return true;
 
-            foreach (var uiElement in OldChildrenById)
+            foreach (var uiElement in DataStore.OldDataById) //ToDo, maybe old children again
             {
                 if (uiElement.Value is UiContainer { IsActive: true })
                     return true;

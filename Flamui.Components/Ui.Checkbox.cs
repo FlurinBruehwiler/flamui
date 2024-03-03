@@ -9,7 +9,7 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        using (ui.Div(out var div, key, path, line).Height(15).Focusable().Width(15).Color(ColorPalette.BackgroundColor)
+        using (var div = ui.Div(key, path, line).Height(15).Focusable().Width(15).Color(ColorPalette.BackgroundColor)
                    .BorderColor(ColorPalette.BorderColor).BorderWidth(1).Rounded(2))
         {
             if (div.IsClicked)

@@ -1,17 +1,17 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Flamui.UiElements;
 
-public interface IData
-{
-    public UiElementId Id { get; set; }
-}
-
 [DebuggerDisplay("Line = {Id.Line} Key = {Id.Key}")]
-public abstract class UiElement : IData
+public abstract class UiElement
 {
-    public UiElementId Id { get; set; }
+    public required UiID Id { get; init; }
+
     public UiElementContainer Parent { get; set; }
+
+    public required UiWindow Window { get; init; }
+
     public SizeDefinition PWidth { get; set; } = new(100, SizeKind.Percentage);
     public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
 
@@ -31,7 +31,6 @@ public abstract class UiElement : IData
     }
 
     public Bounds ComputedBounds;
-    public UiWindow Window { get; set; }
 
     public UiElement? GetPreviousSibling()
     {
@@ -71,6 +70,6 @@ public abstract class UiElement : IData
     }
 }
 
-public record struct UiElementId(string Key, string Path, int Line);
+public record struct UiID(string Key, string Path, int Line);
 
 public record struct Size(float Width, float Height);
