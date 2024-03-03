@@ -9,7 +9,7 @@ public class LayoutTest : FlamuiComponent
     {
         using (ui.Div().Color(ColorPalette.BorderColor).Dir(Dir.Horizontal))
         {
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 using (ui.Div(Ui.S(i)).Color(ColorPalette.TextColor))
                 {
@@ -19,3 +19,4 @@ public class LayoutTest : FlamuiComponent
         }
     }
 }
+

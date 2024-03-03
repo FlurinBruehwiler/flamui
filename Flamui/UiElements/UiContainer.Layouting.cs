@@ -21,7 +21,7 @@ public partial class UiContainer
                     }
                 }
 
-                ComputeRowSize();
+                ComputeHorizontalSize();
                 break;
             case EnumDir.Vertical:
                 foreach (var child in Children)
@@ -32,7 +32,7 @@ public partial class UiContainer
                     }
                 }
 
-                ComputeColumnSize();
+                ComputeVerticalSize();
 
                 break;
         }
@@ -137,7 +137,7 @@ public partial class UiContainer
         };
     }
 
-    private void ComputeColumnSize()
+    private void ComputeVerticalSize()
     {
         var remainingSize = RemainingMainAxisFixedSize();
 
@@ -188,7 +188,7 @@ public partial class UiContainer
                 item.ComputedBounds.W = item.PWidth.Kind switch
                 {
                     SizeKind.Pixel => item.PWidth.GetDpiAwareValue(),
-                    SizeKind.Percentage => (float)((ComputedBounds.W - (PPadding.Left + PPadding.Right)) *
+                    SizeKind.Percentage => (float)((ComputedBounds.W - (PPadding.Left + PPadding.Right + ScrollBarWidth)) *
                                                    item.PWidth.Value * 0.01),
                     _ => throw new ArgumentOutOfRangeException()
                 };
@@ -196,7 +196,7 @@ public partial class UiContainer
         }
     }
 
-    private void ComputeRowSize()
+    private void ComputeHorizontalSize()
     {
         var remainingSize = RemainingMainAxisFixedSize();
         var totalPercentage = 0f;

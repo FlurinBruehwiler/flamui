@@ -1,4 +1,4 @@
-namespace Flamui.Components;
+namespace Flamui;
 
 public class ScrollbarSettings
 {
@@ -14,6 +14,8 @@ public class ScrollbarSettings
 
 public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) : FlamuiComponent
 {
+    private bool _isDragging;
+
     public override void Build(Ui ui)
     {
         scrollService.MinBarSize = settings.MinTrackSize;
@@ -21,13 +23,30 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
         if (!scrollService.IsScrolling)
             return;
 
+        if (_isDragging)
+        {
+            scrollService.ApplyBarDelta(ui.Window.MouseDelta.Y);
+        }
+
         using (var track = ui.Div().Width(settings.Width).Padding(settings.Padding))
         {
-            track.Color(track.IsHovered ? settings.TrackHoverColor : settings.TrackColor);
+            track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
             using (var thumb = ui.Div().Height(scrollService.BarSize).Absolute(top: scrollService.BarStart).Rounded(settings.ThumbRadius))
             {
-                thumb.Color(thumb.IsHovered ? settings.ThumbHoverColor : settings.ThumbColor);
+                thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
+
+                if (thumb.IsHovered && ui.Window.IsMouseButtonPressed(MouseButtonKind.Left))
+                {
+                    _isDragging = true;
+                    SDL_CaptureMouse(SDL_bool.SDL_TRUE);
+                }
+
+                if(_isDragging && ui.Window.IsMouseButtonReleased(MouseButtonKind.Left))
+                {
+                    _isDragging = false;
+                    SDL_CaptureMouse(SDL_bool.SDL_FALSE);
+                }
             }
         }
     }

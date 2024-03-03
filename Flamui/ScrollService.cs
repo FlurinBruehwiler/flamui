@@ -45,4 +45,17 @@ public struct ScrollService(UiContainer uiContainer)
     /// Wether there is actually enought content for the scroll bar to be active.
     /// </summary>
     public bool IsScrolling => ContentSize > CutoutSize;
+
+    public void ApplyBarDelta(float delta)
+    {
+        if (delta == 0)
+            return;
+
+        var maxBarStart = CutoutSize - BarSize;
+
+        var newBarStart = Math.Clamp(BarStart + delta, 0, maxBarStart);
+        var newScrollProgress = newBarStart / (CutoutSize - BarSize);
+        var newScrollPos = newScrollProgress * (ContentSize - CutoutSize);
+        uiContainer.ScrollPos = newScrollPos;
+    }
 }

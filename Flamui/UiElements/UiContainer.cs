@@ -116,6 +116,7 @@ public partial class UiContainer : UiElementContainer
 
     public bool IsActive { get; set; }
     public bool PCanScroll { get; set; }
+    private float ScrollBarWidth;
     public float ScrollPos { get; set; }
     public bool IsClipped { get; set; }
 
@@ -207,6 +208,8 @@ public partial class UiContainer : UiElementContainer
 
         if (PCanScroll)
         {
+            _scrollBarContainer.UiElement?.Render(renderContext);
+
             renderContext.Add(new Matrix
             {
                 SkMatrix = SKMatrix.CreateTranslation(0, -ScrollPos)
@@ -267,9 +270,59 @@ public partial class UiContainer : UiElementContainer
     }
     public Size ContentSize;
 
+    private readonly EmptyStack _scrollBarContainer = new();
+
+
+    private float LayoutScrollbar()
+    {
+        var scrollbar = Window.Ui.GetData(default, this, static (_, _, scrollContainer) =>
+        {
+            var comp = new Scrollbar(new ScrollService(scrollContainer), new ScrollbarSettings
+            {
+                Width = 10,
+                MinTrackSize = 50,
+                ThumbColor = new ColorDefinition(92, 92, 92),
+                TrackColor = C.Transparent,
+                Padding = 5, //ToDo padding doesn't work
+                ThumbHoverColor = new ColorDefinition(92, 92, 92),
+                TrackHoverColor = new ColorDefinition(52, 52, 52)
+            });
+            comp.OnInitialized();
+            return comp;
+        });
+
+        _scrollBarContainer.DataStore.Reset();
+
+        Window.Ui.OpenElementStack.Push(_scrollBarContainer);
+        scrollbar.Build(Window.Ui);
+        Window.Ui.OpenElementStack.Pop();
+
+        if (_scrollBarContainer.UiElement is null)
+            return 0;
+
+        var shadowParent = new UiContainer
+        {
+            Id = default,
+            Window = Window,
+            ComputedBounds = ComputedBounds,
+            PmAlign = EnumMAlign.FlexEnd,
+            PDir = EnumDir.Horizontal
+        };
+
+        shadowParent.AddChild(_scrollBarContainer.UiElement);
+        shadowParent.Layout();
+
+        return _scrollBarContainer.UiElement.ComputedBounds.W;
+    }
+
     public override void Layout()
     {
         IsNew = false;
+
+        if (PCanScroll)
+        {
+            ScrollBarWidth = LayoutScrollbar();
+        }
 
         ComputeSize();
 
@@ -314,5 +367,20 @@ public partial class UiContainer : UiElementContainer
         //
         //     childElement.ComputedBounds.Y -= ScrollPos;
         // }
+    }
+}
+
+public class EmptyStack : IStackItem
+{
+    public DataStore DataStore { get; } = new();
+
+    public UiElement? UiElement { get; set; }
+
+    public void AddChild(object obj)
+    {
+        if (obj is UiElement uiElement)
+        {
+            UiElement = uiElement;
+        }
     }
 }

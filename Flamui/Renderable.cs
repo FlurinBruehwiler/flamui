@@ -148,6 +148,8 @@ public struct Bounds
     public required float W;
     public required float H;
 
+    public float Right => X + W;
+
     public bool ContainsPoint(Vector2 point)
     {
         var withinX = point.X >= X && point.X <= X + W;

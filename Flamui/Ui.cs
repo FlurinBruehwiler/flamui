@@ -90,17 +90,18 @@ public partial class Ui
         return text;
     }
 
-    // public IDisposable CascadingValue<T>(T value,
-    //     string key = "",
-    //     [CallerFilePath] string path = "",
-    //     [CallerLineNumber] int line = -1)
-    // {
-    //     var provider = GetData(static () => new CascadingValueProvider<T>(), key, path, line);
-    //
-    //     provider.Data = value;
-    //
-    //     return provider;
-    // }
+    public IDisposable CascadingValue<T>(T value,
+        string key = "",
+        [CallerFilePath] string path = "",
+        [CallerLineNumber] int line = -1)
+    {
+        var id = new UiID(key, path, line);
+        var provider = GetData(id, static (_, _) => new CascadingValueProvider<T>());
+
+        provider.Data = value;
+
+        return provider;
+    }
 
     public UiSvg SvgImage(string src, ColorDefinition? colorDefinition = null,
         string key = "",
