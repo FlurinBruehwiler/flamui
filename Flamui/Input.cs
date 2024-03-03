@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Flamui;
 
-public class Input
+public class Input(UiWindow uiWindow)
 {
     public MouseButton[] MouseButtonStates =
     {
@@ -69,6 +69,9 @@ public class Input
     {
         switch (sdlEvent.type)
         {
+            case SDL_EventType.SDL_WINDOWEVENT:
+                HandleWindowEvent(sdlEvent.window);
+                break;
             case SDL_EventType.SDL_MOUSEBUTTONDOWN:
                 HandleMouseDown(sdlEvent.button);
                 break;
@@ -89,6 +92,16 @@ public class Input
                 break;
             case SDL_EventType.SDL_KEYUP:
                 HandleKeyUp(sdlEvent.key);
+                break;
+        }
+    }
+
+    private void HandleWindowEvent(SDL_WindowEvent sdlEventWindow)
+    {
+        switch (sdlEventWindow.windowEvent)
+        {
+            case SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE:
+                SDL_DestroyWindow(uiWindow._windowHandle);
                 break;
         }
     }

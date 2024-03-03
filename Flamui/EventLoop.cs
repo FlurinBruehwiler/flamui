@@ -39,33 +39,29 @@ public class EventLoop
         {
             while (SDL_PollEvent(out var e) == 1)
             {
-                if (e.type == SDL_EventType.SDL_QUIT)
+                switch (e.type)
                 {
-                    quit = true;
-                }
-                else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
-                {
-                    GetWindow(e.motion.windowID)?.Events.Enqueue(e);
-                }
-                else if (e.type == SDL_EventType.SDL_MOUSEBUTTONUP)
-                {
-                    GetWindow(e.motion.windowID)?.Events.Enqueue(e);
-                }
-                else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
-                {
-                    GetWindow(e.motion.windowID)?.Events.Enqueue(e);
-                }
-                else if (e.type == SDL_EventType.SDL_TEXTINPUT)
-                {
-                    GetWindow(e.text.windowID)?.Events.Enqueue(e);
-                }
-                else if (e.type is SDL_EventType.SDL_KEYDOWN or SDL_EventType.SDL_KEYUP)
-                {
-                    GetWindow(e.key.windowID)?.Events.Enqueue(e);
-                }
-                else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
-                {
-                    GetWindow(e.wheel.windowID)?.Events.Enqueue(e);
+                    case SDL_EventType.SDL_QUIT:
+                        Console.WriteLine("quit");
+                        quit = true;
+                        break;
+                    case SDL_EventType.SDL_WINDOWEVENT:
+                        GetWindow(e.window.windowID)?.Events.Enqueue(e);
+                        break;
+                    case SDL_EventType.SDL_MOUSEBUTTONDOWN:
+                    case SDL_EventType.SDL_MOUSEBUTTONUP:
+                    case SDL_EventType.SDL_MOUSEMOTION:
+                        GetWindow(e.motion.windowID)?.Events.Enqueue(e);
+                        break;
+                    case SDL_EventType.SDL_TEXTINPUT:
+                        GetWindow(e.text.windowID)?.Events.Enqueue(e);
+                        break;
+                    case SDL_EventType.SDL_KEYDOWN or SDL_EventType.SDL_KEYUP:
+                        GetWindow(e.key.windowID)?.Events.Enqueue(e);
+                        break;
+                    case SDL_EventType.SDL_MOUSEWHEEL:
+                        GetWindow(e.wheel.windowID)?.Events.Enqueue(e);
+                        break;
                 }
             }
 
@@ -89,7 +85,7 @@ public class EventLoop
             SDL_WINDOWPOS_CENTERED,
             order.Options.Width,
             order.Options.Height,
-            SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+            SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_RESIZABLE | SDL_WindowFlags.SDL_WINDOW_POPUP_MENU);
 
         if (order.Options.MinSize is not null)
         {

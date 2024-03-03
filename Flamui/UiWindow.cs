@@ -6,7 +6,7 @@ namespace Flamui;
 
 public partial class UiWindow : IDisposable
 {
-    private readonly IntPtr _windowHandle;
+    public readonly IntPtr _windowHandle;
     private readonly FlamuiComponent _rootComponent;
     public readonly IServiceProvider ServiceProvider;
     private readonly IntPtr _openGlContextHandle;
@@ -38,7 +38,7 @@ public partial class UiWindow : IDisposable
     //     }
     // }
 
-    private readonly Input _input = new();
+    private readonly Input _input;
     private readonly HitTester _hitTester;
     private readonly TabIndexManager _tabIndexManager = new();
     public readonly Ui Ui = new();
@@ -71,7 +71,7 @@ public partial class UiWindow : IDisposable
         _rootComponent = rootComponent;
         ServiceProvider = serviceProvider;
         Id = SDL_GetWindowID(_windowHandle);
-
+        _input = new Input(this);
 
         _openGlContextHandle = SDL_GL_CreateContext(_windowHandle);
         if (_openGlContextHandle == IntPtr.Zero)
