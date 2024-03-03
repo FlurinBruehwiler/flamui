@@ -3,7 +3,7 @@ using Flamui.Components;
 
 namespace Sample.ComponentGallery;
 
-public class RootComponent : FlamuiComponent
+public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 {
     private string _selectedOption = "Mark";
     private bool _checkboxState;
@@ -36,6 +36,11 @@ public class RootComponent : FlamuiComponent
             using (ui.CascadingValue("oh hi"))
             {
                 ui.CreateLayoutTest();
+            }
+
+            if (ui.Button("Open new Window"))
+            {
+                flamuiApp.CreateWindow<LayoutTest>("LayoutTest");
             }
 
             for (int i = 0; i < 20; i++)

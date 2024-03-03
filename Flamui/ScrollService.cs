@@ -46,6 +46,9 @@ public struct ScrollService(UiContainer uiContainer)
     /// </summary>
     public bool IsScrolling => ContentSize > CutoutSize;
 
+    /// <summary>
+    /// Apply a delta in pixels to the scroll bar
+    /// </summary>
     public void ApplyBarDelta(float delta)
     {
         if (delta == 0)

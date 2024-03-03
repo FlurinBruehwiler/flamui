@@ -1,10 +1,20 @@
 ﻿using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Flamui;
+
+public class WindowCreationOrder
+{
+    public required string Title { get; set; }
+    public required WindowOptions Options { get; set; }
+    public required IServiceProvider ServiceProvider { get; set; }
+    public required Type RootType { get; set; }
+}
 
 public class EventLoop
 {
     public List<UiWindow> Windows { get; set; } = new();
+    public Queue<WindowCreationOrder> WindowsToCreate = new();
 
     public EventLoop()
     {
@@ -19,6 +29,7 @@ public class EventLoop
         }
     }
 
+
     public void RunMainThread()
     {
         Console.WriteLine(Environment.CurrentManagedThreadId);
@@ -26,44 +37,83 @@ public class EventLoop
         var quit = false;
         while (!quit)
         {
-            if (SDL_WaitEvent(out var e) == 0)
+            while (SDL_PollEvent(out var e) == 1)
             {
-                quit = true;
+                if (e.type == SDL_EventType.SDL_QUIT)
+                {
+                    quit = true;
+                }
+                else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
+                {
+                    GetWindow(e.motion.windowID)?.Events.Enqueue(e);
+                }
+                else if (e.type == SDL_EventType.SDL_MOUSEBUTTONUP)
+                {
+                    GetWindow(e.motion.windowID)?.Events.Enqueue(e);
+                }
+                else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
+                {
+                    GetWindow(e.motion.windowID)?.Events.Enqueue(e);
+                }
+                else if (e.type == SDL_EventType.SDL_TEXTINPUT)
+                {
+                    GetWindow(e.text.windowID)?.Events.Enqueue(e);
+                }
+                else if (e.type is SDL_EventType.SDL_KEYDOWN or SDL_EventType.SDL_KEYUP)
+                {
+                    GetWindow(e.key.windowID)?.Events.Enqueue(e);
+                }
+                else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
+                {
+                    GetWindow(e.wheel.windowID)?.Events.Enqueue(e);
+                }
             }
 
-            if (e.type == SDL_EventType.SDL_QUIT)
+            while (WindowsToCreate.TryDequeue(out var order))
             {
-                quit = true;
+                CreateWindow(order);
             }
-            else if (e.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
-            {
-                GetWindow(e.motion.windowID)?.Events.Enqueue(e);
-            }
-            else if (e.type == SDL_EventType.SDL_MOUSEBUTTONUP)
-            {
-                GetWindow(e.motion.windowID)?.Events.Enqueue(e);
-            }
-            else if (e.type == SDL_EventType.SDL_MOUSEMOTION)
-            {
-                GetWindow(e.motion.windowID)?.Events.Enqueue(e);
-            }
-            else if (e.type == SDL_EventType.SDL_TEXTINPUT)
-            {
-                GetWindow(e.text.windowID)?.Events.Enqueue(e);
-            }
-            else if (e.type is SDL_EventType.SDL_KEYDOWN or SDL_EventType.SDL_KEYUP)
-            {
-                GetWindow(e.key.windowID)?.Events.Enqueue(e);
-            }
-            else if (e.type == SDL_EventType.SDL_MOUSEWHEEL)
-            {
-                GetWindow(e.wheel.windowID)?.Events.Enqueue(e);
-            }
+
+            Thread.Sleep(1000/60);
         }
 
         SDL_Quit();
 
         Environment.Exit(0);
+    }
+
+    private void CreateWindow(WindowCreationOrder order)
+    {
+        var windowHandle = SDL_CreateWindow(order.Title,
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,
+            order.Options.Width,
+            order.Options.Height,
+            SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
+
+        if (order.Options.MinSize is not null)
+        {
+            SDL_SetWindowMinimumSize(windowHandle, order.Options.MinSize.Width, order.Options.MinSize.Height);
+        }
+
+        if (order.Options.MaxSize is not null)
+        {
+            SDL_SetWindowMaximumSize(windowHandle, order.Options.MaxSize.Width, order.Options.MaxSize.Height);
+        }
+
+        if (windowHandle == IntPtr.Zero)
+        {
+            // Handle window creation error
+            Console.WriteLine($"SDL_CreateWindow Error: {SDL_GetError()}");
+            throw new Exception();
+        }
+
+        var rootComponent = (FlamuiComponent)ActivatorUtilities.CreateInstance(order.ServiceProvider, order.RootType);
+
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            Windows.Add(new UiWindow(windowHandle, rootComponent, order.ServiceProvider));
+        });
     }
 
     private UiWindow? GetWindow(uint windowId)

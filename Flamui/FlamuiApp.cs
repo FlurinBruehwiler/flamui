@@ -10,7 +10,7 @@ public class WindowOptions
     public SizeConstraint? MaxSize { get; set; }
 }
 
-public record class SizeConstraint(int Width, int Height);
+public record SizeConstraint(int Width, int Height);
 
 public class FlamuiApp
 {
@@ -35,35 +35,12 @@ public class FlamuiApp
     {
         options ??= new WindowOptions();
 
-        var windowHandle = SDL_CreateWindow(title,
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            options.Width,
-            options.Height,
-            SDL_WindowFlags.SDL_WINDOW_OPENGL | SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
-
-        if (options.MinSize is not null)
+        _eventLoop.WindowsToCreate.Enqueue(new WindowCreationOrder
         {
-            SDL_SetWindowMinimumSize(windowHandle, options.MinSize.Width, options.MinSize.Height);
-        }
-
-        if (options.MaxSize is not null)
-        {
-            SDL_SetWindowMaximumSize(windowHandle, options.MaxSize.Width, options.MaxSize.Height);
-        }
-
-        if (windowHandle == IntPtr.Zero)
-        {
-            // Handle window creation error
-            Console.WriteLine($"SDL_CreateWindow Error: {SDL_GetError()}");
-            throw new Exception();
-        }
-
-        var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
-
-        Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            _eventLoop.Windows.Add(new UiWindow(windowHandle, rootComponent, Services));
+            Title = title,
+            Options = options,
+            RootType = typeof(TRootComponent),
+            ServiceProvider = Services
         });
     }
 
