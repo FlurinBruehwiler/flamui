@@ -277,7 +277,7 @@ public partial class UiContainer : UiElementContainer
     {
         //TODO pls refactor this very ugly code!!!!!!!!!!!!!!!
 
-        var scrollbar = Window.Ui.GetData(default, this, static (_, _, scrollContainer) =>
+        var scrollbar = Window.Ui.GetData(Id, this, static (_, _, scrollContainer) =>
         {
             var comp = new Scrollbar(new ScrollService(scrollContainer), new ScrollbarSettings
             {
@@ -378,7 +378,7 @@ public partial class UiContainer : UiElementContainer
 
         const float smoothScrollDelay = 150;
 
-        if (Window.ScrollDelta != 0)
+        if (Window.ScrollDelta != 0 && IsHovered)
         {
             _scrollDelay = smoothScrollDelay;
             _startScrollPos = ScrollPos;

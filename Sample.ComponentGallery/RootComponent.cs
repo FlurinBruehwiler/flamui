@@ -11,52 +11,45 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        using (ui.Div().Padding(0).Color(ColorPalette.BackgroundColor).Gap(10).Scroll())
+        using (ui.Div().Padding(10).Dir(Dir.Horizontal).Gap(10))
         {
-            // using (ui.Div().Width(150).ShrinkHeight())
-            // {
-            //     var dd = ui.CreateDropDown(_selectedOption);
-            //     dd.Component.Option("Mark");
-            //     dd.Component.Option("Tommy");
-            //     dd.Component.Option("Johnny");
-            //     dd.Component.Option("Bonny");
-            //     dd.Build(out _selectedOption);
-            // }
-            //
-            // ui.Checkbox(ref _checkboxState);
-            //
-            // using (ui.Div().Width(200).ShrinkHeight())
-            // {
-            //     ui.StyledInput(ref _inputText);
-            // }
-            //
-            // ui.Button("Click be");
-            // ui.Button("Click be (primary)", primary:true, width: 150);
-            //
-            using (ui.CascadingValue("oh hi"))
+            using (ui.Div().Padding(10).Color(ColorPalette.BackgroundColor).Gap(0).Scroll())
             {
-                ui.CreateLayoutTest();
+                for (int i = 1; i < 50; i++)
+                {
+                    using (var div = ui.Div(Ui.S(i)).Height(20).Border(0, ColorPalette.BorderColor))
+                    {
+                        if (div.IsHovered)
+                        {
+                            div.Color(C.Black / 8);
+                        }
+                        else
+                        {
+                            div.Color(C.Transparent);
+                        }
+
+                        ui.Text(Ui.S(i));
+                    }
+                }
             }
 
-            // if (ui.Button("Open new Window", width:150))
-            // {
-            //     flamuiApp.CreateWindow<LayoutTest>("LayoutTest");
-            // }
-
-            for (int i = 1; i < 50; i++)
+            using (ui.Div().Padding(10).Color(ColorPalette.BackgroundColor).Gap(0).Scroll())
             {
-                using (var div = ui.Div(Ui.S(i)).Height(12).Border(0, ColorPalette.BorderColor))
+                for (int i = 1; i < 50; i++)
                 {
-                    if (div.IsHovered)
+                    using (var div = ui.Div(Ui.S(i)).Height(20).Border(0, ColorPalette.BorderColor))
                     {
-                        // div.Color(C.Amber600);
-                    }
-                    else
-                    {
-                        div.Color(C.Transparent);
-                    }
+                        if (div.IsHovered)
+                        {
+                            div.Color(C.Black / 8);
+                        }
+                        else
+                        {
+                            div.Color(C.Transparent);
+                        }
 
-                    ui.Text(Ui.S(i));
+                        ui.Text(Ui.S(i));
+                    }
                 }
             }
         }
