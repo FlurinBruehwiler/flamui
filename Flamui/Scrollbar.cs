@@ -36,7 +36,7 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
             {
                 thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 
-                if (thumb.IsHovered && ui.Window.IsMouseButtonPressed(MouseButtonKind.Left))
+                if (thumb.IsClicked)
                 {
                     _isDragging = true;
                     SDL_CaptureMouse(SDL_bool.SDL_TRUE);

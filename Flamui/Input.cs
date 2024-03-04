@@ -6,17 +6,17 @@ namespace Flamui;
 
 public class Input(UiWindow uiWindow)
 {
-    public MouseButton[] MouseButtonStates =
+    public readonly MouseButton[] MouseButtonStates =
     {
         new(),
         new(),
         new(),
     };
 
-    public Vector2 MousePosition { get; set; }
-    public Vector2 LastMousePosition { get; set; }
-    public int ScrollDelta { get; set; }
-    public string TextInput { get; set; } = string.Empty;
+    public Vector2 MousePosition { get; private set; }
+    public Vector2 LastMousePosition { get; private set; }
+    public int ScrollDelta { get; private set; }
+    public string TextInput { get; private set; } = string.Empty;
 
     /// <summary>
     /// Keys that have been pressed once

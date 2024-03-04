@@ -8,3 +8,24 @@ app.AddDebugWindow();
 ```
 
 Open the debug window by pressing `F12`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

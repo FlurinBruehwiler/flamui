@@ -342,14 +342,7 @@ public partial class UiContainer : UiElementContainer
 
         if (PCanScroll)
         {
-            if (ContentSize.Height > ComputedBounds.H)
-            {
-                ScrollPos = Math.Clamp(ScrollPos + Window.ScrollDelta * 20, 0, ContentSize.Height - ComputedBounds.H);
-            }
-            else
-            {
-                ScrollPos = 0;
-            }
+            CalculateScrollPos();
         }
 
         foreach (var child in Children)
@@ -369,6 +362,46 @@ public partial class UiContainer : UiElementContainer
         //
         //     childElement.ComputedBounds.Y -= ScrollPos;
         // }
+    }
+
+    private float _scrollDelay;
+    private float _targetScrollPos;
+    private float _startScrollPos;
+
+    private void CalculateScrollPos()
+    {
+        if (ContentSize.Height <= ComputedBounds.H)
+        {
+            ScrollPos = 0;
+            return;
+        }
+
+        const float smoothScrollDelay = 150;
+
+        if (Window.ScrollDelta != 0)
+        {
+            _scrollDelay = smoothScrollDelay;
+            _startScrollPos = ScrollPos;
+            _targetScrollPos += Window.ScrollDelta * 65;
+        }
+
+        if (_scrollDelay > 0)
+        {
+            ScrollPos = Lerp(_startScrollPos, _targetScrollPos, 1 - _scrollDelay / smoothScrollDelay);
+            _scrollDelay -= 16.6f;
+        }
+        else
+        {
+            _startScrollPos = ScrollPos;
+            _targetScrollPos = ScrollPos;
+        }
+
+        ScrollPos = Math.Clamp(ScrollPos, 0, ContentSize.Height - ComputedBounds.H);
+    }
+
+    private float Lerp(float from, float to, float progress)
+    {
+        return from * (1 - progress) + to * progress;
     }
 }
 

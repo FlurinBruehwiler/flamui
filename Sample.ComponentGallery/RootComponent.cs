@@ -11,7 +11,7 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        using (ui.Div().Padding(10).Color(ColorPalette.BackgroundColor).Gap(10).Scroll())
+        using (ui.Div().Padding(0).Color(ColorPalette.BackgroundColor).Gap(10).Scroll())
         {
             // using (ui.Div().Width(150).ShrinkHeight())
             // {
@@ -38,14 +38,14 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
                 ui.CreateLayoutTest();
             }
 
-            if (ui.Button("Open new Window"))
-            {
-                flamuiApp.CreateWindow<LayoutTest>("LayoutTest");
-            }
+            // if (ui.Button("Open new Window", width:150))
+            // {
+            //     flamuiApp.CreateWindow<LayoutTest>("LayoutTest");
+            // }
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 1; i < 50; i++)
             {
-                using (var div = ui.Div(Ui.S(i)).Height(30).Border(2, ColorPalette.BorderColor))
+                using (var div = ui.Div(Ui.S(i)).Height(12).Border(0, ColorPalette.BorderColor))
                 {
                     if (div.IsHovered)
                     {
