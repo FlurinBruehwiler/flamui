@@ -16,7 +16,7 @@ TODO: Virtualized Scrolling
 ## Customization
 The scrollbar look and feel can be configured via a cascading configuration.
 
-```
+```csharp
 using(var scrollbarConfig = ui.Configuration.Scrollbar())
 {
   scrollbarConfig.TrackColor = C.Blue400;
