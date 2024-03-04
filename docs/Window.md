@@ -22,7 +22,7 @@ Information about what keys are pressed / released and what the mouse position i
 
 ## Async
 
-The execute things asynchronously from the main loop use the InvokeAsync method.
+To execute things asynchronously from the main loop use the InvokeAsync method.
 
 ```csharp
 
