@@ -6,7 +6,7 @@ namespace Flamui.Components;
 public static partial class UiExtensions
 {
     //todo: make placeholder work again :)
-    public static UiContainer StyledInput(this Ui ui, ref string text, string placeholder = "", string key = "",
+    public static UiContainer StyledInput(this Ui ui, ref string text, string placeholder = "", InputType inputType = InputType.Text, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
@@ -18,7 +18,7 @@ public static partial class UiExtensions
                 modalInputDiv.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
             }
 
-            ui.Input(ref text, modalInputDiv.HasFocusWithin);
+            ui.Input(ref text, modalInputDiv.HasFocusWithin, inputType);
 
             return modalInputDiv;
         }

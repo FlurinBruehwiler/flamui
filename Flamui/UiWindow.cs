@@ -99,7 +99,7 @@ public partial class UiWindow : IDisposable
 
         RootContainer = new UiContainer
         {
-            Id = new UiID("RootElement", "", 0),
+            Id = new UiID("RootElement", "", 0, 0),
             Window = this
         };
 
@@ -159,8 +159,6 @@ public partial class UiWindow : IDisposable
         RootContainer.Render(RenderContext);
     }
 
-
-
     private void RenderToCanvas()
     {
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
@@ -175,6 +173,7 @@ public partial class UiWindow : IDisposable
         //todo wtf is happening grrrr it makes 0 sense
         if (requiresRerender)
         {
+            // Console.WriteLine("rerender");
 
             // var start = Stopwatch.GetTimestamp();
 

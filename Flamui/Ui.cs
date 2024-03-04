@@ -17,7 +17,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1) where T : FlamuiComponent
     {
-        var id = new UiID(key, path, line);
+        var id = new UiID(key, path, line, typeof(T).GetHashCode());
         return (T)GetComponentInternal(typeof(T), id);
     }
 
@@ -55,7 +55,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line);
+        var id = new UiID(key, path, line, typeof(UiContainer).GetHashCode());
         var div = GetData(id, static (ui, id) => new UiContainer
         {
             Id = id,
@@ -76,7 +76,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line);
+        var id = new UiID(key, path, line, typeof(Text).GetHashCode());
         var text = GetData(id, static (ui, id) => new UiText
         {
             Id = id,
@@ -95,7 +95,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line);
+        var id = new UiID(key, path, line, typeof(T).GetHashCode());
         var provider = GetData(id, static (_, _) => new CascadingValueProvider<T>());
 
         provider.Data = value;
@@ -108,7 +108,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line);
+        var id = new UiID(key, path, line, typeof(UiSvg).GetHashCode());
         var svg = GetData(id, static (ui, id) => new UiSvg
         {
             Id = id,
@@ -117,6 +117,7 @@ public partial class Ui
 
         svg.ColorDefinition = colorDefinition;
         svg.Src = src;
+        OpenElement.AddChild(svg);
 
         return svg;
     }
@@ -126,7 +127,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line);
+        var id = new UiID(key, path, line, typeof(UiImage).GetHashCode());
         var image = GetData(id, static (ui, id) => new UiImage
         {
             Id = id,

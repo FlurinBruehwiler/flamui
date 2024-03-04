@@ -70,6 +70,6 @@ public abstract class UiElement
     }
 }
 
-public record struct UiID(string Key, string Path, int Line);
+public record struct UiID(string Key, string Path, int Line, int TypeHash);
 
 public record struct Size(float Width, float Height);
