@@ -1,6 +1,20 @@
 # Window
 
 ## Creating a window
+At startup the app is directly available. After that you can inject the FlamuiApp via Dependency Injection.
+
+```csharp
+app.CreateWindow<RootComponent>("Hello World", new WindowOptions
+{
+    ...
+});
+```
+
+## Close
+
+```csharp
+ui.Window.Close();
+```
 
 ## Input
 
