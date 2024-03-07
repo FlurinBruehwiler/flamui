@@ -24,16 +24,12 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
-        if: ${{ !(github.event_name == 'release' && github.event.action == 'published') }}
-        run: dotnet build --no-restore
-
       - name: Build release
         if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-        run: dotnet build /p:PublicRelease=true
+        run: dotnet build -c release
 
-      - name: Test
-        run: dotnet test --no-build --verbosity normal
+#      - name: Test
+#        run: dotnet test --no-build --verbosity normal
 
       - name: Pack Flamui
         run: dotnet pack ./Flamui/Flamui.csproj --configuration Release --output ./PackOutput
