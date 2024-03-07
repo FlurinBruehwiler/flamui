@@ -61,6 +61,11 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
             {
                 ui.Text("Oh hi mark").Color(C.Red700);
             }
+
+            if (ui.Button("Create new Window", width: 200))
+            {
+                flamuiApp.CreateWindow<RootComponent>("Second window");
+            }
         }
     }
 

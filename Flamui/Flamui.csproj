@@ -6,6 +6,14 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Flamui</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+        <!-- Nuget Package -->
+        <PackageId>Flamui</PackageId>
+        <Version>0.1.0-alpha.1</Version>
+        <Authors>Flurin Brühwiler</Authors>
+        <PackageLicenseUrl>MIT</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/FlurinBruehwiler/flamui</RepositoryUrl>
+        <Description>A desktop UI framework</Description>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,6 +34,10 @@
         <None Update="./Icons/*.svg">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="../Flamui.SourceGenerator/bin/Release/netstandard2.0" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
     </ItemGroup>
 
 </Project>

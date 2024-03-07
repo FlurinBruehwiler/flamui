@@ -143,6 +143,11 @@ public partial class UiWindow : IDisposable
 
     }
 
+    public void Close()
+    {
+        SDL_DestroyWindow(_windowHandle);
+    }
+
     private void HitDetection()
     {
         _hitTester.HandleHitTest();

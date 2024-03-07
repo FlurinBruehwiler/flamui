@@ -1,0 +1,46 @@
+name: Build And Push Plugin Api
+
+on:
+  push:
+    branches: ["develop"]
+  pull_request:
+    branches: ["develop"]
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        if: ${{ !(github.event_name == 'release' && github.event.action == 'published') }}
+        run: dotnet build --no-restore
+
+      - name: Build release
+        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+        run: dotnet build /p:PublicRelease=true
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+
+      - name: Pack Flamui
+        run: dotnet pack ./Flamui/Flamui.csproj --configuration Release --output ./PackOutput
+
+      - name: Pack Flamui.Components
+        run: dotnet pack ./Flamui.Components/Flamui.Components.csproj --configuration Release --output ./PackOutput
+
+      - name: Push nuget.org
+        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+        run: dotnet nuget push "PackOutput/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json
