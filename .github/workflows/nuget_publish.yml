@@ -2,9 +2,9 @@ name: Build And Push Plugin Api
 
 on:
   push:
-    branches: ["develop"]
+    branches: ["main"]
   pull_request:
-    branches: ["develop"]
+    branches: ["main"]
   release:
     types: [published]
 
