@@ -6,11 +6,12 @@ namespace Sample.ComponentGallery;
 public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 {
     private string _selectedOption = "Mark";
-    private bool _checkboxState;
     private string _inputText = string.Empty;
     private string _inputNumeric = string.Empty;
 
-    private int _tabIndex = 0;
+    private bool _checkboxState;
+
+    private int _tabIndex;
 
     public override void Build(Ui ui)
     {

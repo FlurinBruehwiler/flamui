@@ -1,4 +1,4 @@
-# flamui
+# Flamui
 A C# immediate mode desktop GUI framework.
 
 **This project is still in development!!!**
