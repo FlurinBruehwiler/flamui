@@ -25,7 +25,6 @@ jobs:
         run: dotnet restore
 
       - name: Build release
-        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
         run: dotnet build -c release
 
 #      - name: Test
