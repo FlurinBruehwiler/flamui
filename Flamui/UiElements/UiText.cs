@@ -14,6 +14,12 @@ public class UiText : UiElement
 
     public TextAlign PvAlign { get; set; } = TextAlign.Start;
 
+    public UiText()
+    {
+        PWidth = new SizeDefinition(0, SizeKind.Shrink);
+        PHeight = new SizeDefinition(0, SizeKind.Shrink);
+    }
+
     private static readonly SKPaint Paint = new()
     {
         IsAntialias = true,
@@ -84,6 +90,17 @@ public class UiText : UiElement
 
     public override void Layout()
     {
+        var rect = GetRect();
+
+        if (PHeight.Kind == SizeKind.Shrink)
+        {
+            ComputedBounds.H = rect.Height;
+        }
+
+        if (PWidth.Kind == SizeKind.Shrink)
+        {
+            ComputedBounds.W = rect.Width;
+        }
     }
 
     public override bool LayoutHasChanged()

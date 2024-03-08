@@ -37,7 +37,8 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 
     private void DisplayUiElement(Ui ui, UiElement uiElement, int parentHash, int indentationLevel)
     {
-        var key = Ui.S(uiElement.Id.GetHashCode() + parentHash);
+        var hashCode = uiElement.Id.GetHashCode() + parentHash;
+        var key = Ui.S(hashCode);
 
         using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Dir(Dir.Horizontal)
                    .Gap(5).XAlign(XAlign.Center))
@@ -81,7 +82,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
         {
             foreach (var containerChild in container.Children)
             {
-                DisplayUiElement(ui, containerChild, uiElement.Id.GetHashCode(), indentationLevel + 1);
+                DisplayUiElement(ui, containerChild, hashCode, indentationLevel + 1);
             }
         }
     }

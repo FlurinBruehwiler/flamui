@@ -107,7 +107,7 @@ public partial class UiContainer
         switch (PDir)
         {
             case EnumDir.Horizontal:
-                if (item.PWidth.Kind == SizeKind.Shrink)
+                if (item.PWidth.Kind == SizeKind.Shrink) //shrinkable children have already computed their own size
                     return item.ComputedBounds.W;
 
                 if (item.PWidth.Kind == SizeKind.Percentage)
@@ -115,7 +115,7 @@ public partial class UiContainer
 
                 return item.PWidth.GetDpiAwareValue();
             case EnumDir.Vertical:
-                if (item.PHeight.Kind == SizeKind.Shrink)
+                if (item.PHeight.Kind == SizeKind.Shrink) //same as above
                     return item.ComputedBounds.H;
 
                 if (item.PHeight.Kind == SizeKind.Percentage)

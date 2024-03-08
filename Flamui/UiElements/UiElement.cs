@@ -70,6 +70,12 @@ public abstract class UiElement
     }
 }
 
-public record struct UiID(string Key, string Path, int Line, int TypeHash);
+public record struct UiID(string Key, string Path, int Line, int TypeHash)
+{
+    public override string ToString()
+    {
+        return $"Key: {Key}, Path: {Path}, Line: {Line}, Type: {TypeHash}";
+    }
+}
 
 public record struct Size(float Width, float Height);

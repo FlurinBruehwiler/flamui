@@ -28,9 +28,7 @@ public static partial class UiExtensions
                 HandleBackspace(ui, ref text);
             }
 
-            var txt = ui.Text(text).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
-
-            return txt;
+            return ui.Text(text).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
         }
     }
 
