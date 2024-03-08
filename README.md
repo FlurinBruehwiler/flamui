@@ -31,7 +31,6 @@ app.CreateWindow<RootComponent>("Hello World Window");
 
 app.Run();
 
-//ToDo, put this class into a namespace, global namspace doesn't work currently
 public class RootComponent : FlamuiComponent
 {
     public override void Build(Ui ui)

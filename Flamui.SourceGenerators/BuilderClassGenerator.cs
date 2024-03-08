@@ -8,8 +8,11 @@ public static class BuilderClassGenerator
     {
         var sb = new SourceBuilder();
 
-        sb.AppendFormat("namespace {0};", component.Component.ContainingNamespace.ToDisplayString()).AppendLine();
-        sb.AppendLine();
+        if (!component.Component.ContainingNamespace.IsGlobalNamespace)
+        {
+            sb.AppendFormat("namespace {0};", component.Component.ContainingNamespace.ToDisplayString()).AppendLine();
+            sb.AppendLine();
+        }
 
         sb.Append("public partial struct ");
         AppendBuilderName(sb, component.Component);

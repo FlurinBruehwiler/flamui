@@ -7,8 +7,11 @@ public static class CreateMethodGenerator
     {
         var sb = new SourceBuilder();
 
-        sb.AppendFormat("namespace {0};", component.Component.ContainingNamespace.ToDisplayString()).AppendLine();
-        sb.AppendLine();
+        if (!component.Component.ContainingNamespace.IsGlobalNamespace)
+        {
+            sb.AppendFormat("namespace {0};", component.Component.ContainingNamespace.ToDisplayString()).AppendLine();
+            sb.AppendLine();
+        }
 
         sb.AppendLine("public static partial class UiExtensions");
         sb.AppendLine("{");
