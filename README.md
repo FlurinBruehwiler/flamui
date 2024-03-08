@@ -16,7 +16,7 @@ https://github.com/FlurinBruehwiler/flamui/assets/47397416/cb77530a-873b-417c-ae
 
 ````
 dotnet new console
-dotnet add Flamui
+dotnet add package Flamui --prerelease
 ````
 
 *Program.cs*
@@ -31,7 +31,8 @@ app.CreateWindow<RootComponent>("Hello World Window");
 
 app.Run();
 
-class RootComponent : FlamuiComponent
+//ToDo, put this class into a namespace, global namspace doesn't work currently
+public class RootComponent : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
