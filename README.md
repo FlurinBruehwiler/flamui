@@ -12,6 +12,10 @@ The framework uses Skia for the rendering and SDL2 to manage Windows, Input, Gra
 
 https://github.com/FlurinBruehwiler/flamui/assets/47397416/cb77530a-873b-417c-aee7-f64d6607793c
 
+## Nuget Packages
+- [Flamui](https://www.nuget.org/packages/Flamui)
+- [Flamui.Components](https://www.nuget.org/packages/Flamui.Components)
+
 ## Basic Hello World
 
 ````
