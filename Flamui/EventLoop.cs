@@ -13,7 +13,7 @@ public class WindowCreationOrder
 
 public class EventLoop
 {
-    public List<UiWindow> Windows { get; set; } = new();
+    public static List<UiWindow> Windows { get; set; } = new();
     public Queue<WindowCreationOrder> WindowsToCreate = new();
 
     public EventLoop()

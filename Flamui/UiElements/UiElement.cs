@@ -12,8 +12,8 @@ public abstract class UiElement
 
     public required UiWindow Window { get; init; }
 
-    public SizeDefinition PWidth { get; set; } = new(100, SizeKind.Percentage);
-    public SizeDefinition PHeight { get; set; } = new(100, SizeKind.Percentage);
+    public SizeDefinition PWidth { get; set; }
+    public SizeDefinition PHeight { get; set; }
 
     public SizeDefinition GetMainAxisSize()
     {
@@ -61,13 +61,8 @@ public abstract class UiElement
     }
     public abstract void Render(RenderContext renderContext);
     public abstract void Layout();
-    public abstract bool LayoutHasChanged();
-    public abstract bool HasChanges();
 
-    public virtual void CleanElement()
-    {
-
-    }
+    public abstract void CleanElement();
 }
 
 public record struct UiID(string Key, string Path, int Line, int TypeHash)

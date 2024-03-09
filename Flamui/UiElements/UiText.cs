@@ -6,19 +6,13 @@ public class UiText : UiElement
 {
     public string Content { get; set; }
 
-    public float PSize { get; set; } = 15;
+    public float PSize { get; set; }
 
-    public ColorDefinition PColor { get; set; } = new(255, 255, 255);
+    public ColorDefinition PColor { get; set; }
 
-    public TextAlign PhAlign { get; set; } = TextAlign.Start;
+    public TextAlign PhAlign { get; set; }
 
-    public TextAlign PvAlign { get; set; } = TextAlign.Center;
-
-    public UiText()
-    {
-        PWidth = new SizeDefinition(0, SizeKind.Shrink);
-        PHeight = new SizeDefinition(0, SizeKind.Shrink);
-    }
+    public TextAlign PvAlign { get; set; }
 
     private static readonly SKPaint Paint = new()
     {
@@ -103,14 +97,15 @@ public class UiText : UiElement
         }
     }
 
-    public override bool LayoutHasChanged()
+    public override void CleanElement()
     {
-        throw new NotImplementedException();
-    }
-
-    public override bool HasChanges()
-    {
-        throw new NotImplementedException();
+        Content = "";
+        PSize = 15;
+        PColor = C.Black;
+        PhAlign = TextAlign.Start;
+        PvAlign = TextAlign.Center;
+        PWidth = new SizeDefinition(0, SizeKind.Shrink);
+        PHeight = new SizeDefinition(0, SizeKind.Shrink);
     }
 
     public UiText Width(float width, SizeKind sizeKind = SizeKind.Pixel)
@@ -153,6 +148,11 @@ public class UiText : UiElement
     {
         PvAlign = textAlign;
         return this;
+    }
+
+    public UiText()
+    {
+        CleanElement();
     }
 }
 

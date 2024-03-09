@@ -60,18 +60,21 @@ public class UiSvg : UiElement
         });
     }
 
+    public UiSvg()
+    {
+        CleanElement();
+    }
+
     public override void Layout()
     {
 
     }
 
-    public override bool LayoutHasChanged()
+    public override void CleanElement()
     {
-        throw new NotImplementedException();
-    }
-
-    public override bool HasChanges()
-    {
-        throw new NotImplementedException();
+        Src = null;
+        ColorDefinition = null;
+        PHeight = new(100, SizeKind.Percentage);
+        PWidth = new(100, SizeKind.Percentage);
     }
 }

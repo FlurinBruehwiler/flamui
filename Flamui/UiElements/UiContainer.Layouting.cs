@@ -512,14 +512,4 @@ public partial class UiContainer
         item.ComputedBounds.X += ComputedBounds.X + PPadding.Left;
         item.ComputedBounds.Y += ComputedBounds.Y + PPadding.Top;
     }
-
-    public override bool LayoutHasChanged()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override bool HasChanges()
-    {
-        throw new NotImplementedException();
-    }
 }

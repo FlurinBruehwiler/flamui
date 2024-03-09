@@ -113,6 +113,11 @@ public partial class UiWindow : IDisposable
     public RenderContext LastRenderContext = new();
     public RenderContext RenderContext = new();
 
+    public void ResetElements()
+    {
+        RootContainer.CleanElement();
+    }
+
     public void Update()
     {
         var success = SDL_GL_MakeCurrent(_windowHandle, _openGlContextHandle);

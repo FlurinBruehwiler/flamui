@@ -37,31 +37,7 @@ public partial class UiContainer : UiElementContainer
         }
     }
 
-    public int PZIndex { get; set; }
-    public bool PFocusable { get; set; }
-    public bool IsNew { get; set; } = true;
-    public ColorDefinition? PColor { get; set; }
-    public ColorDefinition? PBorderColor { get; set; }
-    public Quadrant PPadding { get; set; } = new(0, 0, 0, 0);
-    public int PGap { get; set; }
-    public int PRadius { get; set; }
-    public int PBorderWidth { get; set; }
-    public UiContainer? ClipToIgnore { get; set; }
-    public EnumDir PDir { get; set; } = EnumDir.Vertical;
-    public MAlign PmAlign { get; set; } = EnumMAlign.FlexStart;
-    public XAlign PxAlign { get; set; } = EnumXAlign.FlexStart;
 
-    public bool PAutoFocus { get; set; }//what is this?
-    public bool PAbsolute { get; set; }
-    public bool DisablePositioning { get; set; }
-    public UiContainer? AbsoluteContainer { get; set; }
-    public ColorDefinition? PShadowColor { get; set; }
-    public Quadrant ShaddowOffset { get; set; }
-    public float ShadowSigma { get; set; }
-    public bool PHidden { get; set; }
-    public bool PBlockHit { get; set; }
-
-    public AbsolutePosition PAbsolutePosition { get; set; }
 
     public bool IsHovered
     {
@@ -119,6 +95,11 @@ public partial class UiContainer : UiElementContainer
     private float ScrollBarWidth;
     public float ScrollPos { get; set; }
     public bool IsClipped { get; set; }
+
+    public UiContainer()
+    {
+        CleanElement();
+    }
 
     public override void Render(RenderContext renderContext)
     {
@@ -362,41 +343,6 @@ public partial class UiContainer : UiElementContainer
         //
         //     childElement.ComputedBounds.Y -= ScrollPos;
         // }
-    }
-
-    private float _scrollDelay;
-    private float _targetScrollPos;
-    private float _startScrollPos;
-
-    private void CalculateScrollPos()
-    {
-        if (ContentSize.Height <= ComputedBounds.H)
-        {
-            ScrollPos = 0;
-            return;
-        }
-
-        const float smoothScrollDelay = 150;
-
-        if (Window.ScrollDelta != 0 && IsHovered)
-        {
-            _scrollDelay = smoothScrollDelay;
-            _startScrollPos = ScrollPos;
-            _targetScrollPos += Window.ScrollDelta * 65;
-        }
-
-        if (_scrollDelay > 0)
-        {
-            ScrollPos = Lerp(_startScrollPos, _targetScrollPos, 1 - _scrollDelay / smoothScrollDelay);
-            _scrollDelay -= 16.6f;
-        }
-        else
-        {
-            _startScrollPos = ScrollPos;
-            _targetScrollPos = ScrollPos;
-        }
-
-        ScrollPos = Math.Clamp(ScrollPos, 0, ContentSize.Height - ComputedBounds.H);
     }
 
     private float Lerp(float from, float to, float progress)

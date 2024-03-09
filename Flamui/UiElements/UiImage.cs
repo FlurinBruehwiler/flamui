@@ -52,14 +52,16 @@ public class UiImage : UiElement
 
     }
 
-    public override bool LayoutHasChanged()
+    public UiImage()
     {
-        throw new NotImplementedException();
+        CleanElement();
     }
 
-    public override bool HasChanges()
+    public override void CleanElement()
     {
-        throw new NotImplementedException();
+        Src = null!;
+        PHeight = new(100, SizeKind.Percentage);
+        PWidth = new(100, SizeKind.Percentage);
     }
 
     private static readonly Dictionary<string, SKBitmap> ImgCache = new();

@@ -8,7 +8,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
     {
         ui.Window.IsDebugWindow = true;
 
-        var otherWindow = eventLoop.Windows.First(x => x != ui.Window);
+        var otherWindow = EventLoop.Windows.First(x => x != ui.Window);
 
         using (ui.Div().Padding(3).ShrinkHeight())
         {
