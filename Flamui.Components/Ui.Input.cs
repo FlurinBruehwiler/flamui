@@ -16,7 +16,7 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        using (ui.Div(key, path, line))
+        using (ui.Div(key, path, line).MAlign(MAlign.Center))
         {
             if (hasFocus)
             {
@@ -28,7 +28,7 @@ public static partial class UiExtensions
                 HandleBackspace(ui, ref text);
             }
 
-            return ui.Text(text).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
+            return ui.Text(text).Color(ColorPalette.TextColor);
         }
     }
 

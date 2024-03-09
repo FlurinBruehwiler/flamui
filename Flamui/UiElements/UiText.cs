@@ -12,7 +12,7 @@ public class UiText : UiElement
 
     public TextAlign PhAlign { get; set; } = TextAlign.Start;
 
-    public TextAlign PvAlign { get; set; } = TextAlign.Start;
+    public TextAlign PvAlign { get; set; } = TextAlign.Center;
 
     public UiText()
     {

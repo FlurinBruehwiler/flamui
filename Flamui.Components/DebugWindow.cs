@@ -25,7 +25,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
                 DisplayUiElement(ui, otherWindow.RootContainer, 39210, 0);
             }
 
-            using (ui.Div())
+            using (ui.Div().Scroll())
             {
                 if (Ui.DebugSelectedUiElement is not null)
                 {

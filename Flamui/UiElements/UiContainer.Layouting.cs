@@ -137,8 +137,11 @@ public partial class UiContainer
         };
     }
 
-    private void ComputeVerticalSize()
+    private float GetSizePerPercentage()
     {
+        if (PHeight.Kind == SizeKind.Shrink)
+            return 0;
+
         var remainingSize = RemainingMainAxisFixedSize();
 
         var totalPercentage = 0f;
@@ -154,19 +157,27 @@ public partial class UiContainer
             }
         }
 
-        float sizePerPercent;
-
         if (totalPercentage > 100)
         {
-            sizePerPercent = remainingSize / totalPercentage;
+            return remainingSize / totalPercentage;
         }
-        else
-        {
-            sizePerPercent = remainingSize / 100;
-        }
+
+        return remainingSize / 100;
+    }
+
+    private void ComputeVerticalSize()
+    {
+        var sizePerPercent = GetSizePerPercentage();
 
         foreach (var item in Children)
         {
+#if DEBUG
+            if (item.PHeight.Kind == SizeKind.Percentage && PHeight.Kind == SizeKind.Shrink)
+            {
+                throw new Exception("Can't use percentage within a shrinkable container!!!!");
+            }
+#endif
+
             if (item is UiContainer { PAbsolute: true })
             {
                 CalculateAbsoluteSize(item);
@@ -371,8 +382,8 @@ public partial class UiContainer
 
         return PDir switch
         {
-            EnumDir.Horizontal => new Size(mainSize + vertialPadding, crossSize + horizontalPadding),
-            EnumDir.Vertical => new Size(crossSize + vertialPadding, mainSize + horizontalPadding),
+            EnumDir.Horizontal => new Size(mainSize + horizontalPadding, crossSize + vertialPadding),
+            EnumDir.Vertical => new Size(crossSize +  horizontalPadding, mainSize + vertialPadding),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

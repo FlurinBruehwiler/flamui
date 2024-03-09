@@ -9,7 +9,7 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        using (var btn = ui.Div(key, path, line).Height(23).Width(width).Rounded(2).Focusable(focusable).MAlign(MAlign.Center).XAlign(XAlign.Center))
+        using (var btn = ui.Div(key, path, line).Height(23).Rounded(2).Focusable(focusable).ShrinkWidth().Dir(Dir.Horizontal).PaddingHorizontal(10).XAlign(XAlign.Center))
         {
             if (primary)
             {
