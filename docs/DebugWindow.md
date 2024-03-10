@@ -2,7 +2,7 @@
 
 
 ```csharp
-#if RELEASE
+#if DEBUG
 app.AddDebugWindow();
 #endif
 ```
