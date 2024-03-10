@@ -58,10 +58,5 @@ public partial class UiContainer
         PAbsolutePosition = new AbsolutePosition();
         PWidth = new(100, SizeKind.Percentage);
         PHeight = new(100, SizeKind.Percentage);
-
-        foreach (var uiElement in Children)
-        {
-            uiElement.CleanElement();
-        }
     }
 }

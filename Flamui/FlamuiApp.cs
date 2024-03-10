@@ -22,6 +22,7 @@ public class FlamuiApp
     {
         services.AddSingleton(this);
         services.AddSingleton(_eventLoop);
+        services.AddSingleton<RegistrationManager>();
 
         var rootProvider = services.BuildServiceProvider();
         Services = rootProvider.CreateScope().ServiceProvider;
@@ -29,6 +30,12 @@ public class FlamuiApp
         var uiThread = new Thread(_eventLoop.RunUiThread);
         Dispatcher.UIThread = new Dispatcher(uiThread);
         uiThread.Start();
+    }
+
+    public void RegisterOnAfterInput(Action<UiWindow> window)
+    {
+        //maybe not constantly resolve the service
+        Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
     }
 
     public void CreateWindow<TRootComponent>(string title, WindowOptions? options = null) where TRootComponent : FlamuiComponent

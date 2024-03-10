@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Flamui.UiElements;
+using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 
 namespace Flamui;
@@ -63,6 +64,7 @@ public partial class UiWindow : IDisposable
 
     public List<UiElement> HoveredElements { get; set; } = new();
     public List<UiElement> OldHoveredElements { get; set; } = new();
+    private readonly RegistrationManager _registrationManager;
 
     public UiWindow(IntPtr windowHandle, FlamuiComponent rootComponent, IServiceProvider serviceProvider)
     {
@@ -70,6 +72,7 @@ public partial class UiWindow : IDisposable
         _windowHandle = windowHandle;
         _rootComponent = rootComponent;
         ServiceProvider = serviceProvider;
+        _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
         Id = SDL_GetWindowID(_windowHandle);
         _input = new Input(this);
 
@@ -115,7 +118,20 @@ public partial class UiWindow : IDisposable
 
     public void ResetElements()
     {
-        RootContainer.CleanElement();
+        ResetElement(RootContainer);
+    }
+
+    private void ResetElement(UiElement uiElement)
+    {
+        uiElement.CleanElement();
+
+        if (uiElement is not UiElementContainer container)
+            return;
+
+        foreach (var child in container.Children)
+        {
+            ResetElement(child);
+        }
     }
 
     public void Update()
@@ -127,7 +143,15 @@ public partial class UiWindow : IDisposable
         }
 
         ProcessInputs();
+
+        //ToDo cleanup
+        foreach (var action in _registrationManager.OnAfterInput)
+        {
+            action(this);
+        }
+
         HitDetection();
+
         BuildUi();
         Layout();
 

@@ -1,6 +1,6 @@
 using Flamui.UiElements;
 
-namespace Flamui.Components;
+namespace Flamui.Components.DebugTools;
 
 public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 {
