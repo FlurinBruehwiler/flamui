@@ -33,6 +33,12 @@ using(ui.Div())
 }
 ```
 
+## Direction
+The direction of how the children are layed out can be customized. The default is vertical.
+```csharp
+using(ui.Div().Dir(Dir.Horizontal))
+```
+
 ## MAlign
 The default alignment of the children is "start"
 ```csharp
@@ -63,12 +69,6 @@ These are the possible cross axis alignments.
 
 ```csharp
 using(ui.Div().XAlign(XAlign.Center))
-```
-
-## Direction
-The direction of how the children are layed out can be customized. The default is vertical.
-```csharp
-using(ui.Div().Dir(Dir.Horizontal))
 ```
 
 ## Padding
