@@ -2,7 +2,8 @@
 A C# immediate mode desktop GUI framework.
 
 **This project is still in development!!!**
-The progress until the first prerelease is tracked [here](https://github.com/FlurinBruehwiler/flamui/issues/13).
+The progress until the first release is tracked [here](https://github.com/FlurinBruehwiler/flamui/issues/13).
+Prereleases are available on Nuget, see the "Hello World" example below.
 
 Immediate mode means that you don't have to worry about state, the entire UI gets rebuilt every frame.
 
