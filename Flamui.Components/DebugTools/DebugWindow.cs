@@ -56,7 +56,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
                 }
             }
 
-            ui.Text(ToString(uiElement));
+            ui.Text(ToString(uiElement)).Color(ColorPalette.TextColor);
 
             if (div.IsClicked)
             {
@@ -93,7 +93,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
         {
             using (ui.Div(propertyInfo.Name).Height(20))
             {
-                ui.Text($"{propertyInfo.Name}: {propertyInfo.GetValue(uiElement)}");
+                ui.Text($"{propertyInfo.Name}: {propertyInfo.GetValue(uiElement)}").Color(ColorPalette.TextColor);
             }
         }
     }

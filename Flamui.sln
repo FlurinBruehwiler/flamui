@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".SolutionItems", ".Solution
 		.github\workflows\nuget_publish.yml = .github\workflows\nuget_publish.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flamui.Tests", "Flamui.Tests\Flamui.Tests.csproj", "{76D6EAD7-1871-44CB-BF86-6FA61EEA15A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{11C1469D-6CDF-4E55-8225-46F91D88533E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11C1469D-6CDF-4E55-8225-46F91D88533E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11C1469D-6CDF-4E55-8225-46F91D88533E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76D6EAD7-1871-44CB-BF86-6FA61EEA15A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76D6EAD7-1871-44CB-BF86-6FA61EEA15A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76D6EAD7-1871-44CB-BF86-6FA61EEA15A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76D6EAD7-1871-44CB-BF86-6FA61EEA15A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D837AA01-1805-43DC-A7CE-D38BF78DC127} = {9C94658C-B59B-4FC7-AAC4-837C0D481C45}
