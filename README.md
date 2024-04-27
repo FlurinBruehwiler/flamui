@@ -1,7 +1,8 @@
 # Flamui
 A C# immediate mode desktop GUI framework.
 
-**The development of this project is currently paused**
+**The development of this project is currently paused.**
+
 The progress until the first release is tracked [here](https://github.com/FlurinBruehwiler/flamui/issues/13).
 Prereleases are available on Nuget, see the "Hello World" example below.
 
