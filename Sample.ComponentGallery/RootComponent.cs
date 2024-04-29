@@ -13,8 +13,20 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
     private int _tabIndex;
 
+    private int _counter = 0;
+
     public override void Build(Ui ui)
     {
+        using (var button = ui.Div().Width(30).Height(30))
+        {
+            if (button.IsClicked)
+            {
+                _counter++;
+            }
+
+            ui.Text(_counter.ToString());
+        }
+
         using (ui.Div().Color(ColorPalette.BackgroundColor))
         {
             using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).ShrinkHeight())
