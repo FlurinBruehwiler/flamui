@@ -25,14 +25,14 @@ The input component can't receive focus automatically, you need to pass in a boo
 ```csharp
 private string _content = "";
 
-//an input that has allways focus
+//an input that has always focus
 ui.Input(ref _content, hasFocus: true);
 ```
 
-//an input with a div as a wrapper to act as the "hitbox"
 ```csharp
 private string _content = "";
 
+//an input with a div as a wrapper to act as the "hitbox"
 using(var div = ui.Div().Width(100).Height(30))
 {
     ui.Input(ref _content, div.HasFocus);
