@@ -13,9 +13,9 @@ public static class ConstraintSolver
 {
     public static void Solve(Span<Constraint> constraints, float remainingSpace)
     {
-        var percentage = GetRemainingPercentage(ref unsolved);
+        // var percentage = GetRemainingPercentage(ref unsolved);
 
-        var sizePerPercentage = GetSizePerPercentage(percentage, remainingSpace);
+        // var sizePerPercentage = GetSizePerPercentage(percentage, remainingSpace);
     }
 
     private static float GetRemainingPercentage(ref Span<Constraint> unsolved)

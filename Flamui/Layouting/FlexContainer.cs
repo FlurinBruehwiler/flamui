@@ -77,6 +77,8 @@ public class FlexContainer : ILayoutable
 
 
         }
+
+        return new BoxSize();
     }
 
     private float GetSizePerPercentage(float totalPercentage, float availableSize)
