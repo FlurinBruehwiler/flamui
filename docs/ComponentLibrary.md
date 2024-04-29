@@ -16,6 +16,13 @@ dd.Build(out _selectedOption);
 ```csharp
 ui.Button("Click me");
 
+//Possible options:
+//primary: 
+//  true: the button has the color of the ColorPalette.AccentColor
+//  false (default): the button has a transparent background
+//focusable:
+//  true (default): the button can receive focus (via Tab for example)
+//  false: the button can't receive focus 
 ui.Button("Button with options", primary: false, focusable: true);
 ```
 
@@ -25,7 +32,7 @@ The input component can't receive focus automatically, you need to pass in a boo
 ```csharp
 private string _content = "";
 
-//an input that has always focus
+//an input that is always in focus
 ui.Input(ref _content, hasFocus: true);
 ```
 
@@ -33,14 +40,14 @@ ui.Input(ref _content, hasFocus: true);
 private string _content = "";
 
 //an input with a div as a wrapper to act as the "hitbox"
-using(var div = ui.Div().Width(100).Height(30))
+using(var div = ui.Div().Width(100).Height(30).Focusable().Color(C.Transparent))
 {
     ui.Input(ref _content, div.HasFocus);
 }
 ```
 
 ## StyledInput
-A styled Input component that also handles focus etc.
+A styled Input component. (It handles focus automatically, so you don't need to pass in a boolean)
 
 ```csharp
 private string _content = "";
