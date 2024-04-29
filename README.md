@@ -47,3 +47,4 @@ public class RootComponent : FlamuiComponent
 ```
 
 For more examples, look [here](./docs/Examples.md).
+For general documentation, look in the /docs folder.

@@ -9,18 +9,18 @@
 
 **Counter**
 ```csharp
-    private int _counter = 0;
+private int _counter = 0;
 
-    public override void Build(Ui ui)
+public override void Build(Ui ui)
+{
+    using (var button = ui.Div().Width(30).Height(30))
     {
-        using (var button = ui.Div().Width(30).Height(30))
+        if (button.IsClicked)
         {
-            if (button.IsClicked)
-            {
-                _counter++;
-            }
-
-            ui.Text(_counter.ToString());
+            _counter++;
         }
+
+        ui.Text(_counter.ToString());
     }
+}
 ```
