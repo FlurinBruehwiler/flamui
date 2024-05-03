@@ -14,7 +14,7 @@ The scrollbar is hidden when it is not required (The content isn't big enough). 
 TODO: Virtualized Scrolling
 
 ## Customization
-The scrollbar look and feel can be configured via a cascading configuration.
+The scrollbar's look and feel can be configured via a cascading configuration.
 
 ```csharp
 using(var scrollbarConfig = ui.Configuration.Scrollbar())
