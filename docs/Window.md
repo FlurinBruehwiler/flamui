@@ -19,7 +19,7 @@ ui.Window.Close();
 
 ## Input
 
-Information about what keys are pressed / released and the mouse position can be accessed through the window object.
+Information about what keys are pressed / released as well as the mouse position can be accessed through the window object.
 
 ## Async
 
