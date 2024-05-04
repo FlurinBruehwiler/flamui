@@ -1,12 +1,8 @@
-name: Build And Push Plugin Api
+name: Publish Nuget Package
 
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  release:
-    types: [published]
 
 jobs:
   build:
