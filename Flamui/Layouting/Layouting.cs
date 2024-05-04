@@ -36,8 +36,6 @@ public interface ILayoutable
 public struct FlexibleChildConfig
 {
     public float Percentage;
-    public float Min;
-    public float Max;
 }
 
 public struct Point
