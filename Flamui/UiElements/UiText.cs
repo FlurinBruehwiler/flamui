@@ -24,14 +24,14 @@ public class UiText : UiElement
 
     private static readonly Dictionary<TextPathCacheItem, SKRect> TextPathCache = new();
 
-    private SKRect GetRect()
+    private SKRect GetRect(Point offset)
     {
-        var key = new TextPathCacheItem(Content, 0, 0);
+        var key = new TextPathCacheItem(Content, offset.X, offset.Y);
         if (TextPathCache.TryGetValue(key, out var rect))
         {
             return rect;
         }
-        var path = Paint.GetTextPath(Content, 0, 0);
+        var path = Paint.GetTextPath(Content, offset.X, offset.Y);
         path.GetBounds(out rect);
         path.Dispose();
         TextPathCache.Add(key, rect);
@@ -47,12 +47,12 @@ public class UiText : UiElement
         Paint.TextSize = PSize;
         Paint.Color = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Alpha);
 
-        var rect = GetRect();
+        var rect = GetRect(offset);
 
         Paint.GetFontMetrics(out var metrics);
 
-        var actualX = 0f;
-        var actualY = 0f;
+        var actualX = offset.X;
+        var actualY = offset.Y;
 
         actualY += PvAlign switch
         {
@@ -85,8 +85,10 @@ public class UiText : UiElement
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        var rect = GetRect();
 
+        //todo
+        // var rect = GetRect();
+        //
         // if (PHeight.Kind == SizeKind.Shrink)
         // {
         //     ComputedBounds.H = rect.Height;

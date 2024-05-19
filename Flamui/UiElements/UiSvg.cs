@@ -51,8 +51,8 @@ public class UiSvg : UiElement
 
         var matrix = SKMatrix.CreateScale(factor, factor);
 
-        // matrix.TransX = ComputedBounds.X;
-        // matrix.TransY = ComputedBounds.Y;
+        matrix.TransX = offset.X;
+        matrix.TransY = offset.Y;
 
         renderContext.Add(new Picture
         {

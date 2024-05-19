@@ -38,7 +38,13 @@ public class UiImage : UiElement
 
         renderContext.Add(new Bitmap
         {
-            Bounds = new Bounds(destWidth, destHeight),
+            Bounds = new Bounds
+            {
+                H = destHeight,
+                W = destWidth,
+                X = offset.X,
+                Y = offset.Y
+            },
             SkBitmap = ImgCache[Src]
         });
     }

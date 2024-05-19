@@ -43,7 +43,12 @@ public struct FlexContainerInfo
     //----- Methods ------
     public float GetMainSize()
     {
-        return Direction switch
+        return GetSizeInDirection(Direction);
+    }
+
+    public float GetSizeInDirection(Dir dir)
+    {
+        return dir switch
         {
             Dir.Horizontal => WidthValue,
             Dir.Vertical => HeightValue,

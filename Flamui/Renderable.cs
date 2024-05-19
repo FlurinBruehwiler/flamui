@@ -150,13 +150,6 @@ public struct Bounds
     public required float W;
     public required float H;
 
-    [SetsRequiredMembers]
-    public Bounds(float width, float height)
-    {
-        W = width;
-        H = height;
-    }
-
     public float Right => X + W;
 
     public bool ContainsPoint(Vector2 point)

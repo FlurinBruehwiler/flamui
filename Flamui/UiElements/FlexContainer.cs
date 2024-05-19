@@ -154,7 +154,7 @@ public partial class FlexContainer : UiElementContainer
         {
             FlexibleChildConfig = new FlexibleChildConfig
             {
-                Percentage = Info.GetMainSize()
+                Percentage = Info.GetSizeInDirection(dir)
             };
         }
         else
