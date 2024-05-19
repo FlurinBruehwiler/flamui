@@ -1,5 +1,3 @@
-using EnumDir = Flamui.Dir;
-
 namespace Flamui.UiElements;
 
 public struct FlexContainerInfo
@@ -14,7 +12,7 @@ public struct FlexContainerInfo
     public int Radius;
     public int BorderWidth;
     public FlexContainer? ClipToIgnore;
-    public EnumDir Direction;
+    public Dir Direction;
     public MAlign MainAlignment;
     public XAlign CrossAlignment;
     public bool AutoFocus;
@@ -28,4 +26,36 @@ public struct FlexContainerInfo
     public bool BlockHit;
     public bool IsClipped;
     public AbsolutePosition AbsolutePosition;
+    public float WidthValue;
+    public SizeKind WidthKind;
+    public float HeightValue;
+    public SizeKind HeightKind;
+    public bool ShrinkWidth;
+    public bool ShrinkHeight;
+
+    public float GetMainSize(Dir dir)
+    {
+        return dir switch
+        {
+            Dir.Horizontal => WidthValue,
+            Dir.Vertical => HeightValue,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+
+    public SizeKind GetMainSizeKind(Dir dir)
+    {
+        return dir switch
+        {
+            Dir.Horizontal => WidthKind,
+            Dir.Vertical => HeightKind,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+}
+
+public enum SizeKind
+{
+    Pixel,
+    Percentage
 }

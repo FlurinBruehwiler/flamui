@@ -34,24 +34,24 @@ public class UiSvg : UiElement
 
         var svgSize = svg.Picture.CullRect;
 
-        var availableRatio = ComputedBounds.W / ComputedBounds.H;
+        var availableRatio = BoxSize.Width / BoxSize.Height;
         var currentRatio = svgSize.Width / svgSize.Height;
 
         float factor;
 
         if (availableRatio > currentRatio) //Height is the limiting factor
         {
-            factor = ComputedBounds.H / svgSize.Height;
+            factor = BoxSize.Height / svgSize.Height;
         }
         else //Width is the limiting factor
         {
-            factor = ComputedBounds.W / svgSize.Width;
+            factor = BoxSize.Height / svgSize.Width;
         }
 
         var matrix = SKMatrix.CreateScale(factor, factor);
 
-        matrix.TransX = ComputedBounds.X;
-        matrix.TransY = ComputedBounds.Y;
+        // matrix.TransX = ComputedBounds.X;
+        // matrix.TransY = ComputedBounds.Y;
 
         renderContext.Add(new Picture
         {

@@ -32,7 +32,7 @@ public class TabIndexManager
 
     private UiElement? GetPreviousFocusable(UiElement currentElement, bool skipSelfCheck = false)
     {
-        if (!skipSelfCheck && currentElement is FlexContainer { FlexContainerInfo.Focusable: true } uiContainer)
+        if (!skipSelfCheck && currentElement is FlexContainer { Info.Focusable: true } uiContainer)
         {
             return uiContainer;
         }
@@ -68,7 +68,7 @@ public class TabIndexManager
     private FlexContainer? GetNextFocusable(UiElement currentElement, bool skipSelfCheck = false)
     {
         //check myself
-        if (!skipSelfCheck && currentElement is FlexContainer { FlexContainerInfo.Focusable: true } uiContainer)
+        if (!skipSelfCheck && currentElement is FlexContainer { Info.Focusable: true } uiContainer)
         {
             return uiContainer; //found it
         }

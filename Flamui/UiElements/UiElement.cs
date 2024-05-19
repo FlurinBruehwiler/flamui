@@ -1,38 +1,29 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Flamui.Layouting;
 
 namespace Flamui.UiElements;
 
 [DebuggerDisplay("Line = {Id.Line} Key = {Id.Key}")]
-public abstract class UiElement : IUiElement
+public abstract class UiElement
 {
+    //----- Data ------
     public required UiID Id { get; init; }
-
     public UiElementContainer Parent { get; set; }
-
     public required UiWindow Window { get; init; }
-
     public bool IsActive;
-    public SizeDefinition PWidth { get; set; }
-    public SizeDefinition PHeight { get; set; }
+    // public Bounds ComputedBounds;
+    public ParentData ParentData { get; set; }
+    public FlexibleChildConfig? FlexibleChildConfig { get; set; }
+    public BoxSize BoxSize { get; set; }
 
-    public SizeDefinition GetMainAxisSize()
+    //----- Methods ------
+    public abstract BoxSize Layout(BoxConstraint constraint);
+    public abstract void Render(RenderContext renderContext);
+
+    public virtual void PrepareLayout()
     {
-        if (Parent is FlexContainer uiElement)
-        {
-            if (uiElement.FlexContainerInfo.Direction == Dir.Horizontal)
-            {
-                return PWidth;
-            }
-
-            return PHeight;
-        }
-
-        throw new Exception();
+        
     }
-
-    public Bounds ComputedBounds;
 
     public UiElement? GetPreviousSibling()
     {
@@ -61,11 +52,6 @@ public abstract class UiElement : IUiElement
 
         return null;
     }
-    public abstract void Render(RenderContext renderContext);
-    public ParentData ParentData { get; set; }
-    public FlexibleChildConfig? FlexibleChildConfig { get; }
-    public BoxSize Size { get; set; }
-    public abstract BoxSize Layout(BoxConstraint constraint);
 }
 
 public record struct UiID(string Key, string Path, int Line, int TypeHash)

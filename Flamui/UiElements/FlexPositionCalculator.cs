@@ -28,9 +28,9 @@ public static class FlexPositionCalculator
         foreach (var child in children)
         {
             SetPosition(mainOffset, child, dir, size, xAlign);
-            mainOffset += child.Size.GetMainAxis(dir);
+            mainOffset += child.BoxSize.GetMainAxis(dir);
 
-            var childCrossSize = child.Size.GetCrossAxis(dir);
+            var childCrossSize = child.BoxSize.GetCrossAxis(dir);
             if (childCrossSize > crossSize)
                 crossSize += childCrossSize;
         }
@@ -81,7 +81,7 @@ public static class FlexPositionCalculator
     //     return new Size();
     // }
 
-    private static void SetPosition(float mainOffset, IUiElement item, Dir dir, BoxSize size, XAlign xAlign)
+    private static void SetPosition(float mainOffset, UiElement item, Dir dir, BoxSize size, XAlign xAlign)
     {
         item.ParentData = item.ParentData with
         {
@@ -89,13 +89,13 @@ public static class FlexPositionCalculator
         };
     }
 
-    private static float GetCrossAxisOffset(IUiElement item, XAlign xAlign, BoxSize size, Dir dir)
+    private static float GetCrossAxisOffset(UiElement item, XAlign xAlign, BoxSize size, Dir dir)
     {
         return xAlign switch
         {
             XAlign.FlexStart => 0,
-            XAlign.FlexEnd => size.GetCrossAxis(dir) - item.Size.GetCrossAxis(dir),
-            XAlign.Center => size.GetCrossAxis(dir) / 2 - item.Size.GetCrossAxis(dir) / 2,
+            XAlign.FlexEnd => size.GetCrossAxis(dir) - item.BoxSize.GetCrossAxis(dir),
+            XAlign.Center => size.GetCrossAxis(dir) / 2 - item.BoxSize.GetCrossAxis(dir) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
     }

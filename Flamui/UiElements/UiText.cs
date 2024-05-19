@@ -26,12 +26,12 @@ public class UiText : UiElement
 
     private SKRect GetRect()
     {
-        var key = new TextPathCacheItem(Content, ComputedBounds.X, ComputedBounds.Y);
+        var key = new TextPathCacheItem(Content, 0, 0);
         if (TextPathCache.TryGetValue(key, out var rect))
         {
             return rect;
         }
-        var path = Paint.GetTextPath(Content, ComputedBounds.X, ComputedBounds.Y);
+        var path = Paint.GetTextPath(Content, 0, 0);
         path.GetBounds(out rect);
         path.Dispose();
         TextPathCache.Add(key, rect);
@@ -51,21 +51,21 @@ public class UiText : UiElement
 
         Paint.GetFontMetrics(out var metrics);
 
-        var actualX = ComputedBounds.X;
-        var actualY = ComputedBounds.Y;
+        var actualX = 0f;
+        var actualY = 0f;
 
         actualY += PvAlign switch
         {
             TextAlign.Start => PSize,
-            TextAlign.End => ComputedBounds.H,
-            TextAlign.Center => ComputedBounds.H / 2 - (metrics.Ascent + metrics.Descent) / 2,
+            TextAlign.End => BoxSize.Height,
+            TextAlign.Center => BoxSize.Height / 2 - (metrics.Ascent + metrics.Descent) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
 
         actualX += PhAlign switch
         {
-            TextAlign.End => ComputedBounds.W - rect.Width,
-            TextAlign.Center => ComputedBounds.W / 2 - rect.Width / 2,
+            TextAlign.End => BoxSize.Width - rect.Width,
+            TextAlign.Center => BoxSize.Width / 2 - rect.Width / 2,
             TextAlign.Start => 0,
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -87,30 +87,30 @@ public class UiText : UiElement
     {
         var rect = GetRect();
 
-        if (PHeight.Kind == SizeKind.Shrink)
-        {
-            ComputedBounds.H = rect.Height;
-        }
-
-        if (PWidth.Kind == SizeKind.Shrink)
-        {
-            ComputedBounds.W = rect.Width;
-        }
+        // if (PHeight.Kind == SizeKind.Shrink)
+        // {
+        //     ComputedBounds.H = rect.Height;
+        // }
+        //
+        // if (PWidth.Kind == SizeKind.Shrink)
+        // {
+        //     ComputedBounds.W = rect.Width;
+        // }
 
         return new BoxSize();
     }
 
-    public UiText Width(float width, SizeKind sizeKind = SizeKind.Pixel)
+    public UiText Width(float width)
     {
-        PWidth = new SizeDefinition(width, sizeKind);
+        // PWidth = new SizeDefinition(width, sizeKind);
         return this;
     }
-
-    public UiText Height(float height, SizeKind sizeKind = SizeKind.Pixel)
-    {
-        PHeight = new SizeDefinition(height, sizeKind);
-        return this;
-    }
+    //
+    // public UiText Height(float height, SizeKind sizeKind = SizeKind.Pixel)
+    // {
+    //     // PHeight = new SizeDefinition(height, sizeKind);
+    //     return this;
+    // }
 
     public UiText Color(byte red, byte green, byte blue, byte transparency = 255)
     {

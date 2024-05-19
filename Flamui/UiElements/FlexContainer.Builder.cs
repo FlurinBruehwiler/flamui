@@ -7,57 +7,57 @@ public partial class FlexContainer
 {
     public FlexContainer BlockHit(bool blockHit = true)
     {
-        FlexContainerInfo.BlockHit = blockHit;
+        Info.BlockHit = blockHit;
         return this;
     }
 
     public FlexContainer Shadow(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0)
     {
-        FlexContainerInfo.ShadowSigma = sigma;
-        FlexContainerInfo.ShaddowOffset = new Quadrant(left, right, top, bottom);
+        Info.ShadowSigma = sigma;
+        Info.ShaddowOffset = new Quadrant(left, right, top, bottom);
         return this;
     }
 
     public FlexContainer ShadowColor(byte red, byte green, byte blue, byte alpha = 255)
     {
-        FlexContainerInfo.PShadowColor = new ColorDefinition(red, green, blue, alpha);
+        Info.PShadowColor = new ColorDefinition(red, green, blue, alpha);
         return this;
     }
 
     public FlexContainer Color(byte red, byte green, byte blue, byte alpha = 255)
     {
-        FlexContainerInfo.Color = new ColorDefinition(red, green, blue, alpha);
+        Info.Color = new ColorDefinition(red, green, blue, alpha);
         return this;
     }
 
     public FlexContainer Color(ColorDefinition color)
     {
-        FlexContainerInfo.Color = color;
+        Info.Color = color;
         return this;
     }
 
     public FlexContainer BorderColor(byte red, byte green, byte blue, byte alpha = 255)
     {
-        FlexContainerInfo.BorderColor = new ColorDefinition(red, green, blue, alpha);
+        Info.BorderColor = new ColorDefinition(red, green, blue, alpha);
         return this;
     }
 
     public FlexContainer BorderColor(ColorDefinition color)
     {
-        FlexContainerInfo.BorderColor = color;
+        Info.BorderColor = color;
         return this;
     }
 
     public FlexContainer BorderWidth(int borderWidth)
     {
-        FlexContainerInfo.BorderWidth = borderWidth;
+        Info.BorderWidth = borderWidth;
         return this;
     }
 
     public FlexContainer Border(int borderWidth, ColorDefinition color)
     {
-        FlexContainerInfo.BorderWidth = borderWidth;
-        FlexContainerInfo.BorderColor = color;
+        Info.BorderWidth = borderWidth;
+        Info.BorderColor = color;
         return this;
     }
 
@@ -80,128 +80,132 @@ public partial class FlexContainer
     /// <returns></returns>
     public FlexContainer IgnoreClipFrom(FlexContainer div)
     {
-        FlexContainerInfo.ClipToIgnore = (FlexContainer)div;
+        Info.ClipToIgnore = (FlexContainer)div;
         return this;
     }
 
     public FlexContainer Rounded(int radius)
     {
-        FlexContainerInfo.Radius = radius;
+        Info.Radius = radius;
         return this;
     }
 
     public FlexContainer Focusable(bool focusable = true)
     {
-        FlexContainerInfo.Focusable = focusable;
+        Info.Focusable = focusable;
         return this;
     }
 
     public FlexContainer ZIndex(int zIndex)
     {
-        FlexContainerInfo.ZIndex = zIndex;
+        Info.ZIndex = zIndex;
         return this;
     }
 
     public FlexContainer Hidden(bool hidden = true)
     {
-        FlexContainerInfo.Hidden = hidden;
+        Info.Hidden = hidden;
         return this;
     }
 
     public FlexContainer Center()
     {
-        FlexContainerInfo.MainAlignment = EnumMAlign.Center;
-        FlexContainerInfo.CrossAlignment = EnumXAlign.Center;
+        Info.MainAlignment = EnumMAlign.Center;
+        Info.CrossAlignment = EnumXAlign.Center;
         return this;
     }
 
     public FlexContainer Width(float width)
     {
-        PWidth = new SizeDefinition(width, SizeKind.Pixel);
+        Info.WidthValue = width;
+        Info.WidthKind = SizeKind.Pixel;
         return this;
     }
 
     public FlexContainer Height(float height)
     {
-        PHeight = new SizeDefinition(height, SizeKind.Pixel);
+        Info.HeightValue = height;
+        Info.HeightKind = SizeKind.Pixel;
         return this;
     }
 
     public FlexContainer ShrinkHeight()
     {
-        PHeight = new SizeDefinition(0, SizeKind.Shrink);
+        Info.ShrinkHeight = true;
         return this;
     }
 
     public FlexContainer ShrinkWidth()
     {
-        PWidth = new SizeDefinition(0, SizeKind.Shrink);
+        Info.ShrinkWidth = true;
         return this;
     }
 
     public FlexContainer Clip(bool isClipped = true)
     {
-        FlexContainerInfo.IsClipped = isClipped;
+        Info.IsClipped = isClipped;
         return this;
     }
 
     public FlexContainer Relative()
     {
-        FlexContainerInfo.Absolute = false;
-        FlexContainerInfo.AbsoluteContainer = null;
-        FlexContainerInfo.DisablePositioning = false;
-        FlexContainerInfo.AbsolutePosition = new AbsolutePosition();
+        Info.Absolute = false;
+        Info.AbsoluteContainer = null;
+        Info.DisablePositioning = false;
+        Info.AbsolutePosition = new AbsolutePosition();
         return this;
     }
 
     public FlexContainer Absolute(FlexContainer? container = null, float? left = null, float? right = null, float? top = null, float? bottom = null, bool disablePositioning = false)
     {
-        FlexContainerInfo.Absolute = true;
-        FlexContainerInfo.AbsoluteContainer = container;
-        FlexContainerInfo.DisablePositioning = disablePositioning;
-        FlexContainerInfo.AbsolutePosition = new AbsolutePosition(left, right, top, bottom);
+        Info.Absolute = true;
+        Info.AbsoluteContainer = container;
+        Info.DisablePositioning = disablePositioning;
+        Info.AbsolutePosition = new AbsolutePosition(left, right, top, bottom);
         return this;
     }
 
     public FlexContainer WidthFraction(float width)
     {
-        PWidth = new SizeDefinition(width, SizeKind.Percentage);
+        Info.WidthValue = width;
+        Info.WidthKind = SizeKind.Percentage;
         return this;
     }
 
     public FlexContainer HeightFraction(float height)
     {
-        PHeight = new SizeDefinition(height, SizeKind.Percentage);
+        Info.HeightValue = height;
+        Info.HeightKind = SizeKind.Percentage;
         return this;
     }
 
     public FlexContainer Padding(int padding)
     {
-        FlexContainerInfo.Padding = new Quadrant(padding, padding, padding, padding);
+        Info.Padding = new Quadrant(padding, padding, padding, padding);
         return this;
     }
 
     public FlexContainer MAlign(MAlign mAlign)
     {
-        FlexContainerInfo.MainAlignment = mAlign;
+        Info.MainAlignment = mAlign;
         return this;
     }
 
     public FlexContainer XAlign(XAlign xAlign)
     {
-        FlexContainerInfo.CrossAlignment = xAlign;
+        Info.CrossAlignment = xAlign;
         return this;
     }
 
     public FlexContainer PaddingEx(int left = 0, int right = 0, int top = 0, int bottom = 0)
     {
-        FlexContainerInfo.Padding = new Quadrant(left, right, top, bottom);
+        Info.Padding = new Quadrant(left, right, top, bottom);
         return this;
     }
 
     public FlexContainer PaddingHorizontal(int paddingHorizontal)
     {
-        FlexContainerInfo.Padding = FlexContainerInfo.Padding with { Left = paddingHorizontal, Right = paddingHorizontal };
+        Info.Padding = Info.Padding with { Left = paddingHorizontal, Right = paddingHorizontal };
         return this;
     }
 
@@ -213,43 +217,43 @@ public partial class FlexContainer
 
     public FlexContainer PaddingVertical(int paddingVertical)
     {
-        FlexContainerInfo.Padding = FlexContainerInfo.Padding with { Top = paddingVertical, Bottom = paddingVertical };
+        Info.Padding = Info.Padding with { Top = paddingVertical, Bottom = paddingVertical };
         return this;
     }
 
     public FlexContainer Dir(Dir dir)
     {
-        FlexContainerInfo.Direction = dir;
+        Info.Direction = dir;
         return this;
     }
 
     public FlexContainer PaddingLeft(int paddingLeft)
     {
-        FlexContainerInfo.Padding = FlexContainerInfo.Padding with { Left = paddingLeft };
+        Info.Padding = Info.Padding with { Left = paddingLeft };
         return this;
     }
 
     public FlexContainer PaddingRight(int paddingRight)
     {
-        FlexContainerInfo.Padding = FlexContainerInfo.Padding with { Right = paddingRight };
+        Info.Padding = Info.Padding with { Right = paddingRight };
         return this;
     }
 
     public FlexContainer PaddingTop(int paddingTop)
     {
-        FlexContainerInfo.Padding = FlexContainerInfo.Padding with { Top = paddingTop };
+        Info.Padding = Info.Padding with { Top = paddingTop };
         return this;
     }
 
     public FlexContainer PaddingBottom(int paddingBottom)
     {
-        FlexContainerInfo.Padding = FlexContainerInfo.Padding with { Bottom = paddingBottom };
+        Info.Padding = Info.Padding with { Bottom = paddingBottom };
         return this;
     }
 
     public FlexContainer Gap(int gap)
     {
-        FlexContainerInfo.Gap = gap;
+        Info.Gap = gap;
         return this;
     }
 }

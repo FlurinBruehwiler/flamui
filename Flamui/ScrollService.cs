@@ -9,7 +9,7 @@ public struct ScrollService(FlexContainer uiContainerContainer)
     /// <summary>
     /// The size in pixels of the cutout of the content that is actually being shown to the user.
     /// </summary>
-    public float CutoutSize => uiContainerContainer.ComputedBounds.H; //ToDo, use the scroll direction
+    public float CutoutSize => uiContainerContainer.BoxSize.Height; //ToDo, use the scroll direction
 
     /// <summary>
     /// The size in pixels of the content that can be scrolled

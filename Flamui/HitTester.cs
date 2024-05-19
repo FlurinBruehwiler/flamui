@@ -22,7 +22,7 @@ public class HitTester
         {
             foreach (var windowHoveredDiv in _window.HoveredElements)
             {
-                if (windowHoveredDiv is FlexContainer { FlexContainerInfo.Focusable:true} uiContainer)
+                if (windowHoveredDiv is FlexContainer { Info.Focusable:true} uiContainer)
                 {
                     _window.ActiveDiv = uiContainer;
                     return;
@@ -35,7 +35,7 @@ public class HitTester
 
     private void HitTest(Vector2 point)
     {
-        var hitElements = new List<IUiElement>();
+        var hitElements = new List<UiElement>();
 
         //from back to front
         foreach (var (_, value) in _window.LastRenderContext.RenderSections.OrderBy(x => x.Key))
@@ -69,7 +69,7 @@ public class HitTester
             }
 
 
-            if (hitElement is FlexContainer { FlexContainerInfo.BlockHit: true })
+            if (hitElement is FlexContainer { Info.BlockHit: true })
             {
                 return;
             }

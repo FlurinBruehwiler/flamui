@@ -1,6 +1,5 @@
-﻿using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using Flamui.Layouting;
+﻿using Flamui.Layouting;
+using Flamui.UiElements;
 using SkiaSharp;
 
 namespace Flamui;
@@ -8,41 +7,11 @@ namespace Flamui;
 public record struct Quadrant(float Left, float Right, float Top, float Bottom);
 public record struct AbsolutePosition(float? Left, float? Right, float? Top, float? Bottom);
 
-public enum SizeKind
-{
-    Percentage,
-    Pixel,
-    Shrink
-}
-
-public struct SizeDefinition
-{
-    public SizeDefinition(float value, SizeKind kind)
-    {
-        Value = value;
-        Kind = kind;
-    }
-
-    public float GetDpiAwareValue()
-    {
-        if (Kind == SizeKind.Percentage)
-            return Value;
-
-        return Value;//Todo
-    }
-
-    public float Value { get; set; }
-    public SizeKind Kind { get; set; }
-}
-
 public enum MAlign
 {
     FlexStart,
     FlexEnd,
     Center,
-    SpaceBetween,
-    SpaceAround,
-    SpaceEvenly
 }
 
 public enum Dir
@@ -60,7 +29,7 @@ public enum XAlign
 
 public static class Extensions
 {
-    public static bool IsFlexible(this IUiElement uiElement, out FlexibleChildConfig config)
+    public static bool IsFlexible(this UiElement uiElement, out FlexibleChildConfig config)
     {
         config = new FlexibleChildConfig();
 

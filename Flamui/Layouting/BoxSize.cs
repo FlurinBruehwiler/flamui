@@ -40,4 +40,15 @@ public struct BoxSize
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
     }
+
+    public Bounds ToBounds()
+    {
+        return new Bounds
+        {
+            X = 0,
+            Y = 0,
+            W = Width,
+            H = Height
+        };
+    }
 }

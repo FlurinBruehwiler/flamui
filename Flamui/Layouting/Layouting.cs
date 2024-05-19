@@ -1,18 +1,5 @@
 namespace Flamui.Layouting;
 
-public interface IUiElement
-{
-    public void Render(RenderContext renderContext);
-
-    public ParentData ParentData { get; set; }
-
-    public FlexibleChildConfig? FlexibleChildConfig { get; }
-
-    public BoxSize Size { get; }
-
-    BoxSize Layout(BoxConstraint constraint);
-}
-
 /*
  *(dir horizontal)
  * If Inflexible then (aktuell Pixel, Shrink):

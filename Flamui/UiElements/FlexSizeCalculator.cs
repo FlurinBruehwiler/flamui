@@ -4,7 +4,7 @@ namespace Flamui.UiElements;
 
 public static class FlexSizeCalculator
 {
-    public static BoxSize ComputeSize(BoxConstraint constraint, List<UiElement> children, Dir direction)
+    public static BoxSize ComputeSize(BoxConstraint constraint, IList<UiElement> children, Dir direction)
     {
         float totalFixedSize = 0;
         float totalPercentage = 0;

@@ -122,7 +122,7 @@ public partial class UiWindow : IDisposable
         ResetElement(RootContainer);
     }
 
-    private void ResetElement(IUiElement uiElement)
+    private void ResetElement(UiElement uiElement)
     {
         // uiElement.CleanElement();
 
@@ -245,14 +245,14 @@ public partial class UiWindow : IDisposable
                 }
                 else
                 {
-                    DebugOutline(renderContext, hoveredElement.ComputedBounds);
+                    // DebugOutline(renderContext, hoveredElement.ComputedBounds);
                 }
             }
         }
 
         if (DebugSelectedUiElement is not null && DebugSelectedUiElement.Window == this)
         {
-            DebugOutline(renderContext, DebugSelectedUiElement.ComputedBounds);
+            // DebugOutline(renderContext, DebugSelectedUiElement.ComputedBounds);
         }
     }
 
@@ -293,8 +293,8 @@ public partial class UiWindow : IDisposable
         Ui.OpenElementStack.Push(RootContainer);
         Ui.Root = RootContainer;
 
-        RootContainer.ComputedBounds.W = width;
-        RootContainer.ComputedBounds.H = height;
+        // RootContainer.ComputedBounds.W = width;
+        // RootContainer.ComputedBounds.H = height;
 
         RootContainer.OpenElement();
 

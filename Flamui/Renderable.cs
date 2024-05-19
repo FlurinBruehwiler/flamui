@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using Flamui.Layouting;
 using Flamui.UiElements;
 using SkiaSharp;
@@ -101,7 +102,7 @@ public class RenderSection
 
 public interface IClickableFragment
 {
-    public IUiElement UiElement { get; set; }
+    public UiElement UiElement { get; set; }
     public Bounds Bounds { get; set; }
 }
 
@@ -148,6 +149,13 @@ public struct Bounds
     public required float Y;
     public required float W;
     public required float H;
+
+    [SetsRequiredMembers]
+    public Bounds(float width, float height)
+    {
+        W = width;
+        H = height;
+    }
 
     public float Right => X + W;
 
@@ -223,7 +231,7 @@ public struct RectClip : IRenderFragment
 
 public struct Rect : IRenderFragment, IClickableFragment
 {
-    public required IUiElement UiElement { get; set; }
+    public required UiElement UiElement { get; set; }
     public required Bounds Bounds { get; set; }
     public required float Radius;
     public required IRenderPaint RenderPaint;

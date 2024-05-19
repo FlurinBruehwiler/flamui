@@ -13,7 +13,7 @@ public partial class FlexContainer
 
     private void CalculateScrollPos()
     {
-        if (ContentSize.Height <= ComputedBounds.H)
+        if (ContentSize.Height <= BoxSize.Height)
         {
             ScrollPos = 0;
             return;
@@ -39,6 +39,6 @@ public partial class FlexContainer
             _targetScrollPos = ScrollPos;
         }
 
-        ScrollPos = Math.Clamp(ScrollPos, 0, ContentSize.Height - ComputedBounds.H);
+        ScrollPos = Math.Clamp(ScrollPos, 0, ContentSize.Height - BoxSize.Height);
     }
 }

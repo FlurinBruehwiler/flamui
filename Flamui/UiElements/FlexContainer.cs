@@ -11,7 +11,7 @@ public partial class FlexContainer : UiElementContainer
     public bool FocusIn { get; set; } //todo
     public bool FocusOut { get; set; } //todo
 
-    public FlexContainerInfo FlexContainerInfo;
+    public FlexContainerInfo Info;
     public bool IsClicked
     {
         get
@@ -93,22 +93,22 @@ public partial class FlexContainer : UiElementContainer
 
     public override void Render(RenderContext renderContext)
     {
-        if (FlexContainerInfo.ZIndex != 0)
+        if (Info.ZIndex != 0)
         {
-            renderContext.SetIndex(FlexContainerInfo.ZIndex);
+            renderContext.SetIndex(Info.ZIndex);
         }
 
-        if (FlexContainerInfo.ClipToIgnore is not null)
+        if (Info.ClipToIgnore is not null)
         {
             renderContext.Add(new Restore());
         }
 
-        if (FlexContainerInfo.Color is { } color)
+        if (Info.Color is { } color)
         {
             //shadow
-            if (FlexContainerInfo.PShadowColor is { } blurColor)
+            if (Info.PShadowColor is { } blurColor)
             {
-                float borderRadius = FlexContainerInfo.Radius + FlexContainerInfo.BorderWidth;
+                float borderRadius = Info.Radius + Info.BorderWidth;
 
                 //todo replace with readable code or something
                 renderContext.Add(new Rect
@@ -116,15 +116,15 @@ public partial class FlexContainer : UiElementContainer
                     UiElement = this,
                     Bounds = new Bounds
                     {
-                        X = ComputedBounds.X - FlexContainerInfo.BorderWidth + FlexContainerInfo.ShaddowOffset.Left,
-                        Y = ComputedBounds.Y - FlexContainerInfo.BorderWidth + FlexContainerInfo.ShaddowOffset.Top,
-                        H = ComputedBounds.H + 2 * FlexContainerInfo.BorderWidth - FlexContainerInfo.ShaddowOffset.Top - FlexContainerInfo.ShaddowOffset.Bottom,
-                        W = ComputedBounds.W + 2 * FlexContainerInfo.BorderWidth - FlexContainerInfo.ShaddowOffset.Left - FlexContainerInfo.ShaddowOffset.Right,
+                        X = Info.BorderWidth + Info.ShaddowOffset.Left,
+                        Y = Info.BorderWidth + Info.ShaddowOffset.Top,
+                        H = BoxSize.Height + 2 * Info.BorderWidth - Info.ShaddowOffset.Top - Info.ShaddowOffset.Bottom,
+                        W = BoxSize.Width + 2 * Info.BorderWidth - Info.ShaddowOffset.Left - Info.ShaddowOffset.Right,
                     },
-                    Radius = FlexContainerInfo.Radius == 0 ? 0 : borderRadius,
+                    Radius = Info.Radius == 0 ? 0 : borderRadius,
                     RenderPaint = new ShadowPaint
                     {
-                        ShadowSigma = FlexContainerInfo.ShadowSigma,
+                        ShadowSigma = Info.ShadowSigma,
                         SkColor = blurColor.ToSkColor()
                     }
                 });
@@ -133,8 +133,8 @@ public partial class FlexContainer : UiElementContainer
             renderContext.Add(new Rect
             {
                 UiElement = this,
-                Bounds = ComputedBounds,
-                Radius = FlexContainerInfo.Radius,
+                Bounds = BoxSize.ToBounds(),
+                Radius = Info.Radius,
                 RenderPaint = new PlaintPaint
                 {
                     SkColor = color.ToSkColor()
@@ -142,16 +142,16 @@ public partial class FlexContainer : UiElementContainer
             });
         }
 
-        if (FlexContainerInfo.BorderWidth != 0 && FlexContainerInfo.BorderColor is {} borderColor)
+        if (Info.BorderWidth != 0 && Info.BorderColor is {} borderColor)
         {
             renderContext.Add(new Save());
 
-            float borderRadius = FlexContainerInfo.Radius + FlexContainerInfo.BorderWidth;
+            float borderRadius = Info.Radius + Info.BorderWidth;
 
             renderContext.Add(new RectClip
             {
-                Bounds = ComputedBounds,
-                Radius = FlexContainerInfo.Radius,
+                Bounds = BoxSize.ToBounds(),
+                Radius = Info.Radius,
                 ClipOperation = SKClipOperation.Difference
             });
 
@@ -160,10 +160,10 @@ public partial class FlexContainer : UiElementContainer
                 UiElement = this,
                 Bounds = new Bounds
                 {
-                    X = ComputedBounds.X - FlexContainerInfo.BorderWidth,
-                    Y = ComputedBounds.Y - FlexContainerInfo.BorderWidth,
-                    W = ComputedBounds.W + 2 * FlexContainerInfo.BorderWidth,
-                    H = ComputedBounds.H + 2 * FlexContainerInfo.BorderWidth,
+                    X = Info.BorderWidth,
+                    Y = Info.BorderWidth,
+                    W = BoxSize.Width + 2 * Info.BorderWidth,
+                    H = BoxSize.Height + 2 * Info.BorderWidth,
                 },
                 Radius = borderRadius,
                 RenderPaint = new PlaintPaint
@@ -189,7 +189,7 @@ public partial class FlexContainer : UiElementContainer
 
         foreach (var childElement in Children)
         {
-            if (childElement is FlexContainer { FlexContainerInfo.Hidden: true })
+            if (childElement is FlexContainer { Info.Hidden: true })
             {
                 continue;
             }
@@ -211,9 +211,9 @@ public partial class FlexContainer : UiElementContainer
         }
 
         //reapply clip
-        FlexContainerInfo.ClipToIgnore?.ClipContent(renderContext);
+        Info.ClipToIgnore?.ClipContent(renderContext);
 
-        if (FlexContainerInfo.ZIndex != 0)
+        if (Info.ZIndex != 0)
         {
             renderContext.RestoreZIndex();
         }
@@ -228,8 +228,8 @@ public partial class FlexContainer : UiElementContainer
 
             renderContext.Add(new RectClip
             {
-                Bounds = ComputedBounds,
-                Radius = FlexContainerInfo.Radius,
+                Bounds = BoxSize.ToBounds(),
+                Radius = Info.Radius,
                 ClipOperation = SKClipOperation.Intersect
             });
         }
@@ -237,7 +237,7 @@ public partial class FlexContainer : UiElementContainer
 
     private bool NeedsClip()
     {
-        return PCanScroll || FlexContainerInfo.IsClipped;
+        return PCanScroll || Info.IsClipped;
     }
     public BoxSize ContentSize;
 
@@ -277,7 +277,7 @@ public partial class FlexContainer : UiElementContainer
         {
             Id = default,
             Window = Window,
-            ComputedBounds = ComputedBounds,
+            // ComputedBounds = ComputedBounds,
             // PmAlign = EnumMAlign.FlexEnd,
             // Direction = EnumDir.Horizontal
         };
@@ -285,18 +285,33 @@ public partial class FlexContainer : UiElementContainer
         shadowParent.AddChild(_scrollBarContainer.UiElement);
         // shadowParent.Layout();
 
-        return _scrollBarContainer.UiElement.ComputedBounds.W;
+        return _scrollBarContainer.UiElement.BoxSize.Width;
+    }
+
+    public override void PrepareLayout()
+    {
+        if (Info.GetMainSizeKind(Info.Direction) == SizeKind.Percentage)
+        {
+            FlexibleChildConfig = new FlexibleChildConfig
+            {
+                Percentage = Info.GetMainSize(Info.Direction)
+            };
+        }
+        else
+        {
+            FlexibleChildConfig = null;
+        }
     }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
         TightenConstraint(ref constraint);
 
-        Size = FlexSizeCalculator.ComputeSize(constraint, Children, FlexContainerInfo.Direction);
+        BoxSize = FlexSizeCalculator.ComputeSize(constraint, Children, Info.Direction);
 
-        var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, FlexContainerInfo.MainAlignment, FlexContainerInfo.CrossAlignment, FlexContainerInfo.Direction, Size);
+        var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, Info.MainAlignment, Info.CrossAlignment, Info.Direction, BoxSize);
 
-        return Size;
+        return BoxSize;
     }
 
     private void TightenConstraint(ref BoxConstraint constraint)

@@ -28,12 +28,6 @@ public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
         Children.Clear();
     }
 
-    public bool ContainsPoint(Vector2 pos)
-    {
-        return ComputedBounds.X <= pos.X && ComputedBounds.X + ComputedBounds.W >= pos.X && ComputedBounds.Y <= pos.Y &&
-               ComputedBounds.Y + ComputedBounds.H >= pos.Y;
-    }
-
     public void Dispose()
     {
         Window.Ui.OpenElementStack.Pop();
