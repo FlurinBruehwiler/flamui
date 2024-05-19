@@ -11,6 +11,17 @@ public struct BoxSize
         Height = height;
     }
 
+    public BoxSize ApplyConstraint(BoxConstraint constraint)
+    {
+        var width = Math.Min(constraint.MaxWidth, Width);
+        width = Math.Max(constraint.MinWidth, width);
+
+        var height = Math.Min(constraint.MaxHeight, Height);
+        height = Math.Max(constraint.MinHeight, height);
+
+        return new BoxSize(width, height);
+    }
+
     public static BoxSize FromDirection(Dir dir, float main, float cross)
     {
         return dir switch
@@ -41,12 +52,12 @@ public struct BoxSize
         };
     }
 
-    public Bounds ToBounds()
+    public Bounds ToBounds(Point point = new())
     {
         return new Bounds
         {
-            X = 0,
-            Y = 0,
+            X = point.X,
+            Y = point.Y,
             W = Width,
             H = Height
         };

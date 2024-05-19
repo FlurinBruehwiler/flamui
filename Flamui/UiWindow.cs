@@ -190,7 +190,7 @@ public partial class UiWindow : IDisposable
 
     private void CreateRenderInstructions()
     {
-        RootContainer.Render(RenderContext);
+        RootContainer.Render(RenderContext, new Point());
     }
 
     private void RenderToCanvas()
@@ -300,7 +300,7 @@ public partial class UiWindow : IDisposable
 
         _rootComponent.Build(Ui);
 
-        RootContainer.PrepareLayout();
+        RootContainer.PrepareLayout(Dir.Vertical);
         RootContainer.Layout(new BoxConstraint(0, width, 0, height));
     }
 

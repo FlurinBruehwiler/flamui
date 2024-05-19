@@ -31,6 +31,7 @@ public enum SizeKind
 {
     Percentage = 0, //Default
     Pixel,
+    Shrink
 }
 
 

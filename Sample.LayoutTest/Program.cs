@@ -12,15 +12,15 @@ public class LayoutTest : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
-        using (ui.Div().Color(C.Red6).Direction(Dir.Horizontal))
+        using (ui.Div().Color(C.Green6).Height(100).Width(100))
         {
+        }
 
-            using (ui.Div().Color(C.Green6).Width(100))
+        using (ui.Div().Color(C.Green5))
+        {
+            using (ui.Div().Color(C.Blue4))
             {
-            }
 
-            using (ui.Div().Color(C.Blue6))
-            {
             }
         }
     }

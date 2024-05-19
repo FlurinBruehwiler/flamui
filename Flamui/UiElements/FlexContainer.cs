@@ -8,6 +8,13 @@ public partial class FlexContainer : UiElementContainer
     public bool FocusOut { get; } //todo
 
     public FlexContainerInfo Info = new();
+
+    public override void OpenElement()
+    {
+        Info = new();
+        base.OpenElement();
+    }
+
     public bool IsClicked
     {
         get
@@ -87,9 +94,9 @@ public partial class FlexContainer : UiElementContainer
         }
     }
 
-    public override void Render(RenderContext renderContext)
+    public override void Render(RenderContext renderContext, Point offset)
     {
-        FlexContainerRenderer.Render(renderContext, this);
+        FlexContainerRenderer.Render(renderContext, this, offset);
     }
 
     public BoxSize ContentSize;
@@ -141,9 +148,9 @@ public partial class FlexContainer : UiElementContainer
         return _scrollBarContainer.UiElement.BoxSize.Width;
     }
 
-    public override void PrepareLayout()
+    public override void PrepareLayout(Dir dir)
     {
-        if (Info.GetMainSizeKind(Info.Direction) == SizeKind.Percentage)
+        if (Info.GetMainSizeKind(dir) == SizeKind.Percentage)
         {
             FlexibleChildConfig = new FlexibleChildConfig
             {
@@ -169,10 +176,44 @@ public partial class FlexContainer : UiElementContainer
 
     private void TightenConstraint(ref BoxConstraint constraint)
     {
-        if (FlexibleChildConfig == null)
+        //width
+        if (!constraint.IsWidthTight())
         {
-            var mainSize = Info.GetMainSize();
-            constraint.SetMain(Info.Direction, mainSize, mainSize);
+            if(Info.WidthKind == SizeKind.Percentage && !float.IsInfinity(constraint.MaxWidth))
+            {
+                var width = constraint.MaxWidth * (0.01f * Info.WidthValue);
+                constraint.MaxWidth = width;
+                constraint.MinWidth = width;
+
+                //todo check that we don't comply with the constraints
+            }
+            else if (Info.WidthKind == SizeKind.Pixel)
+            {
+                constraint.MaxWidth = Info.WidthValue;
+                constraint.MinWidth = Info.WidthValue;
+
+                //todo check that we don't comply with the constraints
+            }
+        }
+
+        //height
+        if (!constraint.IsHeightTight())
+        {
+            if(Info.HeightKind == SizeKind.Percentage && !float.IsInfinity(constraint.MaxHeight))
+            {
+                var height = constraint.MaxHeight * (0.01f * Info.HeightValue);
+                constraint.MaxHeight = height;
+                constraint.MinHeight = height;
+
+                //todo check that we don't comply with the constraints
+            }
+            else if (Info.HeightKind == SizeKind.Pixel)
+            {
+                constraint.MaxHeight = Info.HeightValue;
+                constraint.MinHeight = Info.HeightValue;
+
+                //todo check that we don't comply with the constraints
+            }
         }
     }
 }

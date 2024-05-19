@@ -7,7 +7,7 @@ public class UiImage : UiElement
 {
     public string Src { get; set; } = null!;
 
-    public override void Render(RenderContext renderContext)
+    public override void Render(RenderContext renderContext, Point offset)
     {
         if (!ImgCache.TryGetValue(Src, out var img))
         {

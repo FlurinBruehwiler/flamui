@@ -17,12 +17,7 @@ public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
         }
     }
 
-    public virtual Vector2 ProjectPoint(Vector2 point)
-    {
-        return point;
-    }
-
-    public void OpenElement()
+    public virtual void OpenElement()
     {
         DataStore.Reset();
         Children.Clear();

@@ -39,8 +39,6 @@ public struct FlexContainerInfo
     public SizeKind WidthKind;
     public float HeightValue;
     public SizeKind HeightKind;
-    public bool ShrinkWidth;
-    public bool ShrinkHeight;
 
     //----- Methods ------
     public float GetMainSize()

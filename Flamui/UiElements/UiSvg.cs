@@ -4,6 +4,7 @@ using SkiaSharp;
 using Svg;
 using Svg.Model;
 using Svg.Skia;
+using Point = Flamui.Layouting.Point;
 
 namespace Flamui.UiElements;
 
@@ -14,7 +15,7 @@ public class UiSvg : UiElement
     public ColorDefinition? ColorDefinition { get; set; }
     private static readonly Dictionary<string, SKSvg> SSvgCache = new();
 
-    public override void Render(RenderContext renderContext)
+    public override void Render(RenderContext renderContext, Point offset)
     {
         if (!SSvgCache.TryGetValue(Src, out var svg))
         {

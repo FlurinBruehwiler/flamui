@@ -18,9 +18,9 @@ public abstract class UiElement
 
     //----- Methods ------
     public abstract BoxSize Layout(BoxConstraint constraint);
-    public abstract void Render(RenderContext renderContext);
+    public abstract void Render(RenderContext renderContext, Point offset);
 
-    public virtual void PrepareLayout()
+    public virtual void PrepareLayout(Dir dir)
     {
         
     }

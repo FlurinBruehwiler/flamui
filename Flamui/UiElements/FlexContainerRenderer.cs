@@ -1,11 +1,12 @@
 
+using Flamui.Layouting;
 using SkiaSharp;
 
 namespace Flamui.UiElements;
 
 public static class FlexContainerRenderer
 {
-    public static void Render(RenderContext renderContext, FlexContainer flexContainer)
+    public static void Render(RenderContext renderContext, FlexContainer flexContainer, Point offset)
     {
         if (flexContainer.Info.ZIndex != 0)
         {
@@ -47,7 +48,7 @@ public static class FlexContainerRenderer
             renderContext.Add(new Rect
             {
                 UiElement = flexContainer,
-                Bounds = flexContainer.BoxSize.ToBounds(),
+                Bounds = flexContainer.BoxSize.ToBounds(offset),
                 Radius = flexContainer.Info.Radius,
                 RenderPaint = new PlaintPaint
                 {
@@ -108,20 +109,7 @@ public static class FlexContainerRenderer
                 continue;
             }
 
-            var matrix =
-                SKMatrix.CreateTranslation(childElement.ParentData.Position.X, childElement.ParentData.Position.Y);
-
-            renderContext.Add(new Matrix
-            {
-                SkMatrix = matrix
-            });
-
-            childElement.Render(renderContext);
-
-            renderContext.Add(new Matrix
-            {
-                SkMatrix = matrix.Invert()
-            });
+            childElement.Render(renderContext, offset.Add(childElement.ParentData.Position));
         }
 
         if (flexContainer.Info.CanScroll)

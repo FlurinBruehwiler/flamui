@@ -38,7 +38,7 @@ public class UiText : UiElement
         return rect;
     }
 
-    public override void Render(RenderContext renderContext)
+    public override void Render(RenderContext renderContext, Point offset)
     {
         if (Content == string.Empty)
             return;

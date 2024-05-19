@@ -27,6 +27,11 @@ public struct Point
         Y = y;
     }
 
+    public Point Add(Point point)
+    {
+        return new Point(X + point.X, Y + point.Y);
+    }
+
     public static Point FromDirection(Dir dir, float main, float cross)
     {
         return dir switch

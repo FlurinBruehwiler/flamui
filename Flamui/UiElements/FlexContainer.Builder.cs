@@ -131,13 +131,13 @@ public partial class FlexContainer
 
     public FlexContainer ShrinkHeight()
     {
-        Info.ShrinkHeight = true;
+        Info.HeightKind = SizeKind.Shrink;
         return this;
     }
 
     public FlexContainer ShrinkWidth()
     {
-        Info.ShrinkWidth = true;
+        Info.WidthKind = SizeKind.Shrink;
         return this;
     }
 
