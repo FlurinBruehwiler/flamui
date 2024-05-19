@@ -18,7 +18,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
             }
         }
 
-        using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
+        using (ui.Div().Direction(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
         {
             using (ui.Div().Gap(5).Scroll())
             {
@@ -40,12 +40,12 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
         var hashCode = flexContainer.Id.GetHashCode() + parentHash;
         var key = Ui.S(hashCode);
 
-        using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Dir(Dir.Horizontal)
+        using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Direction(Dir.Horizontal)
                    .Gap(5).XAlign(XAlign.Center))
         {
             if (flexContainer is UiElementContainer { Children.Count: > 0 })
             {
-                using (ui.Div().Height(15).Width(15).Color(C.Blue500))
+                using (ui.Div().Height(15).Width(15).Color(C.Blue5))
                 {
                 }
             }

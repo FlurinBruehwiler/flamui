@@ -1,5 +1,4 @@
 ﻿using Flamui;
-using Flamui.Components.DebugTools;
 
 var builder = FlamuiApp.CreateBuilder();
 
@@ -13,8 +12,16 @@ public class LayoutTest : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
-        using (ui.Div().Color(C.Red600).Dir(Dir.Horizontal).Padding(10))
+        using (ui.Div().Color(C.Red6).Direction(Dir.Horizontal))
         {
+
+            using (ui.Div().Color(C.Green6).Width(100))
+            {
+            }
+
+            using (ui.Div().Color(C.Blue6))
+            {
+            }
         }
     }
 }

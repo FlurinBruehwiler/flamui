@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flamui.Layouting;
 
 public struct BoxConstraint
@@ -66,6 +68,18 @@ public struct BoxConstraint
             Dir.Vertical => (MinWidth, MaxWidth),
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
+    }
+
+    public bool IsWidthTight()
+    {
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        return MinWidth == MaxWidth;
+    }
+
+    public bool IsHeightTight()
+    {
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        return MinHeight == MaxHeight;
     }
 
     public bool IsTight()

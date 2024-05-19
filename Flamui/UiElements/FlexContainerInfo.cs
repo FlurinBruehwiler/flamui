@@ -2,6 +2,14 @@ namespace Flamui.UiElements;
 
 public struct FlexContainerInfo
 {
+    //maybe we dont want expand as the default in the future, then we could get rid of this constructor!!!
+    public FlexContainerInfo()
+    {
+        WidthValue = 100;
+        HeightValue = 100;
+    }
+
+    //----- Data ------
     public int ZIndex;
     public bool Focusable;
     public bool IsNew;
@@ -11,6 +19,7 @@ public struct FlexContainerInfo
     public int Gap;
     public int Radius;
     public int BorderWidth;
+    public bool CanScroll;
     public FlexContainer? ClipToIgnore;
     public Dir Direction;
     public MAlign MainAlignment;
@@ -33,13 +42,14 @@ public struct FlexContainerInfo
     public bool ShrinkWidth;
     public bool ShrinkHeight;
 
-    public float GetMainSize(Dir dir)
+    //----- Methods ------
+    public float GetMainSize()
     {
-        return dir switch
+        return Direction switch
         {
             Dir.Horizontal => WidthValue,
             Dir.Vertical => HeightValue,
-            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(Direction), Direction, null)
         };
     }
 
@@ -52,10 +62,4 @@ public struct FlexContainerInfo
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
-}
-
-public enum SizeKind
-{
-    Pixel,
-    Percentage
 }

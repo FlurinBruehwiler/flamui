@@ -211,7 +211,7 @@ public partial class FlexContainer
 
     public FlexContainer Scroll()
     {
-        PCanScroll = true;
+        Info.CanScroll = true;
         return this;
     }
 
@@ -221,7 +221,7 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer Dir(Dir dir)
+    public FlexContainer Direction(Dir dir)
     {
         Info.Direction = dir;
         return this;

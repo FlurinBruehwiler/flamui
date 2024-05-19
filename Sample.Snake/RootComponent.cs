@@ -95,7 +95,7 @@ public class RootComponent : FlamuiComponent
                 for (var y = 0; y < Height; y++)
                 {
                     var key = S(y, static x => x.ToString());
-                    using (ui.Div(key).Height(50).Rounded(3).Color(C.Transparent).Dir(Dir.Horizontal).Gap(10))
+                    using (ui.Div(key).Height(50).Rounded(3).Color(C.Transparent).Direction(Dir.Horizontal).Gap(10))
                     {
                         for (var x = 0; x < Width; x++)
                         {

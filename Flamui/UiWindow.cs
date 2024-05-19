@@ -108,7 +108,7 @@ public partial class UiWindow : IDisposable
         };
 
         DebugPaint = Helpers.GetNewAntialiasedPaint();
-        DebugPaint.Color = C.Blue800.ToSkColor();
+        DebugPaint.Color = C.Blue8.ToSkColor();
 
     }
 
@@ -273,7 +273,7 @@ public partial class UiWindow : IDisposable
             Radius = 0,
             RenderPaint = new PlaintPaint
             {
-                SkColor = C.Blue800.ToSkColor()
+                SkColor = C.Blue8.ToSkColor()
             },
             UiElement = null
         });
@@ -300,6 +300,7 @@ public partial class UiWindow : IDisposable
 
         _rootComponent.Build(Ui);
 
+        RootContainer.PrepareLayout();
         RootContainer.Layout(new BoxConstraint(0, width, 0, height));
     }
 

@@ -9,23 +9,30 @@ public record struct AbsolutePosition(float? Left, float? Right, float? Top, flo
 
 public enum MAlign
 {
-    FlexStart,
+    FlexStart = 0, //Default
     FlexEnd,
     Center,
 }
 
 public enum Dir
 {
+    Vertical = 0, //Default
     Horizontal,
-    Vertical,
 }
 
 public enum XAlign
 {
-    FlexStart,
+    FlexStart = 0, //Default
     FlexEnd,
     Center
 }
+
+public enum SizeKind
+{
+    Percentage = 0, //Default
+    Pixel,
+}
+
 
 public static class Extensions
 {

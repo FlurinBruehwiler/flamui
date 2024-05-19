@@ -29,7 +29,7 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
         using (ui.Div().Color(ColorPalette.BackgroundColor))
         {
-            using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).ShrinkHeight())
+            using (ui.Div().Direction(Dir.Horizontal).Padding(10).Gap(10).ShrinkHeight())
             {
                 if (ui.Button("Main controls", width:100))
                 {
@@ -72,7 +72,7 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
             using (ui.Div().Height(20))
             {
-                ui.Text("Oh hi mark").Color(C.Red700);
+                ui.Text("Oh hi mark").Color(C.Red7);
             }
 
             if (ui.Button("Create new Window", width: 200))
@@ -84,7 +84,7 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
     private void ScrollTest(Ui ui)
     {
-        using (ui.Div().Padding(10).Dir(Dir.Horizontal).Gap(10))
+        using (ui.Div().Padding(10).Direction(Dir.Horizontal).Gap(10))
         {
             using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).Scroll())
             {

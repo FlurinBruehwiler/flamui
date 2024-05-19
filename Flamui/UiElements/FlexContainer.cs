@@ -1,17 +1,13 @@
 ﻿using Flamui.Layouting;
-using SkiaSharp;
-using EnumXAlign = Flamui.XAlign;
-using EnumMAlign = Flamui.MAlign;
-using EnumDir = Flamui.Dir;
 
 namespace Flamui.UiElements;
 
 public partial class FlexContainer : UiElementContainer
 {
-    public bool FocusIn { get; set; } //todo
-    public bool FocusOut { get; set; } //todo
+    public bool FocusIn { get; } //todo
+    public bool FocusOut { get; } //todo
 
-    public FlexContainerInfo Info;
+    public FlexContainerInfo Info = new();
     public bool IsClicked
     {
         get
@@ -93,152 +89,9 @@ public partial class FlexContainer : UiElementContainer
 
     public override void Render(RenderContext renderContext)
     {
-        if (Info.ZIndex != 0)
-        {
-            renderContext.SetIndex(Info.ZIndex);
-        }
-
-        if (Info.ClipToIgnore is not null)
-        {
-            renderContext.Add(new Restore());
-        }
-
-        if (Info.Color is { } color)
-        {
-            //shadow
-            if (Info.PShadowColor is { } blurColor)
-            {
-                float borderRadius = Info.Radius + Info.BorderWidth;
-
-                //todo replace with readable code or something
-                renderContext.Add(new Rect
-                {
-                    UiElement = this,
-                    Bounds = new Bounds
-                    {
-                        X = Info.BorderWidth + Info.ShaddowOffset.Left,
-                        Y = Info.BorderWidth + Info.ShaddowOffset.Top,
-                        H = BoxSize.Height + 2 * Info.BorderWidth - Info.ShaddowOffset.Top - Info.ShaddowOffset.Bottom,
-                        W = BoxSize.Width + 2 * Info.BorderWidth - Info.ShaddowOffset.Left - Info.ShaddowOffset.Right,
-                    },
-                    Radius = Info.Radius == 0 ? 0 : borderRadius,
-                    RenderPaint = new ShadowPaint
-                    {
-                        ShadowSigma = Info.ShadowSigma,
-                        SkColor = blurColor.ToSkColor()
-                    }
-                });
-            }
-
-            renderContext.Add(new Rect
-            {
-                UiElement = this,
-                Bounds = BoxSize.ToBounds(),
-                Radius = Info.Radius,
-                RenderPaint = new PlaintPaint
-                {
-                    SkColor = color.ToSkColor()
-                }
-            });
-        }
-
-        if (Info.BorderWidth != 0 && Info.BorderColor is {} borderColor)
-        {
-            renderContext.Add(new Save());
-
-            float borderRadius = Info.Radius + Info.BorderWidth;
-
-            renderContext.Add(new RectClip
-            {
-                Bounds = BoxSize.ToBounds(),
-                Radius = Info.Radius,
-                ClipOperation = SKClipOperation.Difference
-            });
-
-            renderContext.Add(new Rect
-            {
-                UiElement = this,
-                Bounds = new Bounds
-                {
-                    X = Info.BorderWidth,
-                    Y = Info.BorderWidth,
-                    W = BoxSize.Width + 2 * Info.BorderWidth,
-                    H = BoxSize.Height + 2 * Info.BorderWidth,
-                },
-                Radius = borderRadius,
-                RenderPaint = new PlaintPaint
-                {
-                    SkColor = borderColor.ToSkColor()
-                }
-            });
-
-            renderContext.Add(new Restore());
-        }
-
-        ClipContent(renderContext);
-
-        if (PCanScroll)
-        {
-            _scrollBarContainer.UiElement?.Render(renderContext);
-
-            renderContext.Add(new Matrix
-            {
-                SkMatrix = SKMatrix.CreateTranslation(0, -ScrollPos)
-            });
-        }
-
-        foreach (var childElement in Children)
-        {
-            if (childElement is FlexContainer { Info.Hidden: true })
-            {
-                continue;
-            }
-
-            childElement.Render(renderContext);
-        }
-
-        if (PCanScroll)
-        {
-            renderContext.Add(new Matrix
-            {
-                SkMatrix = SKMatrix.CreateTranslation(0, ScrollPos)
-            });
-        }
-
-        if (NeedsClip())
-        {
-            renderContext.Add(new Restore());
-        }
-
-        //reapply clip
-        Info.ClipToIgnore?.ClipContent(renderContext);
-
-        if (Info.ZIndex != 0)
-        {
-            renderContext.RestoreZIndex();
-        }
+        FlexContainerRenderer.Render(renderContext, this);
     }
 
-    private void ClipContent(RenderContext renderContext)
-    {
-        if (NeedsClip())
-
-        {
-            renderContext.Add(new Save());
-
-            renderContext.Add(new RectClip
-            {
-                Bounds = BoxSize.ToBounds(),
-                Radius = Info.Radius,
-                ClipOperation = SKClipOperation.Intersect
-            });
-        }
-    }
-
-    private bool NeedsClip()
-    {
-        return PCanScroll || Info.IsClipped;
-    }
     public BoxSize ContentSize;
 
     private readonly EmptyStack _scrollBarContainer = new();
@@ -294,7 +147,7 @@ public partial class FlexContainer : UiElementContainer
         {
             FlexibleChildConfig = new FlexibleChildConfig
             {
-                Percentage = Info.GetMainSize(Info.Direction)
+                Percentage = Info.GetMainSize()
             };
         }
         else
@@ -307,7 +160,7 @@ public partial class FlexContainer : UiElementContainer
     {
         TightenConstraint(ref constraint);
 
-        BoxSize = FlexSizeCalculator.ComputeSize(constraint, Children, Info.Direction);
+        BoxSize = FlexSizeCalculator.ComputeSize(constraint, Children, Info);
 
         var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, Info.MainAlignment, Info.CrossAlignment, Info.Direction, BoxSize);
 
@@ -318,13 +171,8 @@ public partial class FlexContainer : UiElementContainer
     {
         if (FlexibleChildConfig == null)
         {
-            // var mainSize = Direction.GetMain(FixedWith, FixedHeight);
-            // constraint.SetMain(Direction, mainSize, mainSize);
+            var mainSize = Info.GetMainSize();
+            constraint.SetMain(Info.Direction, mainSize, mainSize);
         }
-    }
-
-    private float Lerp(float from, float to, float progress)
-    {
-        return from * (1 - progress) + to * progress;
     }
 }

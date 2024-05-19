@@ -23,7 +23,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
         }
 
         using (var dropDownDiv = ui.Div().Rounded(2).Height(23).Focusable().Padding(5).BorderColor(ColorPalette.BorderColor)
-                   .BorderWidth(1).Color(ColorPalette.BackgroundColor).Dir(Dir.Horizontal))
+                   .BorderWidth(1).Color(ColorPalette.BackgroundColor).Direction(Dir.Horizontal))
         {
             HandleStart(ui, dropDownDiv);
 

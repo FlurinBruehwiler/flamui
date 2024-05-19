@@ -7,7 +7,6 @@ public partial class FlexContainer
     private float _startScrollPos;
 
     public float ScrollPos { get; set; }
-    public bool PCanScroll { get; set; }
     private float ScrollBarWidth;
 
 
@@ -40,5 +39,10 @@ public partial class FlexContainer
         }
 
         ScrollPos = Math.Clamp(ScrollPos, 0, ContentSize.Height - BoxSize.Height);
+    }
+
+    private static float Lerp(float from, float to, float progress)
+    {
+        return from * (1 - progress) + to * progress;
     }
 }
