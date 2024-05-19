@@ -41,6 +41,9 @@ public struct FlexContainerInfo
     public SizeKind HeightKind;
 
     //----- Methods ------
+    public float PaddingSizeMain() => Padding.SumInDirection(Direction);
+    public float PaddingSizeCross() => Padding.SumInDirection(Direction.Other());
+
     public float GetMainSize()
     {
         return GetSizeInDirection(Direction);

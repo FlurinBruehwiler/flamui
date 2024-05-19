@@ -169,7 +169,7 @@ public partial class FlexContainer : UiElementContainer
 
         BoxSize = FlexSizeCalculator.ComputeSize(constraint, Children, Info);
 
-        var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, Info.MainAlignment, Info.CrossAlignment, Info.Direction, BoxSize);
+        var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, BoxSize, Info);
 
         return BoxSize;
     }

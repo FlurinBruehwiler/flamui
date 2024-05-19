@@ -5,12 +5,15 @@ namespace Flamui.UiElements;
 
 public static class FlexPositionCalculator
 {
-    public static BoxSize ComputePosition(List<UiElement> children, MAlign mAlign, XAlign xAlign, Dir dir, BoxSize size)
+    public static BoxSize ComputePosition(List<UiElement> children, BoxSize size, FlexContainerInfo info)
     {
-        switch (mAlign)
+        if(children.Count == 0)
+            return size;
+
+        switch (info.MainAlignment)
         {
             case EnumMAlign.FlexStart:
-                return CalculateFlexStart(children, dir, size, xAlign);
+                return CalculateFlexStart(children, size, info);
             // case EnumMAlign.FlexEnd:
             //     return CalculateFlexEnd(children, dir);
             // case EnumMAlign.SpaceBetween:
@@ -20,24 +23,24 @@ public static class FlexPositionCalculator
         }
     }
 
-    private static BoxSize CalculateFlexStart(List<UiElement> children, Dir dir, BoxSize size, XAlign xAlign)
+    private static BoxSize CalculateFlexStart(List<UiElement> children, BoxSize size, FlexContainerInfo info)
     {
         var mainOffset = 0f;
         var crossSize = 0f;
 
         foreach (var child in children)
         {
-            SetPosition(mainOffset, child, dir, size, xAlign);
-            mainOffset += child.BoxSize.GetMainAxis(dir);
+            SetPosition(mainOffset, child, size, info);
+            mainOffset += child.BoxSize.GetMainAxis(info.Direction) + info.Gap;
 
-            var childCrossSize = child.BoxSize.GetCrossAxis(dir);
+            var childCrossSize = child.BoxSize.GetCrossAxis(info.Direction);
             if (childCrossSize > crossSize)
                 crossSize += childCrossSize;
         }
 
-        var mainSize = mainOffset;
+        var mainSize = mainOffset - info.Gap;
 
-        return BoxSize.FromDirection(dir, mainSize, crossSize);
+        return BoxSize.FromDirection(info.Direction, mainSize + info.PaddingSizeMain(), crossSize + info.PaddingSizeCross());
     }
 
     // private static BoxSize CalculateFlexEnd(List<ILayoutable> children, Dir dir)
@@ -81,11 +84,14 @@ public static class FlexPositionCalculator
     //     return new Size();
     // }
 
-    private static void SetPosition(float mainOffset, UiElement item, Dir dir, BoxSize size, XAlign xAlign)
+    private static void SetPosition(float mainOffset, UiElement item, BoxSize size, FlexContainerInfo info)
     {
+        var point = Point.FromDirection(info.Direction, mainOffset,
+            GetCrossAxisOffset(item, info.CrossAlignment, size, info.Direction));
+
         item.ParentData = item.ParentData with
         {
-            Position = Point.FromDirection(dir, mainOffset, GetCrossAxisOffset(item, xAlign, size, dir))
+            Position = new Point(point.X + info.Padding.Left, point.Y + info.Padding.Top)
         };
     }
 

@@ -4,7 +4,18 @@ using SkiaSharp;
 
 namespace Flamui;
 
-public record struct Quadrant(float Left, float Right, float Top, float Bottom);
+public record struct Quadrant(float Left, float Right, float Top, float Bottom)
+{
+    public float SumInDirection(Dir dir)
+    {
+        return dir switch
+        {
+            Dir.Vertical => Left + Right,
+            Dir.Horizontal => Top + Bottom,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+}
 public record struct AbsolutePosition(float? Left, float? Right, float? Top, float? Bottom);
 
 public enum MAlign
@@ -50,6 +61,12 @@ public static class Extensions
 
         return true;
     }
+
+    public static Dir Other(this Dir dir)
+    {
+        return dir == Dir.Horizontal ? Dir.Vertical : Dir.Horizontal;
+    }
+
 
     public static float GetMain(this Dir dir, float width, float height)
     {
