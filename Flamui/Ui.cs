@@ -51,13 +51,13 @@ public partial class Ui
         return value;
     }
 
-    public UiContainer Div(
+    public FlexContainer Div(
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line, typeof(UiContainer).GetHashCode());
-        var div = GetData(id, static (ui, id) => new UiContainer
+        var id = new UiID(key, path, line, typeof(FlexContainer).GetHashCode());
+        var div = GetData(id, static (ui, id) => new FlexContainer
         {
             Id = id,
             Window = ui.Window

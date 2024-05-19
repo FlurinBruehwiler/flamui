@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Flamui.Layouting;
+using SkiaSharp;
 
 namespace Flamui.UiElements;
 
@@ -82,7 +83,7 @@ public class UiText : UiElement
         });
     }
 
-    public override void Layout()
+    public override BoxSize Layout(BoxConstraint constraint)
     {
         var rect = GetRect();
 
@@ -95,6 +96,8 @@ public class UiText : UiElement
         {
             ComputedBounds.W = rect.Width;
         }
+
+        return new BoxSize();
     }
 
     public override void CleanElement()

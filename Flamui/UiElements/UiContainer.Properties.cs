@@ -4,7 +4,7 @@ using EnumDir = Flamui.Dir;
 
 namespace Flamui.UiElements;
 
-public partial class UiContainer
+public partial class FlexContainer
 {
     public int PZIndex { get; set; }
     public bool PFocusable { get; set; }
@@ -15,15 +15,15 @@ public partial class UiContainer
     public int PGap { get; set; }
     public int PRadius { get; set; }
     public int PBorderWidth { get; set; }
-    public UiContainer? ClipToIgnore { get; set; }
-    public EnumDir PDir { get; set; }
+    public FlexContainer? ClipToIgnore { get; set; }
+    public EnumDir Direction { get; set; }
     public MAlign PmAlign { get; set; }
     public XAlign PxAlign { get; set; }
 
     public bool PAutoFocus { get; set; }//what is this?
     public bool PAbsolute { get; set; }
     public bool DisablePositioning { get; set; }
-    public UiContainer? AbsoluteContainer { get; set; }
+    public FlexContainer? AbsoluteContainer { get; set; }
     public ColorDefinition? PShadowColor { get; set; }
     public Quadrant ShaddowOffset { get; set; }
     public float ShadowSigma { get; set; }
@@ -44,7 +44,7 @@ public partial class UiContainer
         PRadius = 0;
         PBorderWidth = 0;
         ClipToIgnore = null;
-        PDir = EnumDir.Vertical;
+        Direction = EnumDir.Vertical;
         PmAlign = EnumMAlign.FlexStart;
         PxAlign = EnumXAlign.FlexStart;
         PAbsolute = false;

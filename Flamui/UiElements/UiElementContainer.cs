@@ -4,7 +4,7 @@ namespace Flamui.UiElements;
 
 public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
 {
-    public List<UiElement> Children { get; set; } = new();
+    public List<UiElement> Children { get; set; } = new List<UiElement>();
 
     public DataStore DataStore { get; } = new();
 

@@ -13,14 +13,15 @@ public abstract class UiElement : IUiElement
 
     public required UiWindow Window { get; init; }
 
+    public bool IsActive;
     public SizeDefinition PWidth { get; set; }
     public SizeDefinition PHeight { get; set; }
 
     public SizeDefinition GetMainAxisSize()
     {
-        if (Parent is UiContainer uiElement)
+        if (Parent is FlexContainer uiElement)
         {
-            if (uiElement.PDir == Dir.Horizontal)
+            if (uiElement.Direction == Dir.Horizontal)
             {
                 return PWidth;
             }
@@ -61,8 +62,10 @@ public abstract class UiElement : IUiElement
         return null;
     }
     public abstract void Render(RenderContext renderContext);
-    public abstract void Layout();
-
+    public ParentData ParentData { get; set; }
+    public FlexibleChildConfig? FlexibleChildConfig { get; }
+    public BoxSize Size { get; set; }
+    public abstract BoxSize Layout(BoxConstraint constraint);
     public abstract void CleanElement();
 }
 

@@ -6,7 +6,7 @@ using EnumDir = Flamui.Dir;
 
 namespace Flamui.UiElements;
 
-public partial class UiContainer : UiElementContainer
+public partial class FlexContainer : UiElementContainer
 {
     public bool FocusIn { get; set; } //todo
     public bool FocusOut { get; set; } //todo
@@ -82,7 +82,7 @@ public partial class UiContainer : UiElementContainer
 
             foreach (var uiElement in DataStore.OldDataById) //ToDo, maybe old children again
             {
-                if (uiElement.Value is UiContainer { IsActive: true })
+                if (uiElement.Value is FlexContainer { IsActive: true })
                     return true;
             }
 
@@ -97,7 +97,7 @@ public partial class UiContainer : UiElementContainer
     public float ScrollPos { get; set; }
     public bool IsClipped { get; set; }
 
-    public UiContainer()
+    public FlexContainer()
     {
         CleanElement();
     }
@@ -200,7 +200,7 @@ public partial class UiContainer : UiElementContainer
 
         foreach (var childElement in Children)
         {
-            if (childElement is UiContainer { PHidden: true })
+            if (childElement is FlexContainer { PHidden: true })
             {
                 continue;
             }
@@ -284,66 +284,39 @@ public partial class UiContainer : UiElementContainer
         if (_scrollBarContainer.UiElement is null)
             return 0;
 
-        var shadowParent = new UiContainer
+        var shadowParent = new FlexContainer
         {
             Id = default,
             Window = Window,
             ComputedBounds = ComputedBounds,
             PmAlign = EnumMAlign.FlexEnd,
-            PDir = EnumDir.Horizontal
+            Direction = EnumDir.Horizontal
         };
 
         shadowParent.AddChild(_scrollBarContainer.UiElement);
-        shadowParent.Layout();
+        // shadowParent.Layout();
 
         return _scrollBarContainer.UiElement.ComputedBounds.W;
     }
 
-    public override void Layout()
+    public override BoxSize Layout(BoxConstraint constraint)
     {
-        IsNew = false;
+        TightenConstraint(ref constraint);
 
-        if (PCanScroll)
+        Size = FlexSizeCalculator.ComputeSize(constraint, Children, Direction);
+
+        var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, PmAlign, PxAlign, Direction, Size);
+
+        return Size;
+    }
+
+    private void TightenConstraint(ref BoxConstraint constraint)
+    {
+        if (FlexibleChildConfig == null)
         {
-            ScrollBarWidth = LayoutScrollbar();
+            // var mainSize = Direction.GetMain(FixedWith, FixedHeight);
+            // constraint.SetMain(Direction, mainSize, mainSize);
         }
-
-        // ComputeSize();
-        //
-        // ContentSize = ComputePosition();
-
-        // if (PHeight.Kind == SizeKind.Shrink)
-        // {
-        //     ComputedBounds.H = ContentSize.Height;
-        // }
-        //
-        // if (PWidth.Kind == SizeKind.Shrink)
-        // {
-        //     ComputedBounds.W = ContentSize.Width;
-        // }
-
-        if (PCanScroll)
-        {
-            CalculateScrollPos();
-        }
-
-        foreach (var child in Children)
-        {
-            if (child.GetMainAxisSize().Kind != SizeKind.Shrink)
-            {
-                child.Layout();
-            }
-        }
-
-        // foreach (var childElement in Children)
-        // {
-        //     if (childElement is UiContainer { PHidden: true })
-        //     {
-        //         continue;
-        //     }
-        //
-        //     childElement.ComputedBounds.Y -= ScrollPos;
-        // }
     }
 
     private float Lerp(float from, float to, float progress)

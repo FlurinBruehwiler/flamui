@@ -22,7 +22,7 @@ public class HitTester
         {
             foreach (var windowHoveredDiv in _window.HoveredElements)
             {
-                if (windowHoveredDiv is UiContainer {PFocusable:true} uiContainer)
+                if (windowHoveredDiv is FlexContainer {PFocusable:true} uiContainer)
                 {
                     _window.ActiveDiv = uiContainer;
                     return;
@@ -69,7 +69,7 @@ public class HitTester
             }
 
 
-            if (hitElement is UiContainer { PBlockHit: true })
+            if (hitElement is FlexContainer { PBlockHit: true })
             {
                 return;
             }

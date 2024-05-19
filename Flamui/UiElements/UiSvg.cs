@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using Flamui.Layouting;
 using SkiaSharp;
 using Svg;
 using Svg.Model;
@@ -65,9 +66,10 @@ public class UiSvg : UiElement
         CleanElement();
     }
 
-    public override void Layout()
-    {
 
+    public override BoxSize Layout(BoxConstraint constraint)
+    {
+        return new BoxSize();
     }
 
     public override void CleanElement()

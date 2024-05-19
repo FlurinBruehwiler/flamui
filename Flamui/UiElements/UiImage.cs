@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Flamui.Layouting;
+using SkiaSharp;
 
 namespace Flamui.UiElements;
 
@@ -47,14 +48,14 @@ public class UiImage : UiElement
         IsAntialias = true
     };
 
-    public override void Layout()
-    {
-
-    }
-
     public UiImage()
     {
         CleanElement();
+    }
+
+    public override BoxSize Layout(BoxConstraint constraint)
+    {
+        return new BoxSize();
     }
 
     public override void CleanElement()

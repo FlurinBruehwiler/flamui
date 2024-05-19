@@ -17,9 +17,9 @@ public partial class UiWindow : IDisposable
     public bool IsDebugWindow;
 
     // private UiContainer? _hoveredContainer;
-    private UiContainer? _activeContainer;
+    private UiElement? _activeContainer;
 
-    public readonly IUiElement RootContainer;
+    public readonly UiElementContainer RootContainer;
     public readonly ConcurrentQueue<SDL_Event> Events = new();
 
     // private UiContainer? HoveredDiv
@@ -45,7 +45,7 @@ public partial class UiWindow : IDisposable
     private readonly TabIndexManager _tabIndexManager = new();
     public readonly Ui Ui = new();
 
-    public UiContainer? ActiveDiv
+    public UiElement? ActiveDiv
     {
         get => _activeContainer;
         set
@@ -101,7 +101,7 @@ public partial class UiWindow : IDisposable
 
         Ui.Window = this;
 
-        RootContainer = new UiContainer
+        RootContainer = new FlexContainer
         {
             Id = new UiID("RootElement", "", 0, 0),
             Window = this
@@ -154,7 +154,6 @@ public partial class UiWindow : IDisposable
         HitDetection();
 
         BuildUi();
-        Layout();
 
 
         Render();
@@ -290,24 +289,18 @@ public partial class UiWindow : IDisposable
     {
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
-        // Ui.OpenElementStack.Clear();
-        // Ui.OpenElementStack.Push(RootContainer);
+        Ui.OpenElementStack.Clear();
+        Ui.OpenElementStack.Push(RootContainer);
         Ui.Root = RootContainer;
 
-        var root = new FlexContainer();
-        root.Children = new List<IUiElement>()
+        RootContainer.ComputedBounds.W = width;
+        RootContainer.ComputedBounds.H = height;
 
-        // RootContainer.ComputedBounds.W = width;
-        // RootContainer.ComputedBounds.H = height;
-        //
-        // RootContainer.OpenElement();
+        RootContainer.OpenElement();
 
-        // _rootComponent.Build(Ui);
-    }
+        _rootComponent.Build(Ui);
 
-    private void Layout()
-    {
-        RootContainer.Layout();
+        RootContainer.Layout(new BoxConstraint(0, width, 0, height));
     }
 
     private bool _renderHappened;

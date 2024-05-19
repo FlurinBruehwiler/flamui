@@ -1,6 +1,6 @@
 namespace Flamui.UiElements;
 
-public partial class UiContainer
+public partial class FlexContainer
 {
     private float _scrollDelay;
     private float _targetScrollPos;

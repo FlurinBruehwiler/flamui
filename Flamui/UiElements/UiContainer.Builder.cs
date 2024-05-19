@@ -3,58 +3,58 @@ using EnumMAlign = Flamui.MAlign;
 
 namespace Flamui.UiElements;
 
-public partial class UiContainer
+public partial class FlexContainer
 {
-    public UiContainer BlockHit(bool blockHit = true)
+    public FlexContainer BlockHit(bool blockHit = true)
     {
         PBlockHit = blockHit;
         return this;
     }
 
-    public UiContainer Shadow(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0)
+    public FlexContainer Shadow(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0)
     {
         ShadowSigma = sigma;
         ShaddowOffset = new Quadrant(left, right, top, bottom);
         return this;
     }
 
-    public UiContainer ShadowColor(byte red, byte green, byte blue, byte alpha = 255)
+    public FlexContainer ShadowColor(byte red, byte green, byte blue, byte alpha = 255)
     {
         PShadowColor = new ColorDefinition(red, green, blue, alpha);
         return this;
     }
 
-    public UiContainer Color(byte red, byte green, byte blue, byte alpha = 255)
+    public FlexContainer Color(byte red, byte green, byte blue, byte alpha = 255)
     {
         PColor = new ColorDefinition(red, green, blue, alpha);
         return this;
     }
 
-    public UiContainer Color(ColorDefinition color)
+    public FlexContainer Color(ColorDefinition color)
     {
         PColor = color;
         return this;
     }
 
-    public UiContainer BorderColor(byte red, byte green, byte blue, byte alpha = 255)
+    public FlexContainer BorderColor(byte red, byte green, byte blue, byte alpha = 255)
     {
         PBorderColor = new ColorDefinition(red, green, blue, alpha);
         return this;
     }
 
-    public UiContainer BorderColor(ColorDefinition color)
+    public FlexContainer BorderColor(ColorDefinition color)
     {
         PBorderColor = color;
         return this;
     }
 
-    public UiContainer BorderWidth(int borderWidth)
+    public FlexContainer BorderWidth(int borderWidth)
     {
         PBorderWidth = borderWidth;
         return this;
     }
 
-    public UiContainer Border(int borderWidth, ColorDefinition color)
+    public FlexContainer Border(int borderWidth, ColorDefinition color)
     {
         PBorderWidth = borderWidth;
         PBorderColor = color;
@@ -78,74 +78,74 @@ public partial class UiContainer
     /// </summary>
     /// <param name="div"></param>
     /// <returns></returns>
-    public UiContainer IgnoreClipFrom(UiContainer div)
+    public FlexContainer IgnoreClipFrom(FlexContainer div)
     {
-        ClipToIgnore = (UiContainer)div;
+        ClipToIgnore = (FlexContainer)div;
         return this;
     }
 
-    public UiContainer Rounded(int radius)
+    public FlexContainer Rounded(int radius)
     {
         PRadius = radius;
         return this;
     }
 
-    public UiContainer Focusable(bool focusable = true)
+    public FlexContainer Focusable(bool focusable = true)
     {
         PFocusable = focusable;
         return this;
     }
 
-    public UiContainer ZIndex(int zIndex)
+    public FlexContainer ZIndex(int zIndex)
     {
         PZIndex = zIndex;
         return this;
     }
 
-    public UiContainer Hidden(bool hidden = true)
+    public FlexContainer Hidden(bool hidden = true)
     {
         PHidden = hidden;
         return this;
     }
 
-    public UiContainer Center()
+    public FlexContainer Center()
     {
         PmAlign = EnumMAlign.Center;
         PxAlign = EnumXAlign.Center;
         return this;
     }
 
-    public UiContainer Width(float width)
+    public FlexContainer Width(float width)
     {
         PWidth = new SizeDefinition(width, SizeKind.Pixel);
         return this;
     }
 
-    public UiContainer Height(float height)
+    public FlexContainer Height(float height)
     {
         PHeight = new SizeDefinition(height, SizeKind.Pixel);
         return this;
     }
 
-    public UiContainer ShrinkHeight()
+    public FlexContainer ShrinkHeight()
     {
         PHeight = new SizeDefinition(0, SizeKind.Shrink);
         return this;
     }
 
-    public UiContainer ShrinkWidth()
+    public FlexContainer ShrinkWidth()
     {
         PWidth = new SizeDefinition(0, SizeKind.Shrink);
         return this;
     }
 
-    public UiContainer Clip(bool isClipped = true)
+    public FlexContainer Clip(bool isClipped = true)
     {
         IsClipped = isClipped;
         return this;
     }
 
-    public UiContainer Relative()
+    public FlexContainer Relative()
     {
         PAbsolute = false;
         AbsoluteContainer = null;
@@ -154,7 +154,7 @@ public partial class UiContainer
         return this;
     }
 
-    public UiContainer Absolute(UiContainer? container = null, float? left = null, float? right = null, float? top = null, float? bottom = null, bool disablePositioning = false)
+    public FlexContainer Absolute(FlexContainer? container = null, float? left = null, float? right = null, float? top = null, float? bottom = null, bool disablePositioning = false)
     {
         PAbsolute = true;
         AbsoluteContainer = container;
@@ -163,94 +163,93 @@ public partial class UiContainer
         return this;
     }
 
-    public UiContainer WidthFraction(float width)
+    public FlexContainer WidthFraction(float width)
     {
         PWidth = new SizeDefinition(width, SizeKind.Percentage);
         return this;
     }
 
-    public UiContainer HeightFraction(float height)
+    public FlexContainer HeightFraction(float height)
     {
         PHeight = new SizeDefinition(height, SizeKind.Percentage);
         return this;
     }
 
-    public UiContainer Padding(int padding)
+    public FlexContainer Padding(int padding)
     {
         PPadding = new Quadrant(padding, padding, padding, padding);
         return this;
     }
 
-    public UiContainer MAlign(MAlign mAlign)
+    public FlexContainer MAlign(MAlign mAlign)
     {
         PmAlign = mAlign;
         return this;
     }
 
-    public UiContainer XAlign(XAlign xAlign)
+    public FlexContainer XAlign(XAlign xAlign)
     {
         PxAlign = xAlign;
         return this;
     }
 
-    public UiContainer PaddingEx(int left = 0, int right = 0, int top = 0, int bottom = 0)
+    public FlexContainer PaddingEx(int left = 0, int right = 0, int top = 0, int bottom = 0)
     {
         PPadding = new Quadrant(left, right, top, bottom);
         return this;
     }
 
-    public UiContainer PaddingHorizontal(int paddingHorizontal)
+    public FlexContainer PaddingHorizontal(int paddingHorizontal)
     {
         PPadding = PPadding with { Left = paddingHorizontal, Right = paddingHorizontal };
         return this;
     }
 
-    public UiContainer Scroll()
+    public FlexContainer Scroll()
     {
         PCanScroll = true;
         return this;
     }
 
-    public UiContainer PaddingVertical(int paddingVertical)
+    public FlexContainer PaddingVertical(int paddingVertical)
     {
         PPadding = PPadding with { Top = paddingVertical, Bottom = paddingVertical };
         return this;
     }
 
-    public UiContainer Dir(Dir dir)
+    public FlexContainer Dir(Dir dir)
     {
-        PDir = dir;
+        Direction = dir;
         return this;
     }
 
-    public UiContainer PaddingLeft(int paddingLeft)
+    public FlexContainer PaddingLeft(int paddingLeft)
     {
         PPadding = PPadding with { Left = paddingLeft };
         return this;
     }
 
-    public UiContainer PaddingRight(int paddingRight)
+    public FlexContainer PaddingRight(int paddingRight)
     {
         PPadding = PPadding with { Right = paddingRight };
         return this;
     }
 
-    public UiContainer PaddingTop(int paddingTop)
+    public FlexContainer PaddingTop(int paddingTop)
     {
         PPadding = PPadding with { Top = paddingTop };
         return this;
     }
 
-    public UiContainer PaddingBottom(int paddingBottom)
+    public FlexContainer PaddingBottom(int paddingBottom)
     {
         PPadding = PPadding with { Bottom = paddingBottom };
         return this;
     }
 
-    public UiContainer Gap(int gap)
+    public FlexContainer Gap(int gap)
     {
         PGap = gap;
         return this;
     }
-
 }

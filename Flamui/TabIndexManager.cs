@@ -30,9 +30,9 @@ public class TabIndexManager
         }
     }
 
-    private UiContainer? GetPreviousFocusable(UiElement currentElement, bool skipSelfCheck = false)
+    private UiElement? GetPreviousFocusable(UiElement currentElement, bool skipSelfCheck = false)
     {
-        if (!skipSelfCheck && currentElement is UiContainer { PFocusable: true } uiContainer)
+        if (!skipSelfCheck && currentElement is FlexContainer { PFocusable: true } uiContainer)
         {
             return uiContainer;
         }
@@ -52,10 +52,10 @@ public class TabIndexManager
         return null;
     }
 
-    private UiElement GetLastChild(UiElement uiElement)
+    private UiElement GetLastChild(UiElement flexContainer)
     {
-        if (uiElement is not UiElementContainer uiElementContainer)
-            return uiElement;
+        if (flexContainer is not UiElementContainer uiElementContainer)
+            return flexContainer;
 
         if (uiElementContainer.Children.Count == 0)
         {
@@ -65,10 +65,10 @@ public class TabIndexManager
         return uiElementContainer.Children.Last();
     }
 
-    private UiContainer? GetNextFocusable(UiElement currentElement, bool skipSelfCheck = false)
+    private FlexContainer? GetNextFocusable(UiElement currentElement, bool skipSelfCheck = false)
     {
         //check myself
-        if (!skipSelfCheck && currentElement is UiContainer { PFocusable: true } uiContainer)
+        if (!skipSelfCheck && currentElement is FlexContainer { PFocusable: true } uiContainer)
         {
             return uiContainer; //found it
         }
@@ -97,7 +97,7 @@ public class TabIndexManager
         return SearchAbove(currentElement.Parent);
     }
 
-    private UiContainer? SearchAbove(UiElementContainer currentElement)
+    private FlexContainer? SearchAbove(UiElement currentElement)
     {
         //try go sideways
         if (currentElement.GetNextSibling() is { } nextSibling)

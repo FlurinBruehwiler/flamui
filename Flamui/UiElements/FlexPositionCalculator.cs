@@ -5,7 +5,7 @@ namespace Flamui.UiElements;
 
 public static class FlexPositionCalculator
 {
-    public static BoxSize ComputePosition(List<IUiElement> children, MAlign mAlign, XAlign xAlign, Dir dir, BoxSize size)
+    public static BoxSize ComputePosition(List<UiElement> children, MAlign mAlign, XAlign xAlign, Dir dir, BoxSize size)
     {
         switch (mAlign)
         {
@@ -20,7 +20,7 @@ public static class FlexPositionCalculator
         }
     }
 
-    private static BoxSize CalculateFlexStart(List<IUiElement> children, Dir dir, BoxSize size, XAlign xAlign)
+    private static BoxSize CalculateFlexStart(List<UiElement> children, Dir dir, BoxSize size, XAlign xAlign)
     {
         var mainOffset = 0f;
         var crossSize = 0f;
