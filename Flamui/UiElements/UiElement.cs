@@ -15,10 +15,16 @@ public abstract class UiElement
     public ParentData ParentData { get; set; }
     public FlexibleChildConfig? FlexibleChildConfig { get; set; }
     public BoxSize BoxSize { get; set; }
+    public UiElementInfo UiElementInfo;
 
     //----- Methods ------
     public abstract BoxSize Layout(BoxConstraint constraint);
     public abstract void Render(RenderContext renderContext, Point offset);
+
+    public virtual void Reset()
+    {
+        UiElementInfo = new();
+    }
 
     public virtual void PrepareLayout(Dir dir)
     {

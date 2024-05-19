@@ -37,8 +37,9 @@ public static class FlexSizeCalculator
             var size = child.Layout(BoxConstraint.FromDirection(info.Direction, 0, float.PositiveInfinity, 0,
                 constraint.GetCrossAxis(info.Direction).Max - info.PaddingSizeCross()));
 
-            totalFixedSize += size.GetMainAxis(info.Direction);
-            maxCrossSize = Math.Max(maxCrossSize, size.GetCrossAxis(info.Direction));
+            totalFixedSize += size.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction);
+
+            maxCrossSize = Math.Max(maxCrossSize, size.GetCrossAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction.Other()));
         }
 
         var availableSize = constraint.GetMainAxis(info.Direction).Max - totalFixedSize - info.PaddingSizeMain() - TotalGapSize(children.Count, info);

@@ -61,18 +61,6 @@ public partial class FlexContainer
         return this;
     }
 
-    // public UiContainer MAlign(MAlign mAlign)
-    // {
-    //     PmAlign = mAlign;
-    //     return this;
-    // }
-    //
-    // public UiContainer XAlign(XAlign xAlign)
-    // {
-    //     PxAlign = xAlign;
-    //     return this;
-    // }
-
     /// <summary>
     /// only works if this is the last clip applied!!!
     /// </summary>
@@ -179,12 +167,6 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer Padding(int padding)
-    {
-        Info.Padding = new Quadrant(padding, padding, padding, padding);
-        return this;
-    }
-
     public FlexContainer MAlign(MAlign mAlign)
     {
         Info.MainAlignment = mAlign;
@@ -194,6 +176,28 @@ public partial class FlexContainer
     public FlexContainer XAlign(XAlign xAlign)
     {
         Info.CrossAlignment = xAlign;
+        return this;
+    }
+
+    public FlexContainer Scroll()
+    {
+        Info.CanScroll = true;
+        return this;
+    }
+
+
+
+    public FlexContainer Direction(Dir dir)
+    {
+        Info.Direction = dir;
+        return this;
+    }
+
+    #region Padding
+
+    public FlexContainer Padding(int padding)
+    {
+        Info.Padding = new Quadrant(padding, padding, padding, padding);
         return this;
     }
 
@@ -209,21 +213,9 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer Scroll()
-    {
-        Info.CanScroll = true;
-        return this;
-    }
-
     public FlexContainer PaddingVertical(int paddingVertical)
     {
         Info.Padding = Info.Padding with { Top = paddingVertical, Bottom = paddingVertical };
-        return this;
-    }
-
-    public FlexContainer Direction(Dir dir)
-    {
-        Info.Direction = dir;
         return this;
     }
 
@@ -250,6 +242,8 @@ public partial class FlexContainer
         Info.Padding = Info.Padding with { Bottom = paddingBottom };
         return this;
     }
+
+    #endregion
 
     public FlexContainer Gap(int gap)
     {

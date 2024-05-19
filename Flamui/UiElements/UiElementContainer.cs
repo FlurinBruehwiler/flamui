@@ -8,13 +8,11 @@ public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
 
     public DataStore DataStore { get; } = new();
 
-    public void AddChild(object obj)
+    public void AddChild(UiElement uiElement)
     {
-        if (obj is UiElement uiElement)
-        {
-            Children.Add(uiElement);
-            uiElement.Parent = this;
-        }
+        uiElement.Reset();
+        Children.Add(uiElement);
+        uiElement.Parent = this;
     }
 
     public virtual void OpenElement()

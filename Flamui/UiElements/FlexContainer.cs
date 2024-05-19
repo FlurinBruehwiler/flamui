@@ -9,10 +9,10 @@ public partial class FlexContainer : UiElementContainer
 
     public FlexContainerInfo Info = new();
 
-    public override void OpenElement()
+    public override void Reset()
     {
         Info = new();
-        base.OpenElement();
+        base.Reset();
     }
 
     public bool IsClicked
@@ -189,8 +189,9 @@ public partial class FlexContainer : UiElementContainer
             }
             else if (Info.WidthKind == SizeKind.Pixel)
             {
-                constraint.MaxWidth = Info.WidthValue;
-                constraint.MinWidth = Info.WidthValue;
+                var width = Info.WidthValue;
+                constraint.MaxWidth = width;
+                constraint.MinWidth = width;
 
                 //todo check that we don't comply with the constraints
             }
@@ -209,8 +210,9 @@ public partial class FlexContainer : UiElementContainer
             }
             else if (Info.HeightKind == SizeKind.Pixel)
             {
-                constraint.MaxHeight = Info.HeightValue;
-                constraint.MinHeight = Info.HeightValue;
+                var height = Info.HeightValue;
+                constraint.MaxHeight = height;
+                constraint.MinHeight = height;
 
                 //todo check that we don't comply with the constraints
             }

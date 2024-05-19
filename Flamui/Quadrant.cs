@@ -69,6 +69,59 @@ public enum SizeKind
 
 public static class Extensions
 {
+
+
+    #region Margin
+    public static T Margin<T>(this T uiElement, float margin) where T : UiElement
+    {
+        uiElement.UiElementInfo.Margin = new Quadrant(margin, margin, margin, margin);
+        return uiElement;
+    }
+
+    public static T MarginEx<T>(this T uiElement, int left = 0, int right = 0, int top = 0, int bottom = 0) where T : UiElement
+    {
+        uiElement.UiElementInfo.Margin = new Quadrant(left, right, top, bottom);
+        return uiElement;
+    }
+
+    public static T MarginHorizontal<T>(this T uiElement, int marginHorizontal) where T : UiElement
+    {
+        uiElement.UiElementInfo.Margin = uiElement.UiElementInfo.Margin with { Left = marginHorizontal, Right = marginHorizontal };
+        return uiElement;
+    }
+
+    public static T MarginVertical<T>(this T uiElement, int marginVertical) where T : UiElement
+    {
+        uiElement.UiElementInfo.Margin = uiElement.UiElementInfo.Margin with { Top = marginVertical, Bottom = marginVertical };
+        return uiElement;
+    }
+
+    public static T MarginLeft<T>(this T uiElement, int marginLeft) where T : UiElement
+    {
+        uiElement.UiElementInfo.Margin = uiElement.UiElementInfo.Margin with { Left = marginLeft };
+        return uiElement;
+    }
+
+    public static T MarginRight<T>(this T uiElement, int marginRight) where T : UiElement
+    {
+        uiElement.UiElementInfo.Margin = uiElement.UiElementInfo.Margin with { Right = marginRight };
+        return uiElement;
+    }
+
+    public static T MarginTop<T>(this T uiElement, int marginTop) where T : UiElement
+    {
+        uiElement.UiElementInfo.Margin = uiElement.UiElementInfo.Margin with { Top = marginTop };
+        return uiElement;
+    }
+
+    public static T MarginBottom<T>(this T uiElement, int marginBottom) where T : UiElement
+    {
+        uiElement.UiElementInfo.Margin = uiElement.UiElementInfo.Margin with { Bottom = marginBottom };
+        return uiElement;
+    }
+
+    #endregion
+
     public static bool IsFlexible(this UiElement uiElement, out FlexibleChildConfig config)
     {
         config = new FlexibleChildConfig();

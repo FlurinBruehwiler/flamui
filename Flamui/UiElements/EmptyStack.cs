@@ -6,8 +6,10 @@ public class EmptyStack : IStackItem
 
     public FlexContainer? UiElement { get; set; }
 
-    public void AddChild(object obj)
+    public void AddChild(UiElement obj)
     {
+        obj.Reset();
+
         if (obj is FlexContainer uiElement)
         {
             UiElement = uiElement;

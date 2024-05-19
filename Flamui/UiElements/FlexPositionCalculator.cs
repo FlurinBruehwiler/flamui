@@ -26,22 +26,15 @@ public static class FlexPositionCalculator
     private static BoxSize CalculateFlexStart(List<UiElement> children, BoxSize size, FlexContainerInfo info)
     {
         var mainOffset = info.Padding.StartOfDirection(info.Direction);
-        // var crossSize = 0f;
 
         foreach (var child in children)
         {
+            mainOffset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
             SetPosition(mainOffset, child, size, info);
-            mainOffset += child.BoxSize.GetMainAxis(info.Direction) + info.Gap;
-
-            // var childCrossSize = child.BoxSize.GetCrossAxis(info.Direction);
-            // if (childCrossSize > crossSize)
-            //     crossSize += childCrossSize;
+            mainOffset += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + info.Gap;
         }
 
-        var mainSize = mainOffset - info.Gap;
-
         return new BoxSize();
-        // return BoxSize.FromDirection(info.Direction, mainSize + info.PaddingSizeMain(), crossSize + info.PaddingSizeCross());
     }
 
     private static BoxSize CalculateFlexEnd(List<UiElement> children, BoxSize size, FlexContainerInfo info)
@@ -52,15 +45,16 @@ public static class FlexPositionCalculator
         {
             var child = children[i];
 
-            startOffset -= child.BoxSize.GetMainAxis(info.Direction);
+            startOffset = startOffset - child.BoxSize.GetMainAxis(info.Direction) - child.UiElementInfo.Margin.EndOfDirection(info.Direction);
 
             SetPosition(startOffset, child, size, info);
-            startOffset -= info.Gap;
+            startOffset = startOffset - info.Gap - child.UiElementInfo.Margin.StartOfDirection(info.Direction);
         }
 
         return new BoxSize();
     }
 
+    //todo respect margin
     private static BoxSize CalculateFlexCenter(List<UiElement> children, BoxSize size, FlexContainerInfo info)
     {
         var totalSize = 0f;
@@ -68,8 +62,12 @@ public static class FlexPositionCalculator
         //try to remove this loop, we could precalculate it in the FlexSizeCalculation
         foreach (var child in children)
         {
-            totalSize += child.BoxSize.GetMainAxis(info.Direction);
+            totalSize += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction);
         }
+
+        //ignore the margin at the start and end
+        totalSize -= children.First().UiElementInfo.Margin.StartOfDirection(info.Direction) +
+                     children.Last().UiElementInfo.Margin.EndOfDirection(info.Direction);
 
         totalSize += FlexSizeCalculator.TotalGapSize(children.Count, info);
 
@@ -78,8 +76,9 @@ public static class FlexPositionCalculator
 
         foreach (var child in children)
         {
+            offset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
             SetPosition(offset, child, size, info);
-            offset += child.BoxSize.GetMainAxis(info.Direction) + info.Gap;
+            offset += child.BoxSize.GetMainAxis(info.Direction) + info.Gap + child.UiElementInfo.Margin.EndOfDirection(info.Direction);
         }
 
         return new BoxSize();
@@ -100,8 +99,8 @@ public static class FlexPositionCalculator
     {
         return info.CrossAlignment switch
         {
-            XAlign.FlexStart => info.Padding.StartOfDirection(info.Direction.Other()),
-            XAlign.FlexEnd => size.GetCrossAxis(info.Direction) - info.Padding.EndOfDirection(info.Direction.Other()) - item.BoxSize.GetCrossAxis(info.Direction),
+            XAlign.FlexStart => info.Padding.StartOfDirection(info.Direction.Other()) + item.UiElementInfo.Margin.StartOfDirection(info.Direction.Other()),
+            XAlign.FlexEnd => size.GetCrossAxis(info.Direction) - info.Padding.EndOfDirection(info.Direction.Other()) - item.BoxSize.GetCrossAxis(info.Direction) - item.UiElementInfo.Margin.EndOfDirection(info.Direction.Other()),
             XAlign.Center => size.GetCrossAxis(info.Direction) / 2 - item.BoxSize.GetCrossAxis(info.Direction) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };

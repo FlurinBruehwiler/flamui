@@ -12,9 +12,9 @@ public class LayoutTest : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
-        using (ui.Div().Direction(Dir.Horizontal).Color(C.Yellow5).Gap(10).Padding(10).Center())
+        using (ui.Div().Direction(Dir.Horizontal).Color(C.Yellow5).MAlign(MAlign.Center).Gap(10).Padding(10))
         {
-            using (ui.Div().Color(C.Blue4).Width(100).Height(100))
+            using (ui.Div().Color(C.Blue4).Width(100).Height(100).MarginRight(30))
             {
 
             }
