@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using Flamui.Layouting;
 
 namespace Flamui.UiElements;
 
 [DebuggerDisplay("Line = {Id.Line} Key = {Id.Key}")]
-public abstract class UiElement
+public abstract class UiElement : IUiElement
 {
     public required UiID Id { get; init; }
 
@@ -72,5 +73,3 @@ public record struct UiID(string Key, string Path, int Line, int TypeHash)
         return $"Key: {Key}, Path: {Path}, Line: {Line}, Type: {TypeHash}";
     }
 }
-
-public record struct Size(float Width, float Height);

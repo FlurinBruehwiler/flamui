@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Flamui.Layouting;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +12,7 @@ public partial class Ui
     private IStackItem OpenElement => OpenElementStack.Peek();
 
     public UiWindow Window = null!;
-    public UiElementContainer Root;
+    public IUiElement Root;
 
     public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",

@@ -15,6 +15,23 @@ public struct BoxConstraint
         MaxHeight = maxHeight;
     }
 
+    public void SetMain(Dir dir, float min, float max)
+    {
+        switch (dir)
+        {
+            case Dir.Horizontal:
+                MinWidth = min;
+                MaxWidth = max;
+                break;
+            case Dir.Vertical:
+                MinHeight = min;
+                MaxHeight = max;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(dir), dir, null);
+        }
+    }
+
     public static BoxConstraint FromBox(float width, float height)
     {
         return new BoxConstraint(width, width, height, height);

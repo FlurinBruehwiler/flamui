@@ -1,24 +1,15 @@
 namespace Flamui.Layouting;
 
-public interface ILayoutable
+public interface IUiElement
 {
+    public void Render(RenderContext renderContext);
+
     public ParentData ParentData { get; set; }
 
     public FlexibleChildConfig? FlexibleChildConfig { get; }
 
-    public bool IsFlexible(out FlexibleChildConfig config)
-    {
-        config = new FlexibleChildConfig();
+    public BoxSize Size { get; }
 
-        if (FlexibleChildConfig is null)
-        {
-            return false;
-        }
-
-        config = FlexibleChildConfig.Value;
-
-        return true;
-    }
     BoxSize Layout(BoxConstraint constraint);
 }
 
@@ -42,6 +33,22 @@ public struct Point
 {
     public float X;
     public float Y;
+
+    public Point(float x, float y)
+    {
+        X = x;
+        Y = y;
+    }
+
+    public static Point FromDirection(Dir dir, float main, float cross)
+    {
+        return dir switch
+        {
+            Dir.Horizontal => new Point(main, cross),
+            Dir.Vertical => new Point(cross, main),
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
 }
 
 public struct ParentData

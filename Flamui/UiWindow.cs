@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Flamui.Layouting;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
@@ -18,7 +19,7 @@ public partial class UiWindow : IDisposable
     // private UiContainer? _hoveredContainer;
     private UiContainer? _activeContainer;
 
-    public readonly UiContainer RootContainer;
+    public readonly IUiElement RootContainer;
     public readonly ConcurrentQueue<SDL_Event> Events = new();
 
     // private UiContainer? HoveredDiv
@@ -121,9 +122,9 @@ public partial class UiWindow : IDisposable
         ResetElement(RootContainer);
     }
 
-    private void ResetElement(UiElement uiElement)
+    private void ResetElement(IUiElement uiElement)
     {
-        uiElement.CleanElement();
+        // uiElement.CleanElement();
 
         if (uiElement is not UiElementContainer container)
             return;
@@ -289,15 +290,19 @@ public partial class UiWindow : IDisposable
     {
         SDL_GetWindowSize(_windowHandle, out var width, out var height);
 
-        Ui.OpenElementStack.Clear();
-        Ui.OpenElementStack.Push(RootContainer);
+        // Ui.OpenElementStack.Clear();
+        // Ui.OpenElementStack.Push(RootContainer);
         Ui.Root = RootContainer;
-        RootContainer.ComputedBounds.W = width;
-        RootContainer.ComputedBounds.H = height;
 
-        RootContainer.OpenElement();
+        var root = new FlexContainer();
+        root.Children = new List<IUiElement>()
 
-        _rootComponent.Build(Ui);
+        // RootContainer.ComputedBounds.W = width;
+        // RootContainer.ComputedBounds.H = height;
+        //
+        // RootContainer.OpenElement();
+
+        // _rootComponent.Build(Ui);
     }
 
     private void Layout()

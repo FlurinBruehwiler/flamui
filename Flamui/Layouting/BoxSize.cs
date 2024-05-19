@@ -11,6 +11,16 @@ public struct BoxSize
         Height = height;
     }
 
+    public static BoxSize FromDirection(Dir dir, float main, float cross)
+    {
+        return dir switch
+        {
+            Dir.Horizontal => new BoxSize(main, cross),
+            Dir.Vertical => new BoxSize(cross, main),
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+
     public float GetMainAxis(Dir direction)
     {
         return direction switch

@@ -7,7 +7,7 @@ namespace Flamui;
 public struct ScrollService(UiContainer uiContainer)
 {
     /// <summary>
-    /// The size in pixels of the cutout of the content that is actually beeing shown to the user.
+    /// The size in pixels of the cutout of the content that is actually being shown to the user.
     /// </summary>
     public float CutoutSize => uiContainer.ComputedBounds.H; //ToDo, use the scroll direction
 
@@ -42,7 +42,7 @@ public struct ScrollService(UiContainer uiContainer)
     public float MinBarSize { get; set; }
 
     /// <summary>
-    /// Wether there is actually enought content for the scroll bar to be active.
+    /// Whether there is actually enough content for the scroll bar to be active.
     /// </summary>
     public bool IsScrolling => ContentSize > CutoutSize;
 

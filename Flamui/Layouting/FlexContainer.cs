@@ -1,140 +1,60 @@
-// using System.Collections;
-//
-// namespace Flamui.Layouting;
-//
-// public class FlexContainer : ILayoutable
-// {
-//     public List<ILayoutable> Children = new();
-//
-//     public ParentData ParentData { get; set; }
-//
-//     public FlexibleChildConfig? FlexibleChildConfig => null;
-//
-//     public Dir Direction;
-//     public SizeDefinition;
-//
-//     private float GetTotalAvailableSize()
-//     {
-//
-//     }
-//
-//     public BoxSize Layout(BoxConstraint constraint)
-//     {
-//         float totalAvailableSize = GetTotalAvailableSize();
-//
-//         float totalFixedSize = 0;
-//         float totalPercentage = 0;
-//
-//         //Loop through inflexible children
-//         foreach (var child in Children)
-//         {
-//             if (child.IsFlexible(out var config))
-//             {
-//                 totalPercentage += config.Percentage;
-//                 continue;
-//             }
-//
-//             var size = child.Layout(BoxConstraint.FromDirection(Direction, 0, float.PositiveInfinity, 0,
-//                 constraint.GetCrossAxis(Direction).Max));
-//
-//             totalFixedSize += size.GetMainAxis(Direction);
-//         }
-//
-//         var sizePerPercentage = GetSizePerPercentage(totalPercentage, 0);
-//
-//         float totalSizeOfFlexibleChildren = 0;
-//
-//         //loop through all flexible children and add up size
-//         for (var i = 0; i < Children.Count; i++)
-//         {
-//             var child = Children[i];
-//             if (!child.IsFlexible(out var config))
-//                 continue;
-//
-//             totalSizeOfFlexibleChildren += config.Percentage * sizePerPercentage;
-//
-//             /*
-//             if (mainSize > config.Max && mainSize < config.Min)
-//             {
-//                 var constraintMainSize = Math.Clamp(mainSize, config.Min, config.Max);
-//                 totalFixedSize += mainSize;
-//                 child.Layout(BoxConstraint.FromDirection(Direction, constraintMainSize, constraintMainSize, 0,
-//                     constraint.GetCrossAxis(Direction).Max));
-//                 continue;
-//             }
-//             */
-//
-//             // childrenThatNeedAnotherPass[i] = true;
-//         }
-//
-//         float remainingSize = constraint.GetMainAxis(Direction).Max - totalFixedSize;
-//
-//         //if fits, apply constraints
-//         if (totalSizeOfFlexibleChildren < remainingSize)
-//         {
-//             Span<bool> childrenThatNeedAnotherPass = stackalloc bool[Children.Count];
-//             float totalPercentage = 0;
-//
-//             for (var i = 0; i < Children.Count; i++)
-//             {
-//                 var child = Children[i];
-//                 if (!child.IsFlexible(out var config))
-//                     continue;
-//
-//                 var mainSize = config.Percentage * sizePerPercentage;
-//
-//                 //if doesn't fit, apply constraint
-//                 if (mainSize > config.Max || mainSize < config.Min)
-//                 {
-//                     var constraintMainSize = Math.Clamp(mainSize, config.Min, config.Max);
-//                     totalFixedSize += mainSize;
-//                     child.Layout(BoxConstraint.FromDirection(Direction, constraintMainSize, constraintMainSize, 0,
-//                         constraint.GetCrossAxis(Direction).Max));
-//                     continue;
-//                 }
-//
-//                 totalPercentage += config.Percentage;
-//                 childrenThatNeedAnotherPass[i] = true;
-//             }
-//
-//             sizePerPercentage =
-//                 GetSizePerPercentage(totalPercentage, constraint.GetMainAxis(Direction).Max - totalFixedSize);
-//
-//             for (var i = 0; i < Children.Count; i++)
-//             {
-//                 if (!childrenThatNeedAnotherPass[i])
-//                     continue;
-//
-//                 var child = Children[i];
-//
-//
-//             }
-//         }
-//
-//         // sizePerPercentage = GetSizePerPercentage(totalPercentage, constraint.GetCrossAxis(Dir.Horizontal).Max)
-//
-//
-//             var child = Children[i];
-//
-//
-//         }
-//
-//         return new BoxSize();
-//     }
-//
-//     private float GetSizePerPercentage(float totalPercentage, float availableSize)
-//     {
-//         float sizePerPercent;
-//
-//         if (totalPercentage > 100)
-//         {
-//             sizePerPercent = availableSize / totalPercentage;
-//         }
-//         else
-//         {
-//             sizePerPercent = availableSize / 100;
-//         }
-//
-//         return sizePerPercent;
-//     }
-// }
+using Flamui.UiElements;
+using SkiaSharp;
+
+namespace Flamui.Layouting;
+
+public class FlexContainer : IUiElement
+{
+    public List<IUiElement> Children = new();
+
+    public ParentData ParentData { get; set; }
+
+    public FlexibleChildConfig? FlexibleChildConfig => null;
+    public BoxSize Size { get; private set; } = new();
+    public float FixedWith;
+    public float FixedHeight;
+
+    public Dir Direction;
+    public MAlign MainAlignment;
+    public XAlign CrossAlignment;
+
+    public BoxSize Layout(BoxConstraint constraint)
+    {
+        TightenConstraint(ref constraint);
+
+        Size = FlexSizeCalculator.ComputeSize(constraint, Children, Direction);
+
+        var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, MainAlignment, CrossAlignment, Direction, Size);
+
+        return Size;
+    }
+
+    private void TightenConstraint(ref BoxConstraint constraint)
+    {
+        if (FlexibleChildConfig == null)
+        {
+            var mainSize = Direction.GetMain(FixedWith, FixedHeight);
+            constraint.SetMain(Direction, mainSize, mainSize);
+        }
+    }
+
+    public void Render(RenderContext renderContext)
+    {
+        renderContext.Add(new Rect
+        {
+            Bounds = new Bounds
+            {
+                X = 0,
+                Y = 0,
+                H = Size.Height,
+                W = Size.Width
+            },
+            Radius = 0,
+            RenderPaint = new PlaintPaint
+            {
+                SkColor = new SKColor((byte)Random.Shared.Next(255), (byte)Random.Shared.Next(255), (byte)Random.Shared.Next(255))
+            },
+            UiElement = this
+        });
+    }
+}

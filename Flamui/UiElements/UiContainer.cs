@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Flamui.Layouting;
+using SkiaSharp;
 using EnumXAlign = Flamui.XAlign;
 using EnumMAlign = Flamui.MAlign;
 using EnumDir = Flamui.Dir;
@@ -249,7 +250,7 @@ public partial class UiContainer : UiElementContainer
     {
         return PCanScroll || IsClipped;
     }
-    public Size ContentSize;
+    public BoxSize ContentSize;
 
     private readonly EmptyStack _scrollBarContainer = new();
 
@@ -307,19 +308,19 @@ public partial class UiContainer : UiElementContainer
             ScrollBarWidth = LayoutScrollbar();
         }
 
-        ComputeSize();
+        // ComputeSize();
+        //
+        // ContentSize = ComputePosition();
 
-        ContentSize = ComputePosition();
-
-        if (PHeight.Kind == SizeKind.Shrink)
-        {
-            ComputedBounds.H = ContentSize.Height;
-        }
-
-        if (PWidth.Kind == SizeKind.Shrink)
-        {
-            ComputedBounds.W = ContentSize.Width;
-        }
+        // if (PHeight.Kind == SizeKind.Shrink)
+        // {
+        //     ComputedBounds.H = ContentSize.Height;
+        // }
+        //
+        // if (PWidth.Kind == SizeKind.Shrink)
+        // {
+        //     ComputedBounds.W = ContentSize.Width;
+        // }
 
         if (PCanScroll)
         {
@@ -348,20 +349,5 @@ public partial class UiContainer : UiElementContainer
     private float Lerp(float from, float to, float progress)
     {
         return from * (1 - progress) + to * progress;
-    }
-}
-
-public class EmptyStack : IStackItem
-{
-    public DataStore DataStore { get; } = new();
-
-    public UiElement? UiElement { get; set; }
-
-    public void AddChild(object obj)
-    {
-        if (obj is UiElement uiElement)
-        {
-            UiElement = uiElement;
-        }
     }
 }
