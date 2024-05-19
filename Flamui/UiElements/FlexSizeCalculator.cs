@@ -4,12 +4,12 @@ namespace Flamui.UiElements;
 
 public static class FlexSizeCalculator
 {
-    private static float TotalGapSize(List<UiElement> children, FlexContainerInfo info)
+    public static float TotalGapSize(int childCount, FlexContainerInfo info)
     {
-        if (children.Count == 0)
+        if (childCount == 0)
             return 0;
 
-        return (children.Count - 1) * info.Gap;
+        return (childCount - 1) * info.Gap;
     }
 
     public static BoxSize ComputeSize(BoxConstraint constraint, List<UiElement> children, FlexContainerInfo info)
@@ -41,7 +41,7 @@ public static class FlexSizeCalculator
             maxCrossSize = Math.Max(maxCrossSize, size.GetCrossAxis(info.Direction));
         }
 
-        var availableSize = constraint.GetMainAxis(info.Direction).Max - totalFixedSize - info.PaddingSizeMain() - TotalGapSize(children, info);
+        var availableSize = constraint.GetMainAxis(info.Direction).Max - totalFixedSize - info.PaddingSizeMain() - TotalGapSize(children.Count, info);
         var sizePerPercentage = GetSizePerPercentage(totalPercentage, availableSize);
 
         //layout all flexible children

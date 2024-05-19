@@ -10,8 +10,28 @@ public record struct Quadrant(float Left, float Right, float Top, float Bottom)
     {
         return dir switch
         {
-            Dir.Vertical => Left + Right,
-            Dir.Horizontal => Top + Bottom,
+            Dir.Horizontal => Left + Right,
+            Dir.Vertical => Top + Bottom,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+
+    public float EndOfDirection(Dir dir)
+    {
+        return dir switch
+        {
+            Dir.Horizontal => Right,
+            Dir.Vertical => Bottom,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+
+    public float StartOfDirection(Dir dir)
+    {
+        return dir switch
+        {
+            Dir.Horizontal => Left,
+            Dir.Vertical => Top,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
@@ -23,6 +43,7 @@ public enum MAlign
     FlexStart = 0, //Default
     FlexEnd,
     Center,
+    FlexBetween
 }
 
 public enum Dir
