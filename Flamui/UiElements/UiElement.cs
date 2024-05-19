@@ -21,7 +21,7 @@ public abstract class UiElement : IUiElement
     {
         if (Parent is FlexContainer uiElement)
         {
-            if (uiElement.Direction == Dir.Horizontal)
+            if (uiElement.FlexContainerInfo.Direction == Dir.Horizontal)
             {
                 return PWidth;
             }
@@ -66,7 +66,6 @@ public abstract class UiElement : IUiElement
     public FlexibleChildConfig? FlexibleChildConfig { get; }
     public BoxSize Size { get; set; }
     public abstract BoxSize Layout(BoxConstraint constraint);
-    public abstract void CleanElement();
 }
 
 public record struct UiID(string Key, string Path, int Line, int TypeHash)

@@ -6,6 +6,11 @@ public partial class FlexContainer
     private float _targetScrollPos;
     private float _startScrollPos;
 
+    public float ScrollPos { get; set; }
+    public bool PCanScroll { get; set; }
+    private float ScrollBarWidth;
+
+
     private void CalculateScrollPos()
     {
         if (ContentSize.Height <= ComputedBounds.H)

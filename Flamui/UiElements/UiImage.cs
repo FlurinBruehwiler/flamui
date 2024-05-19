@@ -48,21 +48,9 @@ public class UiImage : UiElement
         IsAntialias = true
     };
 
-    public UiImage()
-    {
-        CleanElement();
-    }
-
     public override BoxSize Layout(BoxConstraint constraint)
     {
         return new BoxSize();
-    }
-
-    public override void CleanElement()
-    {
-        Src = null!;
-        PHeight = new(100, SizeKind.Percentage);
-        PWidth = new(100, SizeKind.Percentage);
     }
 
     private static readonly Dictionary<string, SKBitmap> ImgCache = new();

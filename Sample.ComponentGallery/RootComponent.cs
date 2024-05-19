@@ -40,11 +40,6 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
                 {
                     _tabIndex = 1;
                 }
-
-                if (ui.Button("Layout Test", width: 100))
-                {
-                    _tabIndex = 2;
-                }
             }
 
             if (_tabIndex == 1)
@@ -54,9 +49,6 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
             else if(_tabIndex == 0)
             {
                 Other(ui);
-            }else if (_tabIndex == 2)
-            {
-                ui.CreateLayoutTest().Build();
             }
         }
     }

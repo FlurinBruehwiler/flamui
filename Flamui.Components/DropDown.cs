@@ -159,7 +159,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
     private void HandleStart(Ui ui, FlexContainer dropDownDiv)
     {
-        if (!dropDownDiv.IsNew)
+        if (!dropDownDiv.FlexContainerInfo.IsNew)
             return;
 
         switch (_startingState)

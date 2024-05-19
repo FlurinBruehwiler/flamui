@@ -100,17 +100,6 @@ public class UiText : UiElement
         return new BoxSize();
     }
 
-    public override void CleanElement()
-    {
-        Content = "";
-        PSize = 15;
-        PColor = C.Black;
-        PhAlign = TextAlign.Start;
-        PvAlign = TextAlign.Center;
-        PWidth = new SizeDefinition(0, SizeKind.Shrink);
-        PHeight = new SizeDefinition(0, SizeKind.Shrink);
-    }
-
     public UiText Width(float width, SizeKind sizeKind = SizeKind.Pixel)
     {
         PWidth = new SizeDefinition(width, sizeKind);
@@ -151,11 +140,6 @@ public class UiText : UiElement
     {
         PvAlign = textAlign;
         return this;
-    }
-
-    public UiText()
-    {
-        CleanElement();
     }
 }
 
