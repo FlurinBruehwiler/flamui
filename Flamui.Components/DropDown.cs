@@ -35,8 +35,8 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             {
                 //ToDo we really need to improve the layouting system!!!!
                 //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
-                using (ui.Div().BlockHit().ShrinkHeight().Clip().ZIndex(100).Padding(5)
-                           .Color(ColorPalette.BackgroundColor).Absolute(top: 30).Rounded(5).BorderWidth(1).BorderColor(ColorPalette.BorderColor)
+                using (ui.Div().BlockHit().ShrinkHeight().Width(150).Clip().ZIndex(100).Padding(5)
+                           .Color(ColorPalette.BackgroundColor).Absolute(top: 30, left: 0).Rounded(5).BorderWidth(1).BorderColor(ColorPalette.BorderColor)
                            .Shadow(5, top: 5).ShadowColor(0, 0, 0))
                 {
                     if (_filterText is not null)
