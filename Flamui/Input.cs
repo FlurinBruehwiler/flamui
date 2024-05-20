@@ -101,7 +101,7 @@ public class Input(UiWindow uiWindow)
         switch (sdlEventWindow.windowEvent)
         {
             case SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE:
-                SDL_DestroyWindow(uiWindow._windowHandle);
+                uiWindow.Dispose();
                 break;
         }
     }

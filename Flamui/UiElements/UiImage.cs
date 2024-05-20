@@ -9,6 +9,23 @@ public class UiImage : UiElement
 
     public override void Render(RenderContext renderContext, Point offset)
     {
+        var img = GetImage();
+
+        renderContext.Add(new Bitmap
+        {
+            Bounds = new Bounds
+            {
+                H = BoxSize.Height,
+                W = BoxSize.Width,
+                X = offset.X,
+                Y = offset.Y
+            },
+            SkBitmap = img
+        });
+    }
+
+    private SKBitmap GetImage()
+    {
         if (!ImgCache.TryGetValue(Src, out var img))
         {
             img = SKBitmap.Decode(Src);
@@ -16,47 +33,36 @@ public class UiImage : UiElement
             ImgCache.Add(Src, img);
         }
 
-        if (img is null)
-            return;
-
-        var availableRatio = BoxSize.Width / BoxSize.Height;
-        var currentRatio = img.Width / img.Height;
-
-        float destHeight;
-        float destWidth;
-
-        if (availableRatio > currentRatio) //Height is the limiting factor
-        {
-            destHeight = BoxSize.Height;
-            destWidth = currentRatio * BoxSize.Height;
-        }
-        else //Width is the limiting factor
-        {
-            destWidth = BoxSize.Width;
-            destHeight = BoxSize.Width / currentRatio;
-        }
-
-        renderContext.Add(new Bitmap
-        {
-            Bounds = new Bounds
-            {
-                H = destHeight,
-                W = destWidth,
-                X = offset.X,
-                Y = offset.Y
-            },
-            SkBitmap = ImgCache[Src]
-        });
+        return img;
     }
-
-    private static readonly SKPaint Paint = new()
-    {
-        IsAntialias = true
-    };
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        return new BoxSize();
+        var img = GetImage();
+
+        var availableRatio = constraint.MaxWidth / constraint.MaxHeight;
+        var currentRatio = img.Width / img.Height;
+
+        if (availableRatio > currentRatio) //Height is the limiting factor
+        {
+            BoxSize = new BoxSize(constraint.MaxHeight, currentRatio * constraint.MaxHeight);
+        }
+        else
+        {
+            //Width is the limiting factor
+            BoxSize = new BoxSize(constraint.MaxWidth, constraint.MaxWidth / currentRatio);
+        }
+
+        return BoxSize;
+    }
+
+    public override void PrepareLayout(Dir dir)
+    {
+        FlexibleChildConfig = new FlexibleChildConfig
+        {
+            Percentage = 100
+        };
+        base.PrepareLayout(dir);
     }
 
     private static readonly Dictionary<string, SKBitmap> ImgCache = new();

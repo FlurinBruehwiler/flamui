@@ -308,11 +308,3 @@ public partial class UiWindow : IDisposable
         SDL_DestroyWindow(_windowHandle);
     }
 }
-
-public record struct Vector2Int(int X, int Y)
-{
-    public static Vector2Int operator -(Vector2Int a, Vector2Int b)
-    {
-        return new Vector2Int(a.X - b.X, a.Y - b.Y);
-    }
-}
