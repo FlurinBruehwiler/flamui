@@ -15,7 +15,7 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
     {
         using (ui.Div().Color(ColorPalette.BackgroundColor).PaddingHorizontal(50).PaddingTop(20).Gap(20))
         {
-            using (ui.Div().Height(30).Direction(Dir.Horizontal).Gap(20).XAlign(XAlign.Center))
+            using (ui.Div().Height(30).Direction(Dir.Horizontal).Gap(20).CrossAlign(XAlign.Center))
             {
                 if (storageService.TimeTrackFiles.Count > 1)
                 {
@@ -40,7 +40,7 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
 
 
             //Name
-            using (ui.Div().XAlign(XAlign.Center).Height(40).Direction(Dir.Horizontal))
+            using (ui.Div().CrossAlign(XAlign.Center).Height(40).Direction(Dir.Horizontal))
             {
                 ui.Text(storageService.OpenTimeTrackFile.ToString()).Size(30).Color(ColorPalette.TextColor);
 

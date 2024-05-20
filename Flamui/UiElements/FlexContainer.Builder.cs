@@ -14,7 +14,7 @@ public partial class FlexContainer
     public FlexContainer Shadow(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0)
     {
         Info.ShadowSigma = sigma;
-        Info.ShaddowOffset = new Quadrant(left, right, top, bottom);
+        Info.ShadowOffset = new Quadrant(left, right, top, bottom);
         return this;
     }
 
@@ -133,15 +133,17 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer ShrinkHeight()
+    public FlexContainer ShrinkHeight(float minHeight = 0)
     {
         Info.HeightKind = SizeKind.Shrink;
+        Info.MinHeight = minHeight;
         return this;
     }
 
-    public FlexContainer ShrinkWidth()
+    public FlexContainer ShrinkWidth(float minWidth = 0)
     {
         Info.WidthKind = SizeKind.Shrink;
+        Info.MinWidth = minWidth;
         return this;
     }
 
@@ -165,13 +167,13 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer MAlign(MAlign mAlign)
+    public FlexContainer MainAlign(MAlign mAlign)
     {
         Info.MainAlignment = mAlign;
         return this;
     }
 
-    public FlexContainer XAlign(XAlign xAlign)
+    public FlexContainer CrossAlign(XAlign xAlign)
     {
         Info.CrossAlignment = xAlign;
         return this;

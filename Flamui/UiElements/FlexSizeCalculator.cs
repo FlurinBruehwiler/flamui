@@ -15,7 +15,7 @@ public static class FlexSizeCalculator
     public static BoxSize ComputeSize(BoxConstraint constraint, List<UiElement> children, FlexContainerInfo info)
     {
         if (children.Count == 0)
-            return new BoxSize().ApplyConstraint(constraint);
+            return new BoxSize();
 
         float totalFixedSize = 0;
         float totalPercentage = 0;
@@ -72,7 +72,7 @@ public static class FlexSizeCalculator
             maxCrossSize = Math.Max(maxCrossSize, size.GetCrossAxis(info.Direction));
         }
 
-        return BoxSize.FromDirection(info.Direction, totalFixedSize, maxCrossSize + info.PaddingSizeCross()).ApplyConstraint(constraint);
+        return BoxSize.FromDirection(info.Direction, totalFixedSize, maxCrossSize + info.PaddingSizeCross());
     }
 
     private static float GetSizePerPercentage(float totalPercentage, float availableSize)

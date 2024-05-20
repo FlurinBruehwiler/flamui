@@ -167,11 +167,11 @@ public partial class FlexContainer : UiElementContainer
     {
         TightenConstraint(ref constraint);
 
-        BoxSize = FlexSizeCalculator.ComputeSize(constraint, Children, Info);
+        BoxSize = FlexSizeCalculator.ComputeSize(constraint, Children, Info).ApplyConstraint(constraint);
 
         var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, BoxSize, Info);
 
-        AbsoluteLayouter.LayoutAbsoluteChildren(Children, BoxSize, Info);
+        AbsoluteLayouter.LayoutAbsoluteChildren(Children, BoxSize);
 
         return BoxSize;
     }
@@ -197,6 +197,10 @@ public partial class FlexContainer : UiElementContainer
 
                 //todo check that we don't comply with the constraints
             }
+            else if (Info.WidthKind == SizeKind.Shrink)
+            {
+                constraint.MinWidth = Info.MinWidth;
+            }
         }
 
         //height
@@ -217,6 +221,10 @@ public partial class FlexContainer : UiElementContainer
                 constraint.MinHeight = height;
 
                 //todo check that we don't comply with the constraints
+            }
+            else if (Info.HeightKind == SizeKind.Shrink)
+            {
+                constraint.MinHeight = Info.MinHeight;
             }
         }
     }

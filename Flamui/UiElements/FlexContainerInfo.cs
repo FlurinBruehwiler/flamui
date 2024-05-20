@@ -26,13 +26,15 @@ public struct FlexContainerInfo
     public XAlign CrossAlignment;
     public bool AutoFocus;
     public ColorDefinition? PShadowColor;
-    public Quadrant ShaddowOffset;
+    public Quadrant ShadowOffset;
     public float ShadowSigma;
     public bool Hidden;
     public bool BlockHit;
     public bool IsClipped;
     public float WidthValue;
     public SizeKind WidthKind;
+    public float MinWidth;
+    public float MinHeight;
     public float HeightValue;
     public SizeKind HeightKind;
 

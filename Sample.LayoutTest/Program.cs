@@ -12,14 +12,22 @@ public class LayoutTest : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
-        using (ui.Div().Color(C.Red5).Center().Padding(10))
+        using (ui.Div().Direction(Dir.Horizontal).Color(C.Yellow5).MainAlign(MAlign.Center).Gap(10).Padding(10))
         {
-            ui.Image("profile.jpg");
+            using (ui.Div().Color(C.Blue4).Width(100).Height(100).MarginRight(30))
+            {
 
-            // using (ui.Div().Color(C.Green6).Shrink().Padding(10))
-            // {
-            //     // ui.Text("Oh hi mark");
-            // }
+            }
+
+            using (ui.Div().Color(C.Blue5).Width(1000).Height(500).Border(2, C.Black).Rounded(5))
+            {
+
+            }
+
+            using (ui.Div().Color(C.Blue6).Width(100).Height(100))
+            {
+
+            }
         }
     }
 }

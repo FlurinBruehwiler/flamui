@@ -24,7 +24,7 @@ public static class AbsoluteLayouter
         };
     }
 
-    public static void LayoutAbsoluteChildren(List<UiElement> children, BoxSize boxSize, FlexContainerInfo info)
+    public static void LayoutAbsoluteChildren(List<UiElement> children, BoxSize boxSize)
     {
         foreach (var child in children)
         {

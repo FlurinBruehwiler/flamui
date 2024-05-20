@@ -41,7 +41,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
         var key = Ui.S(hashCode);
 
         using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Direction(Dir.Horizontal)
-                   .Gap(5).XAlign(XAlign.Center))
+                   .Gap(5).CrossAlign(XAlign.Center))
         {
             if (flexContainer is UiElementContainer { Children.Count: > 0 })
             {

@@ -43,7 +43,7 @@ public enum MAlign
     FlexStart = 0, //Default
     FlexEnd,
     Center,
-    FlexBetween
+    SpaceBetween
 }
 
 public enum Dir

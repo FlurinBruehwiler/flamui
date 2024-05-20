@@ -31,10 +31,10 @@ public static class FlexContainerRenderer
                     UiElement = flexContainer,
                     Bounds = new Bounds
                     {
-                        X = offset.X - flexContainer.Info.BorderWidth + flexContainer.Info.ShaddowOffset.Left,
-                        Y = offset.Y - flexContainer.Info.BorderWidth + flexContainer.Info.ShaddowOffset.Top,
-                        H = flexContainer.BoxSize.Height + 2 * flexContainer.Info.BorderWidth - flexContainer.Info.ShaddowOffset.Top - flexContainer.Info.ShaddowOffset.Bottom,
-                        W = flexContainer.BoxSize.Width + 2 * flexContainer.Info.BorderWidth - flexContainer.Info.ShaddowOffset.Left - flexContainer.Info.ShaddowOffset.Right,
+                        X = offset.X - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Left,
+                        Y = offset.Y - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Top,
+                        H = flexContainer.BoxSize.Height + 2 * flexContainer.Info.BorderWidth - flexContainer.Info.ShadowOffset.Top - flexContainer.Info.ShadowOffset.Bottom,
+                        W = flexContainer.BoxSize.Width + 2 * flexContainer.Info.BorderWidth - flexContainer.Info.ShadowOffset.Left - flexContainer.Info.ShadowOffset.Right,
                     },
                     Radius = flexContainer.Info.Radius == 0 ? 0 : borderRadius,
                     RenderPaint = new ShadowPaint

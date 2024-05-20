@@ -18,6 +18,8 @@ public static class FlexPositionCalculator
                 return CalculateFlexEnd(children, size, info);
             case EnumMAlign.Center:
                 return CalculateFlexCenter(children, size, info);
+            case MAlign.SpaceBetween:
+                return CalculateSpaceBetween(children, size, info);
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -60,23 +62,38 @@ public static class FlexPositionCalculator
         return new BoxSize();
     }
 
-    private static BoxSize CalculateFlexCenter(List<UiElement> children, BoxSize size, FlexContainerInfo info)
+    private static BoxSize CalculateSpaceBetween(List<UiElement> children, BoxSize size, FlexContainerInfo info)
     {
-        var totalSize = 0f;
+        var (totalChildrenSize, relevantChildCount) = SpaceTakenUpByChildren(children, info);
 
-        int relevantChildCount = 0;
+        if (relevantChildCount == 0)
+            return new BoxSize();
 
-        //try to remove this loop, we could precalculate it in the FlexSizeCalculation
+        var totalSize = size.GetMainAxis(info.Direction) - info.PaddingSizeMain();
+        var remainingSize = totalSize - totalChildrenSize;
+        var gap = remainingSize / (relevantChildCount - 1);
+
+        var offset = info.Padding.StartOfDirection(info.Direction);
+
         foreach (var child in children)
         {
-            if (child.UiElementInfo.Absolute)
-            {
-                relevantChildCount++;
+            if(child.UiElementInfo.Absolute)
                 continue;
-            }
 
-            totalSize += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction);
+            offset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
+            SetPosition(offset, child, size, info);
+            offset += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + gap;
         }
+
+        return new BoxSize();
+    }
+
+    private static BoxSize CalculateFlexCenter(List<UiElement> children, BoxSize size, FlexContainerInfo info)
+    {
+        var (totalSize, relevantChildCount) = SpaceTakenUpByChildren(children, info);
+
+        if (relevantChildCount == 0)
+            return new BoxSize();
 
         //ignore the margin at the start and end (todo should ignore absolute elements)
         totalSize -= children.First().UiElementInfo.Margin.StartOfDirection(info.Direction) +
@@ -98,6 +115,26 @@ public static class FlexPositionCalculator
         }
 
         return new BoxSize();
+    }
+
+    private static (float, int) SpaceTakenUpByChildren(List<UiElement> children, FlexContainerInfo info)
+    {
+        var totalSize = 0f;
+
+        int relevantChildCount = 0;
+
+        //try to remove this loop, we could precalculate it in the FlexSizeCalculation
+        foreach (var child in children)
+        {
+            if (child.UiElementInfo.Absolute)
+                continue;
+
+            relevantChildCount++;
+
+            totalSize += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction);
+        }
+
+        return (totalSize, relevantChildCount);
     }
 
     private static void SetPosition(float mainOffset, UiElement item, BoxSize size, FlexContainerInfo info)
