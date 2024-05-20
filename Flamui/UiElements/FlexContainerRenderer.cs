@@ -31,8 +31,8 @@ public static class FlexContainerRenderer
                     UiElement = flexContainer,
                     Bounds = new Bounds
                     {
-                        X = flexContainer.Info.BorderWidth + flexContainer.Info.ShaddowOffset.Left,
-                        Y = flexContainer.Info.BorderWidth + flexContainer.Info.ShaddowOffset.Top,
+                        X = offset.X - flexContainer.Info.BorderWidth + flexContainer.Info.ShaddowOffset.Left,
+                        Y = offset.Y - flexContainer.Info.BorderWidth + flexContainer.Info.ShaddowOffset.Top,
                         H = flexContainer.BoxSize.Height + 2 * flexContainer.Info.BorderWidth - flexContainer.Info.ShaddowOffset.Top - flexContainer.Info.ShaddowOffset.Bottom,
                         W = flexContainer.BoxSize.Width + 2 * flexContainer.Info.BorderWidth - flexContainer.Info.ShaddowOffset.Left - flexContainer.Info.ShaddowOffset.Right,
                     },
@@ -65,7 +65,7 @@ public static class FlexContainerRenderer
 
             renderContext.Add(new RectClip
             {
-                Bounds = flexContainer.BoxSize.ToBounds(),
+                Bounds = flexContainer.BoxSize.ToBounds(offset),
                 Radius = flexContainer.Info.Radius,
                 ClipOperation = SKClipOperation.Difference
             });
@@ -75,8 +75,8 @@ public static class FlexContainerRenderer
                 UiElement = flexContainer,
                 Bounds = new Bounds
                 {
-                    X = flexContainer.Info.BorderWidth,
-                    Y = flexContainer.Info.BorderWidth,
+                    X = offset.X - flexContainer.Info.BorderWidth,
+                    Y = offset.Y - flexContainer.Info.BorderWidth,
                     W = flexContainer.BoxSize.Width + 2 * flexContainer.Info.BorderWidth,
                     H = flexContainer.BoxSize.Height + 2 * flexContainer.Info.BorderWidth,
                 },
@@ -90,7 +90,7 @@ public static class FlexContainerRenderer
             renderContext.Add(new Restore());
         }
 
-        ClipContent(renderContext, flexContainer, flexContainer.Info);
+        ClipContent(renderContext, flexContainer, flexContainer.Info, offset);
 
         if (flexContainer.Info.CanScroll)
         {
@@ -134,7 +134,7 @@ public static class FlexContainerRenderer
         }
     }
 
-    private static void ClipContent(RenderContext renderContext, UiElement uiElement, FlexContainerInfo Info)
+    private static void ClipContent(RenderContext renderContext, UiElement uiElement, FlexContainerInfo Info, Point offset)
     {
         if (NeedsClip(Info))
 
@@ -143,7 +143,7 @@ public static class FlexContainerRenderer
 
             renderContext.Add(new RectClip
             {
-                Bounds = uiElement.BoxSize.ToBounds(),
+                Bounds = uiElement.BoxSize.ToBounds(offset),
                 Radius = Info.Radius,
                 ClipOperation = SKClipOperation.Intersect
             });

@@ -21,12 +21,19 @@ public static class FlexSizeCalculator
         float totalPercentage = 0;
         float maxCrossSize = 0;
 
+        var relevantChildCount = 0;
+
         //Loop through all children
         //- Sum up percentage of flexible children
         //- Layout inflexible children, and sum up the size
         foreach (var child in children)
         {
             child.PrepareLayout(info.Direction);
+
+            if (child.UiElementInfo.Absolute)
+                continue;
+
+            relevantChildCount++;
 
             if (child.IsFlexible(out var config))
             {
@@ -42,13 +49,16 @@ public static class FlexSizeCalculator
             maxCrossSize = Math.Max(maxCrossSize, size.GetCrossAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction.Other()));
         }
 
-        var availableSize = constraint.GetMainAxis(info.Direction).Max - totalFixedSize - info.PaddingSizeMain() - TotalGapSize(children.Count, info);
+        var availableSize = constraint.GetMainAxis(info.Direction).Max - totalFixedSize - info.PaddingSizeMain() - TotalGapSize(relevantChildCount, info);
         var sizePerPercentage = GetSizePerPercentage(totalPercentage, availableSize);
 
         //layout all flexible children
         foreach (var child in children)
         {
             if (!child.IsFlexible(out var config))
+                continue;
+
+            if(child.UiElementInfo.Absolute)
                 continue;
 
             var mainSizeConstraint = config.Percentage * sizePerPercentage;

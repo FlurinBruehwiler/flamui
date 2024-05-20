@@ -171,6 +171,8 @@ public partial class FlexContainer : UiElementContainer
 
         var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, BoxSize, Info);
 
+        AbsoluteLayouter.LayoutAbsoluteChildren(Children, BoxSize, Info);
+
         return BoxSize;
     }
 

@@ -52,7 +52,7 @@ public struct BoxSize
         };
     }
 
-    public Bounds ToBounds(Point point = new())
+    public Bounds ToBounds(Point point)
     {
         return new Bounds
         {

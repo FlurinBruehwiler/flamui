@@ -29,6 +29,9 @@ public static class FlexPositionCalculator
 
         foreach (var child in children)
         {
+            if (child.UiElementInfo.Absolute)
+                continue;
+
             mainOffset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
             SetPosition(mainOffset, child, size, info);
             mainOffset += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + info.Gap;
@@ -45,6 +48,9 @@ public static class FlexPositionCalculator
         {
             var child = children[i];
 
+            if (child.UiElementInfo.Absolute)
+                continue;
+
             startOffset = startOffset - child.BoxSize.GetMainAxis(info.Direction) - child.UiElementInfo.Margin.EndOfDirection(info.Direction);
 
             SetPosition(startOffset, child, size, info);
@@ -54,28 +60,38 @@ public static class FlexPositionCalculator
         return new BoxSize();
     }
 
-    //todo respect margin
     private static BoxSize CalculateFlexCenter(List<UiElement> children, BoxSize size, FlexContainerInfo info)
     {
         var totalSize = 0f;
 
+        int relevantChildCount = 0;
+
         //try to remove this loop, we could precalculate it in the FlexSizeCalculation
         foreach (var child in children)
         {
+            if (child.UiElementInfo.Absolute)
+            {
+                relevantChildCount++;
+                continue;
+            }
+
             totalSize += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction);
         }
 
-        //ignore the margin at the start and end
+        //ignore the margin at the start and end (todo should ignore absolute elements)
         totalSize -= children.First().UiElementInfo.Margin.StartOfDirection(info.Direction) +
                      children.Last().UiElementInfo.Margin.EndOfDirection(info.Direction);
 
-        totalSize += FlexSizeCalculator.TotalGapSize(children.Count, info);
+        totalSize += FlexSizeCalculator.TotalGapSize(relevantChildCount, info);
 
         var center = size.GetMainAxis(info.Direction) / 2;
         var offset = center - totalSize / 2;
 
         foreach (var child in children)
         {
+            if (child.UiElementInfo.Absolute)
+                continue;
+
             offset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
             SetPosition(offset, child, size, info);
             offset += child.BoxSize.GetMainAxis(info.Direction) + info.Gap + child.UiElementInfo.Margin.EndOfDirection(info.Direction);
@@ -91,7 +107,7 @@ public static class FlexPositionCalculator
 
         item.ParentData = item.ParentData with
         {
-            Position = new Point(point.X, point.Y)
+            Position = point
         };
     }
 

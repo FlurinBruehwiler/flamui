@@ -34,6 +34,11 @@ public struct BoxConstraint
         }
     }
 
+    public static BoxConstraint None()
+    {
+        return new BoxConstraint(0, float.PositiveInfinity, 0, float.PositiveInfinity);
+    }
+
     public static BoxConstraint FromBox(float width, float height)
     {
         return new BoxConstraint(width, width, height, height);

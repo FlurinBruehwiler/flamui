@@ -135,24 +135,6 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer Relative()
-    {
-        Info.Absolute = false;
-        Info.AbsoluteContainer = null;
-        Info.DisablePositioning = false;
-        Info.AbsolutePosition = new AbsolutePosition();
-        return this;
-    }
-
-    public FlexContainer Absolute(FlexContainer? container = null, float? left = null, float? right = null, float? top = null, float? bottom = null, bool disablePositioning = false)
-    {
-        Info.Absolute = true;
-        Info.AbsoluteContainer = container;
-        Info.DisablePositioning = disablePositioning;
-        Info.AbsolutePosition = new AbsolutePosition(left, right, top, bottom);
-        return this;
-    }
-
     public FlexContainer WidthFraction(float width)
     {
         Info.WidthValue = width;

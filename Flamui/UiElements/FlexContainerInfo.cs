@@ -2,7 +2,7 @@ namespace Flamui.UiElements;
 
 public struct FlexContainerInfo
 {
-    //maybe we dont want expand as the default in the future, then we could get rid of this constructor!!!
+    //maybe we don't want to expand as the default in the future, then we could get rid of this constructor!!! performance++
     public FlexContainerInfo()
     {
         WidthValue = 100;
@@ -25,16 +25,12 @@ public struct FlexContainerInfo
     public MAlign MainAlignment;
     public XAlign CrossAlignment;
     public bool AutoFocus;
-    public bool Absolute;
-    public bool DisablePositioning;
-    public FlexContainer? AbsoluteContainer;
     public ColorDefinition? PShadowColor;
     public Quadrant ShaddowOffset;
     public float ShadowSigma;
     public bool Hidden;
     public bool BlockHit;
     public bool IsClipped;
-    public AbsolutePosition AbsolutePosition;
     public float WidthValue;
     public SizeKind WidthKind;
     public float HeightValue;

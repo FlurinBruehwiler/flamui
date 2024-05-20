@@ -69,7 +69,13 @@ public enum SizeKind
 
 public static class Extensions
 {
-
+    public static T Absolute<T>(this T uiElement, FlexContainer? anchor = null, float? left = null, float? right = null, float? top = null, float? bottom = null) where T : UiElement
+    {
+        uiElement.UiElementInfo.Absolute = true;
+        uiElement.UiElementInfo.AbsoluteAnchor = anchor;
+        uiElement.UiElementInfo.AbsolutePosition = new AbsolutePosition(left, right, top, bottom);
+        return uiElement;
+    }
 
     #region Margin
     public static T Margin<T>(this T uiElement, float margin) where T : UiElement
