@@ -30,7 +30,7 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
                     storageService.OpenTimeTrackFile = x;
                 }
 
-                if (ui.Button("Edit default entries", width: 150))
+                if (ui.Button("Edit default entries"))
                 {
                     var file = TimeTrackFolder.DefaultEntriesFile();
 
@@ -46,7 +46,7 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
 
                 if (storageService.OpenTimeTrackFile.IsCurrentDay())
                 {
-                    if (ui.Button("Reset current day", width: 150))
+                    if (ui.Button("Reset current day"))
                     {
                         storageService.TimeTrackFiles.Remove(storageService.OpenTimeTrackFile);
 
@@ -84,14 +84,14 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
                         ui.Text(timeTrackEntry.GetTotalTimeAsString()).Color(ColorPalette.TextColor).Width(70);
                         if (!isActiveEntry && storageService.OpenTimeTrackFile.IsCurrentDay())
                         {
-                            if (ui.Button("Activate", width: 80, focusable: false))
+                            if (ui.Button("Activate", focusable: false))
                             {
                                 Activate(timeTrackEntry);
                             }
                         }
                         else
                         {
-                            if (ui.Button("Deactivate", width: 80, focusable: false))
+                            if (ui.Button("Deactivate", focusable: false))
                             {
                                 timeTrackEntry.Deactivate();
                                 _activeTimeTrackEntry = null;

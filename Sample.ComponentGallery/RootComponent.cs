@@ -31,12 +31,12 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
         {
             using (ui.Div().Direction(Dir.Horizontal).Padding(10).Gap(10).ShrinkHeight())
             {
-                if (ui.Button("Main controls", width:100))
+                if (ui.Button("Main controls"))
                 {
                     _tabIndex = 0;
                 }
 
-                if (ui.Button("Scroll Test", width: 100))
+                if (ui.Button("Scroll Test"))
                 {
                     _tabIndex = 1;
                 }
@@ -75,7 +75,7 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
                 ui.Text("Oh hi mark").Color(C.Red7);
             }
 
-            if (ui.Button("Create new Window", width: 200))
+            if (ui.Button("Create new Window"))
             {
                 flamuiApp.CreateWindow<RootComponent>("Second window");
             }

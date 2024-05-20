@@ -5,7 +5,7 @@ namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static bool Button(this Ui ui, string text, bool primary = false, float width = 70, bool focusable = true, string key = "",
+    public static bool Button(this Ui ui, string text, bool primary = false, bool focusable = true, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {

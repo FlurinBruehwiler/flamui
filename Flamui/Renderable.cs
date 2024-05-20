@@ -288,7 +288,7 @@ public struct Picture : IRenderFragment //ToDo, should also be clickable
         if (renderFragment is not Picture pic)
             return false;
 
-        return pic.Src == Src;
+        return pic.Src == Src && SkMatrix == pic.SkMatrix;
     }
 }
 

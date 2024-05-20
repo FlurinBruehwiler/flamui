@@ -49,7 +49,9 @@ public static class FlexSizeCalculator
             maxCrossSize = Math.Max(maxCrossSize, size.GetCrossAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction.Other()));
         }
 
-        var availableSize = constraint.GetMainAxis(info.Direction).Max - totalFixedSize - info.PaddingSizeMain() - TotalGapSize(relevantChildCount, info);
+        totalFixedSize += info.PaddingSizeMain() + TotalGapSize(relevantChildCount, info);
+
+        var availableSize = constraint.GetMainAxis(info.Direction).Max - totalFixedSize;
         var sizePerPercentage = GetSizePerPercentage(totalPercentage, availableSize);
 
         //layout all flexible children
@@ -70,7 +72,7 @@ public static class FlexSizeCalculator
             maxCrossSize = Math.Max(maxCrossSize, size.GetCrossAxis(info.Direction));
         }
 
-        return BoxSize.FromDirection(info.Direction, totalFixedSize, maxCrossSize).ApplyConstraint(constraint);
+        return BoxSize.FromDirection(info.Direction, totalFixedSize, maxCrossSize + info.PaddingSizeCross()).ApplyConstraint(constraint);
     }
 
     private static float GetSizePerPercentage(float totalPercentage, float availableSize)

@@ -3,17 +3,23 @@ using SkiaSharp;
 
 namespace Flamui.UiElements;
 
+public struct UiTextInfo
+{
+    public UiTextInfo()
+    {
+    }
+
+    //todo copy this struct, so we don't need to initialize it every time
+    public float Size = 15;
+    public ColorDefinition Color = C.Black;
+    public TextAlign HorizontalAlignment = TextAlign.Start;
+    public TextAlign VerticalAlignment = TextAlign.Center;
+    public string Content = string.Empty;
+}
+
 public class UiText : UiElement
 {
-    public string Content { get; set; }
-
-    public float PSize { get; set; }
-
-    public ColorDefinition PColor { get; set; }
-
-    public TextAlign PhAlign { get; set; }
-
-    public TextAlign PvAlign { get; set; }
+    public UiTextInfo UiTextInfo;
 
     private static readonly SKPaint Paint = new()
     {
@@ -22,47 +28,48 @@ public class UiText : UiElement
             SKFontStyleSlant.Upright)
     };
 
-    private static readonly Dictionary<TextPathCacheItem, SKRect> TextPathCache = new();
-
-    private SKRect GetRect(Point offset)
+    private SKRect GetRect()
     {
-        var key = new TextPathCacheItem(Content, offset.X, offset.Y);
-        if (TextPathCache.TryGetValue(key, out var rect))
-        {
-            return rect;
-        }
-        var path = Paint.GetTextPath(Content, offset.X, offset.Y);
-        path.GetBounds(out rect);
-        path.Dispose();
-        TextPathCache.Add(key, rect);
-        return rect;
+        var bounds = new SKRect();
+        Paint.MeasureText(UiTextInfo.Content, ref bounds);
+        return bounds;
+    }
+
+    private void UpdatePaint()
+    {
+        Paint.TextSize = UiTextInfo.Size;
+        Paint.Color = new SKColor(UiTextInfo.Color.Red, UiTextInfo.Color.Green, UiTextInfo.Color.Blue, UiTextInfo.Color.Alpha);
+    }
+
+    public override void Reset()
+    {
+        UiTextInfo = new();
+        base.Reset();
     }
 
     public override void Render(RenderContext renderContext, Point offset)
     {
-        if (Content == string.Empty)
+        if (UiTextInfo.Content == string.Empty)
             return;
 
-        //don't define paint twice!!!! grrr
-        Paint.TextSize = PSize;
-        Paint.Color = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Alpha);
+        UpdatePaint();
 
-        var rect = GetRect(offset);
+        var rect = GetRect();
 
         Paint.GetFontMetrics(out var metrics);
 
         var actualX = offset.X;
         var actualY = offset.Y;
 
-        actualY += PvAlign switch
+        actualY += UiTextInfo.VerticalAlignment switch
         {
-            TextAlign.Start => PSize,
+            TextAlign.Start => UiTextInfo.Size,
             TextAlign.End => BoxSize.Height,
             TextAlign.Center => BoxSize.Height / 2 - (metrics.Ascent + metrics.Descent) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        actualX += PhAlign switch
+        actualX += UiTextInfo.HorizontalAlignment switch
         {
             TextAlign.End => BoxSize.Width - rect.Width,
             TextAlign.Center => BoxSize.Width / 2 - rect.Width / 2,
@@ -72,34 +79,26 @@ public class UiText : UiElement
 
         renderContext.Add(new Text
         {
-            Content = Content,
+            Content = UiTextInfo.Content,
             X = actualX,
             Y = actualY,
-            RenderPaint = new TextPaint
+            RenderPaint = new TextPaint //don't define paint twice
             {
-                SkColor = new SKColor(PColor.Red, PColor.Green, PColor.Blue, PColor.Alpha),
-                TextSize = PSize
+                SkColor = new SKColor(UiTextInfo.Color.Red, UiTextInfo.Color.Green, UiTextInfo.Color.Blue, UiTextInfo.Color.Alpha),
+                TextSize = UiTextInfo.Size
             }
         });
     }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
+        UpdatePaint();
 
-        //todo
-        // var rect = GetRect();
-        //
-        // if (PHeight.Kind == SizeKind.Shrink)
-        // {
-        //     ComputedBounds.H = rect.Height;
-        // }
-        //
-        // if (PWidth.Kind == SizeKind.Shrink)
-        // {
-        //     ComputedBounds.W = rect.Width;
-        // }
+        var rect = GetRect();
 
-        return new BoxSize();
+        BoxSize = new BoxSize(rect.Width, rect.Height);
+
+        return BoxSize;
     }
 
     public UiText Width(float width)
@@ -107,40 +106,34 @@ public class UiText : UiElement
         // PWidth = new SizeDefinition(width, sizeKind);
         return this;
     }
-    //
-    // public UiText Height(float height, SizeKind sizeKind = SizeKind.Pixel)
-    // {
-    //     // PHeight = new SizeDefinition(height, sizeKind);
-    //     return this;
-    // }
 
     public UiText Color(byte red, byte green, byte blue, byte transparency = 255)
     {
-        PColor = new ColorDefinition(red, green, blue, transparency);
+        UiTextInfo.Color = new ColorDefinition(red, green, blue, transparency);
         return this;
     }
 
     public UiText Color(ColorDefinition color)
     {
-        PColor = color;
+        UiTextInfo.Color = color;
         return this;
     }
 
     public UiText Size(float size)
     {
-        PSize = size;
+        UiTextInfo.Size = size;
         return this;
     }
 
     public UiText HAlign(TextAlign textAlign)
     {
-        PhAlign = textAlign;
+        UiTextInfo.HorizontalAlignment = textAlign;
         return this;
     }
 
     public UiText VAlign(TextAlign textAlign)
     {
-        PvAlign = textAlign;
+        UiTextInfo.VerticalAlignment = textAlign;
         return this;
     }
 }

@@ -15,4 +15,10 @@
         <ProjectReference Include="..\Flamui\Flamui.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="example.svg">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

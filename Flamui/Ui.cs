@@ -86,7 +86,7 @@ public partial class Ui
 
         OpenElement.AddChild(text);
 
-        text.Content = content;
+        text.UiTextInfo.Content = content;
 
         return text;
     }

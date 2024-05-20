@@ -107,7 +107,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 
         if (flexContainer is UiText uiText)
         {
-            return Ui.S(uiText.Content, x => $"{nameof(uiText)}: {x}");
+            return Ui.S(uiText.UiTextInfo.Content, x => $"{nameof(uiText)}: {x}");
         }
 
         if (flexContainer is UiImage uiImage)

@@ -103,6 +103,15 @@ public partial class FlexContainer
         return this;
     }
 
+    public FlexContainer Size(float width, float height)
+    {
+        Info.WidthValue = width;
+        Info.WidthKind = SizeKind.Pixel;
+        Info.HeightValue = height;
+        Info.HeightKind = SizeKind.Pixel;
+        return this;
+    }
+
     public FlexContainer Width(float width)
     {
         Info.WidthValue = width;
@@ -114,6 +123,13 @@ public partial class FlexContainer
     {
         Info.HeightValue = height;
         Info.HeightKind = SizeKind.Pixel;
+        return this;
+    }
+
+    public FlexContainer Shrink()
+    {
+        Info.HeightKind = SizeKind.Shrink;
+        Info.WidthKind = SizeKind.Shrink;
         return this;
     }
 
