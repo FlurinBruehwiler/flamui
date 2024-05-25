@@ -94,12 +94,10 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.CanScroll)
         {
-            // _scrollBarContainer.UiElement?.Render(renderContext);
-
-            // renderContext.Add(new Matrix
-            // {
-            //     SkMatrix = SKMatrix.CreateTranslation(0, -ScrollPos)
-            // });
+            renderContext.Add(new Matrix
+            {
+                SkMatrix = SKMatrix.CreateTranslation(0, -flexContainer.ScrollPos)
+            });
         }
 
         foreach (var childElement in flexContainer.Children)
@@ -114,10 +112,12 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.CanScroll)
         {
-            // renderContext.Add(new Matrix
-            // {
-            //     SkMatrix = SKMatrix.CreateTranslation(0, ScrollPos)
-            // });
+            renderContext.Add(new Matrix
+            {
+                SkMatrix = SKMatrix.CreateTranslation(0, flexContainer.ScrollPos)
+            });
+
+            flexContainer._scrollBarContainer.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainer.UiElement.ParentData.Position));
         }
 
         if (NeedsClip(flexContainer.Info))

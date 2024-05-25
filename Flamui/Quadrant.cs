@@ -38,6 +38,12 @@ public record struct Quadrant(float Left, float Right, float Top, float Bottom)
 }
 public record struct AbsolutePosition(float? Left, float? Right, float? Top, float? Bottom);
 
+public struct RelativeSize
+{
+    public float? HeightOffsetFromParent; //has an effect, if RelativeToParent = true
+    public float? WidthOffsetFromParent; //has an effect, if RelativeToParent = true
+}
+
 public enum MAlign
 {
     FlexStart = 0, //Default
@@ -69,11 +75,34 @@ public enum SizeKind
 
 public static class Extensions
 {
-    public static T Absolute<T>(this T uiElement, FlexContainer? anchor = null, float? left = null, float? right = null, float? top = null, float? bottom = null) where T : UiElement
+    public static T Absolute<T>(this T uiElement, FlexContainer? anchor = null) where T : UiElement
     {
-        uiElement.UiElementInfo.Absolute = true;
-        uiElement.UiElementInfo.AbsoluteAnchor = anchor;
-        uiElement.UiElementInfo.AbsolutePosition = new AbsolutePosition(left, right, top, bottom);
+        uiElement.UiElementInfo.AbsoluteInfo = (uiElement.UiElementInfo.AbsoluteInfo ?? new AbsoluteInfo()) with
+        {
+            Anchor = anchor,
+        };
+        return uiElement;
+    }
+
+    public static T AbsolutePosition<T>(this T uiElement, float? left = null, float? right = null, float? top = null, float? bottom = null) where T : UiElement
+    {
+        uiElement.UiElementInfo.AbsoluteInfo = (uiElement.UiElementInfo.AbsoluteInfo ?? new AbsoluteInfo()) with
+        {
+            Position = new AbsolutePosition(left, right, top, bottom)
+        };
+        return uiElement;
+    }
+
+    public static T AbsoluteSize<T>(this T uiElement, float? widthOffsetParent = null, float? heightOffsetParent = null) where T : UiElement
+    {
+        uiElement.UiElementInfo.AbsoluteInfo = (uiElement.UiElementInfo.AbsoluteInfo ?? new AbsoluteInfo()) with
+        {
+            Size = new RelativeSize
+            {
+                HeightOffsetFromParent = heightOffsetParent,
+                WidthOffsetFromParent = widthOffsetParent
+            }
+        };
         return uiElement;
     }
 

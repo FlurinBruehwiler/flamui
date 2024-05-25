@@ -185,8 +185,6 @@ public partial class FlexContainer
         return this;
     }
 
-
-
     public FlexContainer Direction(Dir dir)
     {
         Info.Direction = dir;

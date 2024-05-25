@@ -14,7 +14,7 @@ public struct ScrollService(FlexContainer uiContainerContainer)
     /// <summary>
     /// The size in pixels of the content that can be scrolled
     /// </summary>
-    public float ContentSize => uiContainerContainer.ContentSize.Height; //ToDo, use the scroll direction
+    public float ContentSize => uiContainerContainer.ActualContentSize.Height; //ToDo, use the scroll direction
 
     /// <summary>
     /// The scroll position in pixels. 0 = start, n = end

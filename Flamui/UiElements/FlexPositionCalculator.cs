@@ -31,7 +31,7 @@ public static class FlexPositionCalculator
 
         foreach (var child in children)
         {
-            if (child.UiElementInfo.Absolute)
+            if (child.UiElementInfo.AbsoluteInfo.HasValue)
                 continue;
 
             mainOffset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
@@ -39,7 +39,9 @@ public static class FlexPositionCalculator
             mainOffset += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + info.Gap;
         }
 
-        return new BoxSize();
+        mainOffset -= info.Gap;
+        mainOffset += info.Padding.EndOfDirection(info.Direction);
+        return BoxSize.FromDirection(info.Direction, mainOffset, 0);
     }
 
     private static BoxSize CalculateFlexEnd(List<UiElement> children, BoxSize size, FlexContainerInfo info)
@@ -50,7 +52,7 @@ public static class FlexPositionCalculator
         {
             var child = children[i];
 
-            if (child.UiElementInfo.Absolute)
+            if (child.UiElementInfo.AbsoluteInfo.HasValue)
                 continue;
 
             startOffset = startOffset - child.BoxSize.GetMainAxis(info.Direction) - child.UiElementInfo.Margin.EndOfDirection(info.Direction);
@@ -77,7 +79,7 @@ public static class FlexPositionCalculator
 
         foreach (var child in children)
         {
-            if(child.UiElementInfo.Absolute)
+            if(child.UiElementInfo.AbsoluteInfo.HasValue)
                 continue;
 
             offset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
@@ -106,7 +108,7 @@ public static class FlexPositionCalculator
 
         foreach (var child in children)
         {
-            if (child.UiElementInfo.Absolute)
+            if (child.UiElementInfo.AbsoluteInfo.HasValue)
                 continue;
 
             offset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
@@ -126,7 +128,7 @@ public static class FlexPositionCalculator
         //try to remove this loop, we could precalculate it in the FlexSizeCalculation
         foreach (var child in children)
         {
-            if (child.UiElementInfo.Absolute)
+            if (child.UiElementInfo.AbsoluteInfo.HasValue)
                 continue;
 
             relevantChildCount++;

@@ -99,55 +99,6 @@ public partial class FlexContainer : UiElementContainer
         FlexContainerRenderer.Render(renderContext, this, offset);
     }
 
-    public BoxSize ContentSize;
-
-    private readonly EmptyStack _scrollBarContainer = new();
-
-
-    private float LayoutScrollbar()
-    {
-        //TODO pls refactor this very ugly code!!!!!!!!!!!!!!!
-
-        var scrollbar = Window.Ui.GetData(Id, this, static (_, _, scrollContainer) =>
-        {
-            var comp = new Scrollbar(new ScrollService(scrollContainer), new ScrollbarSettings
-            {
-                Width = 10,
-                MinTrackSize = 50,
-                ThumbColor = new ColorDefinition(92, 92, 92),
-                TrackColor = C.Transparent,
-                Padding = 5, //ToDo padding doesn't work
-                ThumbHoverColor = new ColorDefinition(92, 92, 92),
-                TrackHoverColor = new ColorDefinition(52, 52, 52)
-            });
-            comp.OnInitialized();
-            return comp;
-        });
-
-        _scrollBarContainer.DataStore.Reset();
-
-        Window.Ui.OpenElementStack.Push(_scrollBarContainer);
-        scrollbar.Build(Window.Ui);
-        Window.Ui.OpenElementStack.Pop();
-
-        if (_scrollBarContainer.UiElement is null)
-            return 0;
-
-        var shadowParent = new FlexContainer
-        {
-            Id = default,
-            Window = Window,
-            // ComputedBounds = ComputedBounds,
-            // PmAlign = EnumMAlign.FlexEnd,
-            // Direction = EnumDir.Horizontal
-        };
-
-        shadowParent.AddChild(_scrollBarContainer.UiElement);
-        // shadowParent.Layout();
-
-        return _scrollBarContainer.UiElement.BoxSize.Width;
-    }
-
     public override void PrepareLayout(Dir dir)
     {
         if (Info.GetMainSizeKind(dir) == SizeKind.Percentage)
@@ -169,7 +120,13 @@ public partial class FlexContainer : UiElementContainer
 
         BoxSize = FlexSizeCalculator.ComputeSize(constraint, Children, Info).ApplyConstraint(constraint);
 
-        var actualSizeTakenUpByChildren = FlexPositionCalculator.ComputePosition(Children, BoxSize, Info);
+        ActualContentSize = FlexPositionCalculator.ComputePosition(Children, BoxSize, Info);
+
+        if (Info.CanScroll)
+        {
+            CalculateScrollPos();
+            LayoutScrollbar();
+        }
 
         AbsoluteLayouter.LayoutAbsoluteChildren(Children, BoxSize);
 
@@ -181,7 +138,13 @@ public partial class FlexContainer : UiElementContainer
         //width
         if (!constraint.IsWidthTight())
         {
-            if(Info.WidthKind == SizeKind.Percentage && !float.IsInfinity(constraint.MaxWidth))
+            if (UiElementInfo.AbsoluteInfo is { Size.WidthOffsetFromParent: { } widthOffsetFromParent })
+            {
+                var width = Parent.BoxSize.Width + widthOffsetFromParent;
+                constraint.MaxWidth = width;
+                constraint.MinWidth = width;
+            }
+            else if(Info.WidthKind == SizeKind.Percentage && !float.IsInfinity(constraint.MaxWidth))
             {
                 var width = constraint.MaxWidth * (0.01f * Info.WidthValue);
                 constraint.MaxWidth = width;
@@ -206,7 +169,13 @@ public partial class FlexContainer : UiElementContainer
         //height
         if (!constraint.IsHeightTight())
         {
-            if(Info.HeightKind == SizeKind.Percentage && !float.IsInfinity(constraint.MaxHeight))
+            if (UiElementInfo.AbsoluteInfo is { Size.HeightOffsetFromParent: { } heightOffset })
+            {
+                var height = Parent.BoxSize.Height + heightOffset;
+                constraint.MaxHeight = height;
+                constraint.MinHeight = height;
+            }
+            else if(Info.HeightKind == SizeKind.Percentage && !float.IsInfinity(constraint.MaxHeight))
             {
                 var height = constraint.MaxHeight * (0.01f * Info.HeightValue);
                 constraint.MaxHeight = height;

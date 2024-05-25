@@ -24,7 +24,7 @@ public struct FlexContainerInfo
     public Dir Direction;
     public MAlign MainAlignment;
     public XAlign CrossAlignment;
-    public bool AutoFocus;
+    public bool AutoFocus; //todo
     public ColorDefinition? PShadowColor;
     public Quadrant ShadowOffset;
     public float ShadowSigma;

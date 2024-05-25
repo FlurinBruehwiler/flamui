@@ -15,6 +15,7 @@ public abstract class UiElement
     public ParentData ParentData { get; set; }
     public FlexibleChildConfig? FlexibleChildConfig { get; set; }
     public BoxSize BoxSize { get; set; }
+    public BoxSize ActualContentSize;
     public UiElementInfo UiElementInfo;
 
     //----- Methods ------

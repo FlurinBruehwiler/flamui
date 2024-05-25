@@ -30,7 +30,7 @@ public static class FlexSizeCalculator
         {
             child.PrepareLayout(info.Direction);
 
-            if (child.UiElementInfo.Absolute)
+            if (child.UiElementInfo.AbsoluteInfo.HasValue)
                 continue;
 
             relevantChildCount++;
@@ -60,7 +60,7 @@ public static class FlexSizeCalculator
             if (!child.IsFlexible(out var config))
                 continue;
 
-            if(child.UiElementInfo.Absolute)
+            if(child.UiElementInfo.AbsoluteInfo.HasValue)
                 continue;
 
             var mainSizeConstraint = config.Percentage * sizePerPercentage;

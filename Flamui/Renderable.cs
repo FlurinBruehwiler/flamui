@@ -319,7 +319,7 @@ public struct Matrix : IRenderFragment, IMatrixable
 
     public void Render(SKCanvas canvas)
     {
-        canvas.SetMatrix(SkMatrix);
+        canvas.SetMatrix(canvas.TotalMatrix.PostConcat(SkMatrix));
     }
 
     public bool UiEquals(IRenderFragment renderFragment)

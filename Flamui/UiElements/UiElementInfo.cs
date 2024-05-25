@@ -3,8 +3,12 @@ namespace Flamui.UiElements;
 public struct UiElementInfo
 {
     public Quadrant Margin;
-    public bool Absolute;
-    public FlexContainer? AbsoluteAnchor;
-    public AbsolutePosition AbsolutePosition;
+    public AbsoluteInfo? AbsoluteInfo;
+}
 
+public struct AbsoluteInfo
+{
+    public FlexContainer? Anchor;
+    public AbsolutePosition Position;
+    public RelativeSize Size;
 }

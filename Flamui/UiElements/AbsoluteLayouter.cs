@@ -4,23 +4,23 @@ namespace Flamui.UiElements;
 
 public static class AbsoluteLayouter
 {
-    private static void Position(UiElement child, BoxSize boxSize)
+    private static void Position(UiElement child, BoxSize boxSize, AbsoluteInfo info)
     {
         var horizontalOffset = 0f;
 
-        if (child.UiElementInfo.AbsolutePosition.Left is {} left)
+        if (info.Position.Left is {} left)
         {
             horizontalOffset = left;
         }
 
-        if (child.UiElementInfo.AbsolutePosition.Right is { } right)
+        if (info.Position.Right is { } right)
         {
             horizontalOffset = boxSize.Width + right;
         }
 
         child.ParentData = child.ParentData with
         {
-            Position = new Point(horizontalOffset, child.UiElementInfo.AbsolutePosition.Top ?? 0)
+            Position = new Point(horizontalOffset, info.Position.Top ?? 0)
         };
     }
 
@@ -28,11 +28,11 @@ public static class AbsoluteLayouter
     {
         foreach (var child in children)
         {
-            if(!child.UiElementInfo.Absolute)
+            if(child.UiElementInfo.AbsoluteInfo is not {} info)
                 continue;
 
             child.Layout(BoxConstraint.None());
-            Position(child, boxSize);
+            Position(child, boxSize, info);
         }
     }
 }

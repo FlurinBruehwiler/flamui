@@ -41,6 +41,11 @@ public struct Point
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
+
+    public override string ToString()
+    {
+        return $"{X}, {Y}";
+    }
 }
 
 public struct ParentData
