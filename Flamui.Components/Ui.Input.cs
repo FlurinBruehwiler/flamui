@@ -16,7 +16,7 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        using (ui.Div(key, path, line).MAlign(MAlign.Center))
+        using (ui.Div(key, path, line).MainAlign(MAlign.Center))
         {
             if (hasFocus)
             {

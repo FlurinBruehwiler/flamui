@@ -20,7 +20,7 @@ public class EventLoop
     {
         FlamuiSynchronizationContext.Install();
 
-        Console.WriteLine(Environment.CurrentManagedThreadId);
+        // Console.WriteLine(Environment.CurrentManagedThreadId);
 
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0)
         {
@@ -32,7 +32,7 @@ public class EventLoop
 
     public void RunMainThread()
     {
-        Console.WriteLine(Environment.CurrentManagedThreadId);
+        // Console.WriteLine(Environment.CurrentManagedThreadId);
 
         var quit = false;
         while (!quit)

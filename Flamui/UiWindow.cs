@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Flamui.Layouting;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
@@ -16,9 +17,9 @@ public partial class UiWindow : IDisposable
     public bool IsDebugWindow;
 
     // private UiContainer? _hoveredContainer;
-    private UiContainer? _activeContainer;
+    private UiElement? _activeContainer;
 
-    public readonly UiContainer RootContainer;
+    public readonly UiElementContainer RootContainer;
     public readonly ConcurrentQueue<SDL_Event> Events = new();
 
     // private UiContainer? HoveredDiv
@@ -44,7 +45,7 @@ public partial class UiWindow : IDisposable
     private readonly TabIndexManager _tabIndexManager = new();
     public readonly Ui Ui = new();
 
-    public UiContainer? ActiveDiv
+    public UiElement? ActiveDiv
     {
         get => _activeContainer;
         set
@@ -100,14 +101,14 @@ public partial class UiWindow : IDisposable
 
         Ui.Window = this;
 
-        RootContainer = new UiContainer
+        RootContainer = new FlexContainer
         {
             Id = new UiID("RootElement", "", 0, 0),
             Window = this
         };
 
         DebugPaint = Helpers.GetNewAntialiasedPaint();
-        DebugPaint.Color = C.Blue800.ToSkColor();
+        DebugPaint.Color = C.Blue8.ToSkColor();
 
     }
 
@@ -115,24 +116,6 @@ public partial class UiWindow : IDisposable
 
     public RenderContext LastRenderContext = new();
     public RenderContext RenderContext = new();
-
-    public void ResetElements()
-    {
-        ResetElement(RootContainer);
-    }
-
-    private void ResetElement(UiElement uiElement)
-    {
-        uiElement.CleanElement();
-
-        if (uiElement is not UiElementContainer container)
-            return;
-
-        foreach (var child in container.Children)
-        {
-            ResetElement(child);
-        }
-    }
 
     public void Update()
     {
@@ -153,7 +136,6 @@ public partial class UiWindow : IDisposable
         HitDetection();
 
         BuildUi();
-        Layout();
 
 
         Render();
@@ -190,7 +172,7 @@ public partial class UiWindow : IDisposable
 
     private void CreateRenderInstructions()
     {
-        RootContainer.Render(RenderContext);
+        RootContainer.Render(RenderContext, new Point());
     }
 
     private void RenderToCanvas()
@@ -245,14 +227,14 @@ public partial class UiWindow : IDisposable
                 }
                 else
                 {
-                    DebugOutline(renderContext, hoveredElement.ComputedBounds);
+                    // DebugOutline(renderContext, hoveredElement.ComputedBounds);
                 }
             }
         }
 
         if (DebugSelectedUiElement is not null && DebugSelectedUiElement.Window == this)
         {
-            DebugOutline(renderContext, DebugSelectedUiElement.ComputedBounds);
+            // DebugOutline(renderContext, DebugSelectedUiElement.ComputedBounds);
         }
     }
 
@@ -273,7 +255,7 @@ public partial class UiWindow : IDisposable
             Radius = 0,
             RenderPaint = new PlaintPaint
             {
-                SkColor = C.Blue800.ToSkColor()
+                SkColor = C.Blue8.ToSkColor()
             },
             UiElement = null
         });
@@ -292,17 +274,16 @@ public partial class UiWindow : IDisposable
         Ui.OpenElementStack.Clear();
         Ui.OpenElementStack.Push(RootContainer);
         Ui.Root = RootContainer;
-        RootContainer.ComputedBounds.W = width;
-        RootContainer.ComputedBounds.H = height;
+
+        // RootContainer.ComputedBounds.W = width;
+        // RootContainer.ComputedBounds.H = height;
 
         RootContainer.OpenElement();
 
         _rootComponent.Build(Ui);
-    }
 
-    private void Layout()
-    {
-        RootContainer.Layout();
+        RootContainer.PrepareLayout(Dir.Vertical);
+        RootContainer.Layout(new BoxConstraint(0, width, 0, height));
     }
 
     private bool _renderHappened;
@@ -325,13 +306,5 @@ public partial class UiWindow : IDisposable
     {
         SDL_GL_DeleteContext(_openGlContextHandle);
         SDL_DestroyWindow(_windowHandle);
-    }
-}
-
-public record struct Vector2Int(int X, int Y)
-{
-    public static Vector2Int operator -(Vector2Int a, Vector2Int b)
-    {
-        return new Vector2Int(a.X - b.X, a.Y - b.Y);
     }
 }

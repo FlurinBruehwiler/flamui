@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Flamui.Layouting;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +12,7 @@ public partial class Ui
     private IStackItem OpenElement => OpenElementStack.Peek();
 
     public UiWindow Window = null!;
-    public UiElementContainer Root;
+    public UiElement Root;
 
     public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",
@@ -50,13 +51,13 @@ public partial class Ui
         return value;
     }
 
-    public UiContainer Div(
+    public FlexContainer Div(
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line, typeof(UiContainer).GetHashCode());
-        var div = GetData(id, static (ui, id) => new UiContainer
+        var id = new UiID(key, path, line, typeof(FlexContainer).GetHashCode());
+        var div = GetData(id, static (ui, id) => new FlexContainer
         {
             Id = id,
             Window = ui.Window
@@ -85,7 +86,7 @@ public partial class Ui
 
         OpenElement.AddChild(text);
 
-        text.Content = content;
+        text.UiTextInfo.Content = content;
 
         return text;
     }

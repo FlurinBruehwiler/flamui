@@ -4,22 +4,22 @@ namespace Flamui;
 
 //ToDo: rethink this abstraction!!!
 
-public struct ScrollService(UiContainer uiContainer)
+public struct ScrollService(FlexContainer uiContainerContainer, Dir dir)
 {
     /// <summary>
-    /// The size in pixels of the cutout of the content that is actually beeing shown to the user.
+    /// The size in pixels of the cutout of the content that is actually being shown to the user.
     /// </summary>
-    public float CutoutSize => uiContainer.ComputedBounds.H; //ToDo, use the scroll direction
+    public float CutoutSize => uiContainerContainer.Rect.GetDirection(dir);
 
     /// <summary>
     /// The size in pixels of the content that can be scrolled
     /// </summary>
-    public float ContentSize => uiContainer.ContentSize.Height; //ToDo, use the scroll direction
+    public float ContentSize => uiContainerContainer.ActualContentSize.GetDirection(dir);
 
     /// <summary>
     /// The scroll position in pixels. 0 = start, n = end
     /// </summary>
-    public float ScrollPos => uiContainer.ScrollPos;
+    public float ScrollPos => uiContainerContainer.GetScrollPosInDir(dir);
 
     /// <summary>
     /// Scroll progress represented as a float. 0 = start, 1 = end
@@ -42,7 +42,7 @@ public struct ScrollService(UiContainer uiContainer)
     public float MinBarSize { get; set; }
 
     /// <summary>
-    /// Wether there is actually enought content for the scroll bar to be active.
+    /// Whether there is actually enough content for the scroll bar to be active.
     /// </summary>
     public bool IsScrolling => ContentSize > CutoutSize;
 
@@ -59,6 +59,13 @@ public struct ScrollService(UiContainer uiContainer)
         var newBarStart = Math.Clamp(BarStart + delta, 0, maxBarStart);
         var newScrollProgress = newBarStart / (CutoutSize - BarSize);
         var newScrollPos = newScrollProgress * (ContentSize - CutoutSize);
-        uiContainer.ScrollPos = newScrollPos;
+        if (dir == Dir.Horizontal)
+        {
+            uiContainerContainer.ScrollPosX = newScrollPos;
+        }
+        else
+        {
+            uiContainerContainer.ScrollPosY = newScrollPos;
+        }
     }
 }

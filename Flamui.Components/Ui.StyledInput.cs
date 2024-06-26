@@ -6,7 +6,7 @@ namespace Flamui.Components;
 public static partial class UiExtensions
 {
     //todo: make placeholder work again :)
-    public static UiContainer StyledInput(this Ui ui, ref string text, string placeholder = "", InputType inputType = InputType.Text, string key = "",
+    public static FlexContainer StyledInput(this Ui ui, ref string text, string placeholder = "", InputType inputType = InputType.Text, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {

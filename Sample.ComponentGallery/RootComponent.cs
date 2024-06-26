@@ -29,21 +29,16 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
         using (ui.Div().Color(ColorPalette.BackgroundColor))
         {
-            using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).ShrinkHeight())
+            using (ui.Div().Direction(Dir.Horizontal).Padding(10).Gap(10).ShrinkHeight())
             {
-                if (ui.Button("Main controls", width:100))
+                if (ui.Button("Main controls"))
                 {
                     _tabIndex = 0;
                 }
 
-                if (ui.Button("Scroll Test", width: 100))
+                if (ui.Button("Scroll Test"))
                 {
                     _tabIndex = 1;
-                }
-
-                if (ui.Button("Layout Test", width: 100))
-                {
-                    _tabIndex = 2;
                 }
             }
 
@@ -54,9 +49,6 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
             else if(_tabIndex == 0)
             {
                 Other(ui);
-            }else if (_tabIndex == 2)
-            {
-                ui.CreateLayoutTest().Build();
             }
         }
     }
@@ -80,10 +72,10 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
             using (ui.Div().Height(20))
             {
-                ui.Text("Oh hi mark").Color(C.Red700);
+                ui.Text("Oh hi mark").Color(C.Red7);
             }
 
-            if (ui.Button("Create new Window", width: 200))
+            if (ui.Button("Create new Window"))
             {
                 flamuiApp.CreateWindow<RootComponent>("Second window");
             }
@@ -92,9 +84,9 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
     private void ScrollTest(Ui ui)
     {
-        using (ui.Div().Padding(10).Dir(Dir.Horizontal).Gap(10))
+        using (ui.Div().Padding(10).Direction(Dir.Horizontal).Gap(10))
         {
-            using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).Scroll())
+            using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).ScrollVertical())
             {
                 for (int i = 1; i < 50; i++)
                 {
@@ -114,7 +106,7 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
                 }
             }
 
-            using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).Scroll())
+            using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).ScrollVertical())
             {
                 for (int i = 1; i < 50; i++)
                 {

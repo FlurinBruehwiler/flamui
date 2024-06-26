@@ -5,11 +5,11 @@ namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static bool Button(this Ui ui, string text, bool primary = false, float width = 70, bool focusable = true, string key = "",
+    public static bool Button(this Ui ui, string text, bool primary = false, bool focusable = true, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        using (var btn = ui.Div(key, path, line).Height(23).Rounded(2).Focusable(focusable).ShrinkWidth().Dir(Dir.Horizontal).PaddingHorizontal(10).XAlign(XAlign.Center))
+        using (var btn = ui.Div(key, path, line).Height(23).Rounded(2).Focusable(focusable).ShrinkWidth().Direction(Dir.Horizontal).PaddingHorizontal(10).CrossAlign(XAlign.Center))
         {
             if (primary)
             {

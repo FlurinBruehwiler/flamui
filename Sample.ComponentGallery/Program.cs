@@ -10,7 +10,7 @@ var app = builder.Build();
 app.AddDebugWindow();
 #endif
 
-app.CreateWindow<LayoutTest>("Sample.ComponentGallery", new WindowOptions());
+app.CreateWindow<RootComponent>("Sample.ComponentGallery", new WindowOptions());
 
 app.Run();
 

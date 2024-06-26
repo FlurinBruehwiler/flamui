@@ -22,23 +22,20 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             _filterText = string.Empty;
         }
 
-        using (var dropDownDiv = ui.Div().Rounded(2).Height(23).Focusable().Padding(5).BorderColor(ColorPalette.BorderColor)
-                   .BorderWidth(1).Color(ColorPalette.BackgroundColor).Dir(Dir.Horizontal))
+        using (var dropDownDiv = ui.Div().Rounded(2).Height(23).ShrinkWidth(150).Focusable().Padding(5).BorderColor(ColorPalette.BorderColor)
+                   .BorderWidth(1).Color(ColorPalette.BackgroundColor).Direction(Dir.Horizontal).MainAlign(MAlign.SpaceBetween))
         {
             HandleStart(ui, dropDownDiv);
 
-            ui.Text(SelectedOption.ToString() ?? string.Empty).Color(ColorPalette.TextColor).Width(100, SizeKind.Percentage);
-            using (ui.Div().Width(15))//ToDo, make it so that we can enforce a certain aspect ratio
-            {
-                ui.SvgImage("./Icons/expand_more.svg");
-            }
+            ui.Text(SelectedOption.ToString() ?? string.Empty).Color(ColorPalette.TextColor);
+
+            ui.SvgImage("./Icons/expand_more.svg");
 
             if (_isExpanded)
             {
-                //ToDo we really need to improve the layouting system!!!!
                 //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
-                using (ui.Div().BlockHit().Height(25 * _options.Count + 10).Clip().ZIndex(100).Padding(5)
-                           .Color(ColorPalette.BackgroundColor).Absolute(top: 30).Rounded(5).BorderWidth(1).BorderColor(ColorPalette.BorderColor)
+                using (ui.Div().BlockHit().ShrinkHeight().Clip().ZIndex(100).Padding(5)
+                           .Color(ColorPalette.BackgroundColor).AbsolutePosition(top: 30, left: 0).AbsoluteSize(widthOffsetParent:0f).Rounded(5).BorderWidth(1).BorderColor(ColorPalette.BorderColor)
                            .Shadow(5, top: 5).ShadowColor(0, 0, 0))
                 {
                     if (_filterText is not null)
@@ -157,9 +154,9 @@ public class DropDown<T> : FlamuiComponent where T : notnull
         }
     }
 
-    private void HandleStart(Ui ui, UiContainer dropDownDiv)
+    private void HandleStart(Ui ui, FlexContainer dropDownDiv)
     {
-        if (!dropDownDiv.IsNew)
+        if (!dropDownDiv.Info.IsNew)
             return;
 
         switch (_startingState)
