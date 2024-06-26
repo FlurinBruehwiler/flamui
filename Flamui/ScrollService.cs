@@ -4,22 +4,22 @@ namespace Flamui;
 
 //ToDo: rethink this abstraction!!!
 
-public struct ScrollService(FlexContainer uiContainerContainer)
+public struct ScrollService(FlexContainer uiContainerContainer, Dir dir)
 {
     /// <summary>
     /// The size in pixels of the cutout of the content that is actually being shown to the user.
     /// </summary>
-    public float CutoutSize => uiContainerContainer.BoxSize.Height; //ToDo, use the scroll direction
+    public float CutoutSize => uiContainerContainer.Rect.GetDirection(dir);
 
     /// <summary>
     /// The size in pixels of the content that can be scrolled
     /// </summary>
-    public float ContentSize => uiContainerContainer.ActualContentSize.Height; //ToDo, use the scroll direction
+    public float ContentSize => uiContainerContainer.ActualContentSize.GetDirection(dir);
 
     /// <summary>
     /// The scroll position in pixels. 0 = start, n = end
     /// </summary>
-    public float ScrollPos => uiContainerContainer.ScrollPos;
+    public float ScrollPos => uiContainerContainer.GetScrollPosInDir(dir);
 
     /// <summary>
     /// Scroll progress represented as a float. 0 = start, 1 = end
@@ -59,6 +59,13 @@ public struct ScrollService(FlexContainer uiContainerContainer)
         var newBarStart = Math.Clamp(BarStart + delta, 0, maxBarStart);
         var newScrollProgress = newBarStart / (CutoutSize - BarSize);
         var newScrollPos = newScrollProgress * (ContentSize - CutoutSize);
-        uiContainerContainer.ScrollPos = newScrollPos;
+        if (dir == Dir.Horizontal)
+        {
+            uiContainerContainer.ScrollPosX = newScrollPos;
+        }
+        else
+        {
+            uiContainerContainer.ScrollPosY = newScrollPos;
+        }
     }
 }

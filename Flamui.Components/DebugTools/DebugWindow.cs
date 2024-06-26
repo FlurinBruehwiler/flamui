@@ -20,12 +20,12 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
 
         using (ui.Div().Direction(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
         {
-            using (ui.Div().Gap(5).Scroll())
+            using (ui.Div().Gap(5).ScrollVertical())
             {
                 DisplayUiElement(ui, otherWindow.RootContainer, 39210, 0);
             }
 
-            using (ui.Div().Scroll())
+            using (ui.Div().ScrollVertical())
             {
                 if (Ui.DebugSelectedUiElement is not null)
                 {

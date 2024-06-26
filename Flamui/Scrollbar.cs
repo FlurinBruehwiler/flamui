@@ -2,6 +2,17 @@ namespace Flamui;
 
 public class ScrollbarSettings
 {
+    public static ScrollbarSettings Default = new()
+    {
+        Width = 10,
+        MinTrackSize = 50,
+        ThumbColor = new ColorDefinition(92, 92, 92),
+        TrackColor = C.Transparent,
+        Padding = 5, //ToDo padding doesn't work
+        ThumbHoverColor = new ColorDefinition(92, 92, 92),
+        TrackHoverColor = new ColorDefinition(52, 52, 52)
+    };
+
     public float Width;
     public int ThumbRadius;
     public ColorDefinition TrackColor;

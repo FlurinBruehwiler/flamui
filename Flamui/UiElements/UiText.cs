@@ -64,15 +64,15 @@ public class UiText : UiElement
         actualY += UiTextInfo.VerticalAlignment switch
         {
             TextAlign.Start => UiTextInfo.Size,
-            TextAlign.End => BoxSize.Height,
-            TextAlign.Center => BoxSize.Height / 2 - (metrics.Ascent + metrics.Descent) / 2,
+            TextAlign.End => Rect.Height,
+            TextAlign.Center => Rect.Height / 2 - (metrics.Ascent + metrics.Descent) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
 
         actualX += UiTextInfo.HorizontalAlignment switch
         {
-            TextAlign.End => BoxSize.Width - rect.Width,
-            TextAlign.Center => BoxSize.Width / 2 - rect.Width / 2,
+            TextAlign.End => Rect.Width - rect.Width,
+            TextAlign.Center => Rect.Width / 2 - rect.Width / 2,
             TextAlign.Start => 0,
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -96,9 +96,9 @@ public class UiText : UiElement
 
         var rect = GetRect();
 
-        BoxSize = new BoxSize(rect.Width, rect.Height);
+        Rect = new BoxSize(rect.Width, rect.Height);
 
-        return BoxSize;
+        return Rect;
     }
 
     public UiText Width(float width)

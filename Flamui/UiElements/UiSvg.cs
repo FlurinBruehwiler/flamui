@@ -62,8 +62,8 @@ public class UiSvg : UiElement
             factor = constraint.MaxWidth / svgSize.Width;
         }
 
-        BoxSize = new BoxSize(svgSize.Width * factor, svgSize.Height * factor);
-        return BoxSize;
+        Rect = new BoxSize(svgSize.Width * factor, svgSize.Height * factor);
+        return Rect;
     }
 
 

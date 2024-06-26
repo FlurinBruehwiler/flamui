@@ -14,11 +14,14 @@ public abstract class UiElement
     // public Bounds ComputedBounds;
     public ParentData ParentData { get; set; }
     public FlexibleChildConfig? FlexibleChildConfig { get; set; }
-    public BoxSize BoxSize { get; set; }
+
     public BoxSize ActualContentSize;
     public UiElementInfo UiElementInfo;
+    public BoxSize Rect;
 
     //----- Methods ------
+
+
     public abstract BoxSize Layout(BoxConstraint constraint);
     public abstract void Render(RenderContext renderContext, Point offset);
 
@@ -29,7 +32,7 @@ public abstract class UiElement
 
     public virtual void PrepareLayout(Dir dir)
     {
-        
+
     }
 
     public UiElement? GetPreviousSibling()
@@ -63,6 +66,11 @@ public abstract class UiElement
 
 public record struct UiID(string Key, string Path, int Line, int TypeHash)
 {
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Key, Path, Line, TypeHash);
+    }
+
     public override string ToString()
     {
         return $"Key: {Key}, Path: {Path}, Line: {Line}, Type: {TypeHash}";

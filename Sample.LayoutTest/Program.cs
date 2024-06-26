@@ -14,7 +14,7 @@ public class LayoutTest : FlamuiComponent
     {
         using (ui.Div().Color(C.Yellow5).Padding(10).Gap(10))
         {
-            using (ui.Div().Color(C.Blue5).Width(300).Gap(10).Scroll())
+            using (ui.Div().Color(C.Blue5).Width(300).Gap(10).ScrollVertical())
             {
                 for (var i = 0; i < 50; i++)
                 {

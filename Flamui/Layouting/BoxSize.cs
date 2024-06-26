@@ -11,6 +11,16 @@ public struct BoxSize
         Height = height;
     }
 
+    public float GetDirection(Dir dir)
+    {
+        return dir switch
+        {
+            Dir.Vertical => Height,
+            Dir.Horizontal => Width,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+
     public BoxSize ApplyConstraint(BoxConstraint constraint)
     {
         var width = Math.Min(constraint.MaxWidth, Width);

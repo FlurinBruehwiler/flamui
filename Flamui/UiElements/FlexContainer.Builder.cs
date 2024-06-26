@@ -179,9 +179,23 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer Scroll()
+    public FlexContainer ScrollVertical(bool overlay = false)
     {
-        Info.CanScroll = true;
+        Info.ScrollConfigY = new ScrollConfig
+        {
+            CanScroll = true,
+            OverlayScrollbar = overlay
+        };
+        return this;
+    }
+
+    public FlexContainer ScrollHorizontal(bool overlay = false)
+    {
+        Info.ScrollConfigX = new ScrollConfig
+        {
+            CanScroll = true,
+            OverlayScrollbar = overlay
+        };
         return this;
     }
 

@@ -36,7 +36,7 @@ public static class FlexPositionCalculator
 
             mainOffset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
             SetPosition(mainOffset, child, size, info);
-            mainOffset += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + info.Gap;
+            mainOffset += child.Rect.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + info.Gap;
         }
 
         mainOffset -= info.Gap;
@@ -55,7 +55,7 @@ public static class FlexPositionCalculator
             if (child.UiElementInfo.AbsoluteInfo.HasValue)
                 continue;
 
-            startOffset = startOffset - child.BoxSize.GetMainAxis(info.Direction) - child.UiElementInfo.Margin.EndOfDirection(info.Direction);
+            startOffset = startOffset - child.Rect.GetMainAxis(info.Direction) - child.UiElementInfo.Margin.EndOfDirection(info.Direction);
 
             SetPosition(startOffset, child, size, info);
             startOffset = startOffset - info.Gap - child.UiElementInfo.Margin.StartOfDirection(info.Direction);
@@ -84,7 +84,7 @@ public static class FlexPositionCalculator
 
             offset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
             SetPosition(offset, child, size, info);
-            offset += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + gap;
+            offset += child.Rect.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + gap;
         }
 
         return new BoxSize();
@@ -113,7 +113,7 @@ public static class FlexPositionCalculator
 
             offset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
             SetPosition(offset, child, size, info);
-            offset += child.BoxSize.GetMainAxis(info.Direction) + info.Gap + child.UiElementInfo.Margin.EndOfDirection(info.Direction);
+            offset += child.Rect.GetMainAxis(info.Direction) + info.Gap + child.UiElementInfo.Margin.EndOfDirection(info.Direction);
         }
 
         return new BoxSize();
@@ -133,7 +133,7 @@ public static class FlexPositionCalculator
 
             relevantChildCount++;
 
-            totalSize += child.BoxSize.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction);
+            totalSize += child.Rect.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.SumInDirection(info.Direction);
         }
 
         return (totalSize, relevantChildCount);
@@ -155,8 +155,8 @@ public static class FlexPositionCalculator
         return info.CrossAlignment switch
         {
             XAlign.FlexStart => info.Padding.StartOfDirection(info.Direction.Other()) + item.UiElementInfo.Margin.StartOfDirection(info.Direction.Other()),
-            XAlign.FlexEnd => size.GetCrossAxis(info.Direction) - info.Padding.EndOfDirection(info.Direction.Other()) - item.BoxSize.GetCrossAxis(info.Direction) - item.UiElementInfo.Margin.EndOfDirection(info.Direction.Other()),
-            XAlign.Center => size.GetCrossAxis(info.Direction) / 2 - item.BoxSize.GetCrossAxis(info.Direction) / 2,
+            XAlign.FlexEnd => size.GetCrossAxis(info.Direction) - info.Padding.EndOfDirection(info.Direction.Other()) - item.Rect.GetCrossAxis(info.Direction) - item.UiElementInfo.Margin.EndOfDirection(info.Direction.Other()),
+            XAlign.Center => size.GetCrossAxis(info.Direction) / 2 - item.Rect.GetCrossAxis(info.Direction) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
     }

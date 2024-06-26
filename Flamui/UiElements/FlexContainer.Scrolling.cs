@@ -8,27 +8,28 @@ public partial class FlexContainer
     private float _targetScrollPos;
     private float _startScrollPos;
 
-    public float ScrollPos { get; set; }
-    private float ScrollBarWidth;
+    public float ScrollPosY;
+    public float ScrollPosX;
 
     public readonly EmptyStack _scrollBarContainer = new();
 
-    private float LayoutScrollbar()
+    public float GetScrollPosInDir(Dir dir)
+    {
+        return dir switch
+        {
+            Dir.Vertical => ScrollPosY,
+            Dir.Horizontal => ScrollPosX,
+            _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
+        };
+    }
+
+    private float LayoutScrollbar(Dir dir)
     {
         //TODO pls refactor this very ugly code!!!!!!!!!!!!!!!
 
-        var scrollbar = Window.Ui.GetData(Id, this, static (_, _, scrollContainer) =>
+        var scrollbar = Window.Ui.GetData(Id, (container: this, dir: dir), static (_, _, hi) =>
         {
-            var comp = new Scrollbar(new ScrollService(scrollContainer), new ScrollbarSettings
-            {
-                Width = 10,
-                MinTrackSize = 50,
-                ThumbColor = new ColorDefinition(92, 92, 92),
-                TrackColor = C.Transparent,
-                Padding = 5, //ToDo padding doesn't work
-                ThumbHoverColor = new ColorDefinition(92, 92, 92),
-                TrackHoverColor = new ColorDefinition(52, 52, 52)
-            });
+            var comp = new Scrollbar(new ScrollService(hi.container, hi.dir), ScrollbarSettings.Default);
             comp.OnInitialized();
             return comp;
         });
@@ -42,21 +43,21 @@ public partial class FlexContainer
         if (_scrollBarContainer.UiElement is null)
             return 0;
 
-        var size = _scrollBarContainer.UiElement.Layout(new BoxConstraint(0, BoxSize.Width, 0, BoxSize.Height));
+        var size = _scrollBarContainer.UiElement.Layout(new BoxConstraint(0, Rect.Width, 0, Rect.Height));
         _scrollBarContainer.UiElement.ParentData = new ParentData
         {
-            Position = new Point(BoxSize.Width - size.Width, 0)
+            Position = new Point(Rect.Width - size.Width, 0)
         };
 
-        return _scrollBarContainer.UiElement.BoxSize.Width;
+        return _scrollBarContainer.UiElement.Rect.Width;
     }
 
 
-    private void CalculateScrollPos()
+    private void CalculateScrollPos(ref float scrollPos, Dir dir)
     {
-        if (ActualContentSize.Height <= BoxSize.Height)
+        if (ActualContentSize.GetDirection(dir) <= Rect.GetDirection(dir))
         {
-            ScrollPos = 0;
+            scrollPos = 0;
             return;
         }
 
@@ -65,22 +66,22 @@ public partial class FlexContainer
         if (Window.ScrollDelta != 0 && IsHovered)
         {
             _scrollDelay = smoothScrollDelay;
-            _startScrollPos = ScrollPos;
+            _startScrollPos = scrollPos;
             _targetScrollPos += Window.ScrollDelta * 65;
         }
 
         if (_scrollDelay > 0)
         {
-            ScrollPos = Lerp(_startScrollPos, _targetScrollPos, 1 - _scrollDelay / smoothScrollDelay);
+            scrollPos = Lerp(_startScrollPos, _targetScrollPos, 1 - _scrollDelay / smoothScrollDelay);
             _scrollDelay -= 16.6f;
         }
         else
         {
-            _startScrollPos = ScrollPos;
-            _targetScrollPos = ScrollPos;
+            _startScrollPos = scrollPos;
+            _targetScrollPos = scrollPos;
         }
 
-        ScrollPos = Math.Clamp(ScrollPos, 0, ActualContentSize.Height - BoxSize.Height);
+        scrollPos = Math.Clamp(scrollPos, 0, ActualContentSize.GetDirection(dir) - Rect.GetDirection(dir));
     }
 
     private static float Lerp(float from, float to, float progress)

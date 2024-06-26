@@ -118,19 +118,21 @@ public partial class FlexContainer : UiElementContainer
     {
         TightenConstraint(ref constraint);
 
-        BoxSize = FlexSizeCalculator.ComputeSize(constraint, Children, Info).ApplyConstraint(constraint);
+        Rect = FlexSizeCalculator.ComputeSize(constraint, Children, Info).ApplyConstraint(constraint);
 
-        ActualContentSize = FlexPositionCalculator.ComputePosition(Children, BoxSize, Info);
+        ActualContentSize = FlexPositionCalculator.ComputePosition(Children, Rect, Info);
 
-        if (Info.CanScroll)
+        if (Info.ScrollConfigY.CanScroll)
         {
-            CalculateScrollPos();
-            LayoutScrollbar();
+            CalculateScrollPos(ref ScrollPosY, Dir.Vertical);
+            // CalculateScrollPos(ref ScrollPosX, Dir.Horizontal);
+            LayoutScrollbar(Dir.Vertical);
+            // LayoutScrollbar(Dir.Horizontal);
         }
 
-        AbsoluteLayouter.LayoutAbsoluteChildren(Children, BoxSize);
+        AbsoluteLayouter.LayoutAbsoluteChildren(Children, Rect);
 
-        return BoxSize;
+        return Rect;
     }
 
     private void TightenConstraint(ref BoxConstraint constraint)
@@ -140,7 +142,7 @@ public partial class FlexContainer : UiElementContainer
         {
             if (UiElementInfo.AbsoluteInfo is { Size.WidthOffsetFromParent: { } widthOffsetFromParent })
             {
-                var width = Parent.BoxSize.Width + widthOffsetFromParent;
+                var width = Parent.Rect.Width + widthOffsetFromParent;
                 constraint.MaxWidth = width;
                 constraint.MinWidth = width;
             }
@@ -171,7 +173,7 @@ public partial class FlexContainer : UiElementContainer
         {
             if (UiElementInfo.AbsoluteInfo is { Size.HeightOffsetFromParent: { } heightOffset })
             {
-                var height = Parent.BoxSize.Height + heightOffset;
+                var height = Parent.Rect.Height + heightOffset;
                 constraint.MaxHeight = height;
                 constraint.MinHeight = height;
             }

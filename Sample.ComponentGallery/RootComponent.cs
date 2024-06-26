@@ -86,7 +86,7 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
     {
         using (ui.Div().Padding(10).Direction(Dir.Horizontal).Gap(10))
         {
-            using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).Scroll())
+            using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).ScrollVertical())
             {
                 for (int i = 1; i < 50; i++)
                 {
@@ -106,7 +106,7 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
                 }
             }
 
-            using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).Scroll())
+            using (ui.Div().Padding(10).Color(C.Black / 9).Gap(0).ScrollVertical())
             {
                 for (int i = 1; i < 50; i++)
                 {

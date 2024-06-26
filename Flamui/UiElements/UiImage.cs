@@ -15,8 +15,8 @@ public class UiImage : UiElement
         {
             Bounds = new Bounds
             {
-                H = BoxSize.Height,
-                W = BoxSize.Width,
+                H = Rect.Height,
+                W = Rect.Width,
                 X = offset.X,
                 Y = offset.Y
             },
@@ -45,15 +45,15 @@ public class UiImage : UiElement
 
         if (availableRatio > currentRatio) //Height is the limiting factor
         {
-            BoxSize = new BoxSize(constraint.MaxHeight, currentRatio * constraint.MaxHeight);
+            Rect = new BoxSize(constraint.MaxHeight, currentRatio * constraint.MaxHeight);
         }
         else
         {
             //Width is the limiting factor
-            BoxSize = new BoxSize(constraint.MaxWidth, constraint.MaxWidth / currentRatio);
+            Rect = new BoxSize(constraint.MaxWidth, constraint.MaxWidth / currentRatio);
         }
 
-        return BoxSize;
+        return Rect;
     }
 
     public override void PrepareLayout(Dir dir)
