@@ -11,6 +11,7 @@ app.CreateWindow<RootComponent>("Hello World", new WindowOptions
 ```
 
 ## Close
+To close the window you can use the following method:
 
 ```csharp
 ui.Window.Close();
@@ -18,7 +19,7 @@ ui.Window.Close();
 
 ## Input
 
-Information about what keys are pressed / released and what the mouse position is can be accessed through the window.
+Information about what keys are pressed / released as well as the mouse position can be accessed through the window object.
 
 ## Async
 
