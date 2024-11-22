@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Flamui.Layouting;
 
 public struct BoxConstraint
@@ -13,6 +15,28 @@ public struct BoxConstraint
         MinHeight = minHeight;
         MaxWidth = maxWidth;
         MaxHeight = maxHeight;
+    }
+
+    public void SetMain(Dir dir, float min, float max)
+    {
+        switch (dir)
+        {
+            case Dir.Horizontal:
+                MinWidth = min;
+                MaxWidth = max;
+                break;
+            case Dir.Vertical:
+                MinHeight = min;
+                MaxHeight = max;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(dir), dir, null);
+        }
+    }
+
+    public static BoxConstraint None()
+    {
+        return new BoxConstraint(0, float.PositiveInfinity, 0, float.PositiveInfinity);
     }
 
     public static BoxConstraint FromBox(float width, float height)
@@ -49,6 +73,18 @@ public struct BoxConstraint
             Dir.Vertical => (MinWidth, MaxWidth),
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
+    }
+
+    public bool IsWidthTight()
+    {
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        return MinWidth == MaxWidth;
+    }
+
+    public bool IsHeightTight()
+    {
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        return MinHeight == MaxHeight;
     }
 
     public bool IsTight()

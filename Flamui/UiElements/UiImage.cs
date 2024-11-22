@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Flamui.Layouting;
+using SkiaSharp;
 
 namespace Flamui.UiElements;
 
@@ -6,7 +7,24 @@ public class UiImage : UiElement
 {
     public string Src { get; set; } = null!;
 
-    public override void Render(RenderContext renderContext)
+    public override void Render(RenderContext renderContext, Point offset)
+    {
+        var img = GetImage();
+
+        renderContext.Add(new Bitmap
+        {
+            Bounds = new Bounds
+            {
+                H = Rect.Height,
+                W = Rect.Width,
+                X = offset.X,
+                Y = offset.Y
+            },
+            SkBitmap = img
+        });
+    }
+
+    private SKBitmap GetImage()
     {
         if (!ImgCache.TryGetValue(Src, out var img))
         {
@@ -15,53 +33,36 @@ public class UiImage : UiElement
             ImgCache.Add(Src, img);
         }
 
-        if (img is null)
-            return;
+        return img;
+    }
 
-        var availableRatio = ComputedBounds.W / ComputedBounds.H;
+    public override BoxSize Layout(BoxConstraint constraint)
+    {
+        var img = GetImage();
+
+        var availableRatio = constraint.MaxWidth / constraint.MaxHeight;
         var currentRatio = img.Width / img.Height;
-
-        float destHeight;
-        float destWidth;
 
         if (availableRatio > currentRatio) //Height is the limiting factor
         {
-            destHeight = ComputedBounds.H;
-            destWidth = currentRatio * ComputedBounds.H;
+            Rect = new BoxSize(constraint.MaxHeight, currentRatio * constraint.MaxHeight);
         }
-        else //Width is the limiting factor
+        else
         {
-            destWidth = ComputedBounds.W;
-            destHeight = ComputedBounds.W / currentRatio;
+            //Width is the limiting factor
+            Rect = new BoxSize(constraint.MaxWidth, constraint.MaxWidth / currentRatio);
         }
 
-        renderContext.Add(new Bitmap
+        return Rect;
+    }
+
+    public override void PrepareLayout(Dir dir)
+    {
+        FlexibleChildConfig = new FlexibleChildConfig
         {
-            Bounds = ComputedBounds with { W = destWidth, H = destHeight },
-            SkBitmap = ImgCache[Src]
-        });
-    }
-
-    private static readonly SKPaint Paint = new()
-    {
-        IsAntialias = true
-    };
-
-    public override void Layout()
-    {
-
-    }
-
-    public UiImage()
-    {
-        CleanElement();
-    }
-
-    public override void CleanElement()
-    {
-        Src = null!;
-        PHeight = new(100, SizeKind.Percentage);
-        PWidth = new(100, SizeKind.Percentage);
+            Percentage = 100
+        };
+        base.PrepareLayout(dir);
     }
 
     private static readonly Dictionary<string, SKBitmap> ImgCache = new();

@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Flamui.Layouting;
 using Flamui.UiElements;
 using SkiaSharp;
 
@@ -21,7 +22,7 @@ public class HitTester
         {
             foreach (var windowHoveredDiv in _window.HoveredElements)
             {
-                if (windowHoveredDiv is UiContainer {PFocusable:true} uiContainer)
+                if (windowHoveredDiv is FlexContainer { Info.Focusable:true} uiContainer)
                 {
                     _window.ActiveDiv = uiContainer;
                     return;
@@ -47,7 +48,7 @@ public class HitTester
                     point = new Vector2(res.X, res.Y);
                 }
 
-                if (renderable is IClickable clickable)
+                if (renderable is IClickableFragment clickable)
                 {
                     if (clickable.Bounds.ContainsPoint(point))
                     {
@@ -61,9 +62,14 @@ public class HitTester
         for (var i = hitElements.Count - 1; i >= 0; i--)
         {
             var hitElement = hitElements[i];
-            _window.HoveredElements.Add(hitElement);
 
-            if (hitElement is UiContainer { PBlockHit: true })
+            if (hitElement is UiElement uiElement)
+            {
+                _window.HoveredElements.Add(uiElement);
+            }
+
+
+            if (hitElement is FlexContainer { Info.BlockHit: true })
             {
                 return;
             }

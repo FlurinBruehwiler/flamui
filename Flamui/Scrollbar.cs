@@ -2,6 +2,17 @@ namespace Flamui;
 
 public class ScrollbarSettings
 {
+    public static ScrollbarSettings Default = new()
+    {
+        Width = 10,
+        MinTrackSize = 50,
+        ThumbColor = new ColorDefinition(92, 92, 92),
+        TrackColor = C.Transparent,
+        Padding = 5, //ToDo padding doesn't work
+        ThumbHoverColor = new ColorDefinition(92, 92, 92),
+        TrackHoverColor = new ColorDefinition(52, 52, 52)
+    };
+
     public float Width;
     public int ThumbRadius;
     public ColorDefinition TrackColor;
@@ -32,7 +43,7 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
         {
             track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (var thumb = ui.Div().Height(scrollService.BarSize).Absolute(top: scrollService.BarStart).Rounded(settings.ThumbRadius))
+            using (var thumb = ui.Div().Height(scrollService.BarSize).AbsolutePosition(top: scrollService.BarStart).AbsoluteSize(widthOffsetParent:0).Rounded(settings.ThumbRadius))
             {
                 thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 

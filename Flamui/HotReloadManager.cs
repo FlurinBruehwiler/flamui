@@ -13,9 +13,5 @@ public static class HotReloadManager
 
     public static void UpdateApplication(Type[]? updatedTypes)
     {
-        foreach (var uiWindow in EventLoop.Windows)
-        {
-            uiWindow.ResetElements();
-        }
     }
 }

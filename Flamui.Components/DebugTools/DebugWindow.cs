@@ -18,14 +18,14 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
             }
         }
 
-        using (ui.Div().Dir(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
+        using (ui.Div().Direction(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
         {
-            using (ui.Div().Gap(5).Scroll())
+            using (ui.Div().Gap(5).ScrollVertical())
             {
                 DisplayUiElement(ui, otherWindow.RootContainer, 39210, 0);
             }
 
-            using (ui.Div().Scroll())
+            using (ui.Div().ScrollVertical())
             {
                 if (Ui.DebugSelectedUiElement is not null)
                 {
@@ -35,17 +35,17 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
         }
     }
 
-    private void DisplayUiElement(Ui ui, UiElement uiElement, int parentHash, int indentationLevel)
+    private void DisplayUiElement(Ui ui, UiElement flexContainer, int parentHash, int indentationLevel)
     {
-        var hashCode = uiElement.Id.GetHashCode() + parentHash;
+        var hashCode = flexContainer.Id.GetHashCode() + parentHash;
         var key = Ui.S(hashCode);
 
-        using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Dir(Dir.Horizontal)
-                   .Gap(5).XAlign(XAlign.Center))
+        using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Direction(Dir.Horizontal)
+                   .Gap(5).CrossAlign(XAlign.Center))
         {
-            if (uiElement is UiElementContainer { Children.Count: > 0 })
+            if (flexContainer is UiElementContainer { Children.Count: > 0 })
             {
-                using (ui.Div().Height(15).Width(15).Color(C.Blue500))
+                using (ui.Div().Height(15).Width(15).Color(C.Blue5))
                 {
                 }
             }
@@ -56,15 +56,15 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
                 }
             }
 
-            ui.Text(ToString(uiElement)).Color(ColorPalette.TextColor);
+            ui.Text(ToString(flexContainer)).Color(ColorPalette.TextColor);
 
             if (div.IsClicked)
             {
-                Ui.DebugSelectedUiElement = uiElement;
+                Ui.DebugSelectedUiElement = flexContainer;
             }
 
 
-            if (Ui.DebugSelectedUiElement == uiElement)
+            if (Ui.DebugSelectedUiElement == flexContainer)
             {
                 div.Color(C.Black / 5);
             }
@@ -78,7 +78,7 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
             }
         }
 
-        if (uiElement is UiElementContainer container)
+        if (flexContainer is UiElementContainer container)
         {
             foreach (var containerChild in container.Children)
             {
@@ -87,39 +87,39 @@ public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
         }
     }
 
-    private void DisplayDetail(Ui ui, UiElement uiElement)
+    private void DisplayDetail(Ui ui, UiElement flexContainer)
     {
-        foreach (var propertyInfo in uiElement.GetType().GetProperties())
+        foreach (var propertyInfo in flexContainer.GetType().GetProperties())
         {
             using (ui.Div(propertyInfo.Name).Height(20))
             {
-                ui.Text($"{propertyInfo.Name}: {propertyInfo.GetValue(uiElement)}").Color(ColorPalette.TextColor);
+                ui.Text($"{propertyInfo.Name}: {propertyInfo.GetValue(flexContainer)}").Color(ColorPalette.TextColor);
             }
         }
     }
 
-    private string ToString(UiElement uiElement)
+    private string ToString(UiElement flexContainer)
     {
-        if (uiElement is UiContainer)
+        if (flexContainer is FlexContainer)
         {
-            return nameof(UiContainer);
+            return nameof(FlexContainer);
         }
 
-        if (uiElement is UiText uiText)
+        if (flexContainer is UiText uiText)
         {
-            return Ui.S(uiText.Content, x => $"{nameof(uiText)}: {x}");
+            return Ui.S(uiText.UiTextInfo.Content, x => $"{nameof(uiText)}: {x}");
         }
 
-        if (uiElement is UiImage uiImage)
+        if (flexContainer is UiImage uiImage)
         {
             return Ui.S(uiImage.Src, x => $"{nameof(uiText)}: {x}");
         }
 
-        if (uiElement is UiSvg uiSvg)
+        if (flexContainer is UiSvg uiSvg)
         {
             return Ui.S(uiSvg.Src, x => $"{nameof(uiText)}: {x}");
         }
 
-        return uiElement.ToString() ?? string.Empty;
+        return flexContainer.ToString() ?? string.Empty;
     }
 }

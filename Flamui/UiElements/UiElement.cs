@@ -1,36 +1,39 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using Flamui.Layouting;
 
 namespace Flamui.UiElements;
 
 [DebuggerDisplay("Line = {Id.Line} Key = {Id.Key}")]
 public abstract class UiElement
 {
+    //----- Data ------
     public required UiID Id { get; init; }
-
     public UiElementContainer Parent { get; set; }
-
     public required UiWindow Window { get; init; }
+    public bool IsActive;
+    // public Bounds ComputedBounds;
+    public ParentData ParentData { get; set; }
+    public FlexibleChildConfig? FlexibleChildConfig { get; set; }
 
-    public SizeDefinition PWidth { get; set; }
-    public SizeDefinition PHeight { get; set; }
+    public BoxSize ActualContentSize;
+    public UiElementInfo UiElementInfo;
+    public BoxSize Rect;
 
-    public SizeDefinition GetMainAxisSize()
+    //----- Methods ------
+
+
+    public abstract BoxSize Layout(BoxConstraint constraint);
+    public abstract void Render(RenderContext renderContext, Point offset);
+
+    public virtual void Reset()
     {
-        if (Parent is UiContainer uiElement)
-        {
-            if (uiElement.PDir == Dir.Horizontal)
-            {
-                return PWidth;
-            }
-
-            return PHeight;
-        }
-
-        throw new Exception();
+        UiElementInfo = new();
     }
 
-    public Bounds ComputedBounds;
+    public virtual void PrepareLayout(Dir dir)
+    {
+
+    }
 
     public UiElement? GetPreviousSibling()
     {
@@ -59,18 +62,17 @@ public abstract class UiElement
 
         return null;
     }
-    public abstract void Render(RenderContext renderContext);
-    public abstract void Layout();
-
-    public abstract void CleanElement();
 }
 
 public record struct UiID(string Key, string Path, int Line, int TypeHash)
 {
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Key, Path, Line, TypeHash);
+    }
+
     public override string ToString()
     {
         return $"Key: {Key}, Path: {Path}, Line: {Line}, Type: {TypeHash}";
     }
 }
-
-public record struct Size(float Width, float Height);
