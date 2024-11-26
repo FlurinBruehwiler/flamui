@@ -1,3 +1,5 @@
+using Flamui.UiElements;
+
 namespace Flamui;
 
 public class ScrollbarSettings
@@ -10,7 +12,7 @@ public class ScrollbarSettings
         TrackColor = C.Transparent,
         Padding = 5, //ToDo padding doesn't work
         ThumbHoverColor = new ColorDefinition(92, 92, 92),
-        TrackHoverColor = new ColorDefinition(52, 52, 52)
+        TrackHoverColor = new ColorDefinition(52, 53, 56, 100)
     };
 
     public float Width;
@@ -43,7 +45,9 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
         {
             track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (var thumb = ui.Div().Height(scrollService.BarSize).AbsolutePosition(top: scrollService.BarStart).AbsoluteSize(widthOffsetParent:0).Rounded(settings.ThumbRadius))
+            using (var thumb = ui.Div().Height(scrollService.BarSize)
+                       .AbsolutePosition(top: scrollService.BarStart)
+                       .AbsoluteSize(widthOffsetParent:0).Rounded(settings.ThumbRadius))
             {
                 thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 

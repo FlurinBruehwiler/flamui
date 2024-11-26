@@ -29,7 +29,14 @@ public partial class FlexContainer
 
         var scrollbar = Window.Ui.GetData(Id, (container: this, dir: dir), static (_, _, hi) =>
         {
-            var comp = new Scrollbar(new ScrollService(hi.container, hi.dir), ScrollbarSettings.Default);
+            var settings = ScrollbarSettings.Default;
+
+            if (!hi.container.Info.ScrollConfigY.OverlayScrollbar)
+            {
+                settings.TrackColor = settings.TrackHoverColor;
+            }
+
+            var comp = new Scrollbar(new ScrollService(hi.container, hi.dir), settings);
             comp.OnInitialized();
             return comp;
         });

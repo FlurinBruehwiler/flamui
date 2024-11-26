@@ -53,7 +53,7 @@ public struct FlexContainerInfo
         var padding =  Padding.SumInDirection(Direction);
         if (ScrollConfigFromDirection(Direction).TakesUpSpace())
         {
-            padding += 10; //todo don't hardcode scrollbar width
+            padding += ScrollbarSettings.Default.Width; //todo don't hardcode default settings
         }
 
         return padding;
@@ -64,7 +64,7 @@ public struct FlexContainerInfo
         var padding = Padding.SumInDirection(Direction.Other());
         if (ScrollConfigFromDirection(Direction.Other()).TakesUpSpace())
         {
-            padding += 10;
+            padding += ScrollbarSettings.Default.Width;
         }
 
         return padding;
@@ -74,8 +74,8 @@ public struct FlexContainerInfo
     {
         return dir switch
         {
-            Dir.Vertical => ScrollConfigY,
-            Dir.Horizontal => ScrollConfigX,
+            Dir.Vertical => ScrollConfigX,
+            Dir.Horizontal => ScrollConfigY,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }
