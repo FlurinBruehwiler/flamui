@@ -10,6 +10,8 @@ app.Run();
 
 public class LayoutTest : FlamuiComponent
 {
+    private float rotation = 0;
+
     public override void Build(Ui ui)
     {
         using (ui.Div().Color(C.Yellow5).Padding(10).Gap(10))
@@ -25,9 +27,14 @@ public class LayoutTest : FlamuiComponent
                 }
             }
 
-            using (ui.Div().Color(C.Green6))
-            {
+            rotation += 1f;
 
+            using (ui.Div().Rotation(rotation).Width(100).Height(100).Color(C.Green6).Padding(20).Clip())
+            {
+                using (ui.Div().Color(C.Blue6).Width(1000))
+                {
+
+                }
             }
         }
     }

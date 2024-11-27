@@ -13,6 +13,14 @@ public static class FlexContainerRenderer
             renderContext.SetIndex(flexContainer.Info.ZIndex);
         }
 
+        if (flexContainer.Info.Rotation != 0)
+        {
+            renderContext.Add(new Matrix
+            {
+                SkMatrix = SKMatrix.CreateRotationDegrees(flexContainer.Info.Rotation, offset.X + flexContainer.Rect.Width / 2, offset.Y + flexContainer.Rect.Height / 2)
+            });
+        }
+
         if (flexContainer.Info.ClipToIgnore is not null)
         {
             renderContext.Add(new Restore());
@@ -123,6 +131,14 @@ public static class FlexContainerRenderer
         if (NeedsClip(flexContainer.Info))
         {
             renderContext.Add(new Restore());
+        }
+
+        if (flexContainer.Info.Rotation != 0)
+        {
+            renderContext.Add(new Matrix
+            {
+                SkMatrix = SKMatrix.CreateRotationDegrees(-flexContainer.Info.Rotation, offset.X + flexContainer.Rect.Width / 2, offset.Y + flexContainer.Rect.Height / 2)
+            });
         }
 
         //reapply clip

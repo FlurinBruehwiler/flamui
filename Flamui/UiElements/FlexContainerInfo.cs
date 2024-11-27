@@ -24,6 +24,7 @@ public struct FlexContainerInfo
     public ColorDefinition? Color;
     public ColorDefinition? BorderColor;
     public Quadrant Padding;
+    public float Rotation;
     public int Gap;
     public int Radius;
     public int BorderWidth;

@@ -213,6 +213,12 @@ public partial class FlexContainer
         return this;
     }
 
+    public FlexContainer Rotation(float rotationInDegrees)
+    {
+        Info.Rotation = rotationInDegrees;
+        return this;
+    }
+
     public FlexContainer PaddingEx(int left = 0, int right = 0, int top = 0, int bottom = 0)
     {
         Info.Padding = new Quadrant(left, right, top, bottom);
