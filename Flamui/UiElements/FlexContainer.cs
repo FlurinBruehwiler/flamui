@@ -130,6 +130,14 @@ public partial class FlexContainer : UiElementContainer
             // LayoutScrollbar(Dir.Horizontal);
         }
 
+        if (Info.ScrollConfigX.CanScroll)
+        {
+            CalculateScrollPos(ref ScrollPosX, Dir.Horizontal);
+            // CalculateScrollPos(ref ScrollPosX, Dir.Horizontal);
+            LayoutScrollbar(Dir.Horizontal);
+            // LayoutScrollbar(Dir.Horizontal);
+        }
+
         AbsoluteLayouter.LayoutAbsoluteChildren(Children, Rect);
 
         return Rect;

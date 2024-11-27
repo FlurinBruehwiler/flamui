@@ -51,10 +51,20 @@ public partial class FlexContainer
             return 0;
 
         var size = _scrollBarContainer.UiElement.Layout(new BoxConstraint(0, Rect.Width, 0, Rect.Height));
-        _scrollBarContainer.UiElement.ParentData = new ParentData
+        if (dir == Dir.Vertical)
         {
-            Position = new Point(Rect.Width - size.Width, 0)
-        };
+            _scrollBarContainer.UiElement.ParentData = new ParentData
+            {
+                Position = new Point(Rect.Width - size.Width, 0)
+            };
+        }
+        else
+        {
+            _scrollBarContainer.UiElement.ParentData = new ParentData
+            {
+                Position = new Point(0, Rect.Height - size.Height)
+            };
+        }
 
         return _scrollBarContainer.UiElement.Rect.Width;
     }

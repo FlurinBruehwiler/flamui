@@ -6,6 +6,8 @@ namespace Flamui;
 
 public struct ScrollService(FlexContainer uiContainerContainer, Dir dir)
 {
+    public Dir Dir => dir;
+
     /// <summary>
     /// The size in pixels of the cutout of the content that is actually being shown to the user.
     /// </summary>

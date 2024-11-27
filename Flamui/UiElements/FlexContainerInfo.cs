@@ -8,6 +8,15 @@ public struct ScrollConfig
     public bool TakesUpSpace() => CanScroll && !OverlayScrollbar;
 }
 
+public enum RotationPivot
+{
+    Center,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
+}
+
 public struct FlexContainerInfo
 {
     //maybe we don't want to expand as the default in the future, then we could get rid of this constructor!!! performance++
@@ -27,6 +36,7 @@ public struct FlexContainerInfo
     public float Rotation;
     public int Gap;
     public int Radius;
+    public RotationPivot RotationPivot;
     public int BorderWidth;
     public ScrollConfig ScrollConfigX;
     public ScrollConfig ScrollConfigY;

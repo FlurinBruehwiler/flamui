@@ -1,4 +1,5 @@
 
+using System.Numerics;
 using Flamui.Layouting;
 using SkiaSharp;
 
@@ -6,6 +7,22 @@ namespace Flamui.UiElements;
 
 public static class FlexContainerRenderer
 {
+    private static SKMatrix GetRotationMatrix(FlexContainer flexContainer, Point offset)
+    {
+        Vector2 rotationOffset = flexContainer.Info.RotationPivot switch
+        {
+            RotationPivot.Center => new Vector2(flexContainer.Rect.Width / 2, flexContainer.Rect.Height / 2),
+            RotationPivot.TopLeft => new Vector2(0, 0),
+            RotationPivot.TopRight => new Vector2(flexContainer.Rect.Width, 0),
+            RotationPivot.BottomLeft => new Vector2(0, flexContainer.Rect.Height),
+            RotationPivot.BottomRight => new Vector2(flexContainer.Rect.Width, flexContainer.Rect.Height),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        return SKMatrix.CreateRotationDegrees(flexContainer.Info.Rotation, offset.X + rotationOffset.X,
+            offset.Y + rotationOffset.Y);
+    }
+
     public static void Render(RenderContext renderContext, FlexContainer flexContainer, Point offset)
     {
         if (flexContainer.Info.ZIndex != 0)
@@ -17,7 +34,7 @@ public static class FlexContainerRenderer
         {
             renderContext.Add(new Matrix
             {
-                SkMatrix = SKMatrix.CreateRotationDegrees(flexContainer.Info.Rotation, offset.X + flexContainer.Rect.Width / 2, offset.Y + flexContainer.Rect.Height / 2)
+                SkMatrix = GetRotationMatrix(flexContainer, offset)
             });
         }
 
@@ -137,7 +154,7 @@ public static class FlexContainerRenderer
         {
             renderContext.Add(new Matrix
             {
-                SkMatrix = SKMatrix.CreateRotationDegrees(-flexContainer.Info.Rotation, offset.X + flexContainer.Rect.Width / 2, offset.Y + flexContainer.Rect.Height / 2)
+                SkMatrix = GetRotationMatrix(flexContainer, offset).Invert()
             });
         }
 

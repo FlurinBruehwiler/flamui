@@ -38,18 +38,45 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
 
         if (_isDragging)
         {
-            scrollService.ApplyBarDelta(ui.Window.MouseDelta.Y);
+            if (scrollService.Dir == Dir.Vertical)
+            {
+                scrollService.ApplyBarDelta(ui.Window.MouseDelta.Y);
+            }
+            else
+            {
+                scrollService.ApplyBarDelta(ui.Window.MouseDelta.X);
+            }
         }
 
-        using (var track = ui.Div().Width(settings.Width).Padding(settings.Padding))
+        using (var track = ui.Div().Padding(settings.Padding).ZIndex(100))
         {
+            if (scrollService.Dir == Dir.Vertical)
+            {
+                track.Width(settings.Width);
+            }
+            else
+            {
+                track.Height(settings.Width);
+            }
+
             track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (var thumb = ui.Div().Height(scrollService.BarSize)
-                       .AbsolutePosition(top: scrollService.BarStart)
-                       .AbsoluteSize(widthOffsetParent:0).Rounded(settings.ThumbRadius))
+            using (var thumb = ui.Div()
+                       .AbsoluteSize(widthOffsetParent:0, heightOffsetParent:0)
+                       .Rounded(settings.ThumbRadius))
             {
                 thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
+
+                if (scrollService.Dir == Dir.Vertical)
+                {
+                    thumb.AbsolutePosition(top: scrollService.BarStart);
+                    thumb.Height(scrollService.BarSize);
+                }
+                else
+                {
+                    thumb.AbsolutePosition(left: scrollService.BarStart);
+                    thumb.Width(scrollService.BarSize);
+                }
 
                 if (thumb.IsClicked)
                 {

@@ -213,9 +213,10 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer Rotation(float rotationInDegrees)
+    public FlexContainer Rotation(float rotationInDegrees, RotationPivot rotationPivot = RotationPivot.Center)
     {
         Info.Rotation = rotationInDegrees;
+        Info.RotationPivot = rotationPivot;
         return this;
     }
 
