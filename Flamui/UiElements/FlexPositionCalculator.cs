@@ -28,6 +28,7 @@ public static class FlexPositionCalculator
     private static BoxSize CalculateFlexStart(List<UiElement> children, BoxSize size, FlexContainerInfo info)
     {
         var mainOffset = info.Padding.StartOfDirection(info.Direction);
+        var maxCrossSize = 0f;
 
         foreach (var child in children)
         {
@@ -37,11 +38,14 @@ public static class FlexPositionCalculator
             mainOffset += child.UiElementInfo.Margin.StartOfDirection(info.Direction);
             SetPosition(mainOffset, child, size, info);
             mainOffset += child.Rect.GetMainAxis(info.Direction) + child.UiElementInfo.Margin.EndOfDirection(info.Direction) + info.Gap;
+            maxCrossSize = Math.Max(maxCrossSize,
+                child.Rect.GetCrossAxis(info.Direction) +
+                child.UiElementInfo.Margin.SumInDirection(info.Direction.Other()));
         }
 
         mainOffset -= info.Gap;
         mainOffset += info.Padding.EndOfDirection(info.Direction);
-        return BoxSize.FromDirection(info.Direction, mainOffset, 0);
+        return BoxSize.FromDirection(info.Direction, mainOffset, maxCrossSize);
     }
 
     private static BoxSize CalculateFlexEnd(List<UiElement> children, BoxSize size, FlexContainerInfo info)

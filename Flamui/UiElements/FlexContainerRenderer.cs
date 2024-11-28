@@ -142,7 +142,8 @@ public static class FlexContainerRenderer
                 SkMatrix = SKMatrix.CreateTranslation(flexContainer.ScrollPosX, flexContainer.ScrollPosY)
             });
 
-            flexContainer._scrollBarContainer.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainer.UiElement.ParentData.Position));
+            flexContainer._scrollBarContainerX.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerX.UiElement.ParentData.Position));
+            flexContainer._scrollBarContainerY.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerY.UiElement.ParentData.Position));
         }
 
         if (NeedsClip(flexContainer.Info))

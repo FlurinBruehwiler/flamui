@@ -122,20 +122,29 @@ public partial class FlexContainer : UiElementContainer
 
         ActualContentSize = FlexPositionCalculator.ComputePosition(Children, Rect, Info);
 
-        if (Info.ScrollConfigY.CanScroll)
+        if (Info.ScrollConfigY.CanScroll && Info.ScrollConfigX.CanScroll)
         {
-            CalculateScrollPos(ref ScrollPosY, Dir.Vertical);
-            // CalculateScrollPos(ref ScrollPosX, Dir.Horizontal);
-            LayoutScrollbar(Dir.Vertical);
-            // LayoutScrollbar(Dir.Horizontal);
-        }
+            if (Window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LSHIFT))
+            {
+                CalculateScrollPos(ref ScrollPosX, Dir.Vertical, Window.ScrollDelta);
+            }
+            else
+            {
+                CalculateScrollPos(ref ScrollPosY, Dir.Vertical, Window.ScrollDelta);
+            }
 
-        if (Info.ScrollConfigX.CanScroll)
-        {
-            CalculateScrollPos(ref ScrollPosX, Dir.Horizontal);
-            // CalculateScrollPos(ref ScrollPosX, Dir.Horizontal);
+            LayoutScrollbar(Dir.Vertical);
             LayoutScrollbar(Dir.Horizontal);
-            // LayoutScrollbar(Dir.Horizontal);
+        }
+        else if (Info.ScrollConfigY.CanScroll)
+        {
+            CalculateScrollPos(ref ScrollPosY, Dir.Vertical, Window.ScrollDelta);
+            LayoutScrollbar(Dir.Vertical);
+        }
+        else if (Info.ScrollConfigX.CanScroll)
+        {
+            CalculateScrollPos(ref ScrollPosX, Dir.Horizontal, Window.ScrollDelta);
+            LayoutScrollbar(Dir.Horizontal);
         }
 
         AbsoluteLayouter.LayoutAbsoluteChildren(Children, Rect);

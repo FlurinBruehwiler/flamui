@@ -62,18 +62,19 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
             track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
             using (var thumb = ui.Div()
-                       .AbsoluteSize(widthOffsetParent:0, heightOffsetParent:0)
                        .Rounded(settings.ThumbRadius))
             {
                 thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 
                 if (scrollService.Dir == Dir.Vertical)
                 {
+                    thumb.AbsoluteSize(widthOffsetParent: 0);
                     thumb.AbsolutePosition(top: scrollService.BarStart);
                     thumb.Height(scrollService.BarSize);
                 }
                 else
                 {
+                    thumb.AbsoluteSize(heightOffsetParent: 0);
                     thumb.AbsolutePosition(left: scrollService.BarStart);
                     thumb.Width(scrollService.BarSize);
                 }

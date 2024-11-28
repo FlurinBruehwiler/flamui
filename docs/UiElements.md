@@ -6,7 +6,7 @@ In flamui the entire UI is a tree of UI Elements. There are a default set of UI 
 - SVG
 - IMG
 
-You can allways create your own custom elements, but this should ideally not be necessary.
+You can always create your own custom elements, but this should ideally not be necessary.
 
 ## Div
 The div element serves many purposes, these include:
