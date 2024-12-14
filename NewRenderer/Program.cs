@@ -157,6 +157,17 @@ public class Program
          _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo);
          _gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(indices), BufferUsageARB.StaticDraw);
 
+         const uint positionLoc = 0; //aPosition in shader
+         _gl.EnableVertexAttribArray(positionLoc);                                                      //5 because of 3 vertices + 2 UVs
+         _gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)0);
+
+         Console.WriteLine(_gl.GetError());
+
+         const uint texCoordLoc = 1;
+         _gl.EnableVertexAttribArray(texCoordLoc);
+         _gl.VertexAttribPointer(texCoordLoc, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+
          _gl.BindVertexArray(0);
          _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
          _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
@@ -180,7 +191,7 @@ public class Program
         var error = _gl.GetError();
         Console.WriteLine(error);
 
-        // _gl.DrawElements(PrimitiveType.Triangles, 0, DrawElementsType.UnsignedInt,  (void*) 0);
+        _gl.DrawElements(PrimitiveType.Triangles, eboCount, DrawElementsType.UnsignedInt,  (void*) 0);
 
         //--
         _gl.DeleteBuffer(_ebo);
@@ -284,15 +295,6 @@ void main()
         _gl.DeleteShader(fragmentShader);
 
         //pass attributes to vertex shader
-        const uint positionLoc = 0; //aPosition in shader
-        _gl.EnableVertexAttribArray(positionLoc);                                                      //5 because of 3 vertices + 2 UVs
-        _gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)0);
-
-        Console.WriteLine(_gl.GetError());
-
-        const uint texCoordLoc = 1;
-        _gl.EnableVertexAttribArray(texCoordLoc);
-        _gl.VertexAttribPointer(texCoordLoc, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
         Console.WriteLine(_gl.GetError());
 
