@@ -21,11 +21,11 @@ public struct MeshBuilder
         _vertices = [];
     }
 
-    public uint AddVertex(Vector2 position, Vector2 uv, float bezierFillType = 0)
+    public uint AddVertex(Vector2 position, Vector2 uv, Color color, float bezierFillType = 0)
     {
         var pos = _vertices.Count;
 
-        _vertices.Add(new Vertex(position, uv)
+        _vertices.Add(new Vertex(position, uv, color)
         {
             BezierFillType = bezierFillType
         });
@@ -42,7 +42,7 @@ public struct MeshBuilder
 
     public float[] BuildFloatArray()
     {
-        const int stride = 3 + 2 + 1;
+        const int stride = 3 + 2 + 1 + 4;
         float[] vertexFloats = new float[_vertices.Count * stride];
         for (var i = 0; i < _vertices.Count; i++)
         {
@@ -52,8 +52,12 @@ public struct MeshBuilder
             vertexFloats[i * stride + 3] = _vertices[i].UV.X;
             vertexFloats[i * stride + 4] = _vertices[i].UV.Y;
             vertexFloats[i * stride + 5] = _vertices[i].BezierFillType;
+            vertexFloats[i * stride + 6] = (float)_vertices[i].Color.R / 255;
+            vertexFloats[i * stride + 7] = (float)_vertices[i].Color.G / 255;
+            vertexFloats[i * stride + 8] = (float)_vertices[i].Color.B / 255;
+            vertexFloats[i * stride + 9] = (float)_vertices[i].Color.A / 255;
         }
-
+//b, g,r, a
         return vertexFloats;
     }
 }
@@ -63,11 +67,13 @@ public struct Vertex
     public Vector2 Position;
     public Vector2 UV;
     public float BezierFillType;
+    public Color Color;
 
-    public Vertex(Vector2 position, Vector2 uv)
+    public Vertex(Vector2 position, Vector2 uv, Color color)
     {
         Position = position;
         UV = uv;
+        Color = color;
     }
 }
 
@@ -132,12 +138,13 @@ public class Program
 
     private static unsafe void OnRender(double deltaTime)
     {
-        Console.WriteLine(_gl.GetError());
+        // Console.WriteLine(_gl.GetError());
 
         var canvas = new GlCanvas();
 
+        canvas.Color = Color.FromArgb(75, 76, 79);
         canvas.DrawRect(100, 100, 100, 100);
-        canvas.DrawRoundedRect(300, 300, 100, 100, 30);
+        canvas.DrawRoundedRect(300, 300, 100, 100, 10);
 
         //-----
 
@@ -163,18 +170,23 @@ public class Program
          _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo);
          _gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(indices), BufferUsageARB.StaticDraw);
 
+         const int stride = 3 + 2 + 1 + 4;; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color
+
          const uint positionLoc = 0; //aPosition in shader
-         _gl.EnableVertexAttribArray(positionLoc);                                                      //6 because of 3 vertices + 2 UVs + 1 filltype
-         _gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), (void*)0);
+         _gl.EnableVertexAttribArray(positionLoc);
+         _gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)0);
 
          const uint texCoordLoc = 1;
          _gl.EnableVertexAttribArray(texCoordLoc);
-         _gl.VertexAttribPointer(texCoordLoc, 2, VertexAttribPointerType.Float, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+         _gl.VertexAttribPointer(texCoordLoc, 2, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(3 * sizeof(float)));
 
          const uint bezierTypeLoc = 2;
          _gl.EnableVertexAttribArray(bezierTypeLoc);
-         _gl.VertexAttribPointer(bezierTypeLoc, 1, VertexAttribPointerType.Float, false, 6 * sizeof(float), (void*)(5 * sizeof(float)));
+         _gl.VertexAttribPointer(bezierTypeLoc, 1, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(5 * sizeof(float)));
 
+         const uint colorLoc = 3;
+         _gl.EnableVertexAttribArray(colorLoc);
+         _gl.VertexAttribPointer(colorLoc, 4, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(6 * sizeof(float)));
 
          _gl.BindVertexArray(0);
          _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
@@ -197,7 +209,7 @@ public class Program
         _gl.UseProgram(_program);
 
         var error = _gl.GetError();
-        Console.WriteLine(error);
+        // Console.WriteLine(error);
 
         _gl.DrawElements(PrimitiveType.Triangles, eboCount, DrawElementsType.UnsignedInt,  (void*) 0);
 
@@ -223,7 +235,10 @@ public class Program
         //opengl setup
         _gl = _window.CreateOpenGL();
 
-        _gl.ClearColor(Color.CornflowerBlue);
+        _gl.ClearColor(Color.FromArgb(43, 45, 48));
+
+        _gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        _gl.Enable(EnableCap.Blend);
 
         _vao = _gl.GenVertexArray();
         _gl.BindVertexArray(_vao);
@@ -236,17 +251,20 @@ public class Program
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aTextureCoord;
 layout (location = 2) in float aFillBezierType; //0 = disabled fill, >0 = fill inside, <0 = fill outside 
+layout (location = 3) in vec4 aColor;
 
 uniform mat4 transform;
 
 out vec2 frag_texCoords;
 out float fill_bezier_type;
+out vec4 frag_color;
 
 void main()
 {
   gl_Position = transform * vec4(aPosition, 1.0);
   frag_texCoords = aTextureCoord;
   fill_bezier_type = aFillBezierType;
+  frag_color = aColor;
 }
 """;
 
@@ -256,22 +274,38 @@ void main()
 
 in vec2 frag_texCoords;
 in float fill_bezier_type;
+in vec4 frag_color;
 
 out vec4 out_color;
 
 void main()
 {
     if(fill_bezier_type == 0){
-        out_color = vec4(1.0, 1.0, 1.0, 1.0);
+        out_color = frag_color;
     }else{
         float x = frag_texCoords.x;
         float y = frag_texCoords.y;
-        bool fill = y > x * x;
-        if(fill_bezier_type < 0){
-            fill = !fill;
+        
+        //anti aliasing: some magic stuff i don't get from this video: https://dl.acm.org/doi/10.1145/1073204.1073303
+        float f = x*x-y;
+        float dx = dFdx(f);
+        float dy = dFdy(f);
+        float sd = f/sqrt(dx*dx+dy*dy);
+        
+        float opacity = 0;
+        
+        if(sd < -1)
+            opacity = 0;
+        else if (sd > 1)
+            opacity = 1;
+        else
+            opacity = (1 + sd) / 2;
+        
+        if(fill_bezier_type > 0){
+            opacity = 1 - opacity;
         }
 
-        out_color = vec4(fill, fill, fill, 1.0);    
+        out_color = vec4(frag_color.r, frag_color.g, frag_color.b, opacity);    
     }
 }
 """;
@@ -316,12 +350,12 @@ void main()
 
         //pass attributes to vertex shader
 
-        Console.WriteLine(_gl.GetError());
+        // Console.WriteLine(_gl.GetError());
 
 
         _gl.BindVertexArray(0);
 
-        Console.WriteLine(_gl.GetError());
+        // Console.WriteLine(_gl.GetError());
     }
 
     private static float[] GetAsFloatArray(Matrix4X4<float> matrix)
