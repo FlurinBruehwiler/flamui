@@ -1,4 +1,5 @@
-﻿using Silk.NET.Input;
+﻿using System.Diagnostics;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
@@ -99,7 +100,7 @@ public class Program
     private static uint _vbo; //vertex buffer object
     private static uint _ebo; //element  buffer object
     private static uint _program;
-    // private static uint _eboCount;
+    private static int _transformLoc;
 
     public static void Main()
     {
@@ -126,6 +127,8 @@ public class Program
 
     private static unsafe void OnRender(double deltaTime)
     {
+        Console.WriteLine(_gl.GetError());
+
         var canvas = new GlCanvas();
 
         canvas.DrawRect(100, 100, 100, 100);
@@ -136,28 +139,29 @@ public class Program
         uint[] indices = canvas.MeshBuilder.Indices.ToArray();
         var eboCount = (uint)indices.Length;
 
-        // Console.WriteLine(JsonSerializer.Serialize(vertexFloats));
-        // Console.WriteLine(JsonSerializer.Serialize(indices));
-        //
-        // Thread.Sleep(int.MaxValue);
+         _gl.BindVertexArray(_vao);
+         _gl.UseProgram(_program);
 
-        _vao = _gl.GenVertexArray();
-        _gl.BindVertexArray(_vao);
+         // Console.WriteLine(JsonSerializer.Serialize(vertexFloats));
+         // Console.WriteLine(JsonSerializer.Serialize(indices));
+         //
+         // Thread.Sleep(int.MaxValue);
 
-        _vbo = _gl.GenBuffer();
-        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
+         //create / bind vbo
+         _vbo = _gl.GenBuffer();
+         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
+         _gl.BufferData(BufferTargetARB.ArrayBuffer, new ReadOnlySpan<float>(vertexFloats), BufferUsageARB.StaticDraw);
 
-        _gl.BufferData(BufferTargetARB.ArrayBuffer, new ReadOnlySpan<float>(vertexFloats), BufferUsageARB.StaticDraw);
+         //create / bind ebo
+         _ebo = _gl.GenBuffer();
+         _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo);
+         _gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(indices), BufferUsageARB.StaticDraw);
 
-        _ebo = _gl.GenBuffer();
-        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo);
-
-        _gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(indices), BufferUsageARB.StaticDraw);
-
-        _gl.BindVertexArray(0);
-        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
-        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
+         _gl.BindVertexArray(0);
+         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+         _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
         //-----
+
         _gl.Viewport(_window.Size);
 
         _gl.Clear(ClearBufferMask.ColorBufferBit);
@@ -168,17 +172,20 @@ public class Program
             Matrix4X4.CreateTranslation(-1f, -1f, 0) *
             Matrix4X4.CreateScale(1f, -1f, 1f);
 
-        int transformLoc = _gl.GetUniformLocation(_program, "transform");
-        _gl.ProgramUniformMatrix4(_program, transformLoc, false, new ReadOnlySpan<float>(GetAsFloatArray(matrix)));
+        _gl.ProgramUniformMatrix4(_program, _transformLoc, false, new ReadOnlySpan<float>(GetAsFloatArray(matrix)));
 
         _gl.BindVertexArray(_vao);
         _gl.UseProgram(_program);
-        _gl.DrawElements(PrimitiveType.Triangles, eboCount, DrawElementsType.UnsignedInt,  (void*) 0);
+
+        var error = _gl.GetError();
+        Console.WriteLine(error);
+
+        // _gl.DrawElements(PrimitiveType.Triangles, 0, DrawElementsType.UnsignedInt,  (void*) 0);
 
         //--
-        _gl.DeleteBuffer(_vbo);
         _gl.DeleteBuffer(_ebo);
-        _gl.DeleteBuffer(_vao);
+        _gl.DeleteBuffer(_vbo);
+        // _gl.DeleteBuffer(_vao);
     }
 
     private static void OnUpdate(double deltaTime)
@@ -197,6 +204,10 @@ public class Program
         _gl = _window.CreateOpenGL();
 
         _gl.ClearColor(Color.CornflowerBlue);
+
+        _vao = _gl.GenVertexArray();
+        _gl.BindVertexArray(_vao);
+
 
         const string vertexCode =
 """
@@ -265,6 +276,8 @@ void main()
         if (lStatus != (int) GLEnum.True)
             throw new Exception("Program failed to link: " + _gl.GetProgramInfoLog(_program));
 
+        _transformLoc = _gl.GetUniformLocation(_program, "transform");
+
         _gl.DetachShader(_program, vertexShader);
         _gl.DetachShader(_program, fragmentShader);
         _gl.DeleteShader(vertexShader);
@@ -275,9 +288,18 @@ void main()
         _gl.EnableVertexAttribArray(positionLoc);                                                      //5 because of 3 vertices + 2 UVs
         _gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)0);
 
+        Console.WriteLine(_gl.GetError());
+
         const uint texCoordLoc = 1;
         _gl.EnableVertexAttribArray(texCoordLoc);
         _gl.VertexAttribPointer(texCoordLoc, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+        Console.WriteLine(_gl.GetError());
+
+
+        _gl.BindVertexArray(0);
+
+        Console.WriteLine(_gl.GetError());
     }
 
     private static float[] GetAsFloatArray(Matrix4X4<float> matrix)
