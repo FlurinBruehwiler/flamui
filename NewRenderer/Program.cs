@@ -4,50 +4,43 @@ using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
 using System.Drawing;
 using System.Numerics;
+using System.Text.Json;
 
 namespace NewRenderer;
 
 public struct MeshBuilder
 {
-    private Vertex[] _vertices;
-    private uint _verticesPos;
+    private List<Vertex> _vertices;
 
-    public uint[] Indices;
-    private int _indicesPos;
+    public List<uint> Indices;
 
-    public MeshBuilder(int vertexCount, int trigCount)
+    public MeshBuilder()
     {
-        _vertices = new Vertex[vertexCount];
-        Indices = new uint[trigCount * 3];
+        Indices = [];
+        _vertices = [];
     }
 
     public uint AddVertex(Vector2 position, Vector2 uv)
     {
-        var pos = _verticesPos;
+        var pos = _vertices.Count;
 
-        _verticesPos++;
-        _vertices[pos] = new Vertex(position, uv);
+        _vertices.Add(new Vertex(position, uv));
 
-        return pos;
+        return (uint)pos;
     }
 
     public void AddTriangle(uint v1, uint v2, uint v3)
     {
-        Indices[_indicesPos] = v1;
-        _indicesPos++;
-
-        Indices[_indicesPos] = v2;
-        _indicesPos++;
-
-        Indices[_indicesPos] = v3;
-        _indicesPos++;
+        Indices.Add(v1);
+        Indices.Add(v2);
+        Indices.Add(v3);
     }
 
     public float[] BuildFloatArray()
     {
         const int stride = 5;
-        float[] vertexFloats = new float[_vertices.Length * stride];
-        for (var i = 0; i < _vertices.Length; i++)
+        float[] vertexFloats = new float[_vertices.Count * stride];
+        for (var i = 0; i < _vertices.Count; i++)
         {
             vertexFloats[i * stride] = _vertices[i].Position.X;
             vertexFloats[i * stride + 1] = _vertices[i].Position.Y;
@@ -106,7 +99,7 @@ public class Program
     private static uint _vbo; //vertex buffer object
     private static uint _ebo; //element  buffer object
     private static uint _program;
-    private static uint _eboCount;
+    // private static uint _eboCount;
 
     public static void Main()
     {
@@ -133,6 +126,38 @@ public class Program
 
     private static unsafe void OnRender(double deltaTime)
     {
+        var canvas = new GlCanvas();
+
+        canvas.DrawRect(100, 100, 100, 100);
+
+        //-----
+
+        float[] vertexFloats = canvas.MeshBuilder.BuildFloatArray();
+        uint[] indices = canvas.MeshBuilder.Indices.ToArray();
+        var eboCount = (uint)indices.Length;
+
+        // Console.WriteLine(JsonSerializer.Serialize(vertexFloats));
+        // Console.WriteLine(JsonSerializer.Serialize(indices));
+        //
+        // Thread.Sleep(int.MaxValue);
+
+        _vao = _gl.GenVertexArray();
+        _gl.BindVertexArray(_vao);
+
+        _vbo = _gl.GenBuffer();
+        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
+
+        _gl.BufferData(BufferTargetARB.ArrayBuffer, new ReadOnlySpan<float>(vertexFloats), BufferUsageARB.StaticDraw);
+
+        _ebo = _gl.GenBuffer();
+        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo);
+
+        _gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(indices), BufferUsageARB.StaticDraw);
+
+        _gl.BindVertexArray(0);
+        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
+        //-----
         _gl.Viewport(_window.Size);
 
         _gl.Clear(ClearBufferMask.ColorBufferBit);
@@ -148,7 +173,12 @@ public class Program
 
         _gl.BindVertexArray(_vao);
         _gl.UseProgram(_program);
-        _gl.DrawElements(PrimitiveType.Triangles, _eboCount, DrawElementsType.UnsignedInt,  (void*) 0);
+        _gl.DrawElements(PrimitiveType.Triangles, eboCount, DrawElementsType.UnsignedInt,  (void*) 0);
+
+        //--
+        _gl.DeleteBuffer(_vbo);
+        _gl.DeleteBuffer(_ebo);
+        _gl.DeleteBuffer(_vao);
     }
 
     private static void OnUpdate(double deltaTime)
@@ -163,55 +193,10 @@ public class Program
         for (int i = 0; i < input.Keyboards.Count; i++)
             input.Keyboards[i].KeyDown += KeyDown;
 
-        Rect[] rects =
-        [
-            new(0, 0, 10, 10),
-            new(500, 0, 50, 50),
-            new(500, 500, 100, 100),
-            new(0, 500, 200, 200),
-        ];
-
-        BezierCurve[] beziers =
-        [
-            new(new Vector2(250, 250), new Vector2(300, 250), new Vector2(350, 100))
-        ];
-
         //opengl setup
         _gl = _window.CreateOpenGL();
 
         _gl.ClearColor(Color.CornflowerBlue);
-
-        _vao = _gl.GenVertexArray();
-        _gl.BindVertexArray(_vao);
-
-        var meshBuilder = new MeshBuilder(rects.Length * 4 + beziers.Length * 3, rects.Length * 6 + beziers.Length * 3);
-
-        for (uint i = 0; i < rects.Length; i++)
-        {
-            var rect = rects[i];
-
-            uint topLeft = meshBuilder.AddVertex(new Vector2(rect.Pos.X, rect.Pos.Y), new Vector2(0, 0));
-            uint topRight = meshBuilder.AddVertex(new Vector2(rect.Pos.X  + rect.Size.X, rect.Pos.Y), new Vector2(1, 0));
-            uint bottomRight = meshBuilder.AddVertex(new Vector2(rect.Pos.X + rect.Size.X, rect.Pos.Y + rect.Size.Y), new Vector2(1, 1));
-            uint bottomLeft = meshBuilder.AddVertex(new Vector2(rect.Pos.X, rect.Pos.Y + rect.Size.Y), new Vector2(0, 1));
-
-            meshBuilder.AddTriangle(topLeft, topRight, bottomRight);
-            meshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
-        }
-
-        float[] vertexFloats = meshBuilder.BuildFloatArray();
-        uint[] indices = meshBuilder.Indices;
-        _eboCount = (uint)indices.Length;
-
-        _vbo = _gl.GenBuffer();
-        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
-
-        _gl.BufferData(BufferTargetARB.ArrayBuffer, new ReadOnlySpan<float>(vertexFloats), BufferUsageARB.StaticDraw);
-
-        _ebo = _gl.GenBuffer();
-        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo);
-
-        _gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(indices), BufferUsageARB.StaticDraw);
 
         const string vertexCode =
 """
@@ -241,7 +226,11 @@ out vec4 out_color;
 
 void main()
 {
-    out_color = vec4(frag_texCoords.x, frag_texCoords.y, 0.0, 1.0);;
+    float x = frag_texCoords.x;
+    float y = frag_texCoords.y;
+    bool fill = y > x * x;
+
+    out_color = vec4(x, y, fill, 1.0);
 }
 """;
 
@@ -289,10 +278,6 @@ void main()
         const uint texCoordLoc = 1;
         _gl.EnableVertexAttribArray(texCoordLoc);
         _gl.VertexAttribPointer(texCoordLoc, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-        _gl.BindVertexArray(0);
-        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
-        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
     }
 
     private static float[] GetAsFloatArray(Matrix4X4<float> matrix)
