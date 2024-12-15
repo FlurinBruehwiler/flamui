@@ -1,22 +1,49 @@
 using System.Drawing;
 using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace NewRenderer;
 
 public class GlCanvas
 {
+    private readonly Renderer _renderer;
     public MeshBuilder MeshBuilder;
 
-    public GlCanvas()
+    public GlCanvas(Renderer renderer)
     {
+        _renderer = renderer;
         MeshBuilder = new MeshBuilder();
     }
 
     public Color Color;
 
+    public void ClipRect(float x, float y, float width, float height)
+    {
+
+    }
+
+    public void ClipRoundedRect(float x, float y, float width, float height, float radius)
+    {
+        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset());
+    }
+
+    public void Start()
+    {
+        _renderer.Gl.Viewport(_renderer.Window.Size);
+
+        _renderer.Gl.Clear(ClearBufferMask.ColorBufferBit);
+    }
+
+    public void End()
+    {
+        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset());
+    }
+
     public void DrawRoundedRect(float x, float y, float width, float height, float radius)
     {
-        DrawRect(x + radius, y, width - 2 * radius, height);
+        DrawRect(x + radius, y, width - 2 * radius, radius);
+        DrawRect(x + radius, y + height - radius, width - 2 * radius, radius);
+
         DrawRect(x, y + radius, width, height - 2 * radius);
 
         DrawTriangle(new Vector2(x + radius, y), new Vector2(x + radius, y + radius), new Vector2(x, y + radius));
