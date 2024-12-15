@@ -24,17 +24,48 @@ public class GlCanvas
 
     public void ClipRoundedRect(float x, float y, float width, float height, float radius)
     {
-        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset());
+        _renderer.Gl.Enable(EnableCap.StencilTest);
+
+        _renderer.Gl.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace); //how to actually update the stencil buffer
+        _renderer.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+        _renderer.Gl.StencilMask(0x00); //disables writing to the stencil buffer
+
+        //draw the vertex buffer up to the clip
+        Flush();
+
+        //explain: glStencilFunc(GL_EQUAL, 1, 0xFF) is tells OpenGL that whenever the stencil value of a fragment is equal (GL_EQUAL) to the reference value 1, the fragment passes the test and is drawn, otherwise discarded.
+        _renderer.Gl.StencilFunc(StencilFunction.Always,1, 0xFF); //compares stencil buffer content to ref, to determine if the pixel should have an effect
+        _renderer.Gl.StencilMask(0xFF); //enables writing to the stencil buffer
+
+        _renderer.Gl.ColorMask(false, false, false, false);
+        _renderer.Gl.DepthMask(false);
+
+        //draw the rect that should define clipping
+        DrawRoundedRect(x, y, width, height, radius);
+        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset(), stencilMode: true);
+
+        _renderer.Gl.ColorMask(true, true, true, true);
+        _renderer.Gl.DepthMask(true);
+
+        _renderer.Gl.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
+        _renderer.Gl.StencilMask(0x00); //disables writing to the stencil buffer
+        //_renderer.Gl.Disable(EnableCap.StencilTest);
+
+        //draw clipped content
+
+
     }
 
     public void Start()
     {
         _renderer.Gl.Viewport(_renderer.Window.Size);
 
-        _renderer.Gl.Clear(ClearBufferMask.ColorBufferBit);
+        _renderer.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+        _renderer.Gl.StencilMask(0xFF);
+        _renderer.Gl.StencilFunc(StencilFunction.Always, 1, 0xFF);
     }
 
-    public void End()
+    public void Flush()
     {
         _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset());
     }

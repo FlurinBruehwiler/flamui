@@ -1,4 +1,6 @@
 using System.Drawing;
+using System.Reflection;
+using System.Text;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -11,79 +13,49 @@ public struct Mesh
     public uint[] Indices;
 }
 
+public enum Shader
+{
+    main_fragment,
+    main_vertex,
+}
+
 public class Renderer
 {
-    const string vertexCode =
-        """
-        #version 330 core
-
-        layout (location = 0) in vec3 aPosition;
-        layout (location = 1) in vec2 aTextureCoord;
-        layout (location = 2) in float aFillBezierType; //0 = disabled fill, >0 = fill inside, <0 = fill outside 
-        layout (location = 3) in vec4 aColor;
-
-        uniform mat4 transform;
-
-        out vec2 frag_texCoords;
-        out float fill_bezier_type;
-        out vec4 frag_color;
-
-        void main()
-        {
-          gl_Position = transform * vec4(aPosition, 1.0);
-          frag_texCoords = aTextureCoord;
-          fill_bezier_type = aFillBezierType;
-          frag_color = aColor;
-        }
-        """;
-
-    const string fragmentCode =
-        """
-        #version 330 core
-
-        in vec2 frag_texCoords;
-        in float fill_bezier_type;
-        in vec4 frag_color;
-
-        out vec4 out_color;
-
-        void main()
-        {
-            if(fill_bezier_type == 0){
-                out_color = frag_color;
-            }else{
-                float x = frag_texCoords.x;
-                float y = frag_texCoords.y;
-                
-                //anti aliasing: some magic stuff i don't get from this video: https://dl.acm.org/doi/10.1145/1073204.1073303
-                float f = x*x-y;
-                float dx = dFdx(f);
-                float dy = dFdy(f);
-                float sd = f/sqrt(dx*dx+dy*dy);
-                
-                float opacity = 0;
-                
-                if(sd < -1)
-                    opacity = 0;
-                else if (sd > 1)
-                    opacity = 1;
-                else
-                    opacity = (1 + sd) / 2;
-                
-                if(fill_bezier_type > 0){
-                    opacity = 1 - opacity;
-                }
-        
-                out_color = vec4(frag_color.r, frag_color.g, frag_color.b, frag_color.a * opacity);    
-            }
-        }
-        """;
-
     public GL Gl;
-    private uint _program;
+    private uint _mainProgram;
     private int _transformLoc;
+    private int _stencilEnabledLoc;
     private uint _vao;
     public IWindow Window;
+
+    private Dictionary<Shader, string> _shaderStrings = [];
+
+    public string GetShaderCode(Shader shader)
+    {
+        if (_shaderStrings.TryGetValue(shader, out var code))
+            return code;
+
+        var asm = Assembly.GetExecutingAssembly();
+        using var stream = asm.GetManifestResourceStream($"NewRenderer.Shaders.{shader.ToString()}.glsl");
+        using var reader = new StreamReader(stream!, Encoding.UTF8);
+        code = reader.ReadToEnd();
+        _shaderStrings[shader] = code;
+        return code;
+    }
+
+    public uint CompileShader(Shader shader, ShaderType shaderType)
+    {
+        var identifier = Gl.CreateShader(shaderType);
+        Gl.ShaderSource(identifier, GetShaderCode(shader));
+
+        Gl.CompileShader(identifier);
+
+        Gl.GetShader(identifier, ShaderParameterName.CompileStatus, out int vStatus);
+        if (vStatus != (int) GLEnum.True)
+            throw new Exception("Vertex shader failed to compile: " + Gl.GetShaderInfoLog(identifier));
+
+        return identifier;
+    }
 
     public void Initialize(IWindow window)
     {
@@ -99,57 +71,42 @@ public class Renderer
         _vao = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
 
+        //main_program
+        uint vertexShader = CompileShader(Shader.main_vertex, ShaderType.VertexShader);
+        uint fragmentShader = CompileShader(Shader.main_fragment, ShaderType.FragmentShader);
 
-        //vertex shader compile stuff
-        uint vertexShader = Gl.CreateShader(ShaderType.VertexShader);
-        Gl.ShaderSource(vertexShader, vertexCode);
-
-        Gl.CompileShader(vertexShader);
-
-        Gl.GetShader(vertexShader, ShaderParameterName.CompileStatus, out int vStatus);
-        if (vStatus != (int) GLEnum.True)
-            throw new Exception("Vertex shader failed to compile: " + Gl.GetShaderInfoLog(vertexShader));
-
-        //the same for the fragment shader
-        uint fragmentShader = Gl.CreateShader(ShaderType.FragmentShader);
-        Gl.ShaderSource(fragmentShader, fragmentCode);
-
-        Gl.CompileShader(fragmentShader);
-
-        Gl.GetShader(fragmentShader, ShaderParameterName.CompileStatus, out int fStatus);
-        if (fStatus != (int) GLEnum.True)
-            throw new Exception("Fragment shader failed to compile: " + Gl.GetShaderInfoLog(fragmentShader));
-
-        _program = Gl.CreateProgram();
-
-        Gl.AttachShader(_program, vertexShader);
-        Gl.AttachShader(_program, fragmentShader);
-
-        Gl.LinkProgram(_program);
-
-        Gl.GetProgram(_program, ProgramPropertyARB.LinkStatus, out int lStatus);
-        if (lStatus != (int) GLEnum.True)
-            throw new Exception("Program failed to link: " + Gl.GetProgramInfoLog(_program));
-
-        _transformLoc = Gl.GetUniformLocation(_program, "transform");
-
-        Gl.DetachShader(_program, vertexShader);
-        Gl.DetachShader(_program, fragmentShader);
-        Gl.DeleteShader(vertexShader);
-        Gl.DeleteShader(fragmentShader);
-
-        //pass attributes to vertex shader
-
-        // Console.WriteLine(_gl.GetError());
-
+        _mainProgram = CreateProgram(vertexShader, fragmentShader);
+        _transformLoc = Gl.GetUniformLocation(_mainProgram, "transform");
+        _stencilEnabledLoc = Gl.GetUniformLocation(_mainProgram, "stencil_enabled");
 
         Gl.BindVertexArray(0);
     }
 
-    public unsafe void DrawMesh(Mesh mesh)
+    private uint CreateProgram(uint vertexShader, uint fragmentShader)
+    {
+        var program = Gl.CreateProgram();
+
+        Gl.AttachShader(program, vertexShader);
+        Gl.AttachShader(program, fragmentShader);
+
+        Gl.LinkProgram(program);
+
+        Gl.GetProgram(program, ProgramPropertyARB.LinkStatus, out int lStatus);
+        if (lStatus != (int) GLEnum.True)
+            throw new Exception("Program failed to link: " + Gl.GetProgramInfoLog(program));
+
+        Gl.DetachShader(program, vertexShader);
+        Gl.DetachShader(program, fragmentShader);
+        Gl.DeleteShader(vertexShader);
+        Gl.DeleteShader(fragmentShader);
+
+        return program;
+    }
+
+    public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)
     {
         Gl.BindVertexArray(_vao);
-        Gl.UseProgram(_program);
+        Gl.UseProgram(_mainProgram);
 
         //create / bind vbo
         var vbo = Gl.GenBuffer();
@@ -161,7 +118,7 @@ public class Renderer
         Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
         Gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(mesh.Indices), BufferUsageARB.StaticDraw);
 
-        const int stride = 3 + 2 + 1 + 4;; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color
+        const int stride = 3 + 2 + 1 + 4; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color
 
         const uint positionLoc = 0; //aPosition in shader
         Gl.EnableVertexAttribArray(positionLoc);
@@ -181,11 +138,15 @@ public class Renderer
 
         var matrix = GetWorldToScreenMatrix();
 
+        Gl.ProgramUniformMatrix4(_mainProgram, _transformLoc, false, new ReadOnlySpan<float>(GetAsFloatArray(matrix)));
 
-        Gl.ProgramUniformMatrix4(_program, _transformLoc, false, new ReadOnlySpan<float>(GetAsFloatArray(matrix)));
+        if (stencilMode)
+            Gl.ProgramUniform1(_mainProgram, _stencilEnabledLoc, 1);
+        else
+            Gl.ProgramUniform1(_mainProgram, _stencilEnabledLoc, 0);
 
         Gl.BindVertexArray(_vao);
-        Gl.UseProgram(_program);
+        Gl.UseProgram(_mainProgram);
 
         Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
 

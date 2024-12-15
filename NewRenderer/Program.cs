@@ -93,17 +93,14 @@ public class Program
         canvas.Start();
 
         canvas.Color = Color.FromArgb(75, 76, 79);
-        canvas.DrawRoundedRect(125, 125, 100, 100, 10);
+        canvas.DrawRoundedRect(100, 100, 100, 100, 10);
 
-        canvas.ClipRoundedRect(100, 100, 100, 100, 10);
+        canvas.ClipRoundedRect(125, 125, 100, 100, 30);
 
         canvas.Color = Color.FromArgb(100, 255, 0, 0);
         canvas.DrawRoundedRect(150, 150, 100, 100, 10);
 
-        canvas.Color = Color.FromArgb(100, 0, 0, 255);
-        canvas.DrawRoundedRect(175, 175, 100, 100, 10);
-
-        canvas.End();
+        canvas.Flush();
 
         //-----
 
@@ -114,28 +111,7 @@ public class Program
 
          //--start
          //
-         // gl.Enable(EnableCap.StencilTest);
-         //
-         // gl.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace);
-         // gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
-         // gl.StencilMask(0x00);
-         //
-         // //draw the vertex buffer up to the clip
-         //
-         // gl.StencilFunc(StencilFunction.Always,1, 0xFF);
-         // gl.StencilMask(0xFF);
-         //
-         // //draw the rect that should define clipping
-         //
-         // gl.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
-         // gl.StencilMask(0x00);
-         // gl.Disable(EnableCap.StencilTest);
-         //
-         // //draw clipped content
-         //
-         // gl.StencilMask(0xFF);
-         // gl.StencilFunc(StencilFunction.Always, 1, 0xFF);
-         // gl.Enable(EnableCap.DepthTest);
+
          //
          // //----- end
          //
