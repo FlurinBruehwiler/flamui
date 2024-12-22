@@ -15,6 +15,7 @@ public struct Vertex
     public Vector2 UV;
     public float BezierFillType;
     public Color Color;
+    public float TextureType;
 
     public Vertex(Vector2 position, Vector2 uv, Color color)
     {
@@ -61,12 +62,23 @@ public class Program
     // private static int _transformLoc;
     private static readonly Renderer _renderer = new();
 
+
+    public static Font DefaultFont;
+
     public static void Main()
     {
+        // while (!Debugger.IsAttached)
+        // {
+        //     Thread.Sleep(1000);
+        // }
+
+        DefaultFont = FontLoader.LoadFont("JetBrainsMono-Regular.ttf");
+
         WindowOptions options = WindowOptions.Default with
         {
             Size = new Vector2D<int>(800, 600),
-            Title = "Flamui next :)"
+            Title = "Flamui next :)",
+            Samples = 4
         };
 
         _window = Window.Create(options);
@@ -92,13 +104,17 @@ public class Program
 
         canvas.Start();
 
+        canvas.ClipRoundedRect(125, 125, 100, 100, 30);
+
+
         canvas.Color = Color.FromArgb(75, 76, 79);
         canvas.DrawRoundedRect(100, 100, 100, 100, 10);
 
-        canvas.ClipRoundedRect(125, 125, 100, 100, 30);
 
         canvas.Color = Color.FromArgb(100, 255, 0, 0);
         canvas.DrawRoundedRect(150, 150, 100, 100, 10);
+
+        canvas.DrawText("The quick brown fox jumped over the...", 50, 50);
 
         canvas.Flush();
 

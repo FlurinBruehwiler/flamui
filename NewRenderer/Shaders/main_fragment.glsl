@@ -3,15 +3,21 @@
 in vec2 frag_texCoords;
 in float fill_bezier_type;
 in vec4 frag_color;
+in float texture_type;
 
 out vec4 out_color;
 
 uniform int stencil_enabled; //0 = disabled, 1 = enabled
+uniform sampler2D uTexture;
 
 void main()
 {
     if(fill_bezier_type == 0){
-        out_color = frag_color;
+        if (texture_type == 0){
+            out_color = frag_color;
+        }else{
+            out_color = texture(uTexture, frag_texCoords) * frag_color;
+        }
     }else{
         float x = frag_texCoords.x;
         float y = frag_texCoords.y;

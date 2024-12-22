@@ -14,13 +14,14 @@ public struct MeshBuilder
         _vertices = [];
     }
 
-    public uint AddVertex(Vector2 position, Vector2 uv, Color color, float bezierFillType = 0)
+    public uint AddVertex(Vector2 position, Vector2 uv, Color color, float bezierFillType = 0, float textureType = 0)
     {
         var pos = _vertices.Count;
 
         _vertices.Add(new Vertex(position, uv, color)
         {
-            BezierFillType = bezierFillType
+            BezierFillType = bezierFillType,
+            TextureType = textureType
         });
 
         return (uint)pos;
@@ -49,7 +50,7 @@ public struct MeshBuilder
 
     private float[] BuildFloatArray()
     {
-        const int stride = 3 + 2 + 1 + 4;
+        const int stride = 3 + 2 + 1 + 4 + 1;
         float[] vertexFloats = new float[_vertices.Count * stride];
         for (var i = 0; i < _vertices.Count; i++)
         {
@@ -63,6 +64,7 @@ public struct MeshBuilder
             vertexFloats[i * stride + 7] = (float)_vertices[i].Color.G / 255;
             vertexFloats[i * stride + 8] = (float)_vertices[i].Color.B / 255;
             vertexFloats[i * stride + 9] = (float)_vertices[i].Color.A / 255;
+            vertexFloats[i * stride + 10] = _vertices[i].TextureType;
         }
 //b, g,r, a
         return vertexFloats;

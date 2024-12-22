@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Text;
+using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -26,11 +28,12 @@ public class Renderer
     private int _transformLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
+    private uint _texture;
     public IWindow Window;
 
     private Dictionary<Shader, string> _shaderStrings = [];
 
-    public string GetShaderCode(Shader shader)
+    private string GetShaderCode(Shader shader)
     {
         if (_shaderStrings.TryGetValue(shader, out var code))
             return code;
@@ -43,7 +46,7 @@ public class Renderer
         return code;
     }
 
-    public uint CompileShader(Shader shader, ShaderType shaderType)
+    private uint CompileShader(Shader shader, ShaderType shaderType)
     {
         var identifier = Gl.CreateShader(shaderType);
         Gl.ShaderSource(identifier, GetShaderCode(shader));
@@ -57,11 +60,14 @@ public class Renderer
         return identifier;
     }
 
+    //nvidia paper: https://developer.nvidia.com/nv-path-rendering
+
     public void Initialize(IWindow window)
     {
         Window = window;
 
         Gl = Window.CreateOpenGL();
+        Gl.Enable(EnableCap.Multisample);
 
         Gl.ClearColor(Color.FromArgb(43, 45, 48));
 
@@ -80,6 +86,8 @@ public class Renderer
         _stencilEnabledLoc = Gl.GetUniformLocation(_mainProgram, "stencil_enabled");
 
         Gl.BindVertexArray(0);
+
+        UploadTexture(Program.DefaultFont.AtlasBitmap, (uint)Program.DefaultFont.AtlasWidth, (uint)(Program.DefaultFont.AtlasBitmap.Length / Program.DefaultFont.AtlasWidth));
     }
 
     private uint CreateProgram(uint vertexShader, uint fragmentShader)
@@ -103,10 +111,36 @@ public class Renderer
         return program;
     }
 
+    public unsafe void UploadTexture(byte[] data, uint width, uint height)
+    {
+        _texture = Gl.GenTexture();
+        Gl.ActiveTexture(TextureUnit.Texture0);
+        Gl.BindTexture(TextureTarget.Texture2D, _texture);
+
+        Debug.Assert(data.Length == width * height);
+        fixed (byte* ptr = data)
+        {
+            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Red, width, height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
+        }
+
+        Gl.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+        Gl.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+        Gl.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        Gl.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+        Gl.BindTexture(TextureTarget.Texture2D, 0);
+
+        int location = Gl.GetUniformLocation(_mainProgram, "uTexture");
+        Gl.Uniform1(location, 0);
+    }
+
     public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)
     {
         Gl.BindVertexArray(_vao);
         Gl.UseProgram(_mainProgram);
+
+        Gl.ActiveTexture(TextureUnit.Texture0);
+        Gl.BindTexture(TextureTarget.Texture2D, _texture);
 
         //create / bind vbo
         var vbo = Gl.GenBuffer();
@@ -118,7 +152,7 @@ public class Renderer
         Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
         Gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(mesh.Indices), BufferUsageARB.StaticDraw);
 
-        const int stride = 3 + 2 + 1 + 4; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color
+        const int stride = 3 + 2 + 1 + 4 + 1; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color + 1 texturetype
 
         const uint positionLoc = 0; //aPosition in shader
         Gl.EnableVertexAttribArray(positionLoc);
@@ -135,6 +169,10 @@ public class Renderer
         const uint colorLoc = 3;
         Gl.EnableVertexAttribArray(colorLoc);
         Gl.VertexAttribPointer(colorLoc, 4, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(6 * sizeof(float)));
+
+        const uint textureTypeLoc = 4;
+        Gl.EnableVertexAttribArray(textureTypeLoc);
+        Gl.VertexAttribPointer(textureTypeLoc, 1, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(10 * sizeof(float)));
 
         var matrix = GetWorldToScreenMatrix();
 

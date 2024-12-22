@@ -1,25 +1,65 @@
+using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using Silk.NET.OpenGL;
+using StbTrueTypeSharp;
 
 namespace NewRenderer;
 
 public class GlCanvas
 {
-    private readonly Renderer _renderer;
     public MeshBuilder MeshBuilder;
+    public Color Color;
+    public Font Font;
+
+    private readonly Renderer _renderer;
 
     public GlCanvas(Renderer renderer)
     {
         _renderer = renderer;
         MeshBuilder = new MeshBuilder();
+        Font = Program.DefaultFont;
     }
 
-    public Color Color;
+    public void DrawText(ReadOnlySpan<char> text, float x, float y)
+    {
+        var xCoord = x;
+
+        foreach (var c in text)
+        {
+            if (Font.GlyphInfos.TryGetValue(c, out var glyphInfo))
+            {
+                DrawGlyph(glyphInfo, xCoord, y);
+                xCoord += glyphInfo.Width;
+            }
+            //unknown glyph
+        }
+    }
+
+    private void DrawGlyph(GlyphInfo glyphInfo, float x, float y)
+    {
+        var uvXOffset = (1 / (float)Font.AtlasWidth) * glyphInfo.XAtlasOffset;
+        var uvWidth = (1 / (float)Font.AtlasWidth) * glyphInfo.Width;
+        var uvHeight = (1 / (float)Font.AtlasHeight) * glyphInfo.Height;
+
+        Debug.Assert(uvXOffset is >= 0 and <= 1);
+        Debug.Assert(uvWidth is >= 0 and <= 1);
+        Debug.Assert(uvHeight is >= 0 and <= 1);
+
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(uvXOffset, 0), Color, textureType: 1);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, 0), Color, textureType: 1);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvHeight), Color, textureType: 1);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvHeight), Color, textureType: 1);
+
+        MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
+        MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
+    }
 
     public void ClipRect(float x, float y, float width, float height)
     {
-
+        //todo
     }
 
     public void ClipRoundedRect(float x, float y, float width, float height, float radius)
@@ -52,8 +92,6 @@ public class GlCanvas
         //_renderer.Gl.Disable(EnableCap.StencilTest);
 
         //draw clipped content
-
-
     }
 
     public void Start()
