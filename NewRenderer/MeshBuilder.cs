@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Numerics;
+using Silk.NET.Maths;
 
 namespace NewRenderer;
 
@@ -7,18 +8,21 @@ public struct MeshBuilder
 {
     private List<Vertex> _vertices;
     private List<uint> _indices;
+    public Matrix4X4<float> Matrix;
 
     public MeshBuilder()
     {
         _indices = [];
         _vertices = [];
+        Matrix = Matrix4X4<float>.Identity;
     }
 
     public uint AddVertex(Vector2 position, Vector2 uv, Color color, float bezierFillType = 0, float textureType = 0)
     {
         var pos = _vertices.Count;
 
-        _vertices.Add(new Vertex(position, uv, color)
+        var transformedPosition = Vector4D.Multiply(new Vector4D<float>(position.X, position.Y, 0, 0), Matrix);
+        _vertices.Add(new Vertex(new Vector2(transformedPosition.X, transformedPosition.Y), uv, color)
         {
             BezierFillType = bezierFillType,
             TextureType = textureType

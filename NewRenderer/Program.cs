@@ -104,17 +104,13 @@ public class Program
 
         canvas.Start();
 
-        canvas.ClipRoundedRect(125, 125, 100, 100, 30);
-
-
         canvas.Color = Color.FromArgb(75, 76, 79);
-        canvas.DrawRoundedRect(100, 100, 100, 100, 10);
 
+        canvas.DrawRect(0, 0, Program.DefaultFont.AtlasWidth, Program.DefaultFont.AtlasHeight);
 
-        canvas.Color = Color.FromArgb(100, 255, 0, 0);
-        canvas.DrawRoundedRect(150, 150, 100, 100, 10);
+        canvas.DrawText("The quick brown fox jumps over the lazy dog", 50, 50);
 
-        canvas.DrawText("The quick brown fox jumped over the...", 50, 50);
+        canvas.DrawTriangle(new Vector2(100, 100), new Vector2(150, 200), new Vector2(50, 200));
 
         canvas.Flush();
 

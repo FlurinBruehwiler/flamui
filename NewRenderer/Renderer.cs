@@ -85,9 +85,18 @@ public class Renderer
         _transformLoc = Gl.GetUniformLocation(_mainProgram, "transform");
         _stencilEnabledLoc = Gl.GetUniformLocation(_mainProgram, "stencil_enabled");
 
+        CheckError();
+
+        UploadTexture(Program.DefaultFont.AtlasBitmap, (uint)Program.DefaultFont.AtlasWidth, (uint)Program.DefaultFont.AtlasHeight);
+
         Gl.BindVertexArray(0);
 
-        UploadTexture(Program.DefaultFont.AtlasBitmap, (uint)Program.DefaultFont.AtlasWidth, (uint)(Program.DefaultFont.AtlasBitmap.Length / Program.DefaultFont.AtlasWidth));
+    }
+
+    private void CheckError()
+    {
+        var err = Gl.GetError();
+        Console.WriteLine(err);
     }
 
     private uint CreateProgram(uint vertexShader, uint fragmentShader)
@@ -117,11 +126,17 @@ public class Renderer
         Gl.ActiveTexture(TextureUnit.Texture0);
         Gl.BindTexture(TextureTarget.Texture2D, _texture);
 
+        CheckError();
+
         Debug.Assert(data.Length == width * height);
         fixed (byte* ptr = data)
         {
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Red, width, height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
+            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, width, height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
         }
+
+        Console.WriteLine($"Width:  {width}, Height: {height}");
+
+        CheckError();
 
         Gl.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
         Gl.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
@@ -130,8 +145,17 @@ public class Renderer
 
         Gl.BindTexture(TextureTarget.Texture2D, 0);
 
+        CheckError();
+
+        Gl.UseProgram(_mainProgram);
+
         int location = Gl.GetUniformLocation(_mainProgram, "uTexture");
+
+        CheckError();
+
         Gl.Uniform1(location, 0);
+
+        CheckError();
     }
 
     public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)

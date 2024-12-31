@@ -5,10 +5,11 @@ in float fill_bezier_type;
 in vec4 frag_color;
 in float texture_type;
 
-out vec4 out_color;
-
 uniform int stencil_enabled; //0 = disabled, 1 = enabled
 uniform sampler2D uTexture;
+
+
+out vec4 out_color;
 
 void main()
 {

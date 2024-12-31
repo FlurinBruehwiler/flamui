@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using StbTrueTypeSharp;
 
@@ -23,6 +24,11 @@ public class GlCanvas
         Font = Program.DefaultFont;
     }
 
+    public void SetMatrix(Matrix4X4<float> matrix)
+    {
+        MeshBuilder.Matrix = matrix;
+    }
+
     public void DrawText(ReadOnlySpan<char> text, float x, float y)
     {
         var xCoord = x;
@@ -31,10 +37,13 @@ public class GlCanvas
         {
             if (Font.GlyphInfos.TryGetValue(c, out var glyphInfo))
             {
-                DrawGlyph(glyphInfo, xCoord, y);
-                xCoord += glyphInfo.Width;
+                DrawGlyph(glyphInfo, xCoord + glyphInfo.LeftSideBearing, y + glyphInfo.YOff);
+                xCoord += glyphInfo.AdvanceWidth;
             }
-            //unknown glyph
+            else
+            {
+                Console.WriteLine($"unknown glyph: {c}");
+            }
         }
     }
 
@@ -48,7 +57,7 @@ public class GlCanvas
         Debug.Assert(uvWidth is >= 0 and <= 1);
         Debug.Assert(uvHeight is >= 0 and <= 1);
 
-        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(uvXOffset, 0), Color, textureType: 1);
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y),  new Vector2(uvXOffset, 0), Color, textureType: 1);
         uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, 0), Color, textureType: 1);
         uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvHeight), Color, textureType: 1);
         uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvHeight), Color, textureType: 1);
@@ -137,10 +146,10 @@ public class GlCanvas
 
     public void DrawRect(float x, float y, float width, float height)
     {
-        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Color);
-        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Color);
-        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Color);
-        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Color);
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Color, textureType: 1);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Color, textureType: 1);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Color, textureType: 1);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Color, textureType: 1);
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
