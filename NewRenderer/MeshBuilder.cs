@@ -4,6 +4,13 @@ using Silk.NET.Maths;
 
 namespace NewRenderer;
 
+public enum TextureType
+{
+    Color = 0,
+    Texture = 1,
+    Text = 2
+}
+
 public struct MeshBuilder
 {
     private List<Vertex> _vertices;
@@ -17,7 +24,7 @@ public struct MeshBuilder
         Matrix = Matrix4X4<float>.Identity;
     }
 
-    public uint AddVertex(Vector2 position, Vector2 uv, Color color, float bezierFillType = 0, float textureType = 0)
+    public uint AddVertex(Vector2 position, Vector2 uv, Color color, float bezierFillType = 0, TextureType textureType = 0)
     {
         var pos = _vertices.Count;
 
@@ -68,7 +75,7 @@ public struct MeshBuilder
             vertexFloats[i * stride + 7] = (float)_vertices[i].Color.G / 255;
             vertexFloats[i * stride + 8] = (float)_vertices[i].Color.B / 255;
             vertexFloats[i * stride + 9] = (float)_vertices[i].Color.A / 255;
-            vertexFloats[i * stride + 10] = _vertices[i].TextureType;
+            vertexFloats[i * stride + 10] = (float)_vertices[i].TextureType;
         }
 //b, g,r, a
         return vertexFloats;

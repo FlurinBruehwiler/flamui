@@ -15,7 +15,7 @@ public struct Vertex
     public Vector2 UV;
     public float BezierFillType;
     public Color Color;
-    public float TextureType;
+    public TextureType TextureType;
 
     public Vertex(Vector2 position, Vector2 uv, Color color)
     {
@@ -104,12 +104,15 @@ public class Program
 
         canvas.Start();
 
-        canvas.Color = Color.FromArgb(75, 76, 79);
+        canvas.Color = Color.FromArgb(30, 31, 34);
+        canvas.DrawRect(0, 0, 1000, 1000);
 
-        canvas.DrawRect(0, 0, Program.DefaultFont.AtlasWidth, Program.DefaultFont.AtlasHeight);
-
+        canvas.Color = Color.FromArgb(187, 189, 190);
         canvas.DrawText("The quick brown fox jumps over the lazy dog", 50, 50);
 
+        // canvas.DrawRect(0, 0, Program.DefaultFont.AtlasWidth, Program.DefaultFont.AtlasHeight);
+
+        canvas.Color = Color.Red;
         canvas.DrawTriangle(new Vector2(100, 100), new Vector2(150, 200), new Vector2(50, 200));
 
         canvas.Flush();
