@@ -1,8 +1,6 @@
-
 using System.Numerics;
 using Flamui.Layouting;
 using Silk.NET.Maths;
-using SkiaSharp;
 
 namespace Flamui.UiElements;
 
@@ -20,8 +18,10 @@ public static class FlexContainerRenderer
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        return Matrix4X4.CreateRotationDegrees(flexContainer.Info.Rotation, offset.X + rotationOffset.X,
-            offset.Y + rotationOffset.Y);
+        return Matrix4X4<float>.Identity;
+        //todo
+        // return Matrix4X4 CreateRotationDegrees(flexContainer.Info.Rotation, offset.X + rotationOffset.X,
+        //     offset.Y + rotationOffset.Y);
     }
 
     public static void Render(RenderContext renderContext, FlexContainer flexContainer, Point offset)
@@ -33,10 +33,7 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.Rotation != 0)
         {
-            renderContext.Add(new Matrix
-            {
-                SkMatrix = GetRotationMatrix(flexContainer, offset)
-            });
+            renderContext.AddMatrix(GetRotationMatrix(flexContainer, offset));
         }
 
         if (flexContainer.Info.ClipToIgnore is not null)
@@ -52,78 +49,48 @@ public static class FlexContainerRenderer
                 float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
 
                 //todo replace with readable code or something
-                renderContext.Add(new Rect
+                var bounds = new Bounds
                 {
-                    UiElement = flexContainer,
-                    Bounds = new Bounds
-                    {
-                        X = offset.X - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Left,
-                        Y = offset.Y - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Top,
-                        H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth - flexContainer.Info.ShadowOffset.Top - flexContainer.Info.ShadowOffset.Bottom,
-                        W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth - flexContainer.Info.ShadowOffset.Left - flexContainer.Info.ShadowOffset.Right,
-                    },
-                    Radius = flexContainer.Info.Radius == 0 ? 0 : borderRadius,
-                    RenderPaint = new ShadowPaint
-                    {
-                        ShadowSigma = flexContainer.Info.ShadowSigma,
-                        SkColor = blurColor.ToSkColor()
-                    }
-                });
+                    X = offset.X - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Left,
+                    Y = offset.Y - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Top,
+                    H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth -
+                        flexContainer.Info.ShadowOffset.Top - flexContainer.Info.ShadowOffset.Bottom,
+                    W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth -
+                        flexContainer.Info.ShadowOffset.Left - flexContainer.Info.ShadowOffset.Right,
+                };
+
+                //todo shadowsigma from flexcontainer.Info
+                renderContext.AddRect(bounds, flexContainer, blurColor, flexContainer.Info.Radius == 0 ? 0 : borderRadius);
             }
 
-            renderContext.Add(new Rect
-            {
-                UiElement = flexContainer,
-                Bounds = flexContainer.Rect.ToBounds(offset),
-                Radius = flexContainer.Info.Radius,
-                RenderPaint = new PlaintPaint
-                {
-                    SkColor = color.ToSkColor()
-                }
-            });
+            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius);
         }
 
         if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is {} borderColor)
         {
-            renderContext.Add(new Save());
+            // renderContext.Add(new Save());
 
             float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
 
-            renderContext.Add(new RectClip
-            {
-                Bounds = flexContainer.Rect.ToBounds(offset),
-                Radius = flexContainer.Info.Radius,
-                ClipOperation = SKClipOperation.Difference
-            });
+            renderContext.AddClipRect(flexContainer.Rect.ToBounds(offset), flexContainer.Info.Radius); //todo clip should be inverted
 
-            renderContext.Add(new Rect
+            var bounds = new Bounds
             {
-                UiElement = flexContainer,
-                Bounds = new Bounds
-                {
-                    X = offset.X - flexContainer.Info.BorderWidth,
-                    Y = offset.Y - flexContainer.Info.BorderWidth,
-                    W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
-                    H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
-                },
-                Radius = borderRadius,
-                RenderPaint = new PlaintPaint
-                {
-                    SkColor = borderColor.ToSkColor()
-                }
-            });
+                X = offset.X - flexContainer.Info.BorderWidth,
+                Y = offset.Y - flexContainer.Info.BorderWidth,
+                W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
+                H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
+            };
+            renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
 
-            renderContext.Add(new Restore());
+            // renderContext.Add(new Restore());
         }
 
         ClipContent(renderContext, flexContainer, flexContainer.Info, offset);
 
         if (flexContainer.Info.ScrollConfigY.CanScroll || flexContainer.Info.ScrollConfigX.CanScroll)
         {
-            renderContext.Add(new Matrix
-            {
-                SkMatrix = SKMatrix.CreateTranslation(-flexContainer.ScrollPosX, -flexContainer.ScrollPosY)
-            });
+            renderContext.AddMatrix(Matrix4X4.CreateTranslation(-flexContainer.ScrollPosX, -flexContainer.ScrollPosY, 0));
         }
 
         foreach (var childElement in flexContainer.Children)
@@ -138,10 +105,7 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.ScrollConfigY.CanScroll || flexContainer.Info.ScrollConfigX.CanScroll)
         {
-            renderContext.Add(new Matrix
-            {
-                SkMatrix = SKMatrix.CreateTranslation(flexContainer.ScrollPosX, flexContainer.ScrollPosY)
-            });
+            renderContext.AddMatrix(Matrix4X4.CreateTranslation(flexContainer.ScrollPosX, flexContainer.ScrollPosY, 0));
 
             flexContainer._scrollBarContainerX.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerX.UiElement.ParentData.Position));
             flexContainer._scrollBarContainerY.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerY.UiElement.ParentData.Position));
@@ -149,15 +113,13 @@ public static class FlexContainerRenderer
 
         if (NeedsClip(flexContainer.Info))
         {
-            renderContext.Add(new Restore());
+            // renderContext.Add(new Restore());
         }
 
         if (flexContainer.Info.Rotation != 0)
         {
-            renderContext.Add(new Matrix
-            {
-                SkMatrix = GetRotationMatrix(flexContainer, offset).Invert()
-            });
+            Matrix4X4.Invert(GetRotationMatrix(flexContainer, offset), out var inverse);
+            renderContext.AddMatrix(inverse);
         }
 
         //reapply clip
@@ -172,16 +134,16 @@ public static class FlexContainerRenderer
     private static void ClipContent(RenderContext renderContext, UiElement uiElement, FlexContainerInfo Info, Point offset)
     {
         if (NeedsClip(Info))
-
         {
-            renderContext.Add(new Save());
+            // renderContext.Add(new Save());
 
-            renderContext.Add(new RectClip
-            {
-                Bounds = uiElement.Rect.ToBounds(offset),
-                Radius = Info.Radius,
-                ClipOperation = SKClipOperation.Intersect
-            });
+            renderContext.AddClipRect(uiElement.Rect.ToBounds(offset), Info.Radius);
+            // renderContext.Add(new RectClip
+            // {
+            //     Bounds = ,
+            //     Radius = Info.Radius,
+            //     ClipOperation = SKClipOperation.Intersect
+            // });
         }
     }
 

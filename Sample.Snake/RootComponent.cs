@@ -1,5 +1,6 @@
 using Flamui;
 using Flamui.Components;
+using Silk.NET.Input;
 
 namespace Sample.Snake;
 
@@ -56,19 +57,19 @@ public class RootComponent : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        if (ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_W) && _direction != (0, 1))
+        if (ui.Window.IsKeyPressed(Key.W) && _direction != (0, 1))
         {
             _direction = (0, -1);
         }
-        else if (ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_S) && _direction != (0, -1))
+        else if (ui.Window.IsKeyPressed(Key.S) && _direction != (0, -1))
         {
             _direction = (0, 1);
         }
-        else if (ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_D) && _direction != (-1, 0))
+        else if (ui.Window.IsKeyPressed(Key.D) && _direction != (-1, 0))
         {
             _direction = (1, 0);
         }
-        else if (ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_A) && _direction != (1, 0))
+        else if (ui.Window.IsKeyPressed(Key.A) && _direction != (1, 0))
         {
             _direction = (-1, 0);
         }

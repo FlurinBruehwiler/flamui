@@ -1,4 +1,5 @@
-﻿using Flamui.Layouting;
+﻿using System.Drawing;
+using Flamui.Layouting;
 using Flamui.UiElements;
 
 namespace Flamui;
@@ -197,8 +198,26 @@ public static class Extensions
     }
 }
 
-public readonly record struct ColorDefinition(byte Red, byte Green, byte Blue, byte Alpha = 255)
+public struct ColorDefinition
 {
+    public byte Red;
+    public byte Green;
+    public byte Blue;
+    public byte Alpha;
+
+    public ColorDefinition(byte r, byte g, byte b, byte a = 255)
+    {
+        Red = r;
+        Green = g;
+        Blue = b;
+        Alpha = a;
+    }
+
+    public static ColorDefinition FromColor(Color color)
+    {
+        return new ColorDefinition() { Red = color.R, Green = color.G, Blue = color.B, Alpha = color.A };
+    }
+
     public static ColorDefinition operator /(ColorDefinition original, byte opacity)
     {
         return original with

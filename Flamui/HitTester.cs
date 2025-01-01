@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
 using Silk.NET.Input;
@@ -40,19 +41,17 @@ public class HitTester
         //from back to front
         foreach (var (_, value) in _window.LastRenderContext.RenderSections.OrderBy(x => x.Key))
         {
-            foreach (var renderable in value.Renderables)
+            foreach (var command in value)
             {
-                if (renderable is IMatrixable matrixable)
+                if (command.Type == CommandType.Matrix)
                 {
-                    var res = matrixable.ProjectPoint(point);
-                    point = new Vector2(res.X, res.Y);
+                    point = point.Multiply(command.Matrix);
                 }
-
-                if (renderable is IClickableFragment clickable)
+                else if (command.Type == CommandType.Rect)
                 {
-                    if (clickable.Bounds.ContainsPoint(point))
+                    if (command.Bounds.ContainsPoint(point))
                     {
-                        hitElements.Add(clickable.UiElement);
+                        hitElements.Add(command.UiElement.Get<UiElement>());
                     }
                 }
             }
@@ -63,11 +62,10 @@ public class HitTester
         {
             var hitElement = hitElements[i];
 
-            if (hitElement is UiElement uiElement)
+            if (hitElement is { } uiElement)
             {
                 _window.HoveredElements.Add(uiElement);
             }
-
 
             if (hitElement is FlexContainer { Info.BlockHit: true })
             {

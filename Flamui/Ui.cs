@@ -77,7 +77,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line, typeof(Text).GetHashCode());
+        var id = new UiID(key, path, line, typeof(UiText).GetHashCode());
         var text = GetData(id, static (ui, id) => new UiText
         {
             Id = id,

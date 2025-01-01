@@ -26,6 +26,17 @@ public static class FontShaping
         return default;
     }
 
+    public static float MeasureText(Font font, ReadOnlySpan<char> singleLine)
+    {
+        var width = 0f;
+        foreach (var c in singleLine)
+        {
+            width += font.GetCharWidth(c);
+        }
+
+        return width;
+    }
+
     /// <summary>
     /// Performs a horizontal hit test against a piece of text.
     /// </summary>

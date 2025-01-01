@@ -11,6 +11,15 @@ public enum TextureType
     Text = 2
 }
 
+public static class Extensions
+{
+    public static Vector2 Multiply(this Vector2 position, Matrix4X4<float> mat)
+    {
+        var transformedPosition = Vector4D.Multiply(new Vector4D<float>(position.X, position.Y, 0, 0), mat);
+        return new Vector2(transformedPosition.X, transformedPosition.Y);
+    }
+}
+
 public struct MeshBuilder
 {
     private List<Vertex> _vertices;
@@ -28,8 +37,7 @@ public struct MeshBuilder
     {
         var pos = _vertices.Count;
 
-        var transformedPosition = Vector4D.Multiply(new Vector4D<float>(position.X, position.Y, 0, 0), Matrix);
-        _vertices.Add(new Vertex(new Vector2(transformedPosition.X, transformedPosition.Y), uv, color)
+        _vertices.Add(new Vertex(position.Multiply(Matrix), uv, color)
         {
             BezierFillType = bezierFillType,
             TextureType = textureType

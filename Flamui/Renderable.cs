@@ -1,4 +1,8 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.Contracts;
+using System.Drawing;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Arenas;
 using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Maths;
@@ -7,57 +11,99 @@ namespace Flamui;
 
 public class RenderContext
 {
-    public Dictionary<int, RenderSection> RenderSections = new();
+    // public Dictionary<int, RenderSection> RenderSections = new();
     public Stack<int> ZIndexes = new();
 
     public RenderContext()
     {
         ZIndexes.Push(0);
+        Reset();
     }
+
+    private Arena _arena;
 
     public void Reset()
     {
-        foreach (var (key, value) in RenderSections)
-        {
-            value.Renderables.Clear();
-        }
+        _arena = new Arena();
+
+        // foreach (var (key, value) in RenderSections)
+        // {
+        //     value.Renderables.Clear();
+        // }
     }
 
-    public void Add(IRenderFragment renderFragment)
+    public void AddRect(Bounds bounds, UiElement uiElement, ColorDefinition color, float radius = 0)
+    {
+        var cmd = new Command();
+        cmd.UiElement.Set(_arena, uiElement);
+        cmd.Bounds = bounds;
+        cmd.Radius = radius;
+        cmd.Type = CommandType.Rect;
+        cmd.Color = color;
+
+        Add(cmd);
+    }
+
+    public void AddClipRect(Bounds bounds, float radius = 0)
+    {
+        var cmd = new Command();
+        cmd.Bounds = bounds;
+        cmd.Radius = radius;
+        cmd.Type = CommandType.ClipRect;
+
+        Add(cmd);
+    }
+
+    public void AddText(Bounds bounds, string text, ColorDefinition color, Font font)
+    {
+        var cmd = new Command();
+        cmd.Bounds = bounds;
+        cmd.Type = CommandType.Text;
+        cmd.String.Set(_arena, text);
+        cmd.Color = color;
+        cmd.Font.Set(_arena, font);
+
+        Add(cmd);
+    }
+
+    public void AddMatrix(Matrix4X4<float> matrix)
+    {
+        var cmd = new Command();
+        cmd.Matrix = matrix;
+        cmd.Type = CommandType.Matrix;
+
+        Add(cmd);
+    }
+
+    public Dictionary<int, ArenaList<Command>> RenderSections = []; //todo write custom collection, arena linked list....
+
+    public void Add(Command command)
     {
         if (!RenderSections.TryGetValue(ZIndexes.Peek(), out var renderSection))
         {
-            renderSection = new RenderSection();
+            renderSection = new ArenaList<Command>(_arena, 20);
             RenderSections.Add(ZIndexes.Peek(), renderSection);
         }
 
-        renderSection.Renderables.Add(renderFragment);
+        renderSection.Add(command);
     }
 
     public bool RequiresRerender(RenderContext lastRenderContext)
     {
-        foreach (var (key, value) in RenderSections)
+        foreach (var (key, currentRenderSection) in RenderSections)
         {
             if (!lastRenderContext.RenderSections.TryGetValue(key, out var lastRenderSection))
             {
                 return true;
             }
 
-            if (lastRenderSection.Renderables.Count != value.Renderables.Count)
+            if (lastRenderSection.Count != currentRenderSection.Count)
             {
                 return true;
             }
 
-            for (var i = 0; i < value.Renderables.Count; i++)
-            {
-                var renderable = value.Renderables[i];
-                var lastRerenderable = lastRenderSection.Renderables[i];
-
-                if (!renderable.UiEquals(lastRerenderable))
-                {
-                    return true;
-                }
-            }
+            //memcmp...
+            currentRenderSection.AsSpan().SequenceEqual(currentRenderSection.AsSpan());
         }
 
         return false;
@@ -71,7 +117,34 @@ public class RenderContext
 
         foreach (var (_, value) in sections)
         {
-            value.Render(canvas);
+            foreach (var command in value)
+            {
+                switch (command.Type)
+                {
+                    case CommandType.Rect:
+                        canvas.Paint.Color = Color.FromArgb(command.Color.Alpha, command.Color.Red, command.Color.Green, command.Color.Blue);
+                        if(command.Radius == 0)
+                            canvas.DrawRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H);
+                        else
+                            canvas.DrawRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius);
+                        break;
+                    case CommandType.ClipRect:
+                        if(command.Radius == 0)
+                            canvas.ClipRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H);
+                        else
+                            canvas.ClipRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius);
+                        break;
+                    case CommandType.Text:
+                        canvas.Paint.Font = command.Font.Get<Font>(); //todo make font
+                        canvas.DrawText(command.String.Get<string>(), command.Bounds.X, command.Bounds.Y);
+                        break;
+                    case CommandType.Matrix:
+                        canvas.SetMatrix(command.Matrix);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
         }
     }
 
@@ -84,36 +157,6 @@ public class RenderContext
     {
         ZIndexes.Pop();
     }
-}
-
-public class RenderSection
-{
-    public List<IRenderFragment> Renderables = new(1000);
-
-    public void Render(GlCanvas canvas)
-    {
-        foreach (var renderable in Renderables)
-        {
-            renderable.Render(canvas);
-        }
-    }
-}
-
-public interface IClickableFragment
-{
-    public UiElement UiElement { get; set; }
-    public Bounds Bounds { get; set; }
-}
-
-public interface IRenderFragment
-{
-    public void Render(GlCanvas canvas);
-    public bool UiEquals(IRenderFragment renderFragment);
-}
-
-public interface IMatrixable
-{
-    Vector2D<float> ProjectPoint(Vector2 point);
 }
 
 // public struct Save : IRenderFragment
@@ -151,6 +194,7 @@ public struct Bounds
 
     public float Right => X + W;
 
+    [Pure]
     public bool ContainsPoint(Vector2 point)
     {
         var withinX = point.X >= X && point.X <= X + W;
@@ -167,9 +211,9 @@ public struct Bounds
     public bool BoundsEquals(Bounds otherBounds)
     {
         return otherBounds.X == X
-            && otherBounds.Y == Y
-            && otherBounds.W == W
-            && otherBounds.H == H;
+               && otherBounds.Y == Y
+               && otherBounds.W == W
+               && otherBounds.H == H;
     }
 
     public Bounds Inflate(float x, float y)
@@ -189,63 +233,24 @@ public struct Bounds
     }
 }
 
-public struct RectClip : IRenderFragment
+public enum CommandType : byte
 {
-    // private static readonly SKRoundRect RoundRect = new();
-
-    public required Bounds Bounds { get; set; }
-    public required float Radius;
-    // public required SKClipOperation ClipOperation;
-
-    public void Render(GlCanvas canvas)
-    {
-        if (Radius == 0)
-        {
-            canvas.ClipRect(Bounds.X, Bounds.Y, Bounds.W, Bounds.H);
-        }
-        else
-        {
-            canvas.ClipRoundedRect(Bounds.X, Bounds.Y, Bounds.W, Bounds.H, Radius);
-        }
-    }
-
-    public bool UiEquals(IRenderFragment renderFragment)
-    {
-        if (renderFragment is not RectClip rectClip)
-            return false;
-
-        return rectClip.Bounds.BoundsEquals(Bounds)
-               && rectClip.Radius == Radius;
-    }
+    Rect,
+    ClipRect,
+    Text,
+    Matrix
 }
 
-public struct Rect : IRenderFragment, IClickableFragment
+public struct Command
 {
-    public required UiElement UiElement { get; set; }
-    public required Bounds Bounds { get; set; }
-    public required float Radius;
-
-    public void Render(GlCanvas canvas)
-    {
-        if (Radius == 0)
-        {
-            canvas.DrawRect(Bounds.X, Bounds.Y, Bounds.W, Bounds.H);
-        }
-        else
-        {
-            canvas.DrawRoundedRect(Bounds.X, Bounds.Y, Bounds.W, Bounds.H, Radius);
-            // canvas.DrawRoundRect(Bounds.ToRect(), Radius, Radius, RenderPaint.GetPaint());
-        }
-    }
-
-    public bool UiEquals(IRenderFragment renderFragment)
-    {
-        if (renderFragment is not Rect rect)
-            return false;
-
-        return rect.Bounds.BoundsEquals(Bounds)
-               && rect.Radius == Radius;
-    }
+    public CommandType Type;
+    public ManagedRef UiElement;
+    public ManagedRef String;
+    public Bounds Bounds;
+    public float Radius;
+    public ManagedRef Font;
+    public ColorDefinition Color;
+    public Matrix4X4<float> Matrix;
 }
 
 // public struct Bitmap : IRenderFragment
@@ -288,51 +293,6 @@ public struct Rect : IRenderFragment, IClickableFragment
 //     }
 // }
 
-public struct Text : IRenderFragment //ToDo should also be clickable
-{
-    public required string Content;
-    public required float X;
-    public required float Y;
-
-    public void Render(GlCanvas canvas)
-    {
-        canvas.DrawText(Content, X, Y, false);
-    }
-
-    public bool UiEquals(IRenderFragment renderFragment)
-    {
-        if (renderFragment is not Text text)
-            return false;
-
-        return text.Content == Content && text.X == X && text.Y == Y;
-    }
-}
-
-public struct Matrix : IRenderFragment, IMatrixable
-{
-    public required Matrix4X4<float> SkMatrix;
-
-    public void Render(GlCanvas canvas)
-    {
-        canvas.SetMatrix(SkMatrix);
-        // canvas.SetMatrix(canvas.TotalMatrix.PostConcat(SkMatrix));
-    }
-
-    public bool UiEquals(IRenderFragment renderFragment)
-    {
-        if (renderFragment is not Matrix matrix)
-            return false;
-
-        return matrix.SkMatrix == SkMatrix;
-    }
-
-    public Vector2D<float> ProjectPoint(Vector2 point)
-    {
-        Matrix4X4.Invert(SkMatrix, out var m);
-        var projectedPoint = Vector4D.Multiply(new Vector4D<float>(point.X, point.Y, 0, 0), m);
-        return new Vector2D<float>(projectedPoint.X, projectedPoint.Y);
-    }
-}
 
 // public struct Circle : IRenderFragment //ToDo, should also be clickable
 // {

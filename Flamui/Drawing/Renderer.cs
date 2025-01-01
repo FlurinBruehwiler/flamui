@@ -29,6 +29,7 @@ public class Renderer
     private uint _vao;
     private uint _texture;
     public IWindow Window;
+    public static Font DefaultFont;
 
     private Dictionary<Shader, string> _shaderStrings = [];
 
@@ -64,6 +65,7 @@ public class Renderer
     public void Initialize(IWindow window)
     {
         Window = window;
+        DefaultFont = FontLoader.LoadFont("JetBrainsMono-Regular.ttf", 20);
 
         Gl = Window.CreateOpenGL();
         Gl.Enable(EnableCap.Multisample);
@@ -86,7 +88,7 @@ public class Renderer
 
         CheckError();
 
-        UploadTexture(Program.DefaultFont.AtlasBitmap, (uint)Program.DefaultFont.AtlasWidth, (uint)Program.DefaultFont.AtlasHeight);
+        UploadTexture(DefaultFont.AtlasBitmap, (uint)DefaultFont.AtlasWidth, (uint)DefaultFont.AtlasHeight);
 
         Gl.BindVertexArray(0);
 

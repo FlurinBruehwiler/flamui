@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using SDL2;
+using Silk.NET.Input;
 
 namespace Flamui.Components;
 
@@ -21,8 +21,8 @@ public static partial class UiExtensions
             {
                 div.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
 
-                if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE) ||
-                    ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+                if (ui.Window.IsKeyPressed(Key.Space) ||
+                    ui.Window.IsKeyPressed(Key.Enter))
                 {
                     enabled = !enabled;
                 }

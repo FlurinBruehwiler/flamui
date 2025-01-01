@@ -27,6 +27,8 @@ public class Font
     public required float Descent;
     public required float LineGap;
 
+    public float GetHeight() => Ascent - Descent;
+
     public float GetCharWidth(char c)
     {
         if (GlyphInfos.TryGetValue(c, out var info))

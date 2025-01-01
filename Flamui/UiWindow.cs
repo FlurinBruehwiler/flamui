@@ -1,4 +1,5 @@
-﻿using Flamui.Drawing;
+﻿using Arenas;
+using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
@@ -146,14 +147,13 @@ public partial class UiWindow : IDisposable
         RenderToCanvas();
     }
 
-    private void CreateRenderInstructions()
+    private unsafe void CreateRenderInstructions()
     {
         RootContainer.Render(RenderContext, new Point());
     }
 
     private void RenderToCanvas()
     {
-
         DrawDebugOverlay(RenderContext);
 
         var requiresRerender = RenderContext.RequiresRerender(LastRenderContext);

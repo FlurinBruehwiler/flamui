@@ -1,6 +1,4 @@
 ﻿using Flamui.Layouting;
-using SkiaSharp;
-
 namespace Flamui.UiElements;
 
 public class UiImage : UiElement
@@ -9,51 +7,50 @@ public class UiImage : UiElement
 
     public override void Render(RenderContext renderContext, Point offset)
     {
-        var img = GetImage();
-
-        renderContext.Add(new Bitmap
-        {
-            Bounds = new Bounds
-            {
-                H = Rect.Height,
-                W = Rect.Width,
-                X = offset.X,
-                Y = offset.Y
-            },
-            SkBitmap = img
-        });
+        // renderContext.Add(new Bitmap
+        // {
+        //     Bounds = new Bounds
+        //     {
+        //         H = Rect.Height,
+        //         W = Rect.Width,
+        //         X = offset.X,
+        //         Y = offset.Y
+        //     },
+        //     SkBitmap = img
+        // });
     }
 
-    private SKBitmap GetImage()
-    {
-        if (!ImgCache.TryGetValue(Src, out var img))
-        {
-            img = SKBitmap.Decode(Src);
-
-            ImgCache.Add(Src, img);
-        }
-
-        return img;
-    }
+    // private SKBitmap GetImage()
+    // {
+    //     if (!ImgCache.TryGetValue(Src, out var img))
+    //     {
+    //         img = SKBitmap.Decode(Src);
+    //
+    //         ImgCache.Add(Src, img);
+    //     }
+    //
+    //     return img;
+    // }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        var img = GetImage();
-
-        var availableRatio = constraint.MaxWidth / constraint.MaxHeight;
-        var currentRatio = img.Width / img.Height;
-
-        if (availableRatio > currentRatio) //Height is the limiting factor
-        {
-            Rect = new BoxSize(constraint.MaxHeight, currentRatio * constraint.MaxHeight);
-        }
-        else
-        {
-            //Width is the limiting factor
-            Rect = new BoxSize(constraint.MaxWidth, constraint.MaxWidth / currentRatio);
-        }
-
-        return Rect;
+        return new BoxSize();
+        // var img = GetImage();
+        //
+        // var availableRatio = constraint.MaxWidth / constraint.MaxHeight;
+        // var currentRatio = img.Width / img.Height;
+        //
+        // if (availableRatio > currentRatio) //Height is the limiting factor
+        // {
+        //     Rect = new BoxSize(constraint.MaxHeight, currentRatio * constraint.MaxHeight);
+        // }
+        // else
+        // {
+        //     //Width is the limiting factor
+        //     Rect = new BoxSize(constraint.MaxWidth, constraint.MaxWidth / currentRatio);
+        // }
+        //
+        // return Rect;
     }
 
     public override void PrepareLayout(Dir dir)
@@ -64,6 +61,4 @@ public class UiImage : UiElement
         };
         base.PrepareLayout(dir);
     }
-
-    private static readonly Dictionary<string, SKBitmap> ImgCache = new();
 }

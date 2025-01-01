@@ -6,19 +6,34 @@ using Silk.NET.OpenGL;
 
 namespace Flamui.Drawing;
 
+public struct Paint
+{
+    public Color Color;
+    public Font Font;
+}
+
+public enum CommandType
+{
+    DrawMesh
+}
+
+public struct Command
+{
+    public CommandType CommandType;
+    public Mesh Mesh;
+}
+
 public class GlCanvas
 {
     public MeshBuilder MeshBuilder;
-    public Color Color;
-    public Font Font;
 
     private readonly Renderer _renderer;
+    public Paint Paint;
 
     public GlCanvas(Renderer renderer)
     {
         _renderer = renderer;
         MeshBuilder = new MeshBuilder();
-        Font = Program.DefaultFont;
     }
 
     public void SetMatrix(Matrix4X4<float> matrix)
@@ -26,22 +41,15 @@ public class GlCanvas
         MeshBuilder.Matrix = matrix;
     }
 
-    public void DrawText(ReadOnlySpan<char> text, float x, float y, bool allowNewLine = false)
+    public void DrawText(ReadOnlySpan<char> text, float x, float y)
     {
         var xCoord = x;
-        var yCoord = y;
 
         foreach (var c in text)
         {
-            if (allowNewLine && c is '\n' or '\r')
+            if (Paint.Font.GlyphInfos.TryGetValue(c, out var glyphInfo))
             {
-                yCoord += Font.Ascent - Font.Descent + Font.LineGap;
-                xCoord = x; //reset x
-            }
-
-            if (Font.GlyphInfos.TryGetValue(c, out var glyphInfo))
-            {
-                DrawGlyph(glyphInfo, xCoord + glyphInfo.LeftSideBearing, yCoord + Font.Ascent + glyphInfo.YOff);
+                DrawGlyph(glyphInfo, xCoord + glyphInfo.LeftSideBearing, y + Paint.Font.Ascent + glyphInfo.YOff);
                 xCoord += glyphInfo.AdvanceWidth;
             }
             else
@@ -53,18 +61,18 @@ public class GlCanvas
 
     private void DrawGlyph(GlyphInfo glyphInfo, float x, float y)
     {
-        var uvXOffset = (1 / (float)Font.AtlasWidth) * glyphInfo.XAtlasOffset;
-        var uvWidth = (1 / (float)Font.AtlasWidth) * glyphInfo.Width;
-        var uvHeight = (1 / (float)Font.AtlasHeight) * glyphInfo.Height;
+        var uvXOffset = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.XAtlasOffset;
+        var uvWidth = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.Width;
+        var uvHeight = (1 / (float)Paint.Font.AtlasHeight) * glyphInfo.Height;
 
         Debug.Assert(uvXOffset is >= 0 and <= 1);
         Debug.Assert(uvWidth is >= 0 and <= 1);
         Debug.Assert(uvHeight is >= 0 and <= 1);
 
-        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y),  new Vector2(uvXOffset, 0), Color, textureType: TextureType.Text);
-        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, 0), Color, textureType: TextureType.Text);
-        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvHeight), Color, textureType: TextureType.Text);
-        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvHeight), Color, textureType: TextureType.Text);
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y),  new Vector2(uvXOffset, 0), Paint.Color, textureType: TextureType.Text);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, 0), Paint.Color, textureType: TextureType.Text);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvHeight), Paint.Color, textureType: TextureType.Text);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvHeight), Paint.Color, textureType: TextureType.Text);
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
@@ -142,18 +150,18 @@ public class GlCanvas
     public void DrawTriangle(Vector2 p1, Vector2 p2, Vector2 p3)
     {
         MeshBuilder.AddTriangle(
-                MeshBuilder.AddVertex(p1, new Vector2(0, 0), Color),
-                MeshBuilder.AddVertex(p2, new Vector2(0, 0), Color),
-                MeshBuilder.AddVertex(p3, new Vector2(0, 0), Color)
+                MeshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color),
+                MeshBuilder.AddVertex(p2, new Vector2(0, 0), Paint.Color),
+                MeshBuilder.AddVertex(p3, new Vector2(0, 0), Paint.Color)
             );
     }
 
     public void DrawRect(float x, float y, float width, float height)
     {
-        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Color, textureType: TextureType.Color);
-        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Color, textureType: TextureType.Color);
-        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Color, textureType: TextureType.Color);
-        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Color, textureType: TextureType.Color);
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Paint.Color, textureType: TextureType.Color);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Paint.Color, textureType: TextureType.Color);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Paint.Color, textureType: TextureType.Color);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Paint.Color, textureType: TextureType.Color);
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
@@ -162,9 +170,9 @@ public class GlCanvas
     public void DrawFilledBezier(Vector2 p1, Vector2 p2, Vector2 p3)
     {
         MeshBuilder.AddTriangle(
-            MeshBuilder.AddVertex(p1, new Vector2(0, 0), Color, 1),
-            MeshBuilder.AddVertex(p2, new Vector2(0.5f, 0), Color, 1),
-            MeshBuilder.AddVertex(p3, new Vector2(1, 1), Color, 1)
+            MeshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color, 1),
+            MeshBuilder.AddVertex(p2, new Vector2(0.5f, 0), Paint.Color, 1),
+            MeshBuilder.AddVertex(p3, new Vector2(1, 1), Paint.Color, 1)
         );
     }
 }

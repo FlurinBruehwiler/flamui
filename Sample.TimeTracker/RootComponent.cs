@@ -3,6 +3,7 @@ using System.Drawing;
 using Flamui;
 using Flamui.Components;
 using Flamui.UiElements;
+using Silk.NET.Input;
 
 namespace Sample.TimeTracker;
 
@@ -142,7 +143,7 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
         var input = ui.StyledInput(ref _newEntryName, placeholder: "New category");
 
         if (_newEntryName == string.Empty || !input.HasFocusWithin ||
-            !ui.Window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_RETURN)) return;
+            !ui.Window.IsKeyPressed(Key.Enter)) return;
 
         if (storageService.OpenTimeTrackFile.TimeTrackEntries.Any(x => x.Name == _newEntryName))
             return;
