@@ -14,7 +14,15 @@ public class LayoutTest : FlamuiComponent
     {
         using (ui.Div().Color(C.Yellow5).Padding(10).Gap(10))
         {
+            using (ui.Div().Color(C.Blue5))
+            {
+                
+            }
 
+            using (ui.Div().Color(C.Blue5))
+            {
+
+            }
         }
     }
 }

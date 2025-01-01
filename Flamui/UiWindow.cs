@@ -152,18 +152,17 @@ public partial class UiWindow : IDisposable
     {
         DrawDebugOverlay(RenderContext);
 
-        var requiresRerender = RenderContext.RequiresRerender(LastRenderContext);
+        // var requiresRerender = RenderContext.RequiresRerender(LastRenderContext);
 
         //todo wtf is happening grrrr it makes 0 sense
-        if (requiresRerender)
+        if (true)
         {
             // Console.WriteLine("rerender");
 
             // var start = Stopwatch.GetTimestamp();
 
 
-            RenderContext.Rerender(new GlCanvas(_renderer));
-
+            RenderContext.Rerender(_renderer);
 
             // Console.WriteLine(Stopwatch.GetElapsedTime(start).TotalMilliseconds);
 
@@ -173,7 +172,8 @@ public partial class UiWindow : IDisposable
         //swap Render Contexts
         (LastRenderContext, RenderContext) = (RenderContext, LastRenderContext);
 
-        _renderHappened = requiresRerender;
+        _renderHappened = true;
+        // _renderHappened = requiresRerender;
     }
 
     private void DrawDebugOverlay(RenderContext renderContext)

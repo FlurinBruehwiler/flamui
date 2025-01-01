@@ -21,22 +21,22 @@ public class RenderContext
     }
 
     private Arena _arena;
+    public Dictionary<int, GrowableArenaBuffer<Command>> CommandBuffers = [];
 
-    private static VirtualArenaManager manager = new VirtualArenaManager();
+    private static VirtualArenaManager manager = new();
 
     public void Reset()
     {
         if (_arena == null)
         {
+            Console.WriteLine("Creating arena");
             var virtualBuffer = manager.CreateBuffer("PerFrameArena", (UIntPtr)1_000_000);
             _arena = new Arena(virtualBuffer);
         }
+
+        CommandBuffers.Clear();
         _arena.Reset();
 
-        // foreach (var (key, value) in RenderSections)
-        // {
-        //     value.Renderables.Clear();
-        // }
     }
 
     public void AddRect(Bounds bounds, UiElement uiElement, ColorDefinition color, float radius = 0)
@@ -82,12 +82,9 @@ public class RenderContext
         Add(cmd);
     }
 
-    public Dictionary<int, GrowableArenaBuffer<Command>> CommandBuffers = []; //todo write custom collection, arena linked list....
 
     public void Add(Command command)
     {
-        var span = _arena.VirtualBuffer.AllocateRange(sizeof(int));
-
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
         {
             commandBuffer = new GrowableArenaBuffer<Command>(_arena.VirtualBuffer, 20);
@@ -122,8 +119,12 @@ public class RenderContext
 
     private static int rerenderCount;
 
-    public void Rerender(GlCanvas canvas)
+    public void Rerender(Renderer renderer)
     {
+        var canvas = new GlCanvas(renderer);
+
+        canvas.Start();
+
         var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
 
         foreach (var (_, value) in sections)
@@ -157,6 +158,8 @@ public class RenderContext
                 }
             }
         }
+
+        canvas.Flush();
     }
 
     public void SetIndex(int idx)
@@ -273,6 +276,7 @@ public struct ManagedRef<T> where T : class
         ptr = arena.AddReference(value);
     }
 
+    [Pure]
     public T Get()
     {
         GCHandle gcHandle = GCHandle.FromIntPtr(ptr);

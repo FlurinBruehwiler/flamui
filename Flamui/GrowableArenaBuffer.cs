@@ -13,7 +13,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
     private readonly int _chunkSize;
 
     private Chunk* _currentChunk;
-    private Chunk* _firstChunk;
+    private readonly Chunk* _firstChunk;
 
     public GrowableArenaBuffer(VirtualBuffer arena, int chunkSize)
     {
@@ -94,7 +94,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
 
         public bool MoveNext()
         {
-            if (_indexInChunk == _buffer._chunkSize - 1)
+            if (_indexInChunk == _buffer._chunkSize)
             {
                 if (_currentChunk->NextChunk == null)
                 {
@@ -105,7 +105,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
                 _currentChunk = _currentChunk->NextChunk;
             }
 
-            if (_indexInChunk == _currentChunk->Count - 1)
+            if (_indexInChunk == _currentChunk->Count)
             {
                 _current = default;
                 return false;
