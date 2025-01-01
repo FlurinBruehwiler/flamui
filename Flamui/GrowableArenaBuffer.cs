@@ -38,7 +38,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
     {
         var c = new Chunk
         {
-            Items = _arena.AllocateCount<T>(_chunkSize)
+            Items = _arena.AllocateSlice<T>(_chunkSize)
         };
 
         var newChunk = _arena.Allocate(c);
@@ -52,8 +52,6 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
 
         return newChunk;
     }
-
-
 
     public Enumerator GetEnumerator()
     {
@@ -149,7 +147,7 @@ public static unsafe class ArenaExtensions
         }
     }
 
-    public static Slice<T> AllocateCount<T>(this VirtualBuffer arena, int count) where T : unmanaged
+    public static Slice<T> AllocateSlice<T>(this VirtualBuffer arena, int count) where T : unmanaged
     {
         var span = arena.AllocateRange(sizeof(T) * count);
         fixed (byte* ptr = span)
@@ -171,7 +169,19 @@ public unsafe struct Slice<T> where T : unmanaged
 
     public T this[int index]
     {
-        get => Items[index];
-        set => Items[index] = value;
+        get
+        {
+            if (index >= Count)
+                throw new IndexOutOfRangeException();
+
+            return Items[index];
+        }
+        set
+        {
+            if (index >= Count)
+                throw new IndexOutOfRangeException();
+
+            Items[index] = value;
+        }
     }
 }
