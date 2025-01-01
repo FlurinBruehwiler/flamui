@@ -1,8 +1,11 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using StbTrueTypeSharp;
 
 namespace NewRenderer;
+
+//http://arkanis.de/weblog/2023-08-14-simple-good-quality-subpixel-text-rendering-in-opengl-with-stb-truetype-and-dual-source-blending#gl45-subpixel-text-rendering-demo
 
 public struct GlyphBoundingBox
 {
@@ -23,6 +26,16 @@ public class Font
     public required float Ascent;
     public required float Descent;
     public required float LineGap;
+
+    public float GetCharWidth(char c)
+    {
+        if (GlyphInfos.TryGetValue(c, out var info))
+        {
+            return info.AdvanceWidth;
+        }
+
+        return 0;
+    }
 }
 
 public struct GlyphInfo
@@ -33,8 +46,8 @@ public struct GlyphInfo
     public required int XOff;
     public required int YOff;
 
-    public required float AdvanceWidth;
-    public required float LeftSideBearing;
+    public required int AdvanceWidth;
+    public required int LeftSideBearing;
 
     public required GlyphBoundingBox GlyphBoundingBox;
 }
@@ -57,7 +70,7 @@ public unsafe struct CharInfo
 
 public class FontLoader
 {
-    public static unsafe Font LoadFont(string name)
+    public static unsafe Font LoadFont(string name, int pixelSize)
     {
         var info = new StbTrueType.stbtt_fontinfo();
 
@@ -75,7 +88,7 @@ public class FontLoader
 
         CharInfo[] charInfos = new CharInfo['~' - ' '];
 
-        var scale = StbTrueType.stbtt_ScaleForPixelHeight(info, 20);
+        var scale = StbTrueType.stbtt_ScaleForPixelHeight(info, pixelSize * 3); //multiply by 3 because we do subpixel antialiasing
 
         int ascent = 0;
         int descent = 0;
@@ -99,10 +112,27 @@ public class FontLoader
                 YOff = yOff,
                 Char = i,
             };
+
+            if (i == 'T')
+            {
+                var sb = new StringBuilder();
+                for (int j = 0; j < height; j++)
+                {
+                    var s = charInfos[i - ' '].BitmapAsSpan();
+                    for (int k = 0; k < width; k++)
+                    {
+                        sb.Append(s[j * width + k].ToString("000 "));
+                    }
+
+                    sb.Append("\n");
+                }
+                File.WriteAllText("C:\\Dokumente\\TestFolder\\char.txt", sb.ToString());
+            }
         }
 
-        var maxHeight = 1000; //charInfos.Max(x => x.Height);
-        var totalWidth = 1000; charInfos.Sum(x => x.Width);
+        var maxHeight = charInfos.Max(x => x.Height);
+        var maxWidth = charInfos.Max(x => x.Width);
+        var totalWidth = 2000; //charInfos.Sum(x => x.Width);
 
         byte[] fontAtlasBitmap = new byte[maxHeight * totalWidth];
         var glyphInfos = new Dictionary<char, GlyphInfo>(charInfos.Length);
@@ -130,8 +160,8 @@ public class FontLoader
                 YOff = c.YOff,
                 XAtlasOffset = currentXOffset,
                 GlyphBoundingBox = bb,
-                AdvanceWidth = advanceWidth * scale,
-                LeftSideBearing = leftSideBearing * scale
+                AdvanceWidth = (int)(advanceWidth * scale),
+                LeftSideBearing = (int)(leftSideBearing * scale)
             };
 
             var bitmap = c.BitmapAsSpan();

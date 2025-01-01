@@ -29,15 +29,22 @@ public class GlCanvas
         MeshBuilder.Matrix = matrix;
     }
 
-    public void DrawText(ReadOnlySpan<char> text, float x, float y)
+    public void DrawText(ReadOnlySpan<char> text, float x, float y, bool allowNewLine = false)
     {
         var xCoord = x;
+        var yCoord = y;
 
         foreach (var c in text)
         {
+            if (allowNewLine && c is '\n' or '\r')
+            {
+                yCoord += Font.Ascent - Font.Descent + Font.LineGap;
+                xCoord = x; //reset x
+            }
+
             if (Font.GlyphInfos.TryGetValue(c, out var glyphInfo))
             {
-                DrawGlyph(glyphInfo, xCoord + glyphInfo.LeftSideBearing, y + glyphInfo.YOff);
+                DrawGlyph(glyphInfo, xCoord + glyphInfo.LeftSideBearing, yCoord + Font.Ascent + glyphInfo.YOff);
                 xCoord += glyphInfo.AdvanceWidth;
             }
             else

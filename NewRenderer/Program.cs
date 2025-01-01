@@ -5,9 +5,16 @@ using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
 using System.Drawing;
 using System.Numerics;
+using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace NewRenderer;
+
+public struct TextPos
+{
+    public int Line;
+    public int Char;
+}
 
 public struct Vertex
 {
@@ -61,6 +68,7 @@ public class Program
     // private static uint _program;
     // private static int _transformLoc;
     private static readonly Renderer _renderer = new();
+    private static IMouse Mouse;
 
 
     public static Font DefaultFont;
@@ -72,7 +80,7 @@ public class Program
         //     Thread.Sleep(1000);
         // }
 
-        DefaultFont = FontLoader.LoadFont("JetBrainsMono-Regular.ttf");
+        DefaultFont = FontLoader.LoadFont("JetBrainsMono-Regular.ttf", 20);
 
         WindowOptions options = WindowOptions.Default with
         {
@@ -105,15 +113,10 @@ public class Program
         canvas.Start();
 
         canvas.Color = Color.FromArgb(30, 31, 34);
-        canvas.DrawRect(0, 0, 1000, 1000);
+        canvas.DrawRect(0, 0, _window.Size.X, 1000);
 
-        canvas.Color = Color.FromArgb(187, 189, 190);
-        canvas.DrawText("The quick brown fox jumps over the lazy dog", 50, 50);
-
+        DrawMultilineSelectableText(canvas, 0, 0, "The quick brown fox\njumps over the lazy dog");
         // canvas.DrawRect(0, 0, Program.DefaultFont.AtlasWidth, Program.DefaultFont.AtlasHeight);
-
-        canvas.Color = Color.Red;
-        canvas.DrawTriangle(new Vector2(100, 100), new Vector2(150, 200), new Vector2(50, 200));
 
         canvas.Flush();
 
@@ -136,6 +139,32 @@ public class Program
         //-----
     }
 
+    private static void DrawMultilineSelectableText(GlCanvas canvas, float xCoord, float yCoord, ReadOnlySpan<char> text)
+    {
+        var mousePos = Mouse.Position;
+
+        canvas.Color = Color.FromArgb(187, 189, 190);
+        foreach (var line in FontShaping.SplitTextIntoLines(DefaultFont, text, _window.Size.X))
+        {
+            var lineSpan = text[line];
+            canvas.DrawText(lineSpan, xCoord, yCoord);
+            var newYCord = yCoord + DefaultFont.Ascent - DefaultFont.Descent + DefaultFont.LineGap;
+            if (mousePos.Y > yCoord && mousePos.Y < newYCord)
+            {
+                var hitIndex = FontShaping.HitTest(DefaultFont, lineSpan, mousePos.X - xCoord);
+                if (hitIndex != -1)
+                {
+                    var (start, end) = FontShaping.GetPositionOfChar(DefaultFont, lineSpan, hitIndex);
+                    var tempColor = canvas.Color;
+                    canvas.Color = Color.FromArgb(50, 184, 217, 255);
+                    canvas.DrawRect(xCoord + start, yCoord, end - start, DefaultFont.Ascent - DefaultFont.Descent);
+                    canvas.Color = tempColor;
+                }
+            }
+            yCoord = newYCord;
+        }
+    }
+
     private static void OnUpdate(double deltaTime)
     {
 
@@ -150,9 +179,13 @@ public class Program
         for (int i = 0; i < input.Keyboards.Count; i++)
             input.Keyboards[i].KeyDown += KeyDown;
 
+        Mouse = input.Mice.First();
+
+
         //opengl setup
         _renderer.Initialize(_window);
 
         // Console.WriteLine(_gl.GetError());
     }
+
 }
