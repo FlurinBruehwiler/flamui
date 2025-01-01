@@ -25,6 +25,7 @@
         <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
         <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0" />
         <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
+        <PackageReference Include="Varena" Version="1.2.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -42,10 +43,6 @@
       <EmbeddedResource Include="Drawing\JetBrainsMono-Regular.ttf" />
       <EmbeddedResource Include="Drawing\Shaders\main_fragment.glsl" />
       <EmbeddedResource Include="Drawing\Shaders\main_vertex.glsl" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\ThirdParty\Arenas\Arenas.csproj" />
     </ItemGroup>
 
 </Project>

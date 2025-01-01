@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Silk.NET.Maths;
 using  Silk.NET.Windowing;
 
 namespace Flamui;
@@ -16,13 +17,11 @@ public record SizeConstraint(int Width, int Height);
 public class FlamuiApp
 {
     public IServiceProvider Services { get; private set; }
-
-    private EventLoop _eventLoop = new();
+    private UiWindow _window;
 
     internal FlamuiApp(IServiceCollection services)
     {
         services.AddSingleton(this);
-        services.AddSingleton(_eventLoop);
         services.AddSingleton<RegistrationManager>();
 
         var rootProvider = services.BuildServiceProvider();
@@ -43,18 +42,23 @@ public class FlamuiApp
     {
         options ??= new FlamuiWindowOptions();
 
-        _eventLoop.WindowsToCreate.Enqueue(new WindowCreationOrder
+        WindowOptions o = WindowOptions.Default with
         {
-            Title = title,
-            Options = options,
-            RootType = typeof(TRootComponent),
-            ServiceProvider = Services
-        });
+            Size = new Vector2D<int>(options.Width, options.Height),
+            Title = "Flamui next :)",
+            Samples = 4,
+        };
+
+        var window = Window.Create(o);
+
+        var rootComponent = (FlamuiComponent)ActivatorUtilities.CreateInstance(Services, typeof(TRootComponent));
+
+        _window = new UiWindow(window, rootComponent, Services);
     }
 
     public void Run()
     {
-        _eventLoop.MainWindow.Run();
+        _window.Window.Run();
     }
 
     public static FlamuiBuilder CreateBuilder()

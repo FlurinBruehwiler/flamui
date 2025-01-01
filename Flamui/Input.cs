@@ -6,7 +6,7 @@ namespace Flamui;
 
 public class Input
 {
-    public readonly MouseButtonState[] MouseButtonStates = [];
+    public readonly MouseButtonState[] MouseButtonStates = new MouseButtonState[(int)MouseButton.Button12 + 1];
 
     public Vector2 MousePosition { get; private set; }
     public Vector2 LastMousePosition { get; private set; }

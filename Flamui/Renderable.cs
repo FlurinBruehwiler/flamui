@@ -6,6 +6,7 @@ using Arenas;
 using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Maths;
+using Varena;
 
 namespace Flamui;
 
@@ -79,6 +80,8 @@ public class RenderContext
 
     public void Add(Command command)
     {
+        VirtualMemoryHandler
+
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
         {
             commandBuffer = new GrowableArenaBuffer<Command>(_arena, 20);
@@ -144,7 +147,7 @@ public class RenderContext
                         canvas.SetMatrix(command.Matrix);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException(command.Type.ToString());
                 }
             }
         }

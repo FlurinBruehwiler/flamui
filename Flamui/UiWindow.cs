@@ -10,15 +10,15 @@ namespace Flamui;
 
 public partial class UiWindow : IDisposable
 {
-    public readonly IWindow Window;
-    private readonly FlamuiComponent _rootComponent;
-    public readonly IServiceProvider ServiceProvider;
+    public IWindow Window;
+    private FlamuiComponent _rootComponent;
+    public IServiceProvider ServiceProvider;
     public bool IsDebugWindow;
 
     // private UiContainer? _hoveredContainer;
     private UiElement? _activeContainer;
 
-    public readonly UiElementContainer RootContainer;
+    public UiElementContainer RootContainer;
 
     // private UiContainer? HoveredDiv
     // {
@@ -38,8 +38,8 @@ public partial class UiWindow : IDisposable
     //     }
     // }
 
-    private readonly Input _input;
-    private readonly HitTester _hitTester;
+    private Input _input;
+    private HitTester _hitTester;
     private readonly TabIndexManager _tabIndexManager = new();
     public readonly Ui Ui = new();
 
@@ -63,32 +63,17 @@ public partial class UiWindow : IDisposable
 
     public List<UiElement> HoveredElements { get; set; } = new();
     public List<UiElement> OldHoveredElements { get; set; } = new();
-    private readonly RegistrationManager _registrationManager;
+    private RegistrationManager _registrationManager;
 
     public UiWindow(IWindow window, FlamuiComponent rootComponent, IServiceProvider serviceProvider)
     {
-        window.Load += OnLoad;
-        window.Update += OnUpdate;
-        window.Render += OnRender;
-
-        _hitTester = new HitTester(this);
         Window = window;
         _rootComponent = rootComponent;
         ServiceProvider = serviceProvider;
-        _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
-        _input = new Input(Window);
 
-        Ui.Window = this;
-
-        RootContainer = new FlexContainer
-        {
-            Id = new UiID("RootElement", "", 0, 0),
-            Window = this
-        };
-
-        // DebugPaint = Helpers.GetNewAntialiasedPaint();
-        // DebugPaint.Color = C.Blue8.ToSkColor();
-
+        window.Load += OnLoad;
+        window.Update += OnUpdate;
+        window.Render += OnRender;
     }
 
     private void OnRender(double obj)
@@ -125,6 +110,18 @@ public partial class UiWindow : IDisposable
 
     private void OnLoad()
     {
+        _hitTester = new HitTester(this);
+        _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
+        _input = new Input(Window);
+
+        Ui.Window = this;
+
+        RootContainer = new FlexContainer
+        {
+            Id = new UiID("RootElement", "", 0, 0),
+            Window = this
+        };
+
         _renderer.Initialize(Window);
     }
 

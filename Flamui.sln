@@ -32,8 +32,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.LayoutTest", "Sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewRenderer", "NewRenderer\NewRenderer.csproj", "{804797F9-9E9C-4FD3-A542-2D8738F19693}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arenas", "ThirdParty\Arenas\Arenas.csproj", "{6FA14649-07C3-4057-9F3E-382583B2F5C6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,10 +81,6 @@ Global
 		{804797F9-9E9C-4FD3-A542-2D8738F19693}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{804797F9-9E9C-4FD3-A542-2D8738F19693}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{804797F9-9E9C-4FD3-A542-2D8738F19693}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FA14649-07C3-4057-9F3E-382583B2F5C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FA14649-07C3-4057-9F3E-382583B2F5C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FA14649-07C3-4057-9F3E-382583B2F5C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FA14649-07C3-4057-9F3E-382583B2F5C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D837AA01-1805-43DC-A7CE-D38BF78DC127} = {9C94658C-B59B-4FC7-AAC4-837C0D481C45}
