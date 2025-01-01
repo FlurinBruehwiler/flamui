@@ -39,11 +39,6 @@ namespace Arenas {
             self->Capacity = itemsRef.ElementCount; // we might get more capacity than requested
         }
 
-        public Span<byte> AsSpan()
-        {
-            return new Span<byte>((void*)info.Value->Items.Value, info.Size); //ToDo(fbr) check if info.Size is acutaly the size in bytes
-        }
-
         public void Free() {
             if (Arena is null) {
                 throw new InvalidOperationException("Cannot Free ArenaList<T>: list has not been properly initialized with arena reference");

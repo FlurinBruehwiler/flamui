@@ -114,22 +114,6 @@ public class FontLoader
                 YOff = yOff,
                 Char = i,
             };
-
-            if (i == 'T')
-            {
-                var sb = new StringBuilder();
-                for (int j = 0; j < height; j++)
-                {
-                    var s = charInfos[i - ' '].BitmapAsSpan();
-                    for (int k = 0; k < width; k++)
-                    {
-                        sb.Append(s[j * width + k].ToString("000 "));
-                    }
-
-                    sb.Append("\n");
-                }
-                File.WriteAllText("C:\\Dokumente\\TestFolder\\char.txt", sb.ToString());
-            }
         }
 
         var maxHeight = charInfos.Max(x => x.Height);

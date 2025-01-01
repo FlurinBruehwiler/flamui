@@ -75,24 +75,25 @@ public class RenderContext
         Add(cmd);
     }
 
-    public Dictionary<int, ArenaList<Command>> RenderSections = []; //todo write custom collection, arena linked list....
+    public Dictionary<int, GrowableArenaBuffer<Command>> CommandBuffers = []; //todo write custom collection, arena linked list....
 
     public void Add(Command command)
     {
-        if (!RenderSections.TryGetValue(ZIndexes.Peek(), out var renderSection))
+        if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
         {
-            renderSection = new ArenaList<Command>(_arena, 20);
-            RenderSections.Add(ZIndexes.Peek(), renderSection);
+            commandBuffer = new GrowableArenaBuffer<Command>(_arena, 20);
+            CommandBuffers.Add(ZIndexes.Peek(), commandBuffer);
         }
 
-        renderSection.Add(command);
+        commandBuffer.Add(command);
     }
 
     public bool RequiresRerender(RenderContext lastRenderContext)
     {
-        foreach (var (key, currentRenderSection) in RenderSections)
+        //maybe go first through everything and check if the sizes match up, and only then go ahead and compare the actual contents
+        foreach (var (key, currentRenderSection) in CommandBuffers)
         {
-            if (!lastRenderContext.RenderSections.TryGetValue(key, out var lastRenderSection))
+            if (!lastRenderContext.CommandBuffers.TryGetValue(key, out var lastRenderSection))
             {
                 return true;
             }
@@ -103,7 +104,8 @@ public class RenderContext
             }
 
             //memcmp...
-            currentRenderSection.AsSpan().SequenceEqual(currentRenderSection.AsSpan());
+            if (!currentRenderSection.MemCompare(currentRenderSection))
+                return false;
         }
 
         return false;
@@ -113,7 +115,7 @@ public class RenderContext
 
     public void Rerender(GlCanvas canvas)
     {
-        var sections = RenderSections.OrderBy(x => x.Key).ToList();
+        var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
 
         foreach (var (_, value) in sections)
         {

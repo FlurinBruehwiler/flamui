@@ -39,7 +39,7 @@ public class HitTester
         var hitElements = new List<UiElement>();
 
         //from back to front
-        foreach (var (_, value) in _window.LastRenderContext.RenderSections.OrderBy(x => x.Key))
+        foreach (var (_, value) in _window.LastRenderContext.CommandBuffers.OrderBy(x => x.Key))
         {
             foreach (var command in value)
             {

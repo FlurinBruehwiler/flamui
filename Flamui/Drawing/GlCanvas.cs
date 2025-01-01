@@ -12,16 +12,6 @@ public struct Paint
     public Font Font;
 }
 
-public enum CommandType
-{
-    DrawMesh
-}
-
-public struct Command
-{
-    public CommandType CommandType;
-    public Mesh Mesh;
-}
 
 public class GlCanvas
 {

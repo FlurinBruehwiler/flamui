@@ -26,6 +26,7 @@ public static class FontShaping
         return default;
     }
 
+    /// <returns>The width of the text</returns>
     public static float MeasureText(Font font, ReadOnlySpan<char> singleLine)
     {
         var width = 0f;
