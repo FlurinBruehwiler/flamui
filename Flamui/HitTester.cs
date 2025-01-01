@@ -51,7 +51,7 @@ public class HitTester
                 {
                     if (command.Bounds.ContainsPoint(point))
                     {
-                        hitElements.Add(command.UiElement.Get<UiElement>());
+                        hitElements.Add(command.UiElement.Get());
                     }
                 }
             }

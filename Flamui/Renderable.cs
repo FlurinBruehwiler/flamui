@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Arenas;
 using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Maths;
@@ -23,9 +22,16 @@ public class RenderContext
 
     private Arena _arena;
 
+    private static VirtualArenaManager manager = new VirtualArenaManager();
+
     public void Reset()
     {
-        _arena = new Arena();
+        if (_arena == null)
+        {
+            var virtualBuffer = manager.CreateBuffer("PerFrameArena", (UIntPtr)1_000_000);
+            _arena = new Arena(virtualBuffer);
+        }
+        _arena.Reset();
 
         // foreach (var (key, value) in RenderSections)
         // {
@@ -80,11 +86,11 @@ public class RenderContext
 
     public void Add(Command command)
     {
-        VirtualMemoryHandler
+        var span = _arena.VirtualBuffer.AllocateRange(sizeof(int));
 
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
         {
-            commandBuffer = new GrowableArenaBuffer<Command>(_arena, 20);
+            commandBuffer = new GrowableArenaBuffer<Command>(_arena.VirtualBuffer, 20);
             CommandBuffers.Add(ZIndexes.Peek(), commandBuffer);
         }
 
@@ -101,14 +107,14 @@ public class RenderContext
                 return true;
             }
 
-            if (lastRenderSection.Count != currentRenderSection.Count)
-            {
-                return true;
-            }
+            // if (lastRenderSection.Count != currentRenderSection.Count)
+            // {
+            //     return true;
+            // }
 
             //memcmp...
-            if (!currentRenderSection.MemCompare(currentRenderSection))
-                return false;
+            // if (!currentRenderSection.MemCompare(currentRenderSection))
+            //     return false;
         }
 
         return false;
@@ -140,8 +146,8 @@ public class RenderContext
                             canvas.ClipRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius);
                         break;
                     case CommandType.Text:
-                        canvas.Paint.Font = command.Font.Get<Font>(); //todo make font
-                        canvas.DrawText(command.String.Get<string>(), command.Bounds.X, command.Bounds.Y);
+                        canvas.Paint.Font = command.Font.Get(); //todo make font
+                        canvas.DrawText(command.String.Get(), command.Bounds.X, command.Bounds.Y);
                         break;
                     case CommandType.Matrix:
                         canvas.SetMatrix(command.Matrix);
@@ -249,13 +255,29 @@ public enum CommandType : byte
 public struct Command
 {
     public CommandType Type;
-    public ManagedRef UiElement;
-    public ManagedRef String;
+    public ManagedRef<UiElement> UiElement;
+    public ManagedRef<string> String;
     public Bounds Bounds;
     public float Radius;
-    public ManagedRef Font;
+    public ManagedRef<Font> Font;
     public ColorDefinition Color;
     public Matrix4X4<float> Matrix;
+}
+
+public struct ManagedRef<T> where T : class
+{
+    private IntPtr ptr;
+
+    public void Set(Arena arena, T value)
+    {
+        ptr = arena.AddReference(value);
+    }
+
+    public T Get()
+    {
+        GCHandle gcHandle = GCHandle.FromIntPtr(ptr);
+        return (T)gcHandle.Target!;
+    }
 }
 
 // public struct Bitmap : IRenderFragment
