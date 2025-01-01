@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Flamui.Layouting;
 using Flamui.UiElements;
-using SkiaSharp;
+using Silk.NET.Input;
 
 namespace Flamui;
 
@@ -18,7 +18,7 @@ public class HitTester
     {
         HitTest(_window.MousePosition);
 
-        if (_window.IsMouseButtonPressed(MouseButtonKind.Left))
+        if (_window.IsMouseButtonPressed(MouseButton.Left))
         {
             foreach (var windowHoveredDiv in _window.HoveredElements)
             {
@@ -44,7 +44,7 @@ public class HitTester
             {
                 if (renderable is IMatrixable matrixable)
                 {
-                    var res = matrixable.ProjectPoint(new SKPoint(point.X, point.Y));
+                    var res = matrixable.ProjectPoint(point);
                     point = new Vector2(res.X, res.Y);
                 }
 

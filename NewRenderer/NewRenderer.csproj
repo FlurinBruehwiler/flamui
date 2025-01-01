@@ -10,16 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FreeTypeSharp" Version="3.0.0" />
     <PackageReference Include="Silk.NET.Input" Version="2.22.0" />
     <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
     <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0" />
-    <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Shaders\*.glsl" />
-    <EmbeddedResource Include="JetBrainsMono-Regular.ttf" />
   </ItemGroup>
 
 </Project>

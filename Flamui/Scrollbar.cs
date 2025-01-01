@@ -1,4 +1,5 @@
 using Flamui.UiElements;
+using Silk.NET.Input;
 
 namespace Flamui;
 
@@ -82,13 +83,13 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
                 if (thumb.IsClicked)
                 {
                     _isDragging = true;
-                    SDL_CaptureMouse(SDL_bool.SDL_TRUE);
+                    // SDL_CaptureMouse(SDL_bool.SDL_TRUE); //TODO
                 }
 
-                if(_isDragging && ui.Window.IsMouseButtonReleased(MouseButtonKind.Left))
+                if(_isDragging && ui.Window.IsMouseButtonReleased(MouseButton.Left))
                 {
                     _isDragging = false;
-                    SDL_CaptureMouse(SDL_bool.SDL_FALSE);
+                    // SDL_CaptureMouse(SDL_bool.SDL_FALSE); //TODO
                 }
             }
         }

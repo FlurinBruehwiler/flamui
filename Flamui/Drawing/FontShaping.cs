@@ -1,4 +1,4 @@
-namespace NewRenderer;
+namespace Flamui.Drawing;
 
 public static class FontShaping
 {

@@ -1,6 +1,5 @@
 ﻿using Flamui.Layouting;
 using Flamui.UiElements;
-using SkiaSharp;
 
 namespace Flamui;
 
@@ -200,11 +199,6 @@ public static class Extensions
 
 public readonly record struct ColorDefinition(byte Red, byte Green, byte Blue, byte Alpha = 255)
 {
-    public SKColor ToSkColor()
-    {
-        return new SKColor(Red, Green, Blue, Alpha);
-    }
-
     public static ColorDefinition operator /(ColorDefinition original, byte opacity)
     {
         return original with

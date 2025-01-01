@@ -1,13 +1,10 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using StbTrueTypeSharp;
 
-namespace NewRenderer;
+namespace Flamui.Drawing;
 
 public class GlCanvas
 {

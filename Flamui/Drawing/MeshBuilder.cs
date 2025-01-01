@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Numerics;
 using Silk.NET.Maths;
 
-namespace NewRenderer;
+namespace Flamui.Drawing;
 
 public enum TextureType
 {

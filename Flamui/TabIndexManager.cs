@@ -1,4 +1,5 @@
 using Flamui.UiElements;
+using Silk.NET.Input;
 
 namespace Flamui;
 
@@ -6,13 +7,13 @@ public class TabIndexManager
 {
     public void HandleTab(UiWindow window)
     {
-        if (!window.IsKeyPressed(SDL_Scancode.SDL_SCANCODE_TAB))
+        if (!window.IsKeyPressed(Key.Tab))
             return;
 
         if (window.ActiveDiv is null)
             return;
 
-        var shouldSearchBackwards = window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_LSHIFT) || window.IsKeyDown(SDL_Scancode.SDL_SCANCODE_RSHIFT);
+        var shouldSearchBackwards = window.IsKeyDown(Key.ShiftLeft) || window.IsKeyDown(Key.ShiftRight);
 
         if (shouldSearchBackwards)
         {

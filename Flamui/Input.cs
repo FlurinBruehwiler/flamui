@@ -1,49 +1,88 @@
-﻿using System.Collections.Concurrent;
-using System.Numerics;
-using System.Runtime.InteropServices;
+﻿using System.Numerics;
+using Silk.NET.Input;
+using Silk.NET.Windowing;
 
 namespace Flamui;
 
-public class Input(UiWindow uiWindow)
+public class Input
 {
-    public readonly MouseButton[] MouseButtonStates =
-    {
-        new(),
-        new(),
-        new(),
-    };
+    public readonly MouseButtonState[] MouseButtonStates = [];
 
     public Vector2 MousePosition { get; private set; }
     public Vector2 LastMousePosition { get; private set; }
-    public int ScrollDelta { get; private set; }
+    public float ScrollDeltaX { get; private set; }
+    public float ScrollDeltaY { get; private set; }
     public string TextInput { get; private set; } = string.Empty;
 
     /// <summary>
     /// Keys that have been pressed once
     /// </summary>
-    public HashSet<SDL_Scancode> KeyPressed { get; set; } = new();
+    public HashSet<Key> KeyPressed { get; set; } = new();
 
     /// <summary>
     /// Keys that are being pressed
     /// </summary>
-    public HashSet<SDL_Scancode> KeyDown { get; set; } = new();
+    public HashSet<Key> KeyDown { get; set; } = new();
 
     /// <summary>
     /// Keys that have been release once
     /// </summary>
-    public HashSet<SDL_Scancode> KeyReleased { get; set; } = new();
+    public HashSet<Key> KeyReleased { get; set; } = new();
 
     /// <summary>
     /// Keys that are not being pressed
     /// </summary>
-    public HashSet<SDL_Scancode> KeyUp { get; set; } = new();
+    public HashSet<Key> KeyUp { get; set; } = new();
 
-
-    public void HandleEvents(ConcurrentQueue<SDL_Event> events)
+    public Input(IWindow window)
     {
-        while (events.TryDequeue(out var sdlEvent))
+        var input = window.CreateInput();
+
+        for (int i = 0; i <= (int)MouseButton.Button12; i++)
         {
-            HandleEvent(sdlEvent);
+            MouseButtonStates[i] = new MouseButtonState();
+        }
+
+        foreach (var keyboard in input.Keyboards)
+        {
+            keyboard.KeyDown += (_, key, _) =>
+            {
+                KeyDown.Add(key);
+                KeyPressed.Add(key);
+            };
+
+            keyboard.KeyUp += (_, key, _) =>
+            {
+                KeyUp.Add(key);
+                KeyDown.Remove(key);
+                KeyReleased.Add(key);
+            };
+        }
+
+        foreach (var mouse in input.Mice)
+        {
+            mouse.MouseDown += (_, button) =>
+            {
+                var mouseButton = GetMouseButton(button);
+                mouseButton.IsMouseButtonDown = true;
+                mouseButton.IsMouseButtonPressed = true;
+            };
+            mouse.MouseUp += (_, button) =>
+            {
+                var mouseButton = GetMouseButton(button);
+                mouseButton.IsMouseButtonUp = true;
+                mouseButton.IsMouseButtonDown = false;
+                mouseButton.IsMouseButtonReleased = true;
+            };
+            mouse.Scroll += (_, wheel) =>
+            {
+                ScrollDeltaX = wheel.X;
+                ScrollDeltaY = wheel.Y;
+            };
+            mouse.MouseMove += (_, mouseDelta) =>
+            {
+                MousePosition += mouseDelta;
+            };
         }
     }
 
@@ -62,112 +101,16 @@ public class Input(UiWindow uiWindow)
 
         LastMousePosition = MousePosition;
 
-        ScrollDelta = 0;
+        ScrollDeltaX = 0;
     }
 
-    private void HandleEvent(SDL_Event sdlEvent)
+    private MouseButtonState GetMouseButton(MouseButton button)
     {
-        switch (sdlEvent.type)
-        {
-            case SDL_EventType.SDL_WINDOWEVENT:
-                HandleWindowEvent(sdlEvent.window);
-                break;
-            case SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                HandleMouseDown(sdlEvent.button);
-                break;
-            case SDL_EventType.SDL_MOUSEBUTTONUP:
-                HandleMouseUp(sdlEvent.button);
-                break;
-            case SDL_EventType.SDL_MOUSEMOTION:
-                HandleMouseMove(sdlEvent.motion);
-                break;
-            case SDL_EventType.SDL_MOUSEWHEEL:
-                HandleMouseWheel(sdlEvent.wheel);
-                break;
-            case SDL_EventType.SDL_TEXTINPUT:
-                HandleTextInput(sdlEvent.text);
-                break;
-            case SDL_EventType.SDL_KEYDOWN:
-                HandleKeyDown(sdlEvent.key);
-                break;
-            case SDL_EventType.SDL_KEYUP:
-                HandleKeyUp(sdlEvent.key);
-                break;
-        }
-    }
-
-    private void HandleWindowEvent(SDL_WindowEvent sdlEventWindow)
-    {
-        switch (sdlEventWindow.windowEvent)
-        {
-            case SDL_WindowEventID.SDL_WINDOWEVENT_CLOSE:
-                uiWindow.Dispose();
-                break;
-        }
-    }
-
-    private void HandleTextInput(SDL_TextInputEvent sdlEventText)
-    {
-        unsafe
-        {
-            //ToDo https://wiki.libsdl.org/SDL2/Tutorials-TextInput
-            TextInput += Marshal.PtrToStringUTF8((IntPtr)sdlEventText.text);
-        }
-    }
-
-    private void HandleMouseMove(SDL_MouseMotionEvent sdlEventMotion)
-    {
-        MousePosition = new Vector2(sdlEventMotion.x, sdlEventMotion.y);
-    }
-
-    private void HandleMouseWheel(SDL_MouseWheelEvent sdlEventWheel)
-    {
-        ScrollDelta -= sdlEventWheel.y;
-    }
-
-    private void HandleKeyUp(SDL_KeyboardEvent sdlEventKey)
-    {
-        var keycode = sdlEventKey.keysym.scancode;
-        KeyUp.Add(keycode);
-        KeyDown.Remove(keycode);
-        KeyReleased.Add(keycode);
-    }
-
-    private void HandleKeyDown(SDL_KeyboardEvent sdlEventKey)
-    {
-        var keycode = sdlEventKey.keysym.scancode;
-        KeyDown.Add(keycode);
-        KeyPressed.Add(keycode);
-    }
-
-    private void HandleMouseUp(SDL_MouseButtonEvent sdlEventButton)
-    {
-        var mouseButton = GetMouseButton(sdlEventButton.button);
-        mouseButton.IsMouseButtonUp = true;
-        mouseButton.IsMouseButtonDown = false;
-        mouseButton.IsMouseButtonReleased = true;
-    }
-
-    private void HandleMouseDown(SDL_MouseButtonEvent sdlEventButton)
-    {
-        var mouseButton = GetMouseButton(sdlEventButton.button);
-        mouseButton.IsMouseButtonDown = true;
-        mouseButton.IsMouseButtonPressed = true;
-    }
-
-    private MouseButton GetMouseButton(byte button)
-    {
-        return (uint)button switch
-        {
-            SDL_BUTTON_LEFT => MouseButtonStates[(int)MouseButtonKind.Left],
-            SDL_BUTTON_MIDDLE => MouseButtonStates[(int)MouseButtonKind.Middle],
-            SDL_BUTTON_RIGHT => MouseButtonStates[(int)MouseButtonKind.Right],
-            _ => throw new ArgumentOutOfRangeException(nameof(button), button, null)
-        };
+        return MouseButtonStates[(int)button];
     }
 }
 
-public class MouseButton
+public class MouseButtonState
 {
     /// <summary>
     /// Check if a mouse button has been pressed once
@@ -188,12 +131,4 @@ public class MouseButton
     /// Check if a mouse button is NOT being pressed
     /// </summary>
     public bool IsMouseButtonUp { get; set; }
-}
-
-
-public enum MouseButtonKind
-{
-    Left = 0,
-    Middle = 1,
-    Right = 2
 }

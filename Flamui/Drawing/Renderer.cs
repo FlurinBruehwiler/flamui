@@ -2,12 +2,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Text;
-using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
-namespace NewRenderer;
+namespace Flamui.Drawing;
 
 public struct Mesh
 {
@@ -39,7 +38,7 @@ public class Renderer
             return code;
 
         var asm = Assembly.GetExecutingAssembly();
-        using var stream = asm.GetManifestResourceStream($"NewRenderer.Shaders.{shader.ToString()}.glsl");
+        using var stream = asm.GetManifestResourceStream($"Flamui.Drawing.Shaders.{shader.ToString()}.glsl");
         using var reader = new StreamReader(stream!, Encoding.UTF8);
         code = reader.ReadToEnd();
         _shaderStrings[shader] = code;

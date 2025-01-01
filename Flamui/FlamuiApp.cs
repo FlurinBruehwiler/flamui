@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using  Silk.NET.Windowing;
 
 namespace Flamui;
 
-public class WindowOptions
+public class FlamuiWindowOptions
 {
     public int Width { get; set; } = 900;
     public int Height { get; set; } = 500;
@@ -26,10 +27,10 @@ public class FlamuiApp
 
         var rootProvider = services.BuildServiceProvider();
         Services = rootProvider.CreateScope().ServiceProvider;
-
-        var uiThread = new Thread(_eventLoop.RunUiThread);
-        Dispatcher.UIThread = new Dispatcher(uiThread);
-        uiThread.Start();
+        //
+        // var uiThread = new Thread(_eventLoop.RunUiThread);
+        // Dispatcher.UIThread = new Dispatcher(uiThread);
+        // uiThread.Start();
     }
 
     public void RegisterOnAfterInput(Action<UiWindow> window)
@@ -38,9 +39,9 @@ public class FlamuiApp
         Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
     }
 
-    public void CreateWindow<TRootComponent>(string title, WindowOptions? options = null) where TRootComponent : FlamuiComponent
+    public void CreateWindow<TRootComponent>(string title, FlamuiWindowOptions? options = null) where TRootComponent : FlamuiComponent
     {
-        options ??= new WindowOptions();
+        options ??= new FlamuiWindowOptions();
 
         _eventLoop.WindowsToCreate.Enqueue(new WindowCreationOrder
         {
@@ -53,7 +54,7 @@ public class FlamuiApp
 
     public void Run()
     {
-        _eventLoop.RunMainThread();
+        _eventLoop.MainWindow.Run();
     }
 
     public static FlamuiBuilder CreateBuilder()

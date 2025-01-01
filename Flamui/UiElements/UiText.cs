@@ -21,24 +21,24 @@ public class UiText : UiElement
 {
     public UiTextInfo UiTextInfo;
 
-    private static readonly SKPaint Paint = new()
-    {
-        IsAntialias = true,
-        Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Thin, SKFontStyleWidth.Normal,
-            SKFontStyleSlant.Upright)
-    };
+    // private static readonly SKPaint Paint = new()
+    // {
+    //     IsAntialias = true,
+    //     Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Thin, SKFontStyleWidth.Normal,
+    //         SKFontStyleSlant.Upright)
+    // };
 
-    private SKRect GetRect()
-    {
-        var bounds = new SKRect();
-        Paint.MeasureText(UiTextInfo.Content, ref bounds);
-        return bounds;
-    }
+    // private SKRect GetRect()
+    // {
+    //     var bounds = new SKRect();
+    //     Paint.MeasureText(UiTextInfo.Content, ref bounds);
+    //     return bounds;
+    // }
 
     private void UpdatePaint()
     {
-        Paint.TextSize = UiTextInfo.Size;
-        Paint.Color = new SKColor(UiTextInfo.Color.Red, UiTextInfo.Color.Green, UiTextInfo.Color.Blue, UiTextInfo.Color.Alpha);
+        // Paint.TextSize = UiTextInfo.Size;
+        // Paint.Color = new SKColor(UiTextInfo.Color.Red, UiTextInfo.Color.Green, UiTextInfo.Color.Blue, UiTextInfo.Color.Alpha);
     }
 
     public override void Reset()

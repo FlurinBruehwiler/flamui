@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using StbTrueTypeSharp;
 
-namespace NewRenderer;
+namespace Flamui.Drawing;
 
 //http://arkanis.de/weblog/2023-08-14-simple-good-quality-subpixel-text-rendering-in-opengl-with-stb-truetype-and-dual-source-blending#gl45-subpixel-text-rendering-demo
 
@@ -75,7 +75,7 @@ public class FontLoader
         var info = new StbTrueType.stbtt_fontinfo();
 
         var asm = Assembly.GetExecutingAssembly();
-        using var stream = asm.GetManifestResourceStream($"NewRenderer.{name}");
+        using var stream = asm.GetManifestResourceStream($"Flamui.Drawing.{name}");
         using MemoryStream ms = new MemoryStream();
         stream!.CopyTo(ms);
         var fontData = ms.ToArray();

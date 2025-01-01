@@ -1,191 +1,155 @@
-﻿using System.Diagnostics;
-using Silk.NET.Input;
+﻿using System;
+using System.Drawing;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Silk.NET.OpenGL;
-using System.Drawing;
-using System.Numerics;
-using System.Security.Cryptography;
-using System.Text.Json;
 
-namespace NewRenderer;
-
-public struct TextPos
-{
-    public int Line;
-    public int Char;
-}
-
-public struct Vertex
-{
-    public Vector2 Position;
-    public Vector2 UV;
-    public float BezierFillType;
-    public Color Color;
-    public TextureType TextureType;
-
-    public Vertex(Vector2 position, Vector2 uv, Color color)
-    {
-        Position = position;
-        UV = uv;
-        Color = color;
-    }
-}
-
-public struct Rect
-{
-    public Rect(float x, float y, float width, float height)
-    {
-        Pos = new Vector2(x, y);
-        Size = new Vector2(width, height);
-    }
-
-    public Vector2 Pos;
-    public Vector2 Size;
-}
-
-public struct BezierCurve
-{
-    public BezierCurve(Vector2 p1, Vector2 p2, Vector2 p3)
-    {
-        P1 = p1;
-        P2 = p2;
-        P3 = p3;
-    }
-
-    public Vector2 P1;
-    public Vector2 P2;
-    public Vector2 P3;
-}
+namespace MyProgram;
 
 public class Program
 {
     private static IWindow _window;
-    // private static GL _gl;
-    // private static uint _vao; //vertex array object
-    // private static uint _vbo; //vertex buffer object
-    // private static uint _ebo; //element  buffer object
-    // private static uint _program;
-    // private static int _transformLoc;
-    private static readonly Renderer _renderer = new();
-    private static IMouse Mouse;
+    private static GL _gl;
 
+    private static uint _vao;
+    private static uint _vbo;
+    private static uint _ebo;
 
-    public static Font DefaultFont;
+    private static uint _program;
 
-    public static void Main()
+    public static void Main(string[] args)
     {
-        // while (!Debugger.IsAttached)
-        // {
-        //     Thread.Sleep(1000);
-        // }
+        WindowOptions options = WindowOptions.Default;
+        options.Size = new Vector2D<int>(800, 600);
+        options.Title = "1.2 - Drawing a Quad";
 
-        DefaultFont = FontLoader.LoadFont("JetBrainsMono-Regular.ttf", 20);
-
-        WindowOptions options = WindowOptions.Default with
+        new Thread(() =>
         {
-            Size = new Vector2D<int>(800, 600),
-            Title = "Flamui next :)",
-            Samples = 4
+            _window = Window.Create(options);
+
+            _window.Load += OnLoad;
+            _window.Update += OnUpdate;
+            _window.Render += OnRender;
+            _window.Run();
+        }).Start();
+
+        var window2 = Window.Create(options);
+        window2.Run();
+    }
+
+    private static unsafe void OnLoad()
+    {
+        _gl = _window.CreateOpenGL();
+
+        _gl.ClearColor(Color.CornflowerBlue);
+
+        // Create the VAO.
+        _vao = _gl.GenVertexArray();
+        _gl.BindVertexArray(_vao);
+
+        // The quad vertices data.
+        float[] vertices =
+        {
+            0.5f,  0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+            -0.5f,  0.5f, 0.0f
         };
 
-        _window = Window.Create(options);
+        // Create the VBO.
+        _vbo = _gl.GenBuffer();
+        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
 
-        _window.Load += OnLoad;
-        _window.Update += OnUpdate;
-        _window.Render += OnRender;
+        // Upload the vertices data to the VBO.
+        fixed (float* buf = vertices)
+            _gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint) (vertices.Length * sizeof(float)), buf, BufferUsageARB.StaticDraw);
 
-        _window.Run();
+        // The quad indices data.
+        uint[] indices =
+        {
+            0u, 1u, 3u,
+            1u, 2u, 3u
+        };
+
+        // Create the EBO.
+        _ebo = _gl.GenBuffer();
+        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo);
+
+        // Upload the indices data to the EBO.
+        fixed (uint* buf = indices)
+            _gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint) (indices.Length * sizeof(uint)), buf, BufferUsageARB.StaticDraw);
+
+        const string vertexCode = @"
+#version 330 core
+
+layout (location = 0) in vec3 aPosition;
+
+void main()
+{
+    gl_Position = vec4(aPosition, 1.0);
+}";
+
+        const string fragmentCode = @"
+#version 330 core
+
+out vec4 out_color;
+
+void main()
+{
+    out_color = vec4(1.0, 0.5, 0.2, 1.0);
+}";
+
+        uint vertexShader = _gl.CreateShader(ShaderType.VertexShader);
+        _gl.ShaderSource(vertexShader, vertexCode);
+
+        _gl.CompileShader(vertexShader);
+
+        _gl.GetShader(vertexShader, ShaderParameterName.CompileStatus, out int vStatus);
+        if (vStatus != (int) GLEnum.True)
+            throw new Exception("Vertex shader failed to compile: " + _gl.GetShaderInfoLog(vertexShader));
+
+        uint fragmentShader = _gl.CreateShader(ShaderType.FragmentShader);
+        _gl.ShaderSource(fragmentShader, fragmentCode);
+
+        _gl.CompileShader(fragmentShader);
+
+        _gl.GetShader(fragmentShader, ShaderParameterName.CompileStatus, out int fStatus);
+        if (fStatus != (int) GLEnum.True)
+            throw new Exception("Fragment shader failed to compile: " + _gl.GetShaderInfoLog(fragmentShader));
+
+        _program = _gl.CreateProgram();
+
+        _gl.AttachShader(_program, vertexShader);
+        _gl.AttachShader(_program, fragmentShader);
+
+        _gl.LinkProgram(_program);
+
+        _gl.GetProgram(_program, ProgramPropertyARB.LinkStatus, out int lStatus);
+        if (lStatus != (int) GLEnum.True)
+            throw new Exception("Program failed to link: " + _gl.GetProgramInfoLog(_program));
+
+        _gl.DetachShader(_program, vertexShader);
+        _gl.DetachShader(_program, fragmentShader);
+        _gl.DeleteShader(vertexShader);
+        _gl.DeleteShader(fragmentShader);
+
+        const uint positionLoc = 0;
+        _gl.EnableVertexAttribArray(positionLoc);
+        _gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), (void*) 0);
+
+        _gl.BindVertexArray(0);
+        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
     }
 
-    private static void KeyDown(IKeyboard keyboard, Key key, int keyCode)
-    {
-        if (key == Key.Escape)
-            _window.Close();
-    }
+    private static void OnUpdate(double deltaTime) { }
 
     private static unsafe void OnRender(double deltaTime)
     {
-        // Console.WriteLine(_gl.GetError());
+        _gl.Clear(ClearBufferMask.ColorBufferBit);
 
-        var canvas = new GlCanvas(_renderer);
-
-        canvas.Start();
-
-        canvas.Color = Color.FromArgb(30, 31, 34);
-        canvas.DrawRect(0, 0, _window.Size.X, 1000);
-
-        DrawMultilineSelectableText(canvas, 0, 0, "The quick brown fox\njumps over the lazy dog");
-        // canvas.DrawRect(0, 0, Program.DefaultFont.AtlasWidth, Program.DefaultFont.AtlasHeight);
-
-        canvas.Flush();
-
-        //-----
-
-         // Console.WriteLine(JsonSerializer.Serialize(vertexFloats));
-         // Console.WriteLine(JsonSerializer.Serialize(indices));
-         //
-         // Thread.Sleep(int.MaxValue);
-
-         //--start
-         //
-
-         //
-         // //----- end
-         //
-         // gl.BindVertexArray(0);
-         // gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
-         // gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
-        //-----
+	    _gl.BindVertexArray(_vao);
+	    _gl.UseProgram(_program);
+	    _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*) 0);
     }
-
-    private static void DrawMultilineSelectableText(GlCanvas canvas, float xCoord, float yCoord, ReadOnlySpan<char> text)
-    {
-        var mousePos = Mouse.Position;
-
-        canvas.Color = Color.FromArgb(187, 189, 190);
-        foreach (var line in FontShaping.SplitTextIntoLines(DefaultFont, text, _window.Size.X))
-        {
-            var lineSpan = text[line];
-            canvas.DrawText(lineSpan, xCoord, yCoord);
-            var newYCord = yCoord + DefaultFont.Ascent - DefaultFont.Descent + DefaultFont.LineGap;
-            if (mousePos.Y > yCoord && mousePos.Y < newYCord)
-            {
-                var hitIndex = FontShaping.HitTest(DefaultFont, lineSpan, mousePos.X - xCoord);
-                if (hitIndex != -1)
-                {
-                    var (start, end) = FontShaping.GetPositionOfChar(DefaultFont, lineSpan, hitIndex);
-                    var tempColor = canvas.Color;
-                    canvas.Color = Color.FromArgb(50, 184, 217, 255);
-                    canvas.DrawRect(xCoord + start, yCoord, end - start, DefaultFont.Ascent - DefaultFont.Descent);
-                    canvas.Color = tempColor;
-                }
-            }
-            yCoord = newYCord;
-        }
-    }
-
-    private static void OnUpdate(double deltaTime)
-    {
-
-    }
-
-    //delaunay triangulation
-    //illegal algorithm: https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
-    //yt: https://www.youtube.com/watch?v=SO83KQuuZvg
-    private static void OnLoad()
-    {
-        IInputContext input = _window.CreateInput();
-        for (int i = 0; i < input.Keyboards.Count; i++)
-            input.Keyboards[i].KeyDown += KeyDown;
-
-        Mouse = input.Mice.First();
-
-
-        //opengl setup
-        _renderer.Initialize(_window);
-
-        // Console.WriteLine(_gl.GetError());
-    }
-
 }
