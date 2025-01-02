@@ -90,6 +90,8 @@ public class Renderer
 
         UploadTexture(DefaultFont.AtlasBitmap, (uint)DefaultFont.AtlasWidth, (uint)DefaultFont.AtlasHeight);
 
+        CheckError();
+
         Gl.BindVertexArray(0);
 
     }

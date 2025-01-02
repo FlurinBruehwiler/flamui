@@ -167,6 +167,28 @@ public unsafe struct Slice<T> where T : unmanaged
     public T* Items;
     public int Count;
 
+    public Slice(T* items, int count)
+    {
+        Items = items;
+        Count = count;
+    }
+
+    public Span<T> Span => new(Items, Count);
+
+    public Slice<T> SubSlice(int start, int length)
+    {
+        if (length < 0)
+            throw new ArgumentOutOfRangeException();
+
+        if (start < 0)
+            throw new ArgumentOutOfRangeException();
+
+        if (start + length > Count)
+            throw new ArgumentOutOfRangeException();
+
+        return new Slice<T>(&Items[start], length);
+    }
+
     public T this[int index]
     {
         get

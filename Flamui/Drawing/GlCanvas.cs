@@ -64,6 +64,8 @@ public class GlCanvas
         uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvHeight), Paint.Color, textureType: TextureType.Text);
         uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvHeight), Paint.Color, textureType: TextureType.Text);
 
+        DrawRect(x, y, glyphInfo.Width, glyphInfo.Height);
+
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
     }

@@ -41,6 +41,20 @@ public static class FlexContainerRenderer
             // renderContext.Add(new Restore());//todo
         }
 
+        if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is {} borderColor)
+        {
+            float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
+
+            var bounds = new Bounds
+            {
+                X = offset.X - flexContainer.Info.BorderWidth,
+                Y = offset.Y - flexContainer.Info.BorderWidth,
+                W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
+                H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
+            };
+            renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
+        }
+
         if (flexContainer.Info.Color is { } color)
         {
             //shadow
@@ -64,26 +78,6 @@ public static class FlexContainerRenderer
             }
 
             renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius);
-        }
-
-        if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is {} borderColor)
-        {
-            // renderContext.Add(new Save());
-
-            float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
-
-            renderContext.AddClipRect(flexContainer.Rect.ToBounds(offset), flexContainer.Info.Radius); //todo clip should be inverted
-
-            var bounds = new Bounds
-            {
-                X = offset.X - flexContainer.Info.BorderWidth,
-                Y = offset.Y - flexContainer.Info.BorderWidth,
-                W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
-                H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
-            };
-            renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
-
-            // renderContext.Add(new Restore());
         }
 
         ClipContent(renderContext, flexContainer, flexContainer.Info, offset);

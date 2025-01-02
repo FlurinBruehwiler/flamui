@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics.Contracts;
+using System.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
 
@@ -211,6 +212,12 @@ public struct ColorDefinition
         Green = g;
         Blue = b;
         Alpha = a;
+    }
+
+    [Pure]
+    public Color ToColor()
+    {
+        return Color.FromArgb(Alpha, Red, Green, Blue);
     }
 
     public static ColorDefinition FromColor(Color color)

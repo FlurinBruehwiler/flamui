@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Maths;
@@ -119,6 +120,8 @@ public class RenderContext
 
     private static int rerenderCount;
 
+    private bool isFirstRender = true;
+
     public void Rerender(Renderer renderer)
     {
         var canvas = new GlCanvas(renderer);
@@ -131,6 +134,9 @@ public class RenderContext
         {
             foreach (var command in value)
             {
+                if(isFirstRender)
+                    Console.WriteLine(command.Type);
+
                 switch (command.Type)
                 {
                     case CommandType.Rect:
@@ -148,6 +154,7 @@ public class RenderContext
                         break;
                     case CommandType.Text:
                         canvas.Paint.Font = command.Font.Get(); //todo make font
+                        canvas.Paint.Color = command.Color.ToColor();
                         canvas.DrawText(command.String.Get(), command.Bounds.X, command.Bounds.Y);
                         break;
                     case CommandType.Matrix:
@@ -158,6 +165,8 @@ public class RenderContext
                 }
             }
         }
+
+        isFirstRender = false;
 
         canvas.Flush();
     }
@@ -221,14 +230,6 @@ public struct Bounds
     // {
     //     return SKRect.Create(X, Y, W, H);
     // }
-
-    public bool BoundsEquals(Bounds otherBounds)
-    {
-        return otherBounds.X == X
-               && otherBounds.Y == Y
-               && otherBounds.W == W
-               && otherBounds.H == H;
-    }
 
     public Bounds Inflate(float x, float y)
     {

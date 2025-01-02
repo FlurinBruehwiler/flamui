@@ -45,7 +45,7 @@ public class FlamuiApp
         WindowOptions o = WindowOptions.Default with
         {
             Size = new Vector2D<int>(options.Width, options.Height),
-            Title = "Flamui next :)",
+            Title = title,
             Samples = 4,
         };
 

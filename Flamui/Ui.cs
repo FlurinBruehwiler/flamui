@@ -13,6 +13,7 @@ public partial class Ui
 
     public UiWindow Window = null!;
     public UiElement Root;
+    public static Arena Arena;
 
     public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",
