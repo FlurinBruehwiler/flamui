@@ -28,8 +28,8 @@ public struct MeshBuilder
 
     public MeshBuilder()
     {
-        _indices = [];
-        _vertices = [];
+        _indices = new List<uint>(1000);
+        _vertices = new List<Vertex>(1000);
         Matrix = Matrix4X4<float>.Identity;
     }
 

@@ -105,7 +105,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
                 _currentChunk = _currentChunk->NextChunk;
             }
 
-            if (_indexInChunk == _currentChunk->Count)
+            if (_indexInChunk == _currentChunk->Items.Count)
             {
                 _current = default;
                 return false;
@@ -207,7 +207,7 @@ public unsafe struct Slice<T> where T : unmanaged
         get
         {
             if (index >= Count)
-                throw new IndexOutOfRangeException();
+                throw new IndexOutOfRangeException($"Index {index} isn't inside Count {Count}");
 
             return Items[index];
         }
