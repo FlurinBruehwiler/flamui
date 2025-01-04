@@ -1,5 +1,5 @@
-﻿using Flamui.Layouting;
-using SkiaSharp;
+﻿using Flamui.Drawing;
+using Flamui.Layouting;
 
 namespace Flamui.UiElements;
 
@@ -21,25 +21,6 @@ public class UiText : UiElement
 {
     public UiTextInfo UiTextInfo;
 
-    private static readonly SKPaint Paint = new()
-    {
-        IsAntialias = true,
-        Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Thin, SKFontStyleWidth.Normal,
-            SKFontStyleSlant.Upright)
-    };
-
-    private SKRect GetRect()
-    {
-        var bounds = new SKRect();
-        Paint.MeasureText(UiTextInfo.Content, ref bounds);
-        return bounds;
-    }
-
-    private void UpdatePaint()
-    {
-        Paint.TextSize = UiTextInfo.Size;
-        Paint.Color = new SKColor(UiTextInfo.Color.Red, UiTextInfo.Color.Green, UiTextInfo.Color.Blue, UiTextInfo.Color.Alpha);
-    }
 
     public override void Reset()
     {
@@ -52,11 +33,11 @@ public class UiText : UiElement
         if (UiTextInfo.Content == string.Empty)
             return;
 
-        UpdatePaint();
+        var font = Renderer.DefaultFont;
 
-        var rect = GetRect();
+        var width = FontShaping.MeasureText(font, UiTextInfo.Content);
 
-        Paint.GetFontMetrics(out var metrics);
+        // Paint.GetFontMetrics(out var metrics);
 
         var actualX = offset.X;
         var actualY = offset.Y;
@@ -65,38 +46,31 @@ public class UiText : UiElement
         {
             TextAlign.Start => UiTextInfo.Size,
             TextAlign.End => Rect.Height,
-            TextAlign.Center => Rect.Height / 2 - (metrics.Ascent + metrics.Descent) / 2,
+            TextAlign.Center => Rect.Height / 2 - font.GetHeight() / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
 
         actualX += UiTextInfo.HorizontalAlignment switch
         {
-            TextAlign.End => Rect.Width - rect.Width,
-            TextAlign.Center => Rect.Width / 2 - rect.Width / 2,
+            TextAlign.End => Rect.Width - width,
+            TextAlign.Center => Rect.Width / 2 - width / 2,
             TextAlign.Start => 0,
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        renderContext.Add(new Text
+        var bounds = new Bounds
         {
-            Content = UiTextInfo.Content,
             X = actualX,
             Y = actualY,
-            RenderPaint = new TextPaint //don't define paint twice
-            {
-                SkColor = new SKColor(UiTextInfo.Color.Red, UiTextInfo.Color.Green, UiTextInfo.Color.Blue, UiTextInfo.Color.Alpha),
-                TextSize = UiTextInfo.Size
-            }
-        });
+            W = width,
+            H = font.GetHeight()
+        };
+        renderContext.AddText(bounds, UiTextInfo.Content, UiTextInfo.Color, Renderer.DefaultFont);
     }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        UpdatePaint();
-
-        var rect = GetRect();
-
-        Rect = new BoxSize(rect.Width, rect.Height);
+        Rect = new BoxSize(FontShaping.MeasureText(Renderer.DefaultFont, UiTextInfo.Content), Renderer.DefaultFont.GetHeight());
 
         return Rect;
     }
@@ -137,8 +111,6 @@ public class UiText : UiElement
         return this;
     }
 }
-
-public record struct TextPathCacheItem(string Content, float X, float Y);
 
 public enum TextAlign
 {

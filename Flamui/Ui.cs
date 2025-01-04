@@ -13,6 +13,7 @@ public partial class Ui
 
     public UiWindow Window = null!;
     public UiElement Root;
+    public static Arena Arena;
 
     public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",
@@ -77,7 +78,7 @@ public partial class Ui
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        var id = new UiID(key, path, line, typeof(Text).GetHashCode());
+        var id = new UiID(key, path, line, typeof(UiText).GetHashCode());
         var text = GetData(id, static (ui, id) => new UiText
         {
             Id = id,

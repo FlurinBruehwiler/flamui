@@ -10,7 +10,7 @@ var app = builder.Build();
 
 await app.Services.GetRequiredService<StorageService>().InitializeAsync();
 
-var options = new WindowOptions
+var options = new FlamuiWindowOptions
 {
     Height = 800,
     Width = 500,

@@ -8,6 +8,15 @@ public struct ScrollConfig
     public bool TakesUpSpace() => CanScroll && !OverlayScrollbar;
 }
 
+public enum RotationPivot
+{
+    Center,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
+}
+
 public struct FlexContainerInfo
 {
     //maybe we don't want to expand as the default in the future, then we could get rid of this constructor!!! performance++
@@ -24,8 +33,10 @@ public struct FlexContainerInfo
     public ColorDefinition? Color;
     public ColorDefinition? BorderColor;
     public Quadrant Padding;
+    public float Rotation;
     public int Gap;
     public int Radius;
+    public RotationPivot RotationPivot;
     public int BorderWidth;
     public ScrollConfig ScrollConfigX;
     public ScrollConfig ScrollConfigY;
@@ -53,7 +64,7 @@ public struct FlexContainerInfo
         var padding =  Padding.SumInDirection(Direction);
         if (ScrollConfigFromDirection(Direction).TakesUpSpace())
         {
-            padding += 10; //todo don't hardcode scrollbar width
+            padding += ScrollbarSettings.Default.Width; //todo don't hardcode default settings
         }
 
         return padding;
@@ -64,7 +75,7 @@ public struct FlexContainerInfo
         var padding = Padding.SumInDirection(Direction.Other());
         if (ScrollConfigFromDirection(Direction.Other()).TakesUpSpace())
         {
-            padding += 10;
+            padding += ScrollbarSettings.Default.Width;
         }
 
         return padding;
@@ -74,8 +85,8 @@ public struct FlexContainerInfo
     {
         return dir switch
         {
-            Dir.Vertical => ScrollConfigY,
-            Dir.Horizontal => ScrollConfigX,
+            Dir.Vertical => ScrollConfigX,
+            Dir.Horizontal => ScrollConfigY,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
     }

@@ -2,16 +2,54 @@ using Flamui.Layouting;
 
 namespace Flamui.UiElements;
 
+public struct ScrollInputInfo
+{
+    public float ScrollDelay;
+    public float TargetScrollPos;
+    public float StartScrollPos;
+
+    public const float smoothScrollDelay = 150;
+
+    public void ApplyInput(ref float scrollPos, float scrollDelta)
+    {
+        if (scrollDelta != 0)
+        {
+            ScrollDelay = smoothScrollDelay;
+            StartScrollPos = scrollPos;
+            TargetScrollPos += scrollDelta * 65;
+        }
+    }
+
+    public void Smooth(ref float scrollPos)
+    {
+        if (ScrollDelay > 0)
+        {
+            scrollPos = Lerp(StartScrollPos, TargetScrollPos, 1 - ScrollDelay / smoothScrollDelay);
+            ScrollDelay -= 16.6f;
+        }
+        else
+        {
+            StartScrollPos = scrollPos;
+            TargetScrollPos = scrollPos;
+        }
+    }
+
+    private static float Lerp(float from, float to, float progress)
+    {
+        return from * (1 - progress) + to * progress;
+    }
+}
+
 public partial class FlexContainer
 {
-    private float _scrollDelay;
-    private float _targetScrollPos;
-    private float _startScrollPos;
 
     public float ScrollPosY;
     public float ScrollPosX;
+    public ScrollInputInfo ScrollInputInfoX;
+    public ScrollInputInfo ScrollInputInfoY;
 
-    public readonly EmptyStack _scrollBarContainer = new();
+    public readonly EmptyStack _scrollBarContainerY = new();
+    public readonly EmptyStack _scrollBarContainerX = new();
 
     public float GetScrollPosInDir(Dir dir)
     {
@@ -27,33 +65,52 @@ public partial class FlexContainer
     {
         //TODO pls refactor this very ugly code!!!!!!!!!!!!!!!
 
-        var scrollbar = Window.Ui.GetData(Id, (container: this, dir: dir), static (_, _, hi) =>
+        var scrollbar = Window.Ui.GetData(Id with { Key = dir == Dir.Horizontal ? "Horizontal" : "Vertical"}, (container: this, dir: dir), static (_, _, hi) =>
         {
-            var comp = new Scrollbar(new ScrollService(hi.container, hi.dir), ScrollbarSettings.Default);
+            var settings = ScrollbarSettings.Default;
+
+            if (!hi.container.Info.ScrollConfigY.OverlayScrollbar)
+            {
+                settings.TrackColor = settings.TrackHoverColor;
+            }
+
+            var comp = new Scrollbar(new ScrollService(hi.container, hi.dir), settings);
             comp.OnInitialized();
             return comp;
         });
 
-        _scrollBarContainer.DataStore.Reset();
+        var scrollBarContainer = dir == Dir.Horizontal ? _scrollBarContainerX : _scrollBarContainerY;
 
-        Window.Ui.OpenElementStack.Push(_scrollBarContainer);
+        scrollBarContainer.DataStore.Reset();
+
+        Window.Ui.OpenElementStack.Push(scrollBarContainer);
         scrollbar.Build(Window.Ui);
         Window.Ui.OpenElementStack.Pop();
 
-        if (_scrollBarContainer.UiElement is null)
+        if (scrollBarContainer.UiElement is null)
             return 0;
 
-        var size = _scrollBarContainer.UiElement.Layout(new BoxConstraint(0, Rect.Width, 0, Rect.Height));
-        _scrollBarContainer.UiElement.ParentData = new ParentData
+        var size = scrollBarContainer.UiElement.Layout(new BoxConstraint(0, Rect.Width, 0, Rect.Height));
+        if (dir == Dir.Vertical)
         {
-            Position = new Point(Rect.Width - size.Width, 0)
-        };
+            scrollBarContainer.UiElement.ParentData = new ParentData
+            {
+                Position = new Point(Rect.Width - size.Width, 0)
+            };
+        }
+        else
+        {
+            scrollBarContainer.UiElement.ParentData = new ParentData
+            {
+                Position = new Point(0, Rect.Height - size.Height)
+            };
+        }
 
-        return _scrollBarContainer.UiElement.Rect.Width;
+        return scrollBarContainer.UiElement.Rect.Width;
     }
 
 
-    private void CalculateScrollPos(ref float scrollPos, Dir dir)
+    private void CalculateScrollPos(ref float scrollPos, Dir dir, float wheelDelta)
     {
         if (ActualContentSize.GetDirection(dir) <= Rect.GetDirection(dir))
         {
@@ -61,31 +118,23 @@ public partial class FlexContainer
             return;
         }
 
-        const float smoothScrollDelay = 150;
-
-        if (Window.ScrollDelta != 0 && IsHovered)
+        if (dir == Dir.Horizontal)
         {
-            _scrollDelay = smoothScrollDelay;
-            _startScrollPos = scrollPos;
-            _targetScrollPos += Window.ScrollDelta * 65;
+            if (IsHovered)
+            {
+                ScrollInputInfoY.ApplyInput(ref scrollPos, wheelDelta);
+            }
+            ScrollInputInfoY.Smooth(ref scrollPos);
         }
-
-        if (_scrollDelay > 0)
+        if (dir == Dir.Vertical)
         {
-            scrollPos = Lerp(_startScrollPos, _targetScrollPos, 1 - _scrollDelay / smoothScrollDelay);
-            _scrollDelay -= 16.6f;
-        }
-        else
-        {
-            _startScrollPos = scrollPos;
-            _targetScrollPos = scrollPos;
+            if (IsHovered)
+            {
+                ScrollInputInfoX.ApplyInput(ref scrollPos, wheelDelta);
+            }
+            ScrollInputInfoX.Smooth(ref scrollPos);
         }
 
         scrollPos = Math.Clamp(scrollPos, 0, ActualContentSize.GetDirection(dir) - Rect.GetDirection(dir));
-    }
-
-    private static float Lerp(float from, float to, float progress)
-    {
-        return from * (1 - progress) + to * progress;
     }
 }

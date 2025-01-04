@@ -1,4 +1,4 @@
-using SDL2;
+using Silk.NET.Input;
 
 namespace Flamui.Components.DebugTools;
 
@@ -11,7 +11,7 @@ public static class FlamuiAppExtension
             if (window.IsDebugWindow)
                 return;
 
-            if (window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_F12))
+            if (window.IsKeyPressed(Key.F12))
             {
                 flamuiApp.CreateWindow<DebugWindow>("Debug Window");
             }

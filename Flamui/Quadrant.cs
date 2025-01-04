@@ -1,6 +1,7 @@
-﻿using Flamui.Layouting;
+﻿using System.Diagnostics.Contracts;
+using System.Drawing;
+using Flamui.Layouting;
 using Flamui.UiElements;
-using SkiaSharp;
 
 namespace Flamui;
 
@@ -198,11 +199,30 @@ public static class Extensions
     }
 }
 
-public readonly record struct ColorDefinition(byte Red, byte Green, byte Blue, byte Alpha = 255)
+public struct ColorDefinition
 {
-    public SKColor ToSkColor()
+    public byte Red;
+    public byte Green;
+    public byte Blue;
+    public byte Alpha;
+
+    public ColorDefinition(byte r, byte g, byte b, byte a = 255)
     {
-        return new SKColor(Red, Green, Blue, Alpha);
+        Red = r;
+        Green = g;
+        Blue = b;
+        Alpha = a;
+    }
+
+    [Pure]
+    public Color ToColor()
+    {
+        return Color.FromArgb(Alpha, Red, Green, Blue);
+    }
+
+    public static ColorDefinition FromColor(Color color)
+    {
+        return new ColorDefinition() { Red = color.R, Green = color.G, Blue = color.B, Alpha = color.A };
     }
 
     public static ColorDefinition operator /(ColorDefinition original, byte opacity)

@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Silk.NET.Maths;
+using  Silk.NET.Windowing;
 
 namespace Flamui;
 
-public class WindowOptions
+public class FlamuiWindowOptions
 {
     public int Width { get; set; } = 900;
     public int Height { get; set; } = 500;
@@ -15,21 +17,19 @@ public record SizeConstraint(int Width, int Height);
 public class FlamuiApp
 {
     public IServiceProvider Services { get; private set; }
-
-    private EventLoop _eventLoop = new();
+    private UiWindow _window;
 
     internal FlamuiApp(IServiceCollection services)
     {
         services.AddSingleton(this);
-        services.AddSingleton(_eventLoop);
         services.AddSingleton<RegistrationManager>();
 
         var rootProvider = services.BuildServiceProvider();
         Services = rootProvider.CreateScope().ServiceProvider;
-
-        var uiThread = new Thread(_eventLoop.RunUiThread);
-        Dispatcher.UIThread = new Dispatcher(uiThread);
-        uiThread.Start();
+        //
+        // var uiThread = new Thread(_eventLoop.RunUiThread);
+        // Dispatcher.UIThread = new Dispatcher(uiThread);
+        // uiThread.Start();
     }
 
     public void RegisterOnAfterInput(Action<UiWindow> window)
@@ -38,22 +38,27 @@ public class FlamuiApp
         Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
     }
 
-    public void CreateWindow<TRootComponent>(string title, WindowOptions? options = null) where TRootComponent : FlamuiComponent
+    public void CreateWindow<TRootComponent>(string title, FlamuiWindowOptions? options = null) where TRootComponent : FlamuiComponent
     {
-        options ??= new WindowOptions();
+        options ??= new FlamuiWindowOptions();
 
-        _eventLoop.WindowsToCreate.Enqueue(new WindowCreationOrder
+        WindowOptions o = WindowOptions.Default with
         {
+            Size = new Vector2D<int>(options.Width, options.Height),
             Title = title,
-            Options = options,
-            RootType = typeof(TRootComponent),
-            ServiceProvider = Services
-        });
+            Samples = 4,
+        };
+
+        var window = Window.Create(o);
+
+        var rootComponent = (FlamuiComponent)ActivatorUtilities.CreateInstance(Services, typeof(TRootComponent));
+
+        _window = new UiWindow(window, rootComponent, Services);
     }
 
     public void Run()
     {
-        _eventLoop.RunMainThread();
+        _window.Window.Run();
     }
 
     public static FlamuiBuilder CreateBuilder()

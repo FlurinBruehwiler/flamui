@@ -1,5 +1,5 @@
 ﻿using Flamui.UiElements;
-using SDL2;
+using Silk.NET.Input;
 
 namespace Flamui.Components;
 
@@ -94,7 +94,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             if (dropDownDiv.HasFocusWithin)
             {
                 dropDownDiv.BorderWidth(2).BorderColor(ColorPalette.AccentColor);
-                if (!_isExpanded && (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN) || ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_SPACE)))
+                if (!_isExpanded && (ui.Window.IsKeyPressed(Key.Enter) || ui.Window.IsKeyPressed(Key.Space)))
                 {
                     OpenMenu();
                     return;
@@ -103,7 +103,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
             if (_isExpanded)
             {
-                if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_RETURN))
+                if (ui.Window.IsKeyPressed(Key.Enter))
                 {
                     if (_hoveredOption != -1)
                     {
@@ -112,19 +112,19 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                         return;
                     }
                 }
-                else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_DOWN))
+                else if (ui.Window.IsKeyPressed(Key.Down))
                 {
                     if (_hoveredOption < _filteredOptions.Count - 1)
                     {
                         _hoveredOption++;
                     }
-                }else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_UP))
+                }else if (ui.Window.IsKeyPressed(Key.Up))
                 {
                     if (_hoveredOption > 0)
                     {
                         _hoveredOption--;
                     }
-                }else if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_ESCAPE))
+                }else if (ui.Window.IsKeyPressed(Key.Escape))
                 {
                     CloseMenu();
                     return;

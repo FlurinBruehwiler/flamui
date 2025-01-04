@@ -2,37 +2,37 @@ using Flamui.UiElements;
 
 namespace Flamui.Components.DebugTools;
 
-public class DebugWindow(EventLoop eventLoop) : FlamuiComponent
+public class DebugWindow() : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
         ui.Window.IsDebugWindow = true;
 
-        var otherWindow = EventLoop.Windows.First(x => x != ui.Window);
-
-        using (ui.Div().Padding(3).ShrinkHeight())
-        {
-            if (ui.Button("Select"))
-            {
-                Ui.DebugSelectionModelEnabled = !Ui.DebugSelectionModelEnabled;
-            }
-        }
-
-        using (ui.Div().Direction(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
-        {
-            using (ui.Div().Gap(5).ScrollVertical())
-            {
-                DisplayUiElement(ui, otherWindow.RootContainer, 39210, 0);
-            }
-
-            using (ui.Div().ScrollVertical())
-            {
-                if (Ui.DebugSelectedUiElement is not null)
-                {
-                    DisplayDetail(ui, Ui.DebugSelectedUiElement);
-                }
-            }
-        }
+        // var otherWindow = EventLoop.Windows.First(x => x != ui.Window);
+        return;
+        // using (ui.Div().Padding(3).ShrinkHeight())
+        // {
+        //     if (ui.Button("Select"))
+        //     {
+        //         Ui.DebugSelectionModelEnabled = !Ui.DebugSelectionModelEnabled;
+        //     }
+        // }
+        //
+        // using (ui.Div().Direction(Dir.Horizontal).Padding(10).Gap(10).Color(ColorPalette.BackgroundColor))
+        // {
+        //     using (ui.Div().Gap(5).ScrollVertical())
+        //     {
+        //         DisplayUiElement(ui, otherWindow.RootContainer, 39210, 0);
+        //     }
+        //
+        //     using (ui.Div().ScrollVertical())
+        //     {
+        //         if (Ui.DebugSelectedUiElement is not null)
+        //         {
+        //             DisplayDetail(ui, Ui.DebugSelectedUiElement);
+        //         }
+        //     }
+        // }
     }
 
     private void DisplayUiElement(Ui ui, UiElement flexContainer, int parentHash, int indentationLevel)

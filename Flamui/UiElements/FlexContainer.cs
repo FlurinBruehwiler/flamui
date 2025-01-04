@@ -1,4 +1,5 @@
 ﻿using Flamui.Layouting;
+using Silk.NET.Input;
 
 namespace Flamui.UiElements;
 
@@ -22,7 +23,7 @@ public partial class FlexContainer : UiElementContainer
             if (Window is null)
                 throw new Exception();
 
-            if (!Window.IsMouseButtonPressed(MouseButtonKind.Left))
+            if (!Window.IsMouseButtonPressed(MouseButton.Left))
                 return false;
 
             if (Window.HoveredElements.Contains(this))
@@ -122,12 +123,29 @@ public partial class FlexContainer : UiElementContainer
 
         ActualContentSize = FlexPositionCalculator.ComputePosition(Children, Rect, Info);
 
-        if (Info.ScrollConfigY.CanScroll)
+        if (Info.ScrollConfigY.CanScroll && Info.ScrollConfigX.CanScroll)
         {
-            CalculateScrollPos(ref ScrollPosY, Dir.Vertical);
-            // CalculateScrollPos(ref ScrollPosX, Dir.Horizontal);
+            if (Window.IsKeyDown(Key.ShiftLeft)) //todo handle ScrollDeltaX
+            {
+                CalculateScrollPos(ref ScrollPosX, Dir.Vertical, Window.ScrollDeltaY);
+            }
+            else
+            {
+                CalculateScrollPos(ref ScrollPosY, Dir.Vertical, Window.ScrollDeltaY);
+            }
+
             LayoutScrollbar(Dir.Vertical);
-            // LayoutScrollbar(Dir.Horizontal);
+            LayoutScrollbar(Dir.Horizontal);
+        }
+        else if (Info.ScrollConfigY.CanScroll)
+        {
+            CalculateScrollPos(ref ScrollPosY, Dir.Vertical, Window.ScrollDeltaY);
+            LayoutScrollbar(Dir.Vertical);
+        }
+        else if (Info.ScrollConfigX.CanScroll)
+        {
+            CalculateScrollPos(ref ScrollPosX, Dir.Horizontal, Window.ScrollDeltaY);
+            LayoutScrollbar(Dir.Horizontal);
         }
 
         AbsoluteLayouter.LayoutAbsoluteChildren(Children, Rect);

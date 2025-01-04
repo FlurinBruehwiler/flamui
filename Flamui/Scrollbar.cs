@@ -1,3 +1,6 @@
+using Flamui.UiElements;
+using Silk.NET.Input;
+
 namespace Flamui;
 
 public class ScrollbarSettings
@@ -10,7 +13,7 @@ public class ScrollbarSettings
         TrackColor = C.Transparent,
         Padding = 5, //ToDo padding doesn't work
         ThumbHoverColor = new ColorDefinition(92, 92, 92),
-        TrackHoverColor = new ColorDefinition(52, 52, 52)
+        TrackHoverColor = new ColorDefinition(52, 53, 56, 100)
     };
 
     public float Width;
@@ -36,27 +39,57 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
 
         if (_isDragging)
         {
-            scrollService.ApplyBarDelta(ui.Window.MouseDelta.Y);
+            if (scrollService.Dir == Dir.Vertical)
+            {
+                scrollService.ApplyBarDelta(ui.Window.MouseDelta.Y);
+            }
+            else
+            {
+                scrollService.ApplyBarDelta(ui.Window.MouseDelta.X);
+            }
         }
 
-        using (var track = ui.Div().Width(settings.Width).Padding(settings.Padding))
+        using (var track = ui.Div().Padding(settings.Padding).ZIndex(100))
         {
+            if (scrollService.Dir == Dir.Vertical)
+            {
+                track.Width(settings.Width);
+            }
+            else
+            {
+                track.Height(settings.Width);
+            }
+
             track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (var thumb = ui.Div().Height(scrollService.BarSize).AbsolutePosition(top: scrollService.BarStart).AbsoluteSize(widthOffsetParent:0).Rounded(settings.ThumbRadius))
+            using (var thumb = ui.Div()
+                       .Rounded(settings.ThumbRadius))
             {
                 thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
+
+                if (scrollService.Dir == Dir.Vertical)
+                {
+                    thumb.AbsoluteSize(widthOffsetParent: 0);
+                    thumb.AbsolutePosition(top: scrollService.BarStart);
+                    thumb.Height(scrollService.BarSize);
+                }
+                else
+                {
+                    thumb.AbsoluteSize(heightOffsetParent: 0);
+                    thumb.AbsolutePosition(left: scrollService.BarStart);
+                    thumb.Width(scrollService.BarSize);
+                }
 
                 if (thumb.IsClicked)
                 {
                     _isDragging = true;
-                    SDL_CaptureMouse(SDL_bool.SDL_TRUE);
+                    // SDL_CaptureMouse(SDL_bool.SDL_TRUE); //TODO
                 }
 
-                if(_isDragging && ui.Window.IsMouseButtonReleased(MouseButtonKind.Left))
+                if(_isDragging && ui.Window.IsMouseButtonReleased(MouseButton.Left))
                 {
                     _isDragging = false;
-                    SDL_CaptureMouse(SDL_bool.SDL_FALSE);
+                    // SDL_CaptureMouse(SDL_bool.SDL_FALSE); //TODO
                 }
             }
         }

@@ -1,7 +1,8 @@
 ﻿using System.Numerics;
+using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
-using SkiaSharp;
+using Silk.NET.Input;
 
 namespace Flamui;
 
@@ -18,7 +19,7 @@ public class HitTester
     {
         HitTest(_window.MousePosition);
 
-        if (_window.IsMouseButtonPressed(MouseButtonKind.Left))
+        if (_window.IsMouseButtonPressed(MouseButton.Left))
         {
             foreach (var windowHoveredDiv in _window.HoveredElements)
             {
@@ -35,24 +36,24 @@ public class HitTester
 
     private void HitTest(Vector2 point)
     {
+        return;
+
         var hitElements = new List<UiElement>();
 
         //from back to front
-        foreach (var (_, value) in _window.LastRenderContext.RenderSections.OrderBy(x => x.Key))
+        foreach (var (_, value) in _window.LastRenderContext.CommandBuffers.OrderBy(x => x.Key))
         {
-            foreach (var renderable in value.Renderables)
+            foreach (var command in value)
             {
-                if (renderable is IMatrixable matrixable)
+                if (command.Type == CommandType.Matrix)
                 {
-                    var res = matrixable.ProjectPoint(new SKPoint(point.X, point.Y));
-                    point = new Vector2(res.X, res.Y);
+                    point = point.Multiply(command.Matrix);
                 }
-
-                if (renderable is IClickableFragment clickable)
+                else if (command.Type == CommandType.Rect)
                 {
-                    if (clickable.Bounds.ContainsPoint(point))
+                    if (command.Bounds.ContainsPoint(point))
                     {
-                        hitElements.Add(clickable.UiElement);
+                        hitElements.Add(command.UiElement.Get());
                     }
                 }
             }
@@ -63,11 +64,10 @@ public class HitTester
         {
             var hitElement = hitElements[i];
 
-            if (hitElement is UiElement uiElement)
+            if (hitElement is { } uiElement)
             {
                 _window.HoveredElements.Add(uiElement);
             }
-
 
             if (hitElement is FlexContainer { Info.BlockHit: true })
             {

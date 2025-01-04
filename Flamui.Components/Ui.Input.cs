@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Flamui.UiElements;
-using SDL2;
+using Silk.NET.Input;
 
 namespace Flamui.Components;
 
@@ -47,9 +47,9 @@ public static partial class UiExtensions
 
     private static void HandleBackspace(Ui ui, ref string text)
     {
-        if (ui.Window.IsKeyPressed(SDL.SDL_Scancode.SDL_SCANCODE_BACKSPACE))
+        if (ui.Window.IsKeyPressed(Key.Backspace))
         {
-            if (ui.Window.IsKeyDown(SDL.SDL_Scancode.SDL_SCANCODE_LCTRL))
+            if (ui.Window.IsKeyDown(Key.ControlLeft))
             {
                 text = text.TrimEnd();
 
