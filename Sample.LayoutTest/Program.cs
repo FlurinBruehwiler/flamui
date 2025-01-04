@@ -16,6 +16,9 @@ app.Run();
 
 public class LayoutTest : FlamuiComponent
 {
+    private const string loremIpsum =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+
     private ColorDefinition c1 = new(43, 45, 48);
     private ColorDefinition c2 = new(30, 31, 34);
     private ColorDefinition c3 = new(75, 76, 79);
@@ -26,12 +29,7 @@ public class LayoutTest : FlamuiComponent
         {
             using (ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20))
             {
-               ui.Text("Test Text").Color(c3);
-            }
-
-            using (ui.Div().Color(c2))
-            {
-
+               ui.Text(loremIpsum).Color(c3);
             }
         }
     }

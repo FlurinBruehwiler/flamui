@@ -35,45 +35,90 @@ public class UiText : UiElement
 
         var font = Renderer.DefaultFont;
 
-        var width = FontShaping.MeasureText(font, UiTextInfo.Content);
+        // var width = ;
+        //
+        // // Paint.GetFontMetrics(out var metrics);
+        //
+        // var actualX = offset.X;
+        // var actualY = offset.Y;
+        //
+        // actualY += UiTextInfo.VerticalAlignment switch
+        // {
+        //     TextAlign.Start => UiTextInfo.Size,
+        //     TextAlign.End => Rect.Height,
+        //     TextAlign.Center => Rect.Height / 2 - font.GetHeight() / 2,
+        //     _ => throw new ArgumentOutOfRangeException()
+        // };
+        //
+        // actualX += UiTextInfo.HorizontalAlignment switch
+        // {
+        //     TextAlign.End => Rect.Width - width,
+        //     TextAlign.Center => Rect.Width / 2 - width / 2,
+        //     TextAlign.Start => 0,
+        //     _ => throw new ArgumentOutOfRangeException()
+        // };
 
-        // Paint.GetFontMetrics(out var metrics);
-
-        var actualX = offset.X;
-        var actualY = offset.Y;
-
-        actualY += UiTextInfo.VerticalAlignment switch
+        if (_isSingleLine)
         {
-            TextAlign.Start => UiTextInfo.Size,
-            TextAlign.End => Rect.Height,
-            TextAlign.Center => Rect.Height / 2 - font.GetHeight() / 2,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
-        actualX += UiTextInfo.HorizontalAlignment switch
+            var bounds = new Bounds
+            {
+                X = offset.X,
+                Y = offset.Y,
+                W = FontShaping.MeasureText(font, UiTextInfo.Content),
+                H = font.GetHeight()
+            };
+            renderContext.AddText(bounds, UiTextInfo.Content, UiTextInfo.Color, Renderer.DefaultFont);
+        }
+        else
         {
-            TextAlign.End => Rect.Width - width,
-            TextAlign.Center => Rect.Width / 2 - width / 2,
-            TextAlign.Start => 0,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            var entireText = UiTextInfo.Content.AsSpan();
 
-        var bounds = new Bounds
-        {
-            X = actualX,
-            Y = actualY,
-            W = width,
-            H = font.GetHeight()
-        };
-        renderContext.AddText(bounds, UiTextInfo.Content, UiTextInfo.Color, Renderer.DefaultFont);
+            var yCoord = offset.Y;
+            foreach (var lineRange in _layoutInfo.LineRanges)
+            {
+                var lineSpan = entireText[lineRange];
+
+                var bounds = new Bounds
+                {
+                    X = offset.X,
+                    Y = yCoord,
+                    W = FontShaping.MeasureText(font, lineSpan),
+                    H = font.GetHeight()
+                };
+                //avoid to string and use arenastring!!!!!!!
+                renderContext.AddText(bounds, lineSpan.ToString(), UiTextInfo.Color, Renderer.DefaultFont);
+
+                yCoord += font.GetHeight() + font.LineGap;
+            }
+        }
+
+
     }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        Rect = new BoxSize(FontShaping.MeasureText(Renderer.DefaultFont, UiTextInfo.Content), Renderer.DefaultFont.GetHeight());
+        _layoutInfo = default;
+        _isSingleLine = false;
 
+        if (!UiTextInfo.Content.AsSpan().ContainsAny(['\n', '\r']))
+        {
+            var width = FontShaping.MeasureText(Renderer.DefaultFont, UiTextInfo.Content);
+            if (width <= constraint.MaxWidth)
+            {
+                _isSingleLine = true;
+                Rect = new BoxSize(width, Renderer.DefaultFont.GetHeight());
+                return Rect;
+            }
+        }
+
+        _layoutInfo = FontShaping.LayoutText(Renderer.DefaultFont, UiTextInfo.Content, constraint.MaxWidth);
+
+        Rect = new BoxSize(_layoutInfo.MaxWidth, _layoutInfo.TotalHeight);
         return Rect;
     }
+
+    private bool _isSingleLine;
+    private TextLayoutInfo _layoutInfo;
 
     public UiText Width(float width)
     {
