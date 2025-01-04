@@ -153,7 +153,7 @@ public class RenderContext
                             canvas.ClipRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius);
                         break;
                     case CommandType.Text:
-                        canvas.Paint.Font = command.Font.Get(); //todo make font
+                        canvas.Paint.Font = command.Font.Get();
                         canvas.Paint.Color = command.Color.ToColor();
                         canvas.DrawText(command.String.Get(), command.Bounds.X, command.Bounds.Y);
                         break;
@@ -270,18 +270,22 @@ public struct Command
 
 public struct ManagedRef<T> where T : class
 {
-    private IntPtr ptr;
+    private GCHandle handle;
 
     public void Set(Arena arena, T value)
     {
-        ptr = arena.AddReference(value);
+        handle = arena.AddReference(value);
     }
 
     [Pure]
     public T Get()
     {
-        GCHandle gcHandle = GCHandle.FromIntPtr(ptr);
-        return (T)gcHandle.Target!;
+        if (handle.Target != null)
+        {
+            return (T)handle.Target;
+        }
+
+        throw new Exception("You sure this should be null????");
     }
 }
 

@@ -21,18 +21,6 @@ public class UiText : UiElement
 {
     public UiTextInfo UiTextInfo;
 
-    // private static readonly SKPaint Paint = new()
-    // {
-    //     IsAntialias = true,
-    //     Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Thin, SKFontStyleWidth.Normal,
-    //         SKFontStyleSlant.Upright)
-    // };
-
-    private void UpdatePaint()
-    {
-        // Paint.TextSize = UiTextInfo.Size;
-        // Paint.Color = new SKColor(UiTextInfo.Color.Red, UiTextInfo.Color.Green, UiTextInfo.Color.Blue, UiTextInfo.Color.Alpha);
-    }
 
     public override void Reset()
     {
@@ -46,8 +34,6 @@ public class UiText : UiElement
             return;
 
         var font = Renderer.DefaultFont;
-
-        UpdatePaint();
 
         var width = FontShaping.MeasureText(font, UiTextInfo.Content);
 
@@ -84,8 +70,6 @@ public class UiText : UiElement
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        UpdatePaint();
-
         Rect = new BoxSize(FontShaping.MeasureText(Renderer.DefaultFont, UiTextInfo.Content), Renderer.DefaultFont.GetHeight());
 
         return Rect;

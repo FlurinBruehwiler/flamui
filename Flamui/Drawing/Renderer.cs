@@ -217,6 +217,12 @@ public class Renderer
 
         Gl.DeleteBuffer(ebo);
         Gl.DeleteBuffer(vbo);
+
+        var err = Gl.GetError();
+        if (err != GLEnum.NoError)
+        {
+            Console.WriteLine(err);
+        }
     }
 
     private Matrix4X4<float> GetWorldToScreenMatrix()

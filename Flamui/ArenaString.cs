@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Flamui;
 
@@ -86,14 +87,24 @@ public struct ArenaString
 
     public static unsafe implicit operator ArenaString(string str)
     {
-        var ptr = Ui.Arena.AddReference(str);
-        var slice = new Slice<char>((char*)ptr, str.Length);
+        var ptr = Ui.Arena.AddReference(str); //not sure if this is actually correct, probably not
+        var slice = new Slice<char>((char*)GCHandle.ToIntPtr(ptr), str.Length);
         return new ArenaString { _slice = slice};
     }
 
     public ReadOnlySpan<char> AsSpan()
     {
         return _slice.Span;
+    }
+
+    public ArenaString Substring(int start)
+    {
+        return new ArenaString(_slice.SubSlice(start));
+    }
+
+    public ArenaString Substring(int start, int length)
+    {
+        return new ArenaString(_slice.SubSlice(start, length));
     }
 
     public static ArenaString operator +(ArenaString a, ArenaString b)

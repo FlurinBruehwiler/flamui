@@ -36,6 +36,8 @@ public class HitTester
 
     private void HitTest(Vector2 point)
     {
+        return;
+
         var hitElements = new List<UiElement>();
 
         //from back to front

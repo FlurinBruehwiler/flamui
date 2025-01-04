@@ -3,6 +3,8 @@ using Varena;
 
 namespace Flamui;
 
+//todo maybe increase chunk size over time like x1.5 or x2
+
 /// <summary>
 /// Linked list of chunks of size "chunkSize" allocated on an arena
 /// </summary>
@@ -187,6 +189,17 @@ public unsafe struct Slice<T> where T : unmanaged
             throw new ArgumentOutOfRangeException();
 
         return new Slice<T>(&Items[start], length);
+    }
+
+    public Slice<T> SubSlice(int start)
+    {
+        if (start < 0)
+            throw new ArgumentOutOfRangeException();
+
+        if (start > Count)
+            throw new ArgumentOutOfRangeException();
+
+        return new Slice<T>(&Items[start], Count - start);
     }
 
     public T this[int index]
