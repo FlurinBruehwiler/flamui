@@ -86,7 +86,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
                     if (_filteredOptions.Count == 0)
                     {
-                        ui.Text("Nothing to show").HAlign(TextAlign.Center).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
+                        ui.Text("Nothing to show").HorizontalAlign(TextAlign.Center).VAlign(TextAlign.Center).Color(ColorPalette.TextColor);
                     }
                 }
             }

@@ -52,7 +52,7 @@ public class FlamuiApp
 
         var window = Window.Create(o);
 
-        var rootComponent = (FlamuiComponent)ActivatorUtilities.CreateInstance(Services, typeof(TRootComponent));
+        var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
 
         _window = new UiWindow(window, rootComponent, Services);
     }
@@ -64,7 +64,7 @@ public class FlamuiApp
 
     public static FlamuiBuilder CreateBuilder()
     {
-        Systrace.Initialize($"{DateTime.Now}.trace");
+        Systrace.Initialize("trace.trace");
         return new FlamuiBuilder();
     }
 }
