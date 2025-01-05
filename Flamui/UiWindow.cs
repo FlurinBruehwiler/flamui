@@ -1,5 +1,7 @@
-﻿using Flamui.Drawing;
+﻿using System.Diagnostics;
+using Flamui.Drawing;
 using Flamui.Layouting;
+using Flamui.PerfTrace;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
 using Silk.NET.Input;
@@ -75,8 +77,11 @@ public partial class UiWindow : IDisposable
         window.Render += OnRender;
     }
 
+
     private void OnRender(double obj)
     {
+        using var _ = Systrace.BeginEvent(nameof(OnRender));
+
         Render();
 
         //ToDo cleanup
@@ -150,23 +155,15 @@ public partial class UiWindow : IDisposable
 
     private void RenderToCanvas()
     {
+        using var _ = Systrace.BeginEvent("RenderToCanvas");
+
         DrawDebugOverlay(RenderContext);
 
-        // var requiresRerender = RenderContext.RequiresRerender(LastRenderContext);
 
-        //todo wtf is happening grrrr it makes 0 sense
-        if (true)
-        {
-            // Console.WriteLine("rerender");
-
-            // var start = Stopwatch.GetTimestamp();
+        //todo check if something has actually changed
+        RenderContext.Rerender(_renderer);
 
 
-            RenderContext.Rerender(_renderer);
-
-            // Console.WriteLine(Stopwatch.GetElapsedTime(start).TotalMilliseconds);
-
-        }
 
         LastRenderContext.Reset();
         //swap Render Contexts

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
 using System.Text;
+using Flamui.PerfTrace;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -94,6 +95,8 @@ public class Renderer
 
         Gl.BindVertexArray(0);
 
+        vbo = Gl.GenBuffer();
+        ebo = Gl.GenBuffer();
     }
 
     private void CheckError()
@@ -161,23 +164,31 @@ public class Renderer
         CheckError();
     }
 
+    uint vbo;
+    uint ebo;
+
     public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)
     {
+        using var _ = Systrace.BeginEvent(nameof(DrawMesh));
+
         Gl.BindVertexArray(_vao);
         Gl.UseProgram(_mainProgram);
 
         Gl.ActiveTexture(TextureUnit.Texture0);
         Gl.BindTexture(TextureTarget.Texture2D, _texture);
 
-        //create / bind vbo
-        var vbo = Gl.GenBuffer();
-        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
-        Gl.BufferData(BufferTargetARB.ArrayBuffer, new ReadOnlySpan<float>(mesh.Floats), BufferUsageARB.StaticDraw);
 
-        //create / bind ebo
-        var ebo = Gl.GenBuffer();
-        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
-        Gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(mesh.Indices), BufferUsageARB.StaticDraw);
+        using (Systrace.BeginEvent("Bind/Upload Buffers"))
+        {
+            //create / bind vbo
+
+            Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
+            Gl.BufferData(BufferTargetARB.ArrayBuffer, new ReadOnlySpan<float>(mesh.Floats), BufferUsageARB.StaticDraw);
+
+            //create / bind ebo
+            Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
+            Gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(mesh.Indices), BufferUsageARB.StaticDraw);
+        }
 
         const int stride = 3 + 2 + 1 + 4 + 1; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color + 1 texturetype
 
@@ -213,16 +224,19 @@ public class Renderer
         Gl.BindVertexArray(_vao);
         Gl.UseProgram(_mainProgram);
 
-        Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
-
-        Gl.DeleteBuffer(ebo);
-        Gl.DeleteBuffer(vbo);
-
-        var err = Gl.GetError();
-        if (err != GLEnum.NoError)
+        using (Systrace.BeginEvent("DrawElements"))
         {
-            Console.WriteLine(err);
+            Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
         }
+
+        // using (Systrace.BeginEvent("GetError"))
+        // {
+        //     var err = Gl.GetError();
+        //     if (err != GLEnum.NoError)
+        //     {
+        //         Console.WriteLine(err);
+        //     }
+        // }
     }
 
     private Matrix4X4<float> GetWorldToScreenMatrix()

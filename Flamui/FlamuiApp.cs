@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Flamui.PerfTrace;
+using Microsoft.Extensions.DependencyInjection;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
 
@@ -63,6 +64,7 @@ public class FlamuiApp
 
     public static FlamuiBuilder CreateBuilder()
     {
+        Systrace.Initialize($"{DateTime.Now}.trace");
         return new FlamuiBuilder();
     }
 }
