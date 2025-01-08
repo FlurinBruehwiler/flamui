@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
+using System.Numerics;
 using Flamui.Drawing;
 using Flamui.Layouting;
 
@@ -32,6 +33,8 @@ public class UiText : UiElement
 
     public override void Render(RenderContext renderContext, Point offset)
     {
+        Offset = offset;
+
         if (UiTextInfo.Content == string.Empty)
             return;
 
@@ -103,6 +106,8 @@ public class UiText : UiElement
     private TextLayoutInfo _layoutInfo;
     private float MaxWidth;
 
+    public Point Offset;
+
     public UiText Width(float width)
     {
         // PWidth = new SizeDefinition(width, sizeKind);
@@ -133,7 +138,7 @@ public class UiText : UiElement
         return this;
     }
 
-    public UiText VAlign(TextAlign textAlign)
+    public UiText VerticalAlign(TextAlign textAlign)
     {
         UiTextInfo.VerticalAlignment = textAlign;
         return this;

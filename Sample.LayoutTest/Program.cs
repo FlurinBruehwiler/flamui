@@ -30,7 +30,7 @@ public class LayoutTest : FlamuiComponent
         {
             using (ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20))
             {
-               ui.Text(loremIpsum).Color(c3).HorizontalAlign(TextAlign.End);
+               ui.Text(loremIpsum).Color(188, 190, 196).HorizontalAlign(TextAlign.End);
             }
         }
     }

@@ -122,10 +122,11 @@ public class RenderContext
 
     private bool isFirstRender = true;
 
+    private GlCanvas? canvas;
+
     public void Rerender(Renderer renderer)
     {
-        var canvas = new GlCanvas(renderer);
-
+        canvas ??= new GlCanvas(renderer);
         canvas.Start();
 
         var sections = CommandBuffers.OrderBy(x => x.Key).ToList();

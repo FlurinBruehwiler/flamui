@@ -66,7 +66,7 @@ public class Renderer
     public void Initialize(IWindow window)
     {
         Window = window;
-        DefaultFont = FontLoader.LoadFont("JetBrainsMono-Regular.ttf", 20);
+        DefaultFont = FontLoader.LoadFont("JetBrainsMono-Regular.ttf", 18);
 
         Gl = Window.CreateOpenGL();
         Gl.Enable(EnableCap.Multisample);
