@@ -28,9 +28,27 @@ public class LayoutTest : FlamuiComponent
     {
         using (ui.Div().Color(c1).Padding(10).Gap(10))
         {
-            using (ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20))
+            using (ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20).Direction(Dir.Horizontal))
             {
-               ui.Text(loremIpsum).Color(188, 190, 196).HorizontalAlign(TextAlign.End);
+               ui.Text(loremIpsum).Color(188, 190, 196);
+               using (ui.Div().Height(18))
+               {
+                   for (byte i = 0; i < 9; i++)
+                   {
+                       using (ui.Div(i.ToString()).Height(1).Color(C.Red9 / (byte)(i + 1)))
+                       {
+
+                       }
+                   }
+
+                   for (byte i = 0; i < 9; i++)
+                   {
+                       using (ui.Div(i.ToString()).Height(1).Color(C.Blue9 / (byte)(i + 1)))
+                       {
+
+                       }
+                   }
+               }
             }
         }
     }

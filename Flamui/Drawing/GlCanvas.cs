@@ -54,7 +54,7 @@ public class GlCanvas
     {
         var uvXOffset = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.AtlasX;
         var uvYOffset = (1 / (float)Paint.Font.AtlasHeight) * glyphInfo.AtlasY;
-        var uvWidth = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.AtlasX;
+        var uvWidth = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.Width;
         var uvHeight = (1 / (float)Paint.Font.AtlasHeight) * glyphInfo.Height;
 
         Debug.Assert(uvXOffset is >= 0 and <= 1);
@@ -65,6 +65,11 @@ public class GlCanvas
         uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, uvYOffset), Paint.Color, textureType: TextureType.Text);
         uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text);
         uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text);
+
+        var oc = Paint.Color;
+        Paint.Color = Color.Red;
+        // DrawRect(x, y, glyphInfo.Width, glyphInfo.Height);
+        Paint.Color = oc;
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);

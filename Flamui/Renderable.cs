@@ -155,7 +155,7 @@ public class RenderContext
                         break;
                     case CommandType.Text:
                         canvas.Paint.Font = command.Font.Get();
-                        canvas.Paint.Color = command.Color.ToColor();
+                        canvas.Paint.Color = Color.White;// command.Color.ToColor();
                         canvas.DrawText(command.String.Get(), command.Bounds.X, command.Bounds.Y);
                         break;
                     case CommandType.Matrix:

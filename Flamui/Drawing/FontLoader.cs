@@ -92,7 +92,7 @@ public class FontLoader
 
         CharInfo[] charInfos = new CharInfo['~' - ' '];
 
-        var scale = StbTrueType.stbtt_ScaleForPixelHeight(info, pixelSize); //multiply by 3 because we do subpixel antialiasing
+        var scale = StbTrueType.stbtt_ScaleForPixelHeight(info, pixelSize); //todo multiply by 3 because we do subpixel antialiasing
 
         int ascent = 0;
         int descent = 0;
@@ -129,6 +129,10 @@ public class FontLoader
         int minAtlasWidth = rowColCount * maxCharHeight;
         int minAtlasHeight = rowColCount * maxCharWidth;
         int atlasSize = Math.Max(minAtlasHeight, minAtlasWidth);
+        if (atlasSize % 2 != 0)
+        {
+            atlasSize++;
+        }
         //todo make atalasSize even number
 
         byte[] fontAtlasBitmapData = new byte[atlasSize * atlasSize];
@@ -191,6 +195,15 @@ public class FontLoader
             {
                 currentCol++;
             }
+        }
+
+        for (var i = 0; i < fontAtlasBitmapData.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
+        {
+            ref var b = ref fontAtlasBitmapData[i];
+
+            var f = (double)b;
+            f = 255 * Math.Pow(f / 255, 0.5f);
+            b = (byte)f;
         }
 
         return new Font
