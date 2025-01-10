@@ -587,6 +587,127 @@ public class LayoutingTests(ITestOutputHelper console)
         AssertUi(ui, 100, 100, expected);
     }
 
+    [Fact]
+    public void Shrink_Basic()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Shrink())
+        {
+            using (ui.Div().Width(10).Height(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:10, H:10
+                FlexContainer = X:0, Y:0, W:10, H:10
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Shrink_MinSize()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Shrink(minWidth: 50, minHeight: 50))
+        {
+            using (ui.Div().Width(10).Height(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:50, H:50
+                FlexContainer = X:0, Y:0, W:10, H:10
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Shrink_Multiple()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            using (ui.Div().ShrinkWidth())
+            {
+                using (ui.Div().Width(10))
+                {
+
+                }
+            }
+
+            using (ui.Div())
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:0, W:10, H:100
+                    FlexContainer = X:0, Y:0, W:10, H:100
+                FlexContainer = X:10, Y:0, W:90, H:100
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Double_Shrink()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Shrink())
+        {
+            using (ui.Div().Shrink())
+            {
+                using (ui.Div().Width(10).Height(10))
+                {
+
+                }
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:10, H:10
+                FlexContainer = X:0, Y:0, W:10, H:10
+                    FlexContainer = X:0, Y:0, W:10, H:10
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Shrink_Fraction_Fixed()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Shrink())
+        {
+            using (ui.Div())
+            {
+                using (ui.Div().Width(10).Height(10))
+                {
+
+                }
+            }
+        }
+
+        var exception = Assert.Throws<InvalidLayoutException>(() => AssertUi(ui, 100, 100, ""));
+    }
+
     private void AssertUi(Ui ui, int width, int height, string expected)
     {
         var root = (UiElementContainer)ui.OpenElementStack.Pop();

@@ -126,10 +126,12 @@ public partial class FlexContainer
         return this;
     }
 
-    public FlexContainer Shrink()
+    public FlexContainer Shrink(float minWidth = 0, float minHeight = 0)
     {
         Info.HeightKind = SizeKind.Shrink;
+        Info.MinWidth = minWidth;
         Info.WidthKind = SizeKind.Shrink;
+        Info.MinHeight = minHeight;
         return this;
     }
 

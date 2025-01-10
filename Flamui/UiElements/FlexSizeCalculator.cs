@@ -23,6 +23,8 @@ public static class FlexSizeCalculator
 
         var relevantChildCount = 0;
 
+        var isMainShrink = info.GetMainSizeKind(info.Direction) == SizeKind.Shrink;
+
         //Loop through all children
         //- Sum up percentage of flexible children
         //- Layout inflexible children, and sum up the size
@@ -35,10 +37,13 @@ public static class FlexSizeCalculator
 
             relevantChildCount++;
 
-            totalFixedSize += +child.UiElementInfo.Margin.SumInDirection(info.Direction);
+            totalFixedSize += child.UiElementInfo.Margin.SumInDirection(info.Direction);
 
             if (child.IsFlexible(out var config))
             {
+                if (isMainShrink)
+                    throw InvalidLayoutException.Create(InvalidLayoutType.FractionWithinShrink, child);
+
                 totalPercentage += config.Percentage;
                 continue;
             }
