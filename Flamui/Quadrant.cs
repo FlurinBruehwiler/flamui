@@ -47,8 +47,8 @@ public struct RelativeSize
 
 public enum MAlign
 {
-    FlexStart = 0, //Default
-    FlexEnd,
+    Start = 0, //Default
+    End,
     Center,
     SpaceBetween
 }
@@ -61,8 +61,8 @@ public enum Dir
 
 public enum XAlign
 {
-    FlexStart = 0, //Default
-    FlexEnd,
+    Start = 0, //Default
+    End,
     Center
 }
 

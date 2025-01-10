@@ -8,12 +8,11 @@ namespace Flamui;
 public partial class Ui
 {
     public readonly Stack<IStackItem> OpenElementStack = new();
-
     private IStackItem OpenElement => OpenElementStack.Peek();
-
     public UiWindow Window = null!;
-    public UiElement Root;
-    public static Arena Arena;
+
+
+    public static Arena Arena; //not used currently
 
     public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",

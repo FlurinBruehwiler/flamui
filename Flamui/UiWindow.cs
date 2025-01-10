@@ -66,6 +66,12 @@ public partial class UiWindow : IDisposable
     public List<UiElement> OldHoveredElements { get; set; } = new();
     private RegistrationManager _registrationManager;
 
+    //for testing
+    public UiWindow(Ui ui)
+    {
+        Ui = ui;
+    }
+
     public UiWindow(IWindow window, FlamuiComponent rootComponent, IServiceProvider serviceProvider)
     {
         Window = window;
@@ -236,7 +242,6 @@ public partial class UiWindow : IDisposable
 
         Ui.OpenElementStack.Clear();
         Ui.OpenElementStack.Push(RootContainer);
-        Ui.Root = RootContainer;
 
         // RootContainer.ComputedBounds.W = width;
         // RootContainer.ComputedBounds.H = height;

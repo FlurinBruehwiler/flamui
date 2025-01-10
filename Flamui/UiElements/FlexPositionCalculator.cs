@@ -12,9 +12,9 @@ public static class FlexPositionCalculator
 
         switch (info.MainAlignment)
         {
-            case EnumMAlign.FlexStart:
+            case EnumMAlign.Start:
                 return CalculateFlexStart(children, size, info);
-            case EnumMAlign.FlexEnd:
+            case EnumMAlign.End:
                 return CalculateFlexEnd(children, size, info);
             case EnumMAlign.Center:
                 return CalculateFlexCenter(children, size, info);
@@ -158,8 +158,8 @@ public static class FlexPositionCalculator
     {
         return info.CrossAlignment switch
         {
-            XAlign.FlexStart => info.Padding.StartOfDirection(info.Direction.Other()) + item.UiElementInfo.Margin.StartOfDirection(info.Direction.Other()),
-            XAlign.FlexEnd => size.GetCrossAxis(info.Direction) - info.Padding.EndOfDirection(info.Direction.Other()) - item.Rect.GetCrossAxis(info.Direction) - item.UiElementInfo.Margin.EndOfDirection(info.Direction.Other()),
+            XAlign.Start => info.Padding.StartOfDirection(info.Direction.Other()) + item.UiElementInfo.Margin.StartOfDirection(info.Direction.Other()),
+            XAlign.End => size.GetCrossAxis(info.Direction) - info.Padding.EndOfDirection(info.Direction.Other()) - item.Rect.GetCrossAxis(info.Direction) - item.UiElementInfo.Margin.EndOfDirection(info.Direction.Other()),
             XAlign.Center => size.GetCrossAxis(info.Direction) / 2 - item.Rect.GetCrossAxis(info.Direction) / 2,
             _ => throw new ArgumentOutOfRangeException()
         };
