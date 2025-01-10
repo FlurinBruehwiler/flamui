@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 using StbTrueTypeSharp;
 
 namespace Flamui.Drawing;
@@ -42,7 +41,10 @@ public class Font
 
 public struct GlyphInfo
 {
-    public required int XAtlasOffset; //the TopLeft Coordinate of the Glyph within the FontAtlas
+    public required int AtlasX;
+    public required int AtlasY;
+
+
     public required int Width; //Width of the glyph
     public required int Height; //height of the glyph
     public required int XOff;
@@ -90,12 +92,15 @@ public class FontLoader
 
         CharInfo[] charInfos = new CharInfo['~' - ' '];
 
-        var scale = StbTrueType.stbtt_ScaleForPixelHeight(info, pixelSize * 3); //multiply by 3 because we do subpixel antialiasing
+        var scale = StbTrueType.stbtt_ScaleForPixelHeight(info, pixelSize); //todo multiply by 3 because we do subpixel antialiasing
 
         int ascent = 0;
         int descent = 0;
         int lineGap = 0;
         StbTrueType.stbtt_GetFontVMetrics(info, &ascent, &descent, &lineGap);
+
+        int maxCharWidth = 0;
+        int maxCharHeight = 0;
 
         for (char i = ' '; i < '~'; i += '\x1')
         {
@@ -103,7 +108,11 @@ public class FontLoader
             int height = 0;
             int xOff = 0;
             int yOff = 0;
+
             var bitmap = StbTrueType.stbtt_GetCodepointBitmap(info, 0, scale, i, &width, &height, &xOff, &yOff);
+
+            maxCharHeight = Math.Max(maxCharHeight, height);
+            maxCharWidth = Math.Max(maxCharWidth, width);
 
             charInfos[i - ' '] = new CharInfo
             {
@@ -116,14 +125,28 @@ public class FontLoader
             };
         }
 
-        var maxHeight = charInfos.Max(x => x.Height);
-        var maxWidth = charInfos.Max(x => x.Width);
-        var totalWidth = 2000; //charInfos.Sum(x => x.Width);
+        int rowColCount = (int)Math.Ceiling(Math.Sqrt(charInfos.Length));
+        int minAtlasWidth = rowColCount * maxCharHeight;
+        int minAtlasHeight = rowColCount * maxCharWidth;
+        int atlasSize = Math.Max(minAtlasHeight, minAtlasWidth);
+        if (atlasSize % 2 != 0)
+        {
+            atlasSize++;
+        }
+        //todo make atalasSize even number
 
-        byte[] fontAtlasBitmap = new byte[maxHeight * totalWidth];
+        byte[] fontAtlasBitmapData = new byte[atlasSize * atlasSize];
+
+        BitRect fontAtlasBitmap = new BitRect
+        {
+            Data = fontAtlasBitmapData.AsSpan(),
+            Height = atlasSize,
+            Width = atlasSize
+        };
         var glyphInfos = new Dictionary<char, GlyphInfo>(charInfos.Length);
 
-        int currentXOffset = 0;
+        int currentCol = 0;
+        int currentRow = 0;
 
         for (var i = 0; i < charInfos.Length; i++)
         {
@@ -138,41 +161,84 @@ public class FontLoader
 
             StbTrueType.stbtt_GetCodepointHMetrics(info, i, &advanceWidth, &leftSideBearing);
 
+            var bitmap = new BitRect
+            {
+                Data = c.BitmapAsSpan(),
+                Height = c.Height,
+                Width = c.Width
+            };
+
+            int xOffset = currentCol * maxCharWidth;
+            int yOffset = currentRow * maxCharHeight;
+
+            Copy(bitmap, fontAtlasBitmap, xOffset, yOffset);
+
             glyphInfos[c.Char] = new GlyphInfo
             {
                 Height = c.Height,
                 Width = c.Width,
                 XOff = c.XOff,
                 YOff = c.YOff,
-                XAtlasOffset = currentXOffset,
+                AtlasX = xOffset,
+                AtlasY = yOffset,
                 GlyphBoundingBox = bb,
                 AdvanceWidth = (int)(advanceWidth * scale),
                 LeftSideBearing = (int)(leftSideBearing * scale)
             };
 
-            var bitmap = c.BitmapAsSpan();
-
-            for (int j = 0; j < c.Height; j++)
+            if (currentCol == rowColCount - 1)
             {
-                var destSpan = fontAtlasBitmap.AsSpan(j * totalWidth + currentXOffset);
-                var srcSpan = bitmap.Slice(j * c.Width, c.Width);
-
-                srcSpan.CopyTo(destSpan);
+                currentCol = 0;
+                currentRow++;
             }
+            else
+            {
+                currentCol++;
+            }
+        }
 
-            currentXOffset += c.Width + 1;
+        for (var i = 0; i < fontAtlasBitmapData.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
+        {
+            ref var b = ref fontAtlasBitmapData[i];
+
+            var f = (double)b;
+            f = 255 * Math.Pow(f / 255, 0.5f);
+            b = (byte)f;
         }
 
         return new Font
         {
             Name = name,
-            AtlasBitmap = fontAtlasBitmap,
-            AtlasWidth = totalWidth,
-            AtlasHeight = maxHeight,
+            AtlasBitmap = fontAtlasBitmapData,
+            AtlasWidth = atlasSize,
+            AtlasHeight = atlasSize,
             GlyphInfos = glyphInfos,
             Ascent = ascent * scale,
             Descent = descent * scale,
             LineGap = lineGap * scale
         };
+    }
+
+    private static void Copy(BitRect src, BitRect dest, int destX, int destY)
+    {
+        for (int i = 0; i < src.Height; i++)
+        {
+            var srcSpan = src.Data.Slice(src.GetOffset(0, i), src.Width);
+            var destSpan = dest.Data.Slice(dest.GetOffset(destX, destY + i), src.Width);
+
+            srcSpan.CopyTo(destSpan);
+        }
+    }
+
+    ref struct BitRect
+    {
+        public int Width;
+        public int Height;
+        public Span<byte> Data;
+
+        public int GetOffset(int x, int y)
+        {
+            return y * Width + x;
+        }
     }
 }

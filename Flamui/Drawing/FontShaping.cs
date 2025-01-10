@@ -68,9 +68,10 @@ public static class FontShaping
     //rule: preferably only ever the start of a new word can go onto the next line,
     //so we make a new line, as soon as the next word + following whitespace doesn't fit on the current line
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
-    public static Range[] SplitTextIntoLines(Font font, ReadOnlySpan<char> text, float maxWidth)
+    public static TextLayoutInfo LayoutText(Font font, ReadOnlySpan<char> text, float maxWidth)
     {
-        List<Range> ranges = [];
+        List<Line> lines = [];
+        float widthOfLongestLine = 0;
 
         int currentBlockStart = 0;
         float currentBlockWidth = 0;
@@ -94,7 +95,7 @@ public static class FontShaping
                     i++;
 
                 //add new line
-                ranges.Add(new Range(new Index(currentLineStart), new Index(i)));
+                AddLine(i, text);
                 currentLineWidth = 0;
                 currentLineStart = i + 1;
                 currentBlockStart = i + 1;
@@ -111,7 +112,7 @@ public static class FontShaping
             {
                 if (currentLineStart == currentBlockStart) //not even a single word fits onto the line
                 {
-                    ranges.Add(new Range(new Index(currentLineStart), new Index(i)));
+                    AddLine(i, text);
                     currentLineStart = i;
                     currentBlockStart = i;
                     currentLineWidth = charWidth;
@@ -120,15 +121,45 @@ public static class FontShaping
                 else
                 {
                     //add new line
-                    ranges.Add(new Range(new Index(currentLineStart), new Index(currentBlockStart)));
+                    AddLine(currentBlockStart, text);
                     currentLineWidth = currentBlockWidth;
                     currentLineStart = currentBlockStart;
                 }
             }
         }
 
-        ranges.Add(new Range(new Index(currentLineStart), new Index(text.Length)));
+        AddLine(text.Length, text);
 
-        return ranges.ToArray();
+        return new TextLayoutInfo
+        {
+            Lines = lines.ToArray(),
+            MaxWidth = widthOfLongestLine,
+            TotalHeight = lines.Count * font.GetHeight() + lines.Count - 1 * font.LineGap,
+        };
+
+        void AddLine(int endIndex, ReadOnlySpan<char> t)
+        {
+            var r = new Range(new Index(currentLineStart), new Index(endIndex));
+            var width = MeasureText(font, t[r]);
+            widthOfLongestLine = Math.Max(widthOfLongestLine, width);
+            lines.Add(new Line
+            {
+                TextContent = r,
+                Width = width
+            });
+        }
     }
+}
+
+public struct TextLayoutInfo
+{
+    public Line[] Lines;
+    public float MaxWidth;
+    public float TotalHeight;
+}
+
+public struct Line
+{
+    public Range TextContent;
+    public float Width;
 }

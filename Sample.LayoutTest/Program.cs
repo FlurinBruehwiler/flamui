@@ -1,4 +1,5 @@
 ﻿using Flamui;
+using Flamui.UiElements;
 
 var builder = FlamuiApp.CreateBuilder();
 
@@ -16,6 +17,9 @@ app.Run();
 
 public class LayoutTest : FlamuiComponent
 {
+    private const string loremIpsum =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+
     private ColorDefinition c1 = new(43, 45, 48);
     private ColorDefinition c2 = new(30, 31, 34);
     private ColorDefinition c3 = new(75, 76, 79);
@@ -24,14 +28,27 @@ public class LayoutTest : FlamuiComponent
     {
         using (ui.Div().Color(c1).Padding(10).Gap(10))
         {
-            using (ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20))
+            using (ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20).Direction(Dir.Horizontal))
             {
-               ui.Text("Test Text").Color(c3);
-            }
+               ui.Text(loremIpsum).Color(188, 190, 196);
+               using (ui.Div().Height(18))
+               {
+                   for (byte i = 0; i < 9; i++)
+                   {
+                       using (ui.Div(i.ToString()).Height(1).Color(C.Red9 / (byte)(i + 1)))
+                       {
 
-            using (ui.Div().Color(c2))
-            {
+                       }
+                   }
 
+                   for (byte i = 0; i < 9; i++)
+                   {
+                       using (ui.Div(i.ToString()).Height(1).Color(C.Blue9 / (byte)(i + 1)))
+                       {
+
+                       }
+                   }
+               }
             }
         }
     }

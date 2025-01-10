@@ -60,7 +60,7 @@ public class RootComponent(StorageService storageService) : FlamuiComponent
             {
                 using (ui.Div().Height(20)) //ugly
                 {
-                    ui.Text("No entry active!").Color(200, 0, 0).VAlign(TextAlign.Center);
+                    ui.Text("No entry active!").Color(200, 0, 0).VerticalAlign(TextAlign.Center);
                 }
             }
             else

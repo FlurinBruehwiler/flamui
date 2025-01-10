@@ -39,7 +39,7 @@ public class GlCanvas
         {
             if (Paint.Font.GlyphInfos.TryGetValue(c, out var glyphInfo))
             {
-                DrawGlyph(glyphInfo, xCoord + glyphInfo.LeftSideBearing, y + Paint.Font.Ascent + glyphInfo.YOff);
+                DrawGlyph(glyphInfo, (int)(xCoord + glyphInfo.LeftSideBearing), (int)(y + Paint.Font.Ascent + glyphInfo.YOff));
                 xCoord += glyphInfo.AdvanceWidth;
             }
             else
@@ -50,9 +50,10 @@ public class GlCanvas
 
     }
 
-    private void DrawGlyph(GlyphInfo glyphInfo, float x, float y)
+    private void DrawGlyph(GlyphInfo glyphInfo, int x, int y) //todo, maybe subpixel glyph positioning
     {
-        var uvXOffset = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.XAtlasOffset;
+        var uvXOffset = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.AtlasX;
+        var uvYOffset = (1 / (float)Paint.Font.AtlasHeight) * glyphInfo.AtlasY;
         var uvWidth = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.Width;
         var uvHeight = (1 / (float)Paint.Font.AtlasHeight) * glyphInfo.Height;
 
@@ -60,10 +61,15 @@ public class GlCanvas
         Debug.Assert(uvWidth is >= 0 and <= 1);
         Debug.Assert(uvHeight is >= 0 and <= 1);
 
-        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y),  new Vector2(uvXOffset, 0), Paint.Color, textureType: TextureType.Text);
-        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, 0), Paint.Color, textureType: TextureType.Text);
-        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvHeight), Paint.Color, textureType: TextureType.Text);
-        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvHeight), Paint.Color, textureType: TextureType.Text);
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y),  new Vector2(uvXOffset, uvYOffset), Paint.Color, textureType: TextureType.Text);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, uvYOffset), Paint.Color, textureType: TextureType.Text);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text);
+
+        var oc = Paint.Color;
+        Paint.Color = Color.Red;
+        // DrawRect(x, y, glyphInfo.Width, glyphInfo.Height);
+        Paint.Color = oc;
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);

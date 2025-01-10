@@ -28,8 +28,9 @@ public struct MeshBuilder
 
     public MeshBuilder()
     {
-        _indices = [];
-        _vertices = [];
+        //allocate on arena???, but maybe also not because we want to cache it in the future, we could also guess the size from the last frame????
+        _indices = new List<uint>(1000);
+        _vertices = new List<Vertex>(1000);
         Matrix = Matrix4X4<float>.Identity;
     }
 
