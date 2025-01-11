@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.Contracts;
-using System.Numerics;
-using Flamui.Drawing;
+﻿using Flamui.Drawing;
 using Flamui.Layouting;
 
 namespace Flamui.UiElements;
@@ -24,7 +22,6 @@ public struct UiTextInfo
 public class UiText : UiElement
 {
     public UiTextInfo UiTextInfo;
-
 
     public override void Reset()
     {
@@ -67,7 +64,7 @@ public class UiText : UiElement
         var entireText = UiTextInfo.Content.AsSpan();
 
         var yCoord = offset.Y;
-        foreach (var line in _layoutInfo.Lines)
+        foreach (var line in TextLayoutInfo.Lines)
         {
             var lineSpan = entireText[line.TextContent];
 
@@ -97,14 +94,14 @@ public class UiText : UiElement
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        _layoutInfo = FontShaping.LayoutText(UiTextInfo.Font, UiTextInfo.Content, constraint.MaxWidth);
+        TextLayoutInfo = FontShaping.LayoutText(UiTextInfo.Font, UiTextInfo.Content, constraint.MaxWidth);
         MaxWidth = constraint.MaxWidth;
 
-        Rect = new BoxSize(_layoutInfo.MaxWidth, _layoutInfo.TotalHeight);
+        Rect = new BoxSize(TextLayoutInfo.MaxWidth, TextLayoutInfo.TotalHeight);
         return Rect;
     }
 
-    private TextLayoutInfo _layoutInfo;
+    public TextLayoutInfo TextLayoutInfo;
     private float MaxWidth;
 
     public Point Offset;

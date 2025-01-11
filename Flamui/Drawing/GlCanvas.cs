@@ -22,6 +22,8 @@ public class GlCanvas
     {
         _renderer = renderer;
         MeshBuilder = new MeshBuilder(arena);
+
+        Start();
     }
 
     public void SetMatrix(Matrix4X4<float> matrix)

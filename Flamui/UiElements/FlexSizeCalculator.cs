@@ -48,7 +48,8 @@ public static class FlexSizeCalculator
                 continue;
             }
 
-            var childConstraint = BoxConstraint.FromDirection(info.Direction, 0, float.PositiveInfinity, 0,
+            var maxMain = children.Count == 1 ? constraint.GetMainAxis(info.Direction).Max - info.PaddingSizeMain() : float.PositiveInfinity; //todo, this is false, should only count if the count of flexible children == 1
+            var childConstraint = BoxConstraint.FromDirection(info.Direction, 0, maxMain, 0,
                 constraint.GetCrossAxis(info.Direction).Max - info.PaddingSizeCross() -
                 child.UiElementInfo.Margin.SumInDirection(info.Direction.Other()));
             var size = child.Layout(childConstraint);

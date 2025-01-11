@@ -4,10 +4,10 @@ namespace Flamui;
 
 public class FontManager
 {
-    private readonly Renderer _renderer;
+    private readonly Renderer? _renderer;
     public Dictionary<string, Font> fontCache = [];
 
-    public FontManager(Renderer renderer)
+    public FontManager(Renderer? renderer)
     {
         _renderer = renderer;
     }
@@ -29,7 +29,8 @@ public class FontManager
     {
         var font = FontLoader.LoadFont("JetBrainsMono-Regular.ttf", 18);
 
-        font.GpuTexture = _renderer.UploadTexture(font.AtlasBitmap, (uint)font.AtlasWidth, (uint)font.AtlasHeight);
+        if(_renderer != null)
+            font.GpuTexture = _renderer.UploadTexture(font.AtlasBitmap, (uint)font.AtlasWidth, (uint)font.AtlasHeight);
 
         return font;
     }

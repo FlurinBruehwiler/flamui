@@ -1085,16 +1085,21 @@ public class LayoutingTests(ITestOutputHelper console)
 
         using (ui.Div().Direction(Dir.Horizontal))
         {
+            ui.CascadingValues.Font = ui.FontManager.GetFont("Jetbrains Mono");
+
             ui.Text(loremIpsum).Color(188, 190, 196);
         }
 
         var expected =
             """
-            FlexContainer = X:0, Y:0, W:100, H:100
-                UiText = X:45, Y:45, W:10, H:10
+            FlexContainer = X:0, Y:0, W:200, H:100
+                UiText = X:0, Y:0, W:176, H:57
+                    Line = Lorem ipsum dolor sit 
+                    Line = amet, consectetur 
+                    Line = adipiscing elit.
             """;
 
-        AssertUi(ui, 100, 100, expected);
+        AssertUi(ui, 200, 100, expected);
     }
 
     private void AssertUi(Ui ui, int width, int height, string expected)
@@ -1126,6 +1131,16 @@ public class LayoutingTests(ITestOutputHelper console)
         sb.Append(new string(' ', indentation * 4));
         sb.AppendLine($"{element.GetType().Name} = X:{position.X}, Y:{position.Y}, W:{element.Rect.Width}, H:{element.Rect.Height}");
 
+        if (element is UiText text)
+        {
+            indentation++;
+            foreach (var line in text.TextLayoutInfo.Lines)
+            {
+                sb.Append(new string(' ', indentation * 4));
+                sb.AppendLine($"Line = {text.UiTextInfo.Content[line.TextContent]}");
+            }
+        }
+
         if (element is UiElementContainer container)
         {
             indentation++;
@@ -1147,6 +1162,7 @@ public class LayoutingTests(ITestOutputHelper console)
             Window = window
         };
         ui.Window = window;
+        ui.FontManager = new FontManager(null);
 
         ui.OpenElementStack.Push(rootContainer);
         rootContainer.OpenElement();

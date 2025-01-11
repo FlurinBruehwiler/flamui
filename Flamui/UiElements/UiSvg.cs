@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using Flamui.Layouting;
+﻿using Flamui.Layouting;
 using Point = Flamui.Layouting.Point;
 
 namespace Flamui.UiElements;

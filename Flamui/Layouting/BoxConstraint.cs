@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Flamui.Layouting;
 
 public struct BoxConstraint

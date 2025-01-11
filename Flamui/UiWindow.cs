@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Flamui.Drawing;
+﻿using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.PerfTrace;
 using Flamui.UiElements;

@@ -104,7 +104,10 @@ public class Renderer
     private void CheckError()
     {
         var err = Gl.GetError();
-        Console.WriteLine(err);
+        if (err != GLEnum.NoError)
+        {
+            Console.WriteLine(err);
+        }
     }
 
     private uint CreateProgram(uint vertexShader, uint fragmentShader)
@@ -142,7 +145,7 @@ public class Renderer
             Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, width, height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
         }
 
-        Console.WriteLine($"Width:  {width}, Height: {height}");
+        Console.WriteLine($"Uploading texture with the size: Width:  {width}, Height: {height}");
 
         CheckError();
 

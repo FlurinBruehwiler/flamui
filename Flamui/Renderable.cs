@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics.Contracts;
-using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Maths;
@@ -12,7 +10,6 @@ namespace Flamui;
 
 public class RenderContext
 {
-    // public Dictionary<int, RenderSection> RenderSections = new();
     public Stack<int> ZIndexes = new();
 
     public RenderContext()
@@ -36,7 +33,6 @@ public class RenderContext
 
         CommandBuffers.Clear();
         _arena.Reset();
-
     }
 
     public void AddRect(Bounds bounds, UiElement uiElement, ColorDefinition color, float radius = 0)
@@ -119,14 +115,9 @@ public class RenderContext
 
     private static int rerenderCount;
 
-    private bool isFirstRender = true;
-
-    private GlCanvas? canvas;
-
     public void Rerender(Renderer renderer)
     {
-        canvas = new GlCanvas(renderer, _arena);
-        canvas.Start();
+        var canvas = new GlCanvas(renderer, _arena);
 
         var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
 
@@ -134,9 +125,6 @@ public class RenderContext
         {
             foreach (var command in value)
             {
-                if(isFirstRender)
-                    Console.WriteLine(command.Type);
-
                 switch (command.Type)
                 {
                     case CommandType.Rect:
@@ -165,8 +153,6 @@ public class RenderContext
                 }
             }
         }
-
-        isFirstRender = false;
 
         canvas.Flush();
     }
@@ -377,98 +363,5 @@ public struct ManagedRef<T> where T : class
 //
 //         return path.Start == Start && path.StartHandle == StartHandle && path.EndHandle == EndHandle &&
 //                path.End == End;
-//     }
-// }
-
-// public struct TextPaint : IRenderPaint
-// {
-//     public required float TextSize;
-//     public required SKColor SkColor;
-//
-//     private static readonly SKPaint Paint = MakeTextPaint();
-//
-//     public SKPaint GetPaint()
-//     {
-//         Paint.TextSize = TextSize;
-//         Paint.Color = SkColor;
-//         return Paint;
-//     }
-//
-//     public bool PaintEquals(IRenderPaint renderPaint)
-//     {
-//         if (renderPaint is not TextPaint textPaint)
-//             return false;
-//
-//         return textPaint.TextSize == TextSize && textPaint.SkColor == SkColor;
-//     }
-//
-//     private static SKPaint MakeTextPaint()
-//     {
-//         var paint = new SKPaint();
-//         paint.IsAntialias = true;
-//         paint.Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Thin, SKFontStyleWidth.Normal,
-//             SKFontStyleSlant.Upright);
-//         return paint;
-//     }
-// }
-
-// public struct ShadowPaint : IRenderPaint
-// {
-//     public required SKColor SkColor;
-//     public required float ShadowSigma;
-//
-//     private static readonly Dictionary<float, SKMaskFilter> MaskFilterCache = new();
-//     private static readonly SKPaint Paint = Helpers.GetNewAntialiasedPaint();
-//
-//     public SKPaint GetPaint()
-//     {
-//         if (!MaskFilterCache.TryGetValue(ShadowSigma, out var maskFilter))
-//         {
-//             //todo maybe ensure that not no many unused maskfilters get created??? because maskfilters are disposable :) AND immutable grrrr
-//             maskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Outer, ShadowSigma, false);
-//             MaskFilterCache.Add(ShadowSigma, maskFilter);
-//         }
-//
-//         Paint.Color = SkColor;
-//         Paint.MaskFilter = maskFilter;
-//         return Paint;
-//     }
-//
-//     public bool PaintEquals(IRenderPaint renderPaint)
-//     {
-//         if (renderPaint is not ShadowPaint shadowPaint)
-//             return false;
-//
-//         return shadowPaint.SkColor == SkColor && shadowPaint.ShadowSigma == ShadowSigma;
-//     }
-// }
-
-// public struct PlaintPaint : IRenderPaint
-// {
-//     public required SKColor SkColor;
-//     private static readonly SKPaint Paint = Helpers.GetNewAntialiasedPaint();
-//
-//     public SKPaint GetPaint()
-//     {
-//         Paint.Color = SkColor;
-//         return Paint;
-//     }
-//
-//     public bool PaintEquals(IRenderPaint renderPaint)
-//     {
-//         if (renderPaint is not PlaintPaint plaintPaint)
-//             return false;
-//
-//         return plaintPaint.SkColor == SkColor;
-//     }
-// }
-
-// public static class Helpers
-// {
-//     public static SKPaint GetNewAntialiasedPaint()
-//     {
-//         var paint = new SKPaint();
-//         paint.IsAntialias = true;
-//         return paint;
 //     }
 // }

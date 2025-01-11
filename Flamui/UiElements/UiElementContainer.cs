@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace Flamui.UiElements;
+﻿namespace Flamui.UiElements;
 
 public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
 {
