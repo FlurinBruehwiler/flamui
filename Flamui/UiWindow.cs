@@ -240,6 +240,7 @@ public partial class UiWindow : IDisposable
     {
         // SDL_GetWindowSize(Window, out var width, out var height);
 
+        Ui.CascadingStack.Clear();
         Ui.OpenElementStack.Clear();
         Ui.OpenElementStack.Push(RootContainer);
 

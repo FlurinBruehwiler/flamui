@@ -40,7 +40,7 @@ public static class ArenaStringExtensions
 {
     public static ArenaString ToArenaString(this int i)
     {
-        var buffer = Ui.Arena.VirtualBuffer.AllocateSlice<char>(11);
+        var buffer = Ui.Arena.AllocateSlice<char>(11);
         if (i.TryFormat(buffer.Span, out var charsWritten))
         {
             return new ArenaString(buffer.SubSlice(0, charsWritten));
@@ -51,7 +51,7 @@ public static class ArenaStringExtensions
 
     public static ArenaString ToArenaString(this bool i)
     {
-        var buffer = Ui.Arena.VirtualBuffer.AllocateSlice<char>(5);
+        var buffer = Ui.Arena.AllocateSlice<char>(5);
         if (i.TryFormat(buffer.Span, out var charsWritten))
         {
             return new ArenaString(buffer.SubSlice(0, charsWritten));
@@ -62,7 +62,7 @@ public static class ArenaStringExtensions
 
     public static unsafe ArenaString ToArenaString(this char i)
     {
-        var buffer = Ui.Arena.VirtualBuffer.Allocate(i);
+        var buffer = Ui.Arena.Allocate(i);
         return new ArenaString(new Slice<char>(buffer, 1));
     }
 }
@@ -109,7 +109,7 @@ public struct ArenaString
 
     public static ArenaString operator +(ArenaString a, ArenaString b)
     {
-        var slice = Ui.Arena.VirtualBuffer.AllocateSlice<char>(a.Length + b.Length);
+        var slice = Ui.Arena.AllocateSlice<char>(a.Length + b.Length);
 
         a.AsSpan().CopyTo(slice.Span);
         b.AsSpan().CopyTo(slice.Span.Slice(a.Length));

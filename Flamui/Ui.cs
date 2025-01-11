@@ -1,16 +1,26 @@
 using System.Runtime.CompilerServices;
+using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flamui;
 
+public struct CascadingStuff
+{
+    public Font? Font;
+    public ColorDefinition TextColor;
+}
+
 public partial class Ui
 {
     public readonly Stack<IStackItem> OpenElementStack = new();
     private IStackItem OpenElement => OpenElementStack.Peek();
     public UiWindow Window = null!;
+    public FontManager FontManager;
 
+    public Stack<CascadingStuff> CascadingStack = [];
+    public CascadingStuff CascadingValues;
 
     public static Arena Arena; //not used currently
 
@@ -66,6 +76,7 @@ public partial class Ui
         OpenElement.AddChild(div);
 
         OpenElementStack.Push(div);
+        CascadingStack.Push(CascadingValues);
 
         div.OpenElement();
 
@@ -87,21 +98,9 @@ public partial class Ui
         OpenElement.AddChild(text);
 
         text.UiTextInfo.Content = content;
+        text.UiTextInfo.Font = CascadingValues.Font;
 
         return text;
-    }
-
-    public IDisposable CascadingValue<T>(T value,
-        string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
-    {
-        var id = new UiID(key, path, line, typeof(T).GetHashCode());
-        var provider = GetData(id, static (_, _) => new CascadingValueProvider<T>());
-
-        provider.Data = value;
-
-        return provider;
     }
 
     public UiSvg SvgImage(string src, ColorDefinition? colorDefinition = null,

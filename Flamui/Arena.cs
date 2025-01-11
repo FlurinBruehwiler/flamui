@@ -40,4 +40,29 @@ public class Arena
         }
         objectToHandle.Clear();
     }
+
+    public unsafe T* Allocate<T>(T value) where T : unmanaged
+    {
+        var span = VirtualBuffer.AllocateRange(sizeof(T));
+        fixed (byte* ptr = span)
+        {
+            var a = (T*)ptr;
+            *a = value;
+            return a;
+        }
+    }
+
+    public unsafe Slice<T> AllocateSlice<T>(int count) where T : unmanaged
+    {
+        var span = VirtualBuffer.AllocateRange(sizeof(T) * count);
+        fixed (byte* ptr = span)
+        {
+            var a = (T*)ptr;
+            return new Slice<T>
+            {
+                Items = a,
+                Count = count
+            };
+        }
+    }
 }

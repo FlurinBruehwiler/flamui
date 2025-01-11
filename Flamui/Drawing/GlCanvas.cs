@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Drawing;
 using System.Numerics;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -8,10 +7,9 @@ namespace Flamui.Drawing;
 
 public struct Paint
 {
-    public Color Color;
+    public ColorDefinition Color;
     public Font Font;
 }
-
 
 public class GlCanvas
 {
@@ -20,10 +18,10 @@ public class GlCanvas
     private readonly Renderer _renderer;
     public Paint Paint;
 
-    public GlCanvas(Renderer renderer)
+    public GlCanvas(Renderer renderer, Arena arena)
     {
         _renderer = renderer;
-        MeshBuilder = new MeshBuilder();
+        MeshBuilder = new MeshBuilder(arena);
     }
 
     public void SetMatrix(Matrix4X4<float> matrix)
@@ -47,7 +45,6 @@ public class GlCanvas
                 Console.WriteLine($"unknown glyph: {c}");
             }
         }
-
     }
 
     private void DrawGlyph(GlyphInfo glyphInfo, int x, int y) //todo, maybe subpixel glyph positioning
@@ -65,11 +62,6 @@ public class GlCanvas
         uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, uvYOffset), Paint.Color, textureType: TextureType.Text);
         uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text);
         uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text);
-
-        var oc = Paint.Color;
-        Paint.Color = Color.Red;
-        // DrawRect(x, y, glyphInfo.Width, glyphInfo.Height);
-        Paint.Color = oc;
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
@@ -100,7 +92,7 @@ public class GlCanvas
 
         //draw the rect that should define clipping
         DrawRoundedRect(x, y, width, height, radius);
-        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset(), stencilMode: true);
+        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset(Paint.Font.GpuTexture), stencilMode: true);
 
         _renderer.Gl.ColorMask(true, true, true, true);
         _renderer.Gl.DepthMask(true);
@@ -123,7 +115,7 @@ public class GlCanvas
 
     public void Flush()
     {
-        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset());
+        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset(Paint.Font.GpuTexture));
     }
 
     public void DrawRoundedRect(float x, float y, float width, float height, float radius)

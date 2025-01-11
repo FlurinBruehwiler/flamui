@@ -11,13 +11,15 @@ namespace Flamui;
 /// <typeparam name="T"></typeparam>
 public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
 {
-    private readonly VirtualBuffer _arena;
+    private readonly Arena _arena;
     private readonly int _chunkSize;
 
     private Chunk* _currentChunk;
     private readonly Chunk* _firstChunk;
 
-    public GrowableArenaBuffer(VirtualBuffer arena, int chunkSize)
+    public int Count { get; private set; }
+
+    public GrowableArenaBuffer(Arena arena, int chunkSize)
     {
         _arena = arena;
         _chunkSize = chunkSize;
@@ -25,15 +27,67 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
         _firstChunk = AppendNewChunk();
     }
 
+    public void Clear()
+    {
+        Count = 0;
+
+        //set all counts to zero and zero initialize slices
+        var current = _firstChunk;
+        while (true)
+        {
+            current->Count = 0;
+            current->Items.MemZero();
+            if (current->NextChunk == null)
+            {
+                break;
+            }
+
+            current = current->NextChunk;
+        }
+
+        _currentChunk = _firstChunk;
+    }
+
     public void Add(T item)
     {
         if (_currentChunk->IsFull())
         {
-            AppendNewChunk();
+            if (_currentChunk->NextChunk == null)
+            {
+                AppendNewChunk();
+            }
+            else
+            {
+                _currentChunk = _currentChunk->NextChunk;
+            }
         }
 
+        Count++;
         _currentChunk->Items[_currentChunk->Count] = item;
         _currentChunk->Count++;
+    }
+
+    public Slice<T> ToSlice()
+    {
+        var slice = _arena.AllocateSlice<T>(Count);
+
+        int idx = 0;
+
+        var current = _firstChunk;
+        while (true)
+        {
+            current->Items.Span.CopyTo(slice.Span.Slice(idx));
+            idx += current->Count;
+
+            if (current->NextChunk == null)
+            {
+                break;
+            }
+
+            current = current->NextChunk;
+        }
+
+        return slice;
     }
 
     private Chunk* AppendNewChunk()
@@ -136,34 +190,6 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
     }
 }
 
-public static unsafe class ArenaExtensions
-{
-    public static T* Allocate<T>(this VirtualBuffer arena, T value) where T : unmanaged
-    {
-        var span = arena.AllocateRange(sizeof(T));
-        fixed (byte* ptr = span)
-        {
-            var a = (T*)ptr;
-            *a = value;
-            return a;
-        }
-    }
-
-    public static Slice<T> AllocateSlice<T>(this VirtualBuffer arena, int count) where T : unmanaged
-    {
-        var span = arena.AllocateRange(sizeof(T) * count);
-        fixed (byte* ptr = span)
-        {
-            var a = (T*)ptr;
-            return new Slice<T>
-            {
-                Items = a,
-                Count = count
-            };
-        }
-    }
-}
-
 public unsafe struct Slice<T> where T : unmanaged
 {
     public T* Items;
@@ -176,6 +202,11 @@ public unsafe struct Slice<T> where T : unmanaged
     }
 
     public Span<T> Span => new(Items, Count);
+    public ReadOnlySpan<T> ReadonlySpan => new(Items, Count);
+
+    public void MemZero()
+    {
+    }
 
     public Slice<T> SubSlice(int start, int length)
     {

@@ -7,6 +7,9 @@ namespace Flamui.Test;
 
 public class LayoutingTests(ITestOutputHelper console)
 {
+    private const string loremIpsum =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+
     [Fact]
     public void BasicFill()
     {
@@ -1044,6 +1047,51 @@ public class LayoutingTests(ITestOutputHelper console)
             FlexContainer = X:0, Y:0, W:100, H:100
                 FlexContainer = X:45, Y:45, W:10, H:10
                     FlexContainer = X:65, Y:65, W:0, H:0
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Absolute_Size()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Center())
+        {
+            using (ui.Div().Width(10).Height(10))
+            {
+                using (ui.Div().AbsoluteSize(widthOffsetParent: 0, heightOffsetParent: 0))
+                {
+
+                }
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:45, Y:45, W:10, H:10
+                    FlexContainer = X:45, Y:45, W:10, H:10
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Text_Wrap()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            ui.Text(loremIpsum).Color(188, 190, 196);
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                UiText = X:45, Y:45, W:10, H:10
             """;
 
         AssertUi(ui, 100, 100, expected);

@@ -11,14 +11,20 @@ namespace Flamui.Drawing;
 
 public struct Mesh
 {
-    public float[] Floats;
-    public uint[] Indices;
+    public required Slice<float> Floats;
+    public required Slice<uint> Indices;
+    public required GpuTexture Texture;
 }
 
 public enum Shader
 {
     main_fragment,
     main_vertex,
+}
+
+public struct GpuTexture
+{
+    public uint TextureId;
 }
 
 public class Renderer
@@ -28,9 +34,8 @@ public class Renderer
     private int _transformLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
-    private uint _texture;
     public IWindow Window;
-    public static Font DefaultFont;
+    // public static Font DefaultFont;
 
     private Dictionary<Shader, string> _shaderStrings = [];
 
@@ -66,7 +71,6 @@ public class Renderer
     public void Initialize(IWindow window)
     {
         Window = window;
-        DefaultFont = FontLoader.LoadFont("JetBrainsMono-Regular.ttf", 18);
 
         Gl = Window.CreateOpenGL();
         Gl.Enable(EnableCap.Multisample);
@@ -88,8 +92,6 @@ public class Renderer
         _stencilEnabledLoc = Gl.GetUniformLocation(_mainProgram, "stencil_enabled");
 
         CheckError();
-
-        UploadTexture(DefaultFont.AtlasBitmap, (uint)DefaultFont.AtlasWidth, (uint)DefaultFont.AtlasHeight);
 
         CheckError();
 
@@ -126,11 +128,11 @@ public class Renderer
         return program;
     }
 
-    public unsafe void UploadTexture(byte[] data, uint width, uint height)
+    public unsafe GpuTexture UploadTexture(byte[] data, uint width, uint height)
     {
-        _texture = Gl.GenTexture();
+        var textureId = Gl.GenTexture();
         Gl.ActiveTexture(TextureUnit.Texture0);
-        Gl.BindTexture(TextureTarget.Texture2D, _texture);
+        Gl.BindTexture(TextureTarget.Texture2D, textureId);
 
         CheckError();
 
@@ -162,6 +164,11 @@ public class Renderer
         Gl.Uniform1(location, 0);
 
         CheckError();
+
+        return new GpuTexture
+        {
+            TextureId = textureId,
+        };
     }
 
     uint vbo;
@@ -175,19 +182,17 @@ public class Renderer
         Gl.UseProgram(_mainProgram);
 
         Gl.ActiveTexture(TextureUnit.Texture0);
-        Gl.BindTexture(TextureTarget.Texture2D, _texture);
-
+        Gl.BindTexture(TextureTarget.Texture2D, mesh.Texture.TextureId);
 
         using (Systrace.BeginEvent("Bind/Upload Buffers"))
         {
             //create / bind vbo
-
             Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
-            Gl.BufferData(BufferTargetARB.ArrayBuffer, new ReadOnlySpan<float>(mesh.Floats), BufferUsageARB.StaticDraw);
+            Gl.BufferData(BufferTargetARB.ArrayBuffer, mesh.Floats.ReadonlySpan, BufferUsageARB.StaticDraw);
 
             //create / bind ebo
             Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
-            Gl.BufferData(BufferTargetARB.ElementArrayBuffer, new ReadOnlySpan<uint>(mesh.Indices), BufferUsageARB.StaticDraw);
+            Gl.BufferData(BufferTargetARB.ElementArrayBuffer, mesh.Indices.ReadonlySpan, BufferUsageARB.StaticDraw);
         }
 
         const int stride = 3 + 2 + 1 + 4 + 1; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color + 1 texturetype
@@ -226,7 +231,7 @@ public class Renderer
 
         using (Systrace.BeginEvent("DrawElements"))
         {
-            Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
+            Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Count, DrawElementsType.UnsignedInt,  (void*) 0);
         }
 
         // using (Systrace.BeginEvent("GetError"))

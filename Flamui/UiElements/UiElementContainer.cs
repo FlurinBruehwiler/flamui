@@ -15,7 +15,7 @@ public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
         uiElement.Parent = this;
     }
 
-    public virtual void OpenElement()
+    public void OpenElement()
     {
         DataStore.Reset();
         Children.Clear();
@@ -23,6 +23,7 @@ public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
 
     public void Dispose()
     {
+        Window.Ui.CascadingValues = Window.Ui.CascadingStack.Pop();
         Window.Ui.OpenElementStack.Pop();
     }
 }

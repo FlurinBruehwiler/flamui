@@ -14,10 +14,10 @@ public struct Vertex
     public Vector2 Position;
     public Vector2 UV;
     public float BezierFillType;
-    public Color Color;
+    public ColorDefinition Color;
     public TextureType TextureType;
 
-    public Vertex(Vector2 position, Vector2 uv, Color color)
+    public Vertex(Vector2 position, Vector2 uv, ColorDefinition color)
     {
         Position = position;
         UV = uv;

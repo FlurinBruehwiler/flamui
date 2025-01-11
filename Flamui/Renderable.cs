@@ -87,7 +87,7 @@ public class RenderContext
     {
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
         {
-            commandBuffer = new GrowableArenaBuffer<Command>(_arena.VirtualBuffer, 20);
+            commandBuffer = new GrowableArenaBuffer<Command>(_arena, 20);
             CommandBuffers.Add(ZIndexes.Peek(), commandBuffer);
         }
 
@@ -125,7 +125,7 @@ public class RenderContext
 
     public void Rerender(Renderer renderer)
     {
-        canvas ??= new GlCanvas(renderer);
+        canvas ??= new GlCanvas(renderer, _arena);
         canvas.Start();
 
         var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
@@ -140,7 +140,7 @@ public class RenderContext
                 switch (command.Type)
                 {
                     case CommandType.Rect:
-                        canvas.Paint.Color = Color.FromArgb(command.Color.Alpha, command.Color.Red, command.Color.Green, command.Color.Blue);
+                        canvas.Paint.Color = command.Color;
                         if(command.Radius == 0)
                             canvas.DrawRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H);
                         else
@@ -154,7 +154,7 @@ public class RenderContext
                         break;
                     case CommandType.Text:
                         canvas.Paint.Font = command.Font.Get();
-                        canvas.Paint.Color = command.Color.ToColor();
+                        canvas.Paint.Color = command.Color;
                         canvas.DrawText(command.String.Get(), command.Bounds.X, command.Bounds.Y);
                         break;
                     case CommandType.Matrix:

@@ -4,7 +4,6 @@ namespace Flamui;
 
 public class DataStore
 {
-//anita max wynn
     private Dictionary<UiID, object>? _oldDataById;
     private  Dictionary<UiID, object>? _data;
     public Dictionary<UiID, object> OldDataById => _oldDataById ??= new Dictionary<UiID, object>();

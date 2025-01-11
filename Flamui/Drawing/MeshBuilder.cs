@@ -1,4 +1,3 @@
-using System.Drawing;
 using System.Numerics;
 using Silk.NET.Maths;
 
@@ -22,19 +21,20 @@ public static class Extensions
 
 public struct MeshBuilder
 {
-    private List<Vertex> _vertices;
-    private List<uint> _indices;
+    private GrowableArenaBuffer<Vertex> _vertices;
+    private GrowableArenaBuffer<uint> _indices;
     public Matrix4X4<float> Matrix;
+    private Arena _arena;
 
-    public MeshBuilder()
+    public MeshBuilder(Arena arena)
     {
-        //allocate on arena???, but maybe also not because we want to cache it in the future, we could also guess the size from the last frame????
-        _indices = new List<uint>(1000);
-        _vertices = new List<Vertex>(1000);
+        _indices = new GrowableArenaBuffer<uint>(arena, 1000); //todo optimize chunk size
+        _vertices = new GrowableArenaBuffer<Vertex>(arena, 1000);
         Matrix = Matrix4X4<float>.Identity;
+        _arena = arena;
     }
 
-    public uint AddVertex(Vector2 position, Vector2 uv, Color color, float bezierFillType = 0, TextureType textureType = 0)
+    public uint AddVertex(Vector2 position, Vector2 uv, ColorDefinition color, float bezierFillType = 0, TextureType textureType = 0)
     {
         var pos = _vertices.Count;
 
@@ -54,12 +54,13 @@ public struct MeshBuilder
         _indices.Add(v3);
     }
 
-    public Mesh BuildMeshAndReset()
+    public Mesh BuildMeshAndReset(GpuTexture texture)
     {
         var mesh = new Mesh
         {
-            Indices = _indices.ToArray(),
-            Floats = BuildFloatArray()
+            Indices = _indices.ToSlice(),
+            Floats = BuildFloatArray(),
+            Texture = texture
         };
 
         _indices.Clear();
@@ -68,25 +69,30 @@ public struct MeshBuilder
         return mesh;
     }
 
-    private float[] BuildFloatArray()
+    private Slice<float> BuildFloatArray()
     {
         const int stride = 3 + 2 + 1 + 4 + 1;
-        float[] vertexFloats = new float[_vertices.Count * stride];
-        for (var i = 0; i < _vertices.Count; i++)
+
+        var vertexFloats = _arena.AllocateSlice<float>(_vertices.Count * stride);
+
+        int i = 0;
+        foreach (var vertex in _vertices)
         {
-            vertexFloats[i * stride] = _vertices[i].Position.X;
-            vertexFloats[i * stride + 1] = _vertices[i].Position.Y;
+            vertexFloats[i * stride] = vertex.Position.X;
+            vertexFloats[i * stride + 1] = vertex.Position.Y;
             vertexFloats[i * stride + 2] = 0;
-            vertexFloats[i * stride + 3] = _vertices[i].UV.X;
-            vertexFloats[i * stride + 4] = _vertices[i].UV.Y;
-            vertexFloats[i * stride + 5] = _vertices[i].BezierFillType;
-            vertexFloats[i * stride + 6] = (float)_vertices[i].Color.R / 255;
-            vertexFloats[i * stride + 7] = (float)_vertices[i].Color.G / 255;
-            vertexFloats[i * stride + 8] = (float)_vertices[i].Color.B / 255;
-            vertexFloats[i * stride + 9] = (float)_vertices[i].Color.A / 255;
-            vertexFloats[i * stride + 10] = (float)_vertices[i].TextureType;
+            vertexFloats[i * stride + 3] = vertex.UV.X;
+            vertexFloats[i * stride + 4] = vertex.UV.Y;
+            vertexFloats[i * stride + 5] = vertex.BezierFillType;
+            vertexFloats[i * stride + 6] = (float)vertex.Color.Red / 255;
+            vertexFloats[i * stride + 7] = (float)vertex.Color.Green / 255;
+            vertexFloats[i * stride + 8] = (float)vertex.Color.Blue / 255;
+            vertexFloats[i * stride + 9] = (float)vertex.Color.Alpha / 255;
+            vertexFloats[i * stride + 10] = (float)vertex.TextureType;
+
+            i++;
         }
-//b, g,r, a
+
         return vertexFloats;
     }
 }

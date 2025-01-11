@@ -18,6 +18,7 @@ public struct UiTextInfo
     public TextAlign VerticalAlignment = TextAlign.Center;
     public bool Multiline;
     public string Content = string.Empty;
+    public Font? Font;
 }
 
 public class UiText : UiElement
@@ -38,7 +39,7 @@ public class UiText : UiElement
         if (UiTextInfo.Content == string.Empty)
             return;
 
-        var font = Renderer.DefaultFont;
+        var font = UiTextInfo.Font;
 
         // var width = ;
         //
@@ -88,7 +89,7 @@ public class UiText : UiElement
             // renderContext.AddRect(bounds, this, new ColorDefinition(100, 0, 0, 100));
 
             //avoid to string and use arenastring!!!!!!!
-            renderContext.AddText(bounds, lineSpan.ToString(), UiTextInfo.Color, Renderer.DefaultFont);
+            renderContext.AddText(bounds, lineSpan.ToString(), UiTextInfo.Color, font);
 
             yCoord += font.GetHeight() + font.LineGap;
         }
@@ -96,7 +97,7 @@ public class UiText : UiElement
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        _layoutInfo = FontShaping.LayoutText(Renderer.DefaultFont, UiTextInfo.Content, constraint.MaxWidth);
+        _layoutInfo = FontShaping.LayoutText(UiTextInfo.Font, UiTextInfo.Content, constraint.MaxWidth);
         MaxWidth = constraint.MaxWidth;
 
         Rect = new BoxSize(_layoutInfo.MaxWidth, _layoutInfo.TotalHeight);

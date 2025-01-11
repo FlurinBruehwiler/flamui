@@ -25,6 +25,7 @@ public class Font
     public required float Ascent;
     public required float Descent;
     public required float LineGap;
+    public GpuTexture GpuTexture;
 
     public float GetHeight() => Ascent - Descent;
 
