@@ -294,6 +294,117 @@ public class LayoutingTests(ITestOutputHelper console)
     }
 
     [Fact]
+    public void Margin_Left()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            using (ui.Div().MarginLeft(10).Width(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:10, Y:0, W:10, H:100
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Margin_Right()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            using (ui.Div().MarginRight(10).Width(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:0, W:10, H:100
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Margin_Top()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            using (ui.Div().MarginTop(10).Width(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:10, W:10, H:90
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Cross_Fraction()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            using (ui.Div().Width(10).HeightFraction(50))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:150
+                FlexContainer = X:0, Y:0, W:10, H:75
+            """;
+
+        AssertUi(ui, 100, 150, expected);
+    }
+
+    [Fact]
+    public void Margin_Bottom()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            using (ui.Div().MarginTop(10).Width(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:10, W:10, H:90
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+
+    [Fact]
     public void Margin_Padding_Fixed()
     {
         var ui = GetUi();
@@ -610,6 +721,96 @@ public class LayoutingTests(ITestOutputHelper console)
     }
 
     [Fact]
+    public void Shrink_Padding()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Shrink().Padding(10))
+        {
+            using (ui.Div().Width(10).Height(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:30, H:30
+                FlexContainer = X:10, Y:10, W:10, H:10
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Shrink_Margin()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Shrink())
+        {
+            using (ui.Div().Width(10).Height(10).Margin(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:30, H:30
+                FlexContainer = X:10, Y:10, W:10, H:10
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Shrink_Gap()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().ShrinkWidth().Gap(10).Direction(Dir.Horizontal))
+        {
+            using (ui.Div().Width(10))
+            {
+
+            }
+
+            using (ui.Div().Width(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:30, H:100
+                FlexContainer = X:0, Y:0, W:10, H:100
+                FlexContainer = X:20, Y:0, W:10, H:100
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Shrink_CrossAxis()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().ShrinkHeight().Gap(10).Direction(Dir.Horizontal))
+        {
+            using (ui.Div())
+            {
+
+            }
+        }
+
+        var exception = Assert.Throws<InvalidLayoutException>(() => AssertUi(ui, 100, 100, ""));
+
+        Assert.Equal(InvalidLayoutType.FractionWithinShrink, exception.InvalidLayoutType);
+    }
+
+    [Fact]
     public void Shrink_MinSize()
     {
         var ui = GetUi();
@@ -706,6 +907,146 @@ public class LayoutingTests(ITestOutputHelper console)
         }
 
         var exception = Assert.Throws<InvalidLayoutException>(() => AssertUi(ui, 100, 100, ""));
+
+        Assert.Equal(InvalidLayoutType.FractionWithinShrink, exception.InvalidLayoutType);
+    }
+
+    [Fact]
+    public void Shrink_And_Fraction()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            using (ui.Div().ShrinkWidth())
+            {
+                using (ui.Div().Width(10))
+                {
+
+                }
+            }
+
+            using (ui.Div().WidthFraction(50))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:0, W:10, H:100
+                    FlexContainer = X:0, Y:0, W:10, H:100
+                FlexContainer = X:10, Y:0, W:45, H:100
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Absolute_Basic()
+    {
+        var ui = GetUi();
+
+        using (ui.Div())
+        {
+            using (ui.Div())
+            {
+
+            }
+
+            using (ui.Div().Absolute().Width(88).Height(78))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:0, W:88, H:78
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void NestedCenter()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Center())
+        {
+            using (ui.Div().Width(50).Height(50).Center())
+            {
+                using (ui.Div().Width(10).Height(10))
+                {
+
+                }
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:25, Y:25, W:50, H:50
+                    FlexContainer = X:45, Y:45, W:10, H:10
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Absolute_Position_Left_Top()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Center())
+        {
+            using (ui.Div().Width(10).Height(10))
+            {
+                using (ui.Div().AbsolutePosition(top: -10, left: -10))
+                {
+
+                }
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:45, Y:45, W:10, H:10
+                    FlexContainer = X:35, Y:35, W:0, H:0
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void Absolute_Position_Bottom_Right()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Center())
+        {
+            using (ui.Div().Width(10).Height(10))
+            {
+                using (ui.Div().AbsolutePosition(bottom: 10, right: 10))
+                {
+
+                }
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:45, Y:45, W:10, H:10
+                    FlexContainer = X:65, Y:65, W:0, H:0
+            """;
+
+        AssertUi(ui, 100, 100, expected);
     }
 
     private void AssertUi(Ui ui, int width, int height, string expected)
@@ -719,7 +1060,7 @@ public class LayoutingTests(ITestOutputHelper console)
 
         foreach (var rootChild in root.Children)
         {
-            BuildTextualRepresentation(rootChild, sb, 0);
+            BuildTextualRepresentation(rootChild, sb, 0, rootChild.ParentData.Position);
         }
 
         var actual = sb.ToString().Trim();
@@ -732,17 +1073,17 @@ public class LayoutingTests(ITestOutputHelper console)
         }
     }
 
-    private void BuildTextualRepresentation(UiElement element, StringBuilder sb, int indentation)
+    private void BuildTextualRepresentation(UiElement element, StringBuilder sb, int indentation, Point position)
     {
         sb.Append(new string(' ', indentation * 4));
-        sb.AppendLine($"{element.GetType().Name} = X:{element.ParentData.Position.X}, Y:{element.ParentData.Position.Y}, W:{element.Rect.Width}, H:{element.Rect.Height}");
+        sb.AppendLine($"{element.GetType().Name} = X:{position.X}, Y:{position.Y}, W:{element.Rect.Width}, H:{element.Rect.Height}");
 
         if (element is UiElementContainer container)
         {
             indentation++;
             foreach (var child in container.Children)
             {
-                BuildTextualRepresentation(child, sb, indentation);
+                BuildTextualRepresentation(child, sb, indentation, position.Add(child.ParentData.Position));
             }
         }
     }

@@ -30,7 +30,6 @@ public class RenderContext
     {
         if (_arena == null)
         {
-            Console.WriteLine("Creating arena");
             var virtualBuffer = manager.CreateBuffer("PerFrameArena", (UIntPtr)1_000_000);
             _arena = new Arena(virtualBuffer);
         }

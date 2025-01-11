@@ -76,6 +76,13 @@ public enum SizeKind
 
 public static class Extensions
 {
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="uiElement"></param>
+    /// <param name="anchor">If the anchor is not specified, it is the direct parent</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static T Absolute<T>(this T uiElement, FlexContainer? anchor = null) where T : UiElement
     {
         uiElement.UiElementInfo.AbsoluteInfo = (uiElement.UiElementInfo.AbsoluteInfo ?? new AbsoluteInfo()) with
@@ -160,15 +167,13 @@ public static class Extensions
 
     public static bool IsFlexible(this UiElement uiElement, out FlexibleChildConfig config)
     {
-        config = new FlexibleChildConfig();
-
         if (uiElement.FlexibleChildConfig is null)
         {
+            config = default;
             return false;
         }
 
         config = uiElement.FlexibleChildConfig.Value;
-
         return true;
     }
 

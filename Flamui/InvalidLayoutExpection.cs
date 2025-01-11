@@ -21,7 +21,7 @@ public class InvalidLayoutException : Exception
     {
         var message = invalidLayoutType switch
         {
-            InvalidLayoutType.FractionWithinShrink => "An element can not have a fraction as the main size, when the parent is shrinkable",
+            InvalidLayoutType.FractionWithinShrink => "An element can not have a fraction as the size, when the parent is shrinkable on that axis",
             _ => throw new ArgumentOutOfRangeException(nameof(invalidLayoutType), invalidLayoutType, null)
         };
 
