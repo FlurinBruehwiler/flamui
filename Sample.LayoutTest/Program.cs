@@ -19,14 +19,19 @@ public class LayoutTest : FlamuiComponent
 
     public override void Build(Ui ui)
     {
+        ui.CascadingValues.Font = ui.FontManager.GetFont("Jetbrains Mono");
+        ui.CascadingValues.TextColor = new ColorDefinition(188, 190, 196);
+
         using (ui.Div().Color(c1).Padding(10).Gap(10))
         {
-            ui.CascadingValues.Font = ui.FontManager.GetFont("Jetbrains Mono");
-            ui.CascadingValues.TextColor = new ColorDefinition(188, 190, 196);
-
-            using (ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20).Direction(Dir.Horizontal))
+            using (var innerDiv = ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20).Direction(Dir.Horizontal))
             {
-               ui.Text(loremIpsum);
+                if (innerDiv.IsHovered)
+                {
+                    innerDiv.Color(c3);
+                }
+
+                ui.Text(loremIpsum);
             }
         }
     }

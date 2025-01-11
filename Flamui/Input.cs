@@ -61,6 +61,8 @@ public class Input
 
         foreach (var mouse in input.Mice)
         {
+            _mouse = mouse;
+
             mouse.MouseDown += (_, button) =>
             {
                 var mouseButton = GetMouseButton(button);
@@ -79,12 +81,14 @@ public class Input
                 ScrollDeltaX = wheel.X;
                 ScrollDeltaY = wheel.Y;
             };
-            mouse.MouseMove += (_, mouseDelta) =>
-            {
-                MousePosition += mouseDelta;
-            };
+            // mouse.MouseMove += (_, mouseDelta) =>
+            // {
+            //     MousePosition += mouseDelta;
+            // };
         }
     }
+
+    private IMouse _mouse;
 
     public void OnAfterFrame()
     {
@@ -100,6 +104,7 @@ public class Input
         TextInput = string.Empty;
 
         LastMousePosition = MousePosition;
+        MousePosition = _mouse.Position;
 
         ScrollDeltaX = 0;
     }

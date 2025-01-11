@@ -9,7 +9,7 @@ namespace Flamui;
 /// Linked list of chunks of size "chunkSize" allocated on an arena
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
+public unsafe class GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
 {
     private readonly Arena _arena;
     private readonly int _chunkSize;
@@ -52,19 +52,19 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
     {
         if (_currentChunk->IsFull())
         {
-            if (_currentChunk->NextChunk == null)
-            {
-                AppendNewChunk();
-            }
-            else
+            if (_currentChunk->NextChunk != null)
             {
                 _currentChunk = _currentChunk->NextChunk;
             }
+            else
+            {
+                AppendNewChunk();
+            }
         }
 
-        Count++;
         _currentChunk->Items[_currentChunk->Count] = item;
         _currentChunk->Count++;
+        Count++;
     }
 
     public Slice<T> ToSlice()
@@ -94,7 +94,8 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
     {
         var c = new Chunk
         {
-            Items = _arena.AllocateSlice<T>(_chunkSize)
+            Items = _arena.AllocateSlice<T>(_chunkSize),
+            NextChunk = null
         };
 
         var newChunk = _arena.Allocate(c);
@@ -148,7 +149,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
 
         public bool MoveNext()
         {
-            if (_indexInChunk == _buffer._chunkSize)
+            if (_indexInChunk >= _buffer._chunkSize)
             {
                 if (_currentChunk->NextChunk == null)
                 {
@@ -159,7 +160,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
                 _currentChunk = _currentChunk->NextChunk;
             }
 
-            if (_indexInChunk == _currentChunk->Count)
+            if (_indexInChunk >= _currentChunk->Count)
             {
                 _current = default;
                 return false;
@@ -185,7 +186,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
 
         public bool IsFull()
         {
-            return Items.Count == Count;
+            return Count >= Items.Count;
         }
     }
 }

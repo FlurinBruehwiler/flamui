@@ -17,6 +17,9 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
 
     public override void Build(Ui ui)
     {
+        ui.CascadingValues.Font = ui.FontManager.GetFont("Jetbrains Mono");
+        ui.CascadingValues.TextColor = new ColorDefinition(188, 190, 196);
+
         using (var button = ui.Div().Width(30).Height(30))
         {
             if (button.IsClicked)
@@ -57,12 +60,12 @@ public class RootComponent(FlamuiApp flamuiApp) : FlamuiComponent
     {
         using (ui.Div().Padding(10).Gap(10))
         {
-            var dd = ui.CreateDropDown(_selectedOption);
-            dd.Component.Option("Mark");
-            dd.Component.Option("Johnny");
-            dd.Component.Option("Frank");
-            dd.Component.Option("Linus");
-            dd.Build(out _selectedOption);
+            // var dd = ui.CreateDropDown(_selectedOption);
+            // dd.Component.Option("Mark");
+            // dd.Component.Option("Johnny");
+            // dd.Component.Option("Frank");
+            // dd.Component.Option("Linus");
+            // dd.Build(out _selectedOption);
 
             ui.StyledInput(ref _inputText);
 

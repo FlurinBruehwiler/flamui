@@ -19,7 +19,7 @@ public static class Extensions
     }
 }
 
-public struct MeshBuilder
+public class MeshBuilder
 {
     private GrowableArenaBuffer<Vertex> _vertices;
     private GrowableArenaBuffer<uint> _indices;
