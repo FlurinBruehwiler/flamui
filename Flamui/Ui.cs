@@ -99,6 +99,7 @@ public partial class Ui
 
         text.UiTextInfo.Content = content;
         text.UiTextInfo.Font = CascadingValues.Font;
+        text.UiTextInfo.Color = CascadingValues.TextColor;
 
         return text;
     }

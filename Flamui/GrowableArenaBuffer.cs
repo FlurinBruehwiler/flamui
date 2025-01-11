@@ -1,5 +1,5 @@
 using System.Collections;
-using Varena;
+using System.Runtime.CompilerServices;
 
 namespace Flamui;
 
@@ -76,7 +76,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
         var current = _firstChunk;
         while (true)
         {
-            current->Items.Span.CopyTo(slice.Span.Slice(idx));
+            current->Items.Span.Slice(0, current->Count).CopyTo(slice.Span.Slice(idx));
             idx += current->Count;
 
             if (current->NextChunk == null)
@@ -159,7 +159,7 @@ public unsafe struct GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
                 _currentChunk = _currentChunk->NextChunk;
             }
 
-            if (_indexInChunk == _currentChunk->Items.Count)
+            if (_indexInChunk == _currentChunk->Count)
             {
                 _current = default;
                 return false;
@@ -206,6 +206,7 @@ public unsafe struct Slice<T> where T : unmanaged
 
     public void MemZero()
     {
+        Unsafe.InitBlock(Items, 0, (uint)(sizeof(int) * Count));
     }
 
     public Slice<T> SubSlice(int start, int length)

@@ -125,7 +125,7 @@ public class RenderContext
 
     public void Rerender(Renderer renderer)
     {
-        canvas ??= new GlCanvas(renderer, _arena);
+        canvas = new GlCanvas(renderer, _arena);
         canvas.Start();
 
         var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
