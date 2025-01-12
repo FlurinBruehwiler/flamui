@@ -23,6 +23,7 @@ public class MeshBuilder
 {
     private GrowableArenaBuffer<Vertex> _vertices;
     private GrowableArenaBuffer<uint> _indices;
+    private HashSet<GpuTexture> _textures;
     public Matrix4X4<float> Matrix;
     private Arena _arena;
 
@@ -30,18 +31,20 @@ public class MeshBuilder
     {
         _indices = new GrowableArenaBuffer<uint>(arena, 1000); //todo optimize chunk size
         _vertices = new GrowableArenaBuffer<Vertex>(arena, 1000);
+        _textures = new HashSet<GpuTexture>();
         Matrix = Matrix4X4<float>.Identity;
         _arena = arena;
     }
 
-    public uint AddVertex(Vector2 position, Vector2 uv, ColorDefinition color, float bezierFillType = 0, TextureType textureType = 0)
+    public uint AddVertex(Vector2 position, Vector2 uv, ColorDefinition color, float bezierFillType = 0, TextureType textureType = 0, GpuTexture texture = default)
     {
         var pos = _vertices.Count;
 
         _vertices.Add(new Vertex(position.Multiply(Matrix), uv, color)
         {
             BezierFillType = bezierFillType,
-            TextureType = textureType
+            TextureType = textureType,
+            TextureId = texture.TextureId
         });
 
         return (uint)pos;
@@ -54,15 +57,19 @@ public class MeshBuilder
         _indices.Add(v3);
     }
 
-    public Mesh BuildMeshAndReset(GpuTexture texture)
+    public Mesh BuildMeshAndReset()
     {
+        if (_textures.Count >= 10)
+            throw new Exception("Maximum amount of textures is 9!!!!!"); //todo auto split meshes!!
+
         var mesh = new Mesh
         {
             Indices = _indices.ToSlice(),
             Floats = BuildFloatArray(),
-            Texture = texture
+            Textures = _textures.ToArray()
         };
 
+        _textures.Clear();
         _indices.Clear();
         _vertices.Clear();
 
@@ -71,7 +78,7 @@ public class MeshBuilder
 
     private Slice<float> BuildFloatArray()
     {
-        const int stride = 3 + 2 + 1 + 4 + 1;
+        const int stride = 3 + 2 + 1 + 4 + 1 + 1;
 
         var vertexFloats = _arena.AllocateSlice<float>(_vertices.Count * stride);
 
@@ -89,6 +96,7 @@ public class MeshBuilder
             vertexFloats[i * stride + 8] = (float)vertex.Color.Blue / 255;
             vertexFloats[i * stride + 9] = (float)vertex.Color.Alpha / 255;
             vertexFloats[i * stride + 10] = (float)vertex.TextureType;
+            vertexFloats[i * stride + 11] = (float)vertex.TextureId;
 
             i++;
         }

@@ -1,4 +1,5 @@
 ﻿using Flamui.Layouting;
+using SvgPathProperties;
 using Point = Flamui.Layouting.Point;
 
 namespace Flamui.UiElements;
@@ -60,6 +61,11 @@ public class UiSvg : UiElement
         // Rect = new BoxSize(svgSize.Width * factor, svgSize.Height * factor);
         // return Rect;
         return new BoxSize();
+    }
+
+    public void Parse()
+    {
+        new SvgPath();
     }
 
     //

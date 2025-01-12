@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Reflection;
 using System.Text;
@@ -13,7 +14,7 @@ public struct Mesh
 {
     public required Slice<float> Floats;
     public required Slice<uint> Indices;
-    public required GpuTexture Texture;
+    public required GpuTexture[] Textures;
 }
 
 public enum Shader
@@ -22,9 +23,15 @@ public enum Shader
     main_vertex,
 }
 
-public struct GpuTexture
+public struct GpuTextureSlot
 {
-    public uint TextureId;
+    public bool IsReserved;
+    public int UniformLocation;
+}
+
+public class GpuTexture
+{
+
 }
 
 public class Renderer
@@ -35,7 +42,18 @@ public class Renderer
     private int _stencilEnabledLoc;
     private uint _vao;
     public IWindow Window;
-    // public static Font DefaultFont;
+    private Dictionary<Font, FontAtlas> _fontAtlasMap = [];
+    private GpuTextureSlot[] Textures = new GpuTextureSlot[10];
+
+    public FontAtlas GetFontAtlas(Font font, float fontPixelSize)
+    {
+        if (_fontAtlasMap.TryGetValue(font, out var atlas))
+            return atlas;
+
+        atlas = FontLoader.CreateFontAtlas(font, fontPixelSize);
+        _fontAtlasMap.Add(font, atlas);
+        return atlas;
+    }
 
     private Dictionary<Shader, string> _shaderStrings = [];
 
@@ -99,6 +117,12 @@ public class Renderer
 
         vbo = Gl.GenBuffer();
         ebo = Gl.GenBuffer();
+
+        for (var i = 0; i < Textures.Length; i++)
+        {
+            var location = Gl.GetUniformLocation(_mainProgram, $"textures[{i}]");
+            Textures[i].UniformLocation = location;
+        }
     }
 
     private void CheckError()
@@ -160,11 +184,9 @@ public class Renderer
 
         Gl.UseProgram(_mainProgram);
 
-        int location = Gl.GetUniformLocation(_mainProgram, "uTexture");
-
-        CheckError();
-
-        Gl.Uniform1(location, 0);
+        var textureSlot = FindFreeTextureSlot();
+        Textures[textureSlot].IsReserved = true;
+        Gl.Uniform1(Textures[textureSlot].UniformLocation, textureSlot);
 
         CheckError();
 
@@ -172,6 +194,17 @@ public class Renderer
         {
             TextureId = textureId,
         };
+    }
+
+    private int FindFreeTextureSlot()
+    {
+        for (var i = 0; i < Textures.Length; i++)
+        {
+            if (!Textures[i].IsReserved)
+                return i;
+        }
+
+        throw new Exception("No open texture slots!!!!");
     }
 
     uint vbo;
@@ -185,7 +218,11 @@ public class Renderer
         Gl.UseProgram(_mainProgram);
 
         Gl.ActiveTexture(TextureUnit.Texture0);
-        Gl.BindTexture(TextureTarget.Texture2D, mesh.Texture.TextureId);
+
+        foreach (var texture in mesh.Textures)
+        {
+            Gl.BindTexture(TextureTarget.Texture2D, texture.TextureId);
+        }
 
         using (Systrace.BeginEvent("Bind/Upload Buffers"))
         {
@@ -198,7 +235,7 @@ public class Renderer
             Gl.BufferData(BufferTargetARB.ElementArrayBuffer, mesh.Indices.ReadonlySpan, BufferUsageARB.StaticDraw);
         }
 
-        const int stride = 3 + 2 + 1 + 4 + 1; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color + 1 texturetype
+        const int stride = 3 + 2 + 1 + 4 + 1 + 1; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color + 1 texturetype + 1 textureId
 
         const uint positionLoc = 0; //aPosition in shader
         Gl.EnableVertexAttribArray(positionLoc);
@@ -219,6 +256,11 @@ public class Renderer
         const uint textureTypeLoc = 4;
         Gl.EnableVertexAttribArray(textureTypeLoc);
         Gl.VertexAttribPointer(textureTypeLoc, 1, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(10 * sizeof(float)));
+
+        const uint textureIdLoc = 5;
+        Gl.EnableVertexAttribArray(textureIdLoc);
+        Gl.VertexAttribPointer(textureIdLoc, 1, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(11 * sizeof(float)));
+
 
         var matrix = GetWorldToScreenMatrix();
 

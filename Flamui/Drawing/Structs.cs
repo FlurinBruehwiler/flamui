@@ -15,6 +15,7 @@ public struct Vertex
     public float BezierFillType;
     public ColorDefinition Color;
     public TextureType TextureType;
+    public float TextureId;
 
     public Vertex(Vector2 position, Vector2 uv, ColorDefinition color)
     {

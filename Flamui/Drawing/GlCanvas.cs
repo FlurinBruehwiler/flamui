@@ -9,6 +9,7 @@ public struct Paint
 {
     public ColorDefinition Color;
     public Font Font;
+    public float FontPixelSize;
 }
 
 public class GlCanvas
@@ -33,13 +34,15 @@ public class GlCanvas
 
     public void DrawText(ReadOnlySpan<char> text, float x, float y)
     {
+        var fontAtlas = _renderer.GetFontAtlas(Paint.Font, Paint.FontPixelSize);
+
         var xCoord = x;
 
         foreach (var c in text)
         {
-            if (Paint.Font.GlyphInfos.TryGetValue(c, out var glyphInfo))
+            if (fontAtlas.GlyphInfos.TryGetValue(c, out var glyphInfo))
             {
-                DrawGlyph(glyphInfo, (int)(xCoord + glyphInfo.LeftSideBearing), (int)(y + Paint.Font.Ascent + glyphInfo.YOff));
+                DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture,(int)(xCoord + glyphInfo.LeftSideBearing), (int)(y + fontAtlas.Ascent + glyphInfo.YOff));
                 xCoord += glyphInfo.AdvanceWidth;
             }
             else
@@ -49,21 +52,21 @@ public class GlCanvas
         }
     }
 
-    private void DrawGlyph(GlyphInfo glyphInfo, int x, int y) //todo, maybe subpixel glyph positioning
+    private void DrawGlyph(FontAtlas fontAtlas, AtlasGlyphInfo atlasGlyphInfo, GpuTexture texture, int x, int y) //todo, maybe subpixel glyph positioning
     {
-        var uvXOffset = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.AtlasX;
-        var uvYOffset = (1 / (float)Paint.Font.AtlasHeight) * glyphInfo.AtlasY;
-        var uvWidth = (1 / (float)Paint.Font.AtlasWidth) * glyphInfo.Width;
-        var uvHeight = (1 / (float)Paint.Font.AtlasHeight) * glyphInfo.Height;
+        var uvXOffset = (1 / (float)fontAtlas.AtlasWidth) * atlasGlyphInfo.AtlasX;
+        var uvYOffset = (1 / (float)fontAtlas.AtlasHeight) * atlasGlyphInfo.AtlasY;
+        var uvWidth = (1 / (float)fontAtlas.AtlasWidth) * atlasGlyphInfo.Width;
+        var uvHeight = (1 / (float)fontAtlas.AtlasHeight) * atlasGlyphInfo.Height;
 
         Debug.Assert(uvXOffset is >= 0 and <= 1);
         Debug.Assert(uvWidth is >= 0 and <= 1);
         Debug.Assert(uvHeight is >= 0 and <= 1);
 
-        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y),  new Vector2(uvXOffset, uvYOffset), Paint.Color, textureType: TextureType.Text);
-        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + glyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, uvYOffset), Paint.Color, textureType: TextureType.Text);
-        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + glyphInfo.Width, y + glyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text);
-        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + glyphInfo.Height), new Vector2(uvXOffset, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text);
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y),  new Vector2(uvXOffset, uvYOffset), Paint.Color, textureType: TextureType.Text, texture: texture);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + atlasGlyphInfo.Width, y), new Vector2(uvXOffset + uvWidth, uvYOffset), Paint.Color, textureType: TextureType.Text, texture: texture);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + atlasGlyphInfo.Width, y + atlasGlyphInfo.Height), new Vector2(uvXOffset + uvWidth, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text, texture: texture);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + atlasGlyphInfo.Height), new Vector2(uvXOffset, uvYOffset + uvHeight), Paint.Color, textureType: TextureType.Text, texture: texture);
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
@@ -94,7 +97,7 @@ public class GlCanvas
 
         //draw the rect that should define clipping
         DrawRoundedRect(x, y, width, height, radius);
-        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset(Paint.Font.GpuTexture), stencilMode: true);
+        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset(), stencilMode: true);
 
         _renderer.Gl.ColorMask(true, true, true, true);
         _renderer.Gl.DepthMask(true);
@@ -117,7 +120,7 @@ public class GlCanvas
 
     public void Flush()
     {
-        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset(Paint.Font.GpuTexture));
+        _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset());
     }
 
     public void DrawRoundedRect(float x, float y, float width, float height, float radius)

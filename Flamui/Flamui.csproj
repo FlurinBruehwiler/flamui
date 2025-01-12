@@ -20,11 +20,11 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-        <PackageReference Include="FreeTypeSharp" Version="3.0.0" />
         <PackageReference Include="Silk.NET.Input" Version="2.22.0" />
         <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
         <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0" />
         <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
+        <PackageReference Include="SvgPathProperties" Version="1.1.2" />
         <PackageReference Include="Varena" Version="1.2.0" />
     </ItemGroup>
 

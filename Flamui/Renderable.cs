@@ -57,14 +57,14 @@ public class RenderContext
         Add(cmd);
     }
 
-    public void AddText(Bounds bounds, string text, ColorDefinition color, Font font)
+    public void AddText(Bounds bounds, string text, ColorDefinition color, Font fontAtlas)
     {
         var cmd = new Command();
         cmd.Bounds = bounds;
         cmd.Type = CommandType.Text;
         cmd.String.Set(_arena, text);
         cmd.Color = color;
-        cmd.Font.Set(_arena, font);
+        cmd.Font.Set(_arena, fontAtlas);
 
         Add(cmd);
     }

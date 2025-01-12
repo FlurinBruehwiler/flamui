@@ -9,6 +9,7 @@ public struct CascadingStuff
 {
     public Font? Font;
     public ColorDefinition TextColor;
+    public float TextSize;
 }
 
 public partial class Ui

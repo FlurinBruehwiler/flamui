@@ -61,6 +61,8 @@ public class UiText : UiElement
         //     _ => throw new ArgumentOutOfRangeException()
         // };
 
+        var scale = font.GetScale(UiTextInfo.Size);
+
         var entireText = UiTextInfo.Content.AsSpan();
 
         var yCoord = offset.Y;
@@ -79,7 +81,7 @@ public class UiText : UiElement
                 },
                 Y = yCoord,
                 W = line.Width,
-                H = font.GetHeight()
+                H = font.GetHeight(scale)
             };
 
             //debug rect
@@ -88,13 +90,15 @@ public class UiText : UiElement
             //avoid to string and use arenastring!!!!!!!
             renderContext.AddText(bounds, lineSpan.ToString(), UiTextInfo.Color, font);
 
-            yCoord += font.GetHeight() + font.LineGap;
+            yCoord += font.GetHeight(scale) + font.UnscaledLineGap;
         }
     }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        TextLayoutInfo = FontShaping.LayoutText(UiTextInfo.Font, UiTextInfo.Content, constraint.MaxWidth);
+        var scale = UiTextInfo.Font.GetScale(UiTextInfo.Size);
+
+        TextLayoutInfo = FontShaping.LayoutText(UiTextInfo.Font, scale, UiTextInfo.Content, constraint.MaxWidth);
         MaxWidth = constraint.MaxWidth;
 
         Rect = new BoxSize(TextLayoutInfo.MaxWidth, TextLayoutInfo.TotalHeight);

@@ -19,7 +19,7 @@ public class LayoutTest : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        ui.CascadingValues.Font = ui.FontManager.GetFont("Jetbrains Mono");
+        ui.CascadingValues.Font = ui.FontManager.GetFont("JetBrainsMono-Regular.ttf");
         ui.CascadingValues.TextColor = new ColorDefinition(188, 190, 196);
 
         using (ui.Div().Color(c1).Padding(10).Gap(10))

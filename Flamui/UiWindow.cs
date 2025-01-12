@@ -124,7 +124,7 @@ public partial class UiWindow : IDisposable
         _input = new Input(Window);
 
         Ui.Window = this;
-        Ui.FontManager = new FontManager(_renderer);
+        Ui.FontManager = new FontManager();
 
         RootContainer = new FlexContainer
         {

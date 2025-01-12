@@ -1162,7 +1162,7 @@ public class LayoutingTests(ITestOutputHelper console)
             Window = window
         };
         ui.Window = window;
-        ui.FontManager = new FontManager(null);
+        ui.FontManager = new FontManager();
 
         ui.OpenElementStack.Push(rootContainer);
         rootContainer.OpenElement();
