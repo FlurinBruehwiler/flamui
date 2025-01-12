@@ -4,7 +4,7 @@ in vec2 frag_texCoords;
 in float fill_bezier_type;
 in vec4 frag_color;
 in float texture_type; // 0 == color, 1 == texture, 2 == font
-int float texture_id;
+in float texture_id;
 
 uniform int stencil_enabled; //0 = disabled, 1 = enabled
 uniform sampler2D uTextures[10]; //maximum of 10 textures
@@ -14,15 +14,13 @@ out vec4 out_color;
 
 void main()
 {
-    sampler2d texture = textures[int(texture_id)];
-
     if(fill_bezier_type == 0){
         if (texture_type == 0){
             out_color = frag_color;
         }else if(texture_type == 1){
-            out_color = texture(texture, frag_texCoords) * frag_color;
+            out_color = texture(uTextures[int(texture_id)], frag_texCoords) * frag_color;
         }else if(texture_type == 2){
-            out_color = texture(texture, frag_texCoords).r * frag_color;
+            out_color = texture(uTextures[int(texture_id)], frag_texCoords).r * frag_color;
         }
     }else{
         float x = frag_texCoords.x;

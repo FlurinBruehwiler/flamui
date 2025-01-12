@@ -88,7 +88,7 @@ public class UiText : UiElement
             // renderContext.AddRect(bounds, this, new ColorDefinition(100, 0, 0, 100));
 
             //avoid to string and use arenastring!!!!!!!
-            renderContext.AddText(bounds, lineSpan.ToString(), UiTextInfo.Color, font);
+            renderContext.AddText(bounds, lineSpan.ToString(), UiTextInfo.Color, font, UiTextInfo.Size);
 
             yCoord += font.GetHeight(scale) + font.UnscaledLineGap;
         }

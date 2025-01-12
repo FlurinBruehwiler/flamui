@@ -57,14 +57,15 @@ public class RenderContext
         Add(cmd);
     }
 
-    public void AddText(Bounds bounds, string text, ColorDefinition color, Font fontAtlas)
+    public void AddText(Bounds bounds, string text, ColorDefinition color, Font font, float fontPixelSize)
     {
         var cmd = new Command();
         cmd.Bounds = bounds;
         cmd.Type = CommandType.Text;
         cmd.String.Set(_arena, text);
         cmd.Color = color;
-        cmd.Font.Set(_arena, fontAtlas);
+        cmd.Font.Set(_arena, font);
+        cmd.FontPixelSize = fontPixelSize;
 
         Add(cmd);
     }
@@ -143,6 +144,7 @@ public class RenderContext
                     case CommandType.Text:
                         canvas.Paint.Font = command.Font.Get();
                         canvas.Paint.Color = command.Color;
+                        canvas.Paint.FontPixelSize = command.FontPixelSize;
                         canvas.DrawText(command.String.Get(), command.Bounds.X, command.Bounds.Y);
                         break;
                     case CommandType.Matrix:
@@ -250,6 +252,7 @@ public struct Command
     public Bounds Bounds;
     public float Radius;
     public ManagedRef<Font> Font;
+    public float FontPixelSize;
     public ColorDefinition Color;
     public Matrix4X4<float> Matrix;
 }

@@ -36,7 +36,7 @@ public class MeshBuilder
         _arena = arena;
     }
 
-    public uint AddVertex(Vector2 position, Vector2 uv, ColorDefinition color, float bezierFillType = 0, TextureType textureType = 0, GpuTexture texture = default)
+    public uint AddVertex(Vector2 position, Vector2 uv, ColorDefinition color, float bezierFillType = 0, TextureType textureType = 0, GpuTexture? texture = null)
     {
         var pos = _vertices.Count;
 
@@ -44,7 +44,7 @@ public class MeshBuilder
         {
             BezierFillType = bezierFillType,
             TextureType = textureType,
-            TextureId = texture.TextureId
+            TextureId = texture?.TextureId ?? 0
         });
 
         return (uint)pos;

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Flamui.PerfTrace;
 using Silk.NET.Maths;
@@ -23,15 +24,9 @@ public enum Shader
     main_vertex,
 }
 
-public struct GpuTextureSlot
-{
-    public bool IsReserved;
-    public int UniformLocation;
-}
-
 public class GpuTexture
 {
-
+    public uint TextureId;
 }
 
 public class Renderer
@@ -43,7 +38,9 @@ public class Renderer
     private uint _vao;
     public IWindow Window;
     private Dictionary<Font, FontAtlas> _fontAtlasMap = [];
-    private GpuTextureSlot[] Textures = new GpuTextureSlot[10];
+
+    uint vbo;
+    uint ebo;
 
     public FontAtlas GetFontAtlas(Font font, float fontPixelSize)
     {
@@ -52,6 +49,7 @@ public class Renderer
 
         atlas = FontLoader.CreateFontAtlas(font, fontPixelSize);
         _fontAtlasMap.Add(font, atlas);
+        atlas.GpuTexture = UploadTexture(atlas.AtlasBitmap, (uint)atlas.AtlasWidth, (uint)atlas.AtlasHeight);
         return atlas;
     }
 
@@ -111,26 +109,29 @@ public class Renderer
 
         CheckError();
 
-        CheckError();
-
         Gl.BindVertexArray(0);
 
         vbo = Gl.GenBuffer();
         ebo = Gl.GenBuffer();
 
-        for (var i = 0; i < Textures.Length; i++)
+        CheckError();
+
+        for (var i = 0; i < textureSlotUniformLocations.Length; i++)
         {
-            var location = Gl.GetUniformLocation(_mainProgram, $"textures[{i}]");
-            Textures[i].UniformLocation = location;
+            textureSlotUniformLocations[i] = Gl.GetUniformLocation(_mainProgram, $"uTextures[{i}]");
         }
+
+        CheckError();
     }
 
-    private void CheckError()
+    private int[] textureSlotUniformLocations = new int[10];
+
+    private void CheckError([CallerLineNumber] int line = 0)
     {
         var err = Gl.GetError();
         if (err != GLEnum.NoError)
         {
-            Console.WriteLine(err);
+            Console.WriteLine($"{err} at Line {line}");
         }
     }
 
@@ -157,8 +158,12 @@ public class Renderer
 
     public unsafe GpuTexture UploadTexture(byte[] data, uint width, uint height)
     {
+        CheckError();
+
         var textureId = Gl.GenTexture();
-        Gl.ActiveTexture(TextureUnit.Texture0);
+
+        CheckError();
+
         Gl.BindTexture(TextureTarget.Texture2D, textureId);
 
         CheckError();
@@ -184,10 +189,6 @@ public class Renderer
 
         Gl.UseProgram(_mainProgram);
 
-        var textureSlot = FindFreeTextureSlot();
-        Textures[textureSlot].IsReserved = true;
-        Gl.Uniform1(Textures[textureSlot].UniformLocation, textureSlot);
-
         CheckError();
 
         return new GpuTexture
@@ -196,19 +197,23 @@ public class Renderer
         };
     }
 
-    private int FindFreeTextureSlot()
+    private TextureUnit IntToTextureUnit(int i)
     {
-        for (var i = 0; i < Textures.Length; i++)
+        return i switch
         {
-            if (!Textures[i].IsReserved)
-                return i;
-        }
-
-        throw new Exception("No open texture slots!!!!");
+            0 => TextureUnit.Texture0,
+            1 => TextureUnit.Texture1,
+            2 => TextureUnit.Texture2,
+            3 => TextureUnit.Texture3,
+            4 => TextureUnit.Texture4,
+            5 => TextureUnit.Texture5,
+            6 => TextureUnit.Texture6,
+            7 => TextureUnit.Texture7,
+            8 => TextureUnit.Texture8,
+            9 => TextureUnit.Texture9,
+            _ => throw new Exception("invalid texture slot")
+        };
     }
-
-    uint vbo;
-    uint ebo;
 
     public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)
     {
@@ -217,11 +222,13 @@ public class Renderer
         Gl.BindVertexArray(_vao);
         Gl.UseProgram(_mainProgram);
 
-        Gl.ActiveTexture(TextureUnit.Texture0);
-
-        foreach (var texture in mesh.Textures)
+        for (var i = 0; i < mesh.Textures.Length; i++)
         {
+            var texture = mesh.Textures[i];
+
+            Gl.ActiveTexture(IntToTextureUnit(i));
             Gl.BindTexture(TextureTarget.Texture2D, texture.TextureId);
+            Gl.Uniform1(textureSlotUniformLocations[i], i);
         }
 
         using (Systrace.BeginEvent("Bind/Upload Buffers"))
