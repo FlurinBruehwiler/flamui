@@ -64,7 +64,7 @@ public class UiText : UiElement
 
         var scale = font.GetScale(UiTextInfo.Size);
 
-        var entireText = UiTextInfo.Content.AsSpan();
+        var entireText = UiTextInfo.Content.ToArenaString();
 
         var yCoord = offset.Y;
         foreach (var line in TextLayoutInfo.Lines)
@@ -89,7 +89,7 @@ public class UiText : UiElement
             // renderContext.AddRect(bounds, this, new ColorDefinition(100, 0, 0, 100));
 
             //avoid to string and use arenastring!!!!!!!
-            renderContext.AddText(bounds, lineSpan.ToString(), UiTextInfo.Color, font, UiTextInfo.Size);
+            renderContext.AddText(bounds, lineSpan, UiTextInfo.Color, font, UiTextInfo.Size);
 
             yCoord += font.GetHeight(scale) + font.UnscaledLineGap;
         }
@@ -99,7 +99,7 @@ public class UiText : UiElement
     {
         var scale = UiTextInfo.Font.GetScale(UiTextInfo.Size);
 
-        TextLayoutInfo = FontShaping.LayoutText(UiTextInfo.Font, scale, UiTextInfo.Content, constraint.MaxWidth);
+        TextLayoutInfo = FontShaping.LayoutText(UiTextInfo.Font, scale, UiTextInfo.Content, constraint.MaxWidth, UiTextInfo.Multiline);
         MaxWidth = constraint.MaxWidth;
 
         Rect = new BoxSize(TextLayoutInfo.MaxWidth, TextLayoutInfo.TotalHeight);
@@ -138,6 +138,12 @@ public class UiText : UiElement
     public UiText Size(float size)
     {
         UiTextInfo.Size = size;
+        return this;
+    }
+
+    public UiText Multiline(bool multiline = true)
+    {
+        UiTextInfo.Multiline = multiline;
         return this;
     }
 

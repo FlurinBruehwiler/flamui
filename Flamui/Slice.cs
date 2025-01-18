@@ -36,6 +36,8 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
         return new Slice<T>(&Items[start], length);
     }
 
+    public Slice<T> this[Range range] => SubSlice(range.Start.Value, range.End.Value - range.Start.Value);
+
     public Slice<T> SubSlice(int start)
     {
         if (start < 0)

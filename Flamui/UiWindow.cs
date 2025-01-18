@@ -106,6 +106,8 @@ public unsafe partial class UiWindow : IDisposable
 
     private void OnUpdate(double obj)
     {
+        Ui.Arena = RenderContext.Arena;
+
         ProcessInputs();
 
         //ToDo cleanup

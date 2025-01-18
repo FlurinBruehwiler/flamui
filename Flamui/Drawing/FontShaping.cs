@@ -68,7 +68,7 @@ public static class FontShaping
     //rule: preferably only ever the start of a new word can go onto the next line,
     //so we make a new line, as soon as the next word + following whitespace doesn't fit on the current line
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
-    public static TextLayoutInfo LayoutText(Font fontAtlas, float scale, ReadOnlySpan<char> text, float maxWidth)
+    public static TextLayoutInfo LayoutText(Font fontAtlas, float scale, ReadOnlySpan<char> text, float maxWidth, bool multilineAllowed)
     {
         List<Line> lines = [];
         float widthOfLongestLine = 0;
@@ -89,7 +89,7 @@ public static class FontShaping
                 currentBlockWidth = 0;
             }
 
-            if (c is '\n' or '\r')
+            if (c is '\n' or '\r' && multilineAllowed)
             {
                 if (c == '\r' && text.Length > i + 1 && text[i + 1] == '\n')
                     i++;
@@ -108,7 +108,7 @@ public static class FontShaping
             currentBlockWidth += charWidth;
 
 
-            if (currentLineWidth > maxWidth)
+            if (currentLineWidth > maxWidth && multilineAllowed)
             {
                 if (currentLineStart == currentBlockStart) //not even a single word fits onto the line
                 {

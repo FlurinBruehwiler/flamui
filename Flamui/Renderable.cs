@@ -15,30 +15,25 @@ public class RenderContext
     public RenderContext()
     {
         ZIndexes.Push(0);
-        Reset();
+        var virtualBuffer = manager.CreateBuffer("PerFrameArena", (UIntPtr)1_000_000);
+        Arena = new Arena(virtualBuffer);
     }
 
-    private Arena _arena;
+    public Arena Arena;
     public Dictionary<int, GrowableArenaBuffer<Command>> CommandBuffers = [];
 
     private static VirtualArenaManager manager = new();
 
     public void Reset()
     {
-        if (_arena == null)
-        {
-            var virtualBuffer = manager.CreateBuffer("PerFrameArena", (UIntPtr)1_000_000);
-            _arena = new Arena(virtualBuffer);
-        }
-
         CommandBuffers.Clear();
-        _arena.Reset();
+        Arena.Reset();
     }
 
     public void AddRect(Bounds bounds, UiElement uiElement, ColorDefinition color, float radius = 0)
     {
         var cmd = new Command();
-        cmd.UiElement.Set(_arena, uiElement);
+        cmd.UiElement.Set(Arena, uiElement);
         cmd.Bounds = bounds;
         cmd.Radius = radius;
         cmd.Type = CommandType.Rect;
@@ -57,14 +52,14 @@ public class RenderContext
         Add(cmd);
     }
 
-    public void AddText(Bounds bounds, string text, ColorDefinition color, Font font, float fontPixelSize)
+    public void AddText(Bounds bounds, ArenaString text, ColorDefinition color, Font font, float fontPixelSize)
     {
         var cmd = new Command();
         cmd.Bounds = bounds;
         cmd.Type = CommandType.Text;
-        cmd.String.Set(_arena, text);
+        cmd.String = text;
         cmd.Color = color;
-        cmd.Font.Set(_arena, font);
+        cmd.Font.Set(Arena, font);
         cmd.FontPixelSize = fontPixelSize;
 
         Add(cmd);
@@ -84,7 +79,7 @@ public class RenderContext
     {
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
         {
-            commandBuffer = new GrowableArenaBuffer<Command>(_arena, 20);
+            commandBuffer = new GrowableArenaBuffer<Command>(Arena, 20);
             CommandBuffers.Add(ZIndexes.Peek(), commandBuffer);
         }
 
@@ -118,7 +113,7 @@ public class RenderContext
 
     public void Rerender(Renderer renderer)
     {
-        var canvas = new GlCanvas(renderer, _arena);
+        var canvas = new GlCanvas(renderer, Arena);
 
         var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
 
@@ -145,7 +140,7 @@ public class RenderContext
                         canvas.Paint.Font = command.Font.Get();
                         canvas.Paint.Color = command.Color;
                         canvas.Paint.FontPixelSize = command.FontPixelSize;
-                        canvas.DrawText(command.String.Get(), command.Bounds.X, command.Bounds.Y);
+                        canvas.DrawText(command.String.AsSpan(), command.Bounds.X, command.Bounds.Y);
                         break;
                     case CommandType.Matrix:
                         canvas.SetMatrix(command.Matrix);
@@ -248,7 +243,7 @@ public struct Command
 {
     public CommandType Type;
     public ManagedRef<UiElement> UiElement;
-    public ManagedRef<string> String;
+    public ArenaString String;
     public Bounds Bounds;
     public float Radius;
     public ManagedRef<Font> Font;

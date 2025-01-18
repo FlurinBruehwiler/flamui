@@ -1,8 +1,14 @@
-﻿using System.Runtime.InteropServices;
-using System.Xml.XPath;
-using Flamui;
+﻿using Flamui;
 using Flamui.Components;
-using Silk.NET.GLFW;
+
+/*
+ * Todo
+ * - Scroll
+ * - Text Selection/Editing etc
+ * - Fix Border
+ * - Fix Text
+ * - Only rerender when changed
+ */
 
 var builder = FlamuiApp.CreateBuilder();
 
@@ -23,8 +29,6 @@ public class LayoutTest : FlamuiComponent
 
     private string input = "";
 
-    private int counter = 0;
-
     public override void Build(Ui ui)
     {
         ui.CascadingValues.TextColor = new ColorDefinition(188, 190, 196);
@@ -44,16 +48,16 @@ public class LayoutTest : FlamuiComponent
             // Console.WriteLine($"Scale is x:{xscale}, y:{yscale}");
         }
 
-        Console.WriteLine($"rerender {counter++}");
-
         using (ui.Div().Color(c1).Padding(10).Gap(10))
         {
-            using (var innerDiv = ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20).Direction(Dir.Vertical))
+            using (var innerDiv = ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10))
             {
-                ui.Text(loremIpsum).Size(20);
-                ui.Text(loremIpsum).Size(40);
-
                 ui.StyledInput(ref input);
+
+
+                ui.Text(loremIpsum).Size(20).Multiline();
+                ui.Text(loremIpsum).Size(40).Multiline();
+
                 // ui.Text(loremIpsum).Size(40);
             }
         }

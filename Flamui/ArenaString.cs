@@ -1,3 +1,4 @@
+using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -38,6 +39,16 @@ public struct ArenaStringBuilder
 
 public static class ArenaStringExtensions
 {
+    public static unsafe ArenaString ToArenaString(this string str)
+    {
+        _ = Ui.Arena.AddReference(str);
+
+        fixed (char* c = str.AsSpan())
+        {
+            return new ArenaString(new Slice<char>(c, str.Length));
+        }
+    }
+
     public static ArenaString ToArenaString(this int i)
     {
         var buffer = Ui.Arena.AllocateSlice<char>(11);
@@ -75,7 +86,7 @@ public static class ArenaStringExtensions
 [InterpolatedStringHandler]
 public struct ArenaString
 {
-    private ArenaStringBuilder _arenaStringBuilder;
+    // private ArenaStringBuilder _arenaStringBuilder;
     private Slice<char> _slice;
 
     public int Length => _slice.Count;
@@ -92,6 +103,7 @@ public struct ArenaString
         return new ArenaString { _slice = slice};
     }
 
+    [Pure]
     public ReadOnlySpan<char> AsSpan()
     {
         return _slice.Span;
@@ -107,6 +119,9 @@ public struct ArenaString
         return new ArenaString(_slice.SubSlice(start, length));
     }
 
+    public char this[int index] => _slice[index];
+    public ArenaString this[Range range] => Substring(range.Start.Value, range.End.Value - range.Start.Value);
+
     public static ArenaString operator +(ArenaString a, ArenaString b)
     {
         var slice = Ui.Arena.AllocateSlice<char>(a.Length + b.Length);
@@ -120,18 +135,18 @@ public struct ArenaString
         };
     }
 
-    public ArenaString(int literalLength, int formattedCount)
-    {
-        _arenaStringBuilder = new ArenaStringBuilder(Ui.Arena, literalLength);
-    }
-
-    public void AppendLiteral(string s)
-    {
-        _arenaStringBuilder.Add((ArenaString)s);
-    }
-
-    public void AppendFormatted<T>(T t)
-    {
-        _arenaStringBuilder.Add(t);
-    }
+    // public ArenaString(int literalLength, int formattedCount)
+    // {
+    //     _arenaStringBuilder = new ArenaStringBuilder(Ui.Arena, literalLength);
+    // }
+    //
+    // public void AppendLiteral(string s)
+    // {
+    //     _arenaStringBuilder.Add((ArenaString)s);
+    // }
+    //
+    // public void AppendFormatted<T>(T t)
+    // {
+    //     _arenaStringBuilder.Add(t);
+    // }
 }
