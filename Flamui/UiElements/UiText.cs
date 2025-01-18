@@ -10,13 +10,14 @@ public struct UiTextInfo
     }
 
     //todo copy this struct, so we don't need to initialize it every time
-    public float Size = 15;
-    public ColorDefinition Color = C.Black;
+    public float Size; //default comes from cascading values
+    public ColorDefinition Color; //default comes from cascading values
+    public Font? Font; //default comes from cascading values
+
     public TextAlign HorizontalAlignment = TextAlign.Start;
     public TextAlign VerticalAlignment = TextAlign.Center;
     public bool Multiline;
     public string Content = string.Empty;
-    public Font? Font;
 }
 
 public class UiText : UiElement

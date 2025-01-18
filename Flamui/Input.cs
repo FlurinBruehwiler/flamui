@@ -1,6 +1,8 @@
 ﻿using System.Numerics;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Windowing;
+using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
 
@@ -57,6 +59,8 @@ public class Input
                 KeyDown.Remove(key);
                 KeyReleased.Add(key);
             };
+
+            keyboard.KeyChar += OnTextInput;
         }
 
         foreach (var mouse in input.Mice)
@@ -86,6 +90,11 @@ public class Input
             //     MousePosition += mouseDelta;
             // };
         }
+    }
+
+    private void OnTextInput(IKeyboard keyboard, char charInput)
+    {
+        TextInput += charInput;
     }
 
     private IMouse _mouse;

@@ -1085,9 +1085,6 @@ public class LayoutingTests(ITestOutputHelper console)
 
         using (ui.Div().Direction(Dir.Horizontal))
         {
-            ui.CascadingValues.Font = ui.FontManager.GetFont("JetBrainsMono-Regular.ttf");
-            ui.CascadingValues.TextSize = 15;
-
             ui.Text(loremIpsum).Color(188, 190, 196);
         }
 
@@ -1106,8 +1103,6 @@ public class LayoutingTests(ITestOutputHelper console)
     public void Multiple_Text_Sizes()
     {
         var ui = GetUi();
-
-        ui.CascadingValues.Font = ui.FontManager.GetFont("JetBrainsMono-Regular.ttf");
 
         using (ui.Div().Direction(Dir.Vertical))
         {
@@ -1192,6 +1187,8 @@ public class LayoutingTests(ITestOutputHelper console)
         };
         ui.Window = window;
         ui.FontManager = new FontManager();
+
+        ui.ResetStuff();
 
         ui.OpenElementStack.Push(rootContainer);
         rootContainer.OpenElement();

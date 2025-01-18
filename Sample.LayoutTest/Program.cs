@@ -1,4 +1,5 @@
 ﻿using Flamui;
+using Flamui.Components;
 
 var builder = FlamuiApp.CreateBuilder();
 
@@ -17,10 +18,12 @@ public class LayoutTest : FlamuiComponent
     private const string loremIpsum =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
 
+    private string input = "";
+
     public override void Build(Ui ui)
     {
-        ui.CascadingValues.Font = ui.FontManager.GetFont("JetBrainsMono-Regular.ttf");
         ui.CascadingValues.TextColor = new ColorDefinition(188, 190, 196);
+        ui.CascadingValues.TextSize = 17;
 
         using (ui.Div().Color(c1).Padding(10).Gap(10))
         {
@@ -28,6 +31,8 @@ public class LayoutTest : FlamuiComponent
             {
                 ui.Text(loremIpsum).Size(20);
                 ui.Text(loremIpsum).Size(40);
+
+                ui.StyledInput(ref input);
                 // ui.Text(loremIpsum).Size(40);
             }
         }

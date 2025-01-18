@@ -7,7 +7,7 @@ namespace Flamui;
 
 public struct CascadingStuff
 {
-    public Font? Font;
+    public Font Font;
     public ColorDefinition TextColor;
     public float TextSize;
 }
@@ -140,5 +140,17 @@ public partial class Ui
         OpenElement.AddChild(image);
 
         return image;
+    }
+
+    public void ResetStuff()
+    {
+
+        CascadingStack.Clear();
+        CascadingValues = new CascadingStuff();
+        CascadingValues.Font = FontManager.GetFont("JetBrainsMono-Regular.ttf");
+        CascadingValues.TextColor = C.Black;
+        CascadingValues.TextSize = 15;
+
+        OpenElementStack.Clear();
     }
 }
