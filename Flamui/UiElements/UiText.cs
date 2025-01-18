@@ -122,6 +122,12 @@ public class UiText : UiElement
         return this;
     }
 
+    public UiText Font(Font font)
+    {
+        UiTextInfo.Font = font;
+        return this;
+    }
+
     public UiText Color(ColorDefinition color)
     {
         UiTextInfo.Color = color;

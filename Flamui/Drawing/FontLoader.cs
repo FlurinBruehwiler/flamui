@@ -201,10 +201,12 @@ public class FontLoader
         int minAtlasWidth = rowColCount * maxCharHeight;
         int minAtlasHeight = rowColCount * maxCharWidth;
         int atlasSize = Math.Max(minAtlasHeight, minAtlasWidth);
-        if (atlasSize % 2 != 0)
-        {
-            atlasSize++;
-        }
+        atlasSize = RoundUpToNextPowerOfTwo(atlasSize);
+        //
+        // if (atlasSize % 2 != 0)
+        // {
+        //     atlasSize++;
+        // }
         //todo make atalasSize even number
 
         byte[] fontAtlasBitmapData = new byte[atlasSize * atlasSize];
@@ -305,5 +307,19 @@ public class FontLoader
         {
             return y * Width + x;
         }
+    }
+
+    public static int RoundUpToNextPowerOfTwo(int number)
+    {
+        if (number < 1)
+            throw new ArgumentException("Number must be greater than zero.");
+
+        number--;
+        number |= number >> 1;
+        number |= number >> 2;
+        number |= number >> 4;
+        number |= number >> 8;
+        number |= number >> 16; // Works up to 32-bit integers
+        return number + 1;
     }
 }

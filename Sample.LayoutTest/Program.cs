@@ -24,14 +24,11 @@ public class LayoutTest : FlamuiComponent
 
         using (ui.Div().Color(c1).Padding(10).Gap(10))
         {
-            using (var innerDiv = ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20).Direction(Dir.Horizontal))
+            using (var innerDiv = ui.Div().Color(c2).Rounded(20).Border(3, c3).Padding(20).Direction(Dir.Vertical))
             {
-                if (innerDiv.IsHovered)
-                {
-                    innerDiv.Color(c3);
-                }
-
-                ui.Text(loremIpsum);
+                ui.Text(loremIpsum).Size(20);
+                ui.Text(loremIpsum).Size(40);
+                // ui.Text(loremIpsum).Size(40);
             }
         }
     }

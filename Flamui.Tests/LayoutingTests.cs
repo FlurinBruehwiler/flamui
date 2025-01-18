@@ -1085,7 +1085,8 @@ public class LayoutingTests(ITestOutputHelper console)
 
         using (ui.Div().Direction(Dir.Horizontal))
         {
-            ui.CascadingValues.Font = ui.FontManager.GetFont("Jetbrains Mono");
+            ui.CascadingValues.Font = ui.FontManager.GetFont("JetBrainsMono-Regular.ttf");
+            ui.CascadingValues.TextSize = 15;
 
             ui.Text(loremIpsum).Color(188, 190, 196);
         }
@@ -1093,13 +1094,41 @@ public class LayoutingTests(ITestOutputHelper console)
         var expected =
             """
             FlexContainer = X:0, Y:0, W:200, H:100
-                UiText = X:0, Y:0, W:176, H:57
-                    Line = Lorem ipsum dolor sit 
-                    Line = amet, consectetur 
-                    Line = adipiscing elit.
+                UiText = X:0, Y:0, W:190.90907, H:32
+                    Line = Lorem ipsum dolor sit amet, 
+                    Line = consectetur adipiscing elit.
             """;
 
         AssertUi(ui, 200, 100, expected);
+    }
+
+    [Fact]
+    public void Multiple_Text_Sizes()
+    {
+        var ui = GetUi();
+
+        ui.CascadingValues.Font = ui.FontManager.GetFont("JetBrainsMono-Regular.ttf");
+
+        using (ui.Div().Direction(Dir.Vertical))
+        {
+            ui.Text(loremIpsum).Size(20);
+            ui.Text(loremIpsum).Size(40);
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:400, H:400
+                UiText = X:0, Y:0, W:363.63644, H:42
+                    Line = Lorem ipsum dolor sit amet, consectetur 
+                    Line = adipiscing elit.
+                UiText = X:0, Y:42, W:327.27277, H:164
+                    Line = Lorem ipsum dolor 
+                    Line = sit amet, 
+                    Line = consectetur 
+                    Line = adipiscing elit.
+            """;
+
+        AssertUi(ui, 400, 400, expected);
     }
 
     private void AssertUi(Ui ui, int width, int height, string expected)

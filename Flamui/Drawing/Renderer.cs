@@ -15,7 +15,7 @@ public struct Mesh
 {
     public required Slice<float> Floats;
     public required Slice<uint> Indices;
-    public required GpuTexture[] Textures;
+    public required Dictionary<GpuTexture, int> TextureIdToTextureSlot; //Mapping from Texture slot to actual textureId
 }
 
 public enum Shader
@@ -32,23 +32,24 @@ public class GpuTexture
 public class Renderer
 {
     public GL Gl;
+    public IWindow Window;
+
     private uint _mainProgram;
     private int _transformLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
-    public IWindow Window;
-    private Dictionary<Font, FontAtlas> _fontAtlasMap = [];
+    private Dictionary<(Font font, float size), FontAtlas> _fontAtlasMap = [];
 
-    uint vbo;
-    uint ebo;
+    private uint vbo;
+    private uint ebo;
 
     public FontAtlas GetFontAtlas(Font font, float fontPixelSize)
     {
-        if (_fontAtlasMap.TryGetValue(font, out var atlas))
+        if (_fontAtlasMap.TryGetValue((font, fontPixelSize), out var atlas))
             return atlas;
 
         atlas = FontLoader.CreateFontAtlas(font, fontPixelSize);
-        _fontAtlasMap.Add(font, atlas);
+        _fontAtlasMap.Add((font, fontPixelSize), atlas);
         atlas.GpuTexture = UploadTexture(atlas.AtlasBitmap, (uint)atlas.AtlasWidth, (uint)atlas.AtlasHeight);
         return atlas;
     }
@@ -222,13 +223,11 @@ public class Renderer
         Gl.BindVertexArray(_vao);
         Gl.UseProgram(_mainProgram);
 
-        for (var i = 0; i < mesh.Textures.Length; i++)
+        foreach (var (texture, textureSlot) in mesh.TextureIdToTextureSlot)
         {
-            var texture = mesh.Textures[i];
-
-            Gl.ActiveTexture(IntToTextureUnit(i));
+            Gl.ActiveTexture(IntToTextureUnit(textureSlot));
             Gl.BindTexture(TextureTarget.Texture2D, texture.TextureId);
-            Gl.Uniform1(textureSlotUniformLocations[i], i);
+            Gl.Uniform1(textureSlotUniformLocations[textureSlot], textureSlot);
         }
 
         using (Systrace.BeginEvent("Bind/Upload Buffers"))

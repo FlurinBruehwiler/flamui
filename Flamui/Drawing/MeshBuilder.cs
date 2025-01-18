@@ -23,7 +23,7 @@ public class MeshBuilder
 {
     private GrowableArenaBuffer<Vertex> _vertices;
     private GrowableArenaBuffer<uint> _indices;
-    private HashSet<GpuTexture> _textures;
+    private Dictionary<GpuTexture, int> _textureIdToTextureSlot;
     public Matrix4X4<float> Matrix;
     private Arena _arena;
 
@@ -31,20 +31,43 @@ public class MeshBuilder
     {
         _indices = new GrowableArenaBuffer<uint>(arena, 1000); //todo optimize chunk size
         _vertices = new GrowableArenaBuffer<Vertex>(arena, 1000);
-        _textures = new HashSet<GpuTexture>();
+        _textureIdToTextureSlot = new();
         Matrix = Matrix4X4<float>.Identity;
         _arena = arena;
+    }
+
+    private int GetTextureSlot(GpuTexture texture)
+    {
+        if (_textureIdToTextureSlot.TryGetValue(texture, out var slot))
+        {
+            return slot;
+        }
+
+        int newTextureSlot = 0;
+        if (_textureIdToTextureSlot.Count != 0)
+        {
+            newTextureSlot = _textureIdToTextureSlot.MaxBy(x => x.Value).Value + 1;
+        }
+
+        _textureIdToTextureSlot.Add(texture, newTextureSlot);
+        return newTextureSlot;
     }
 
     public uint AddVertex(Vector2 position, Vector2 uv, ColorDefinition color, float bezierFillType = 0, TextureType textureType = 0, GpuTexture? texture = null)
     {
         var pos = _vertices.Count;
 
+        int textureSlot = 0;
+        if (texture != null)
+        {
+            textureSlot = GetTextureSlot(texture);
+        }
+
         _vertices.Add(new Vertex(position.Multiply(Matrix), uv, color)
         {
             BezierFillType = bezierFillType,
             TextureType = textureType,
-            TextureId = texture?.TextureId ?? 0
+            TextureSlot = textureSlot
         });
 
         return (uint)pos;
@@ -59,17 +82,17 @@ public class MeshBuilder
 
     public Mesh BuildMeshAndReset()
     {
-        if (_textures.Count >= 10)
+        if (_textureIdToTextureSlot.Count >= 10)
             throw new Exception("Maximum amount of textures is 9!!!!!"); //todo auto split meshes!!
 
         var mesh = new Mesh
         {
             Indices = _indices.ToSlice(),
             Floats = BuildFloatArray(),
-            Textures = _textures.ToArray()
+            TextureIdToTextureSlot = _textureIdToTextureSlot
         };
 
-        _textures.Clear();
+        _textureIdToTextureSlot = new();
         _indices.Clear();
         _vertices.Clear();
 
@@ -96,7 +119,7 @@ public class MeshBuilder
             vertexFloats[i * stride + 8] = (float)vertex.Color.Blue / 255;
             vertexFloats[i * stride + 9] = (float)vertex.Color.Alpha / 255;
             vertexFloats[i * stride + 10] = (float)vertex.TextureType;
-            vertexFloats[i * stride + 11] = (float)vertex.TextureId;
+            vertexFloats[i * stride + 11] = (float)vertex.TextureSlot;
 
             i++;
         }
