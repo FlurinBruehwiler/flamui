@@ -84,17 +84,19 @@ public struct AtlasGlyphInfo
     public required float Scale;
     public required int AtlasX;
     public required int AtlasY;
+    public required int AtlasWidth;
+    public required int AtlasHeight;
     public required FontGlyphInfo FontGlyphInfo;
 
-    public required int Width; //Width of the glyph
-    public required int Height; //height of the glyph
-    public required int XOff;
-    public required int YOff;
+    public required float Width; //Width of the glyph
+    public required float Height; //height of the glyph
+    public required float XOff;
+    public required float YOff;
 
     public int AdvanceWidth => (int)(FontGlyphInfo.UnscaledAdvanceWidth * Scale);
     public int LeftSideBearing => (int)(FontGlyphInfo.UnscaledLeftSideBearing * Scale);
 
-    public required GlyphBoundingBox GlyphBoundingBox;
+    // public required GlyphBoundingBox GlyphBoundingBox;
 }
 
 public unsafe struct CharInfo
@@ -165,9 +167,9 @@ public class FontLoader
         };
     }
 
-    public static unsafe FontAtlas CreateFontAtlas(Font font, float pixelSize)
+    public static unsafe FontAtlas CreateFontAtlas(Font font, float pixelSize, float resolutionMultiplier)
     {
-        var scale = StbTrueType.stbtt_ScaleForPixelHeight(font.FontInfo, pixelSize); //todo multiply by 3 because we do subpixel antialiasing
+        var scale = StbTrueType.stbtt_ScaleForPixelHeight(font.FontInfo, pixelSize);
 
         int maxCharWidth = 0;
         int maxCharHeight = 0;
@@ -181,7 +183,7 @@ public class FontLoader
             int xOff = 0;
             int yOff = 0;
 
-            var bitmap = StbTrueType.stbtt_GetCodepointBitmap(font.FontInfo, 0, scale, i, &width, &height, &xOff, &yOff);
+            var bitmap = StbTrueType.stbtt_GetCodepointBitmap(font.FontInfo, 0, scale * resolutionMultiplier, i, &width, &height, &xOff, &yOff);
 
             maxCharHeight = Math.Max(maxCharHeight, height);
             maxCharWidth = Math.Max(maxCharWidth, width);
@@ -226,9 +228,9 @@ public class FontLoader
         {
             var c = charInfos[i];
 
-            var bb = new GlyphBoundingBox();
+            // var bb = new GlyphBoundingBox();
 
-            StbTrueType.stbtt_GetCodepointBitmapBox(font.FontInfo, i, 0, scale, &bb.x0, &bb.y0, &bb.x1, &bb.y1);
+            // StbTrueType.stbtt_GetCodepointBitmapBox(font.FontInfo, i, 0, scale, &bb.x0, &bb.y0, &bb.x1, &bb.y1);
 
             var bitmap = new BitRect
             {
@@ -244,13 +246,15 @@ public class FontLoader
 
             glyphInfos[c.Char] = new AtlasGlyphInfo
             {
-                Height = c.Height,
-                Width = c.Width,
-                XOff = c.XOff,
-                YOff = c.YOff,
+                Height = c.Height / resolutionMultiplier,
+                Width = c.Width / resolutionMultiplier,
+                XOff = c.XOff / resolutionMultiplier,
+                YOff = c.YOff / resolutionMultiplier,
                 AtlasX = xOffset,
                 AtlasY = yOffset,
-                GlyphBoundingBox = bb,
+                AtlasWidth = c.Width,
+                AtlasHeight = c.Height,
+                // GlyphBoundingBox = bb,
                 FontGlyphInfo = font.FontGlyphInfos[c.Char],
                 Scale = scale
             };

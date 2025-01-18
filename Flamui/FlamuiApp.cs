@@ -1,5 +1,7 @@
-﻿using Flamui.PerfTrace;
+﻿using System.Runtime.InteropServices;
+using Flamui.PerfTrace;
 using Microsoft.Extensions.DependencyInjection;
+using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
 
@@ -39,7 +41,7 @@ public class FlamuiApp
         Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
     }
 
-    public void CreateWindow<TRootComponent>(string title, FlamuiWindowOptions? options = null) where TRootComponent : FlamuiComponent
+    public unsafe void CreateWindow<TRootComponent>(string title, FlamuiWindowOptions? options = null) where TRootComponent : FlamuiComponent
     {
         options ??= new FlamuiWindowOptions();
 
@@ -47,10 +49,16 @@ public class FlamuiApp
         {
             Size = new Vector2D<int>(options.Width, options.Height),
             Title = title,
-            Samples = 4,
+            Samples = 4
         };
 
         var window = Window.Create(o);
+
+        // GlfwProvider.GLFW.Value.GetFramebufferSize((WindowHandle*)window.Handle, out var frameBufferWidth, out var frameBufferHeight);
+        // Console.WriteLine($"FrameBufferSize: W:{frameBufferWidth} H:{frameBufferHeight}");
+        //
+        // GlfwProvider.GLFW.Value.GetWindowSize((WindowHandle*)window.Handle, out var windowWidth, out var windowHeight);
+        // Console.WriteLine($"FrameBufferSize: W:{windowWidth} H:{windowHeight}");
 
         var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
 

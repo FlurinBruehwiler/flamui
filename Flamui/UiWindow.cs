@@ -1,14 +1,18 @@
-﻿using Flamui.Drawing;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.PerfTrace;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
-using Silk.NET.Input;
+using Silk.NET.GLFW;
+using Silk.NET.Maths;
 using Silk.NET.Windowing;
+using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
 
-public partial class UiWindow : IDisposable
+public unsafe partial class UiWindow : IDisposable
 {
     public IWindow Window;
     private FlamuiComponent _rootComponent;
@@ -115,6 +119,8 @@ public partial class UiWindow : IDisposable
         BuildUi();
     }
 
+    public Vector2 DpiScaling;
+
     private Renderer _renderer = new();
 
     private void OnLoad()
@@ -122,6 +128,14 @@ public partial class UiWindow : IDisposable
         _hitTester = new HitTester(this);
         _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
         _input = new Input(Window);
+
+        glfwSetWindowContentScaleCallback(Window.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
+
+        float xScale = 1;
+        float yScale = 1;
+        glfwGetWindowContentScale(Window.Handle, &xScale, &yScale);
+        DpiScaling = new Vector2(xScale, yScale);
+        // Console.WriteLine($"Initial scale: {xScale}, {yScale}");
 
         Ui.Window = this;
         Ui.FontManager = new FontManager();
@@ -134,6 +148,15 @@ public partial class UiWindow : IDisposable
 
         _renderer.Initialize(Window);
     }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void CallbackDelegate(IntPtr window, float xScale, float yScale);
+
+    [DllImport("glfw3.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void glfwSetWindowContentScaleCallback(IntPtr window, CallbackDelegate callback);
+
+    [DllImport("glfw3.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void glfwGetWindowContentScale(IntPtr window, float* xScale, float* yScale);
 
     public RenderContext LastRenderContext = new();
     public RenderContext RenderContext = new();
@@ -154,8 +177,9 @@ public partial class UiWindow : IDisposable
         RenderToCanvas();
     }
 
-    private unsafe void CreateRenderInstructions()
+    private void CreateRenderInstructions()
     {
+        RenderContext.AddMatrix(Matrix4X4.CreateScale(DpiScaling.X));
         RootContainer.Render(RenderContext, new Point());
     }
 
@@ -251,24 +275,10 @@ public partial class UiWindow : IDisposable
         _rootComponent.Build(Ui);
 
         RootContainer.PrepareLayout(Dir.Vertical);
-        RootContainer.Layout(new BoxConstraint(0, Window.Size.X, 0, Window.Size.Y));
+        RootContainer.Layout(new BoxConstraint(0, Window.Size.X / DpiScaling.X, 0, Window.Size.Y / DpiScaling.Y));
     }
 
     private bool _renderHappened;
-
-    public void SwapWindow()
-    {
-        // var success = SDL_GL_MakeCurrent(Window, _openGlContextHandle);
-        // if (success != 0)
-        // {
-        //     throw new Exception();
-        // }
-        //
-        // if(_renderHappened)
-        //     SDL_GL_SwapWindow(Window);
-        //
-        // //ToDo
-    }
 
     public void Dispose()
     {

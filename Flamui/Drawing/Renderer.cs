@@ -43,13 +43,15 @@ public class Renderer
     private uint vbo;
     private uint ebo;
 
-    public FontAtlas GetFontAtlas(Font font, float fontPixelSize)
+    public FontAtlas GetFontAtlas(Font font, float fontPixelSize, float resolutionMultiplier)
     {
-        if (_fontAtlasMap.TryGetValue((font, fontPixelSize), out var atlas))
+        var size = fontPixelSize * resolutionMultiplier;
+
+        if (_fontAtlasMap.TryGetValue((font, size), out var atlas))
             return atlas;
 
-        atlas = FontLoader.CreateFontAtlas(font, fontPixelSize);
-        _fontAtlasMap.Add((font, fontPixelSize), atlas);
+        atlas = FontLoader.CreateFontAtlas(font, fontPixelSize, resolutionMultiplier);
+        _fontAtlasMap.Add((font, size), atlas);
         atlas.GpuTexture = UploadTexture(atlas.AtlasBitmap, (uint)atlas.AtlasWidth, (uint)atlas.AtlasHeight);
         return atlas;
     }

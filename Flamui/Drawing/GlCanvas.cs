@@ -34,7 +34,9 @@ public class GlCanvas
 
     public void DrawText(ReadOnlySpan<char> text, float x, float y)
     {
-        var fontAtlas = _renderer.GetFontAtlas(Paint.Font, Paint.FontPixelSize);
+        var point = new Vector2(1, 1).Multiply(MeshBuilder.Matrix);
+
+        var fontAtlas = _renderer.GetFontAtlas(Paint.Font, Paint.FontPixelSize, point.Y);
 
         var xCoord = x;
 
@@ -56,8 +58,8 @@ public class GlCanvas
     {
         var uvXOffset = (1 / (float)fontAtlas.AtlasWidth) * atlasGlyphInfo.AtlasX;
         var uvYOffset = (1 / (float)fontAtlas.AtlasHeight) * atlasGlyphInfo.AtlasY;
-        var uvWidth = (1 / (float)fontAtlas.AtlasWidth) * atlasGlyphInfo.Width;
-        var uvHeight = (1 / (float)fontAtlas.AtlasHeight) * atlasGlyphInfo.Height;
+        var uvWidth = (1 / (float)fontAtlas.AtlasWidth) * atlasGlyphInfo.AtlasWidth;
+        var uvHeight = (1 / (float)fontAtlas.AtlasHeight) * atlasGlyphInfo.AtlasHeight;
 
         Debug.Assert(uvXOffset is >= 0 and <= 1);
         Debug.Assert(uvWidth is >= 0 and <= 1);
