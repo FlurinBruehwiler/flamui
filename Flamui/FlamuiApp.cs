@@ -1,7 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using Flamui.PerfTrace;
+﻿using Flamui.PerfTrace;
 using Microsoft.Extensions.DependencyInjection;
-using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
 

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -38,20 +37,20 @@ public class Renderer
     private int _transformLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
-    private Dictionary<(Font font, float size), FontAtlas> _fontAtlasMap = [];
+    private Dictionary<ScaledFont, FontAtlas> _fontAtlasMap = [];
 
     private uint vbo;
     private uint ebo;
 
-    public FontAtlas GetFontAtlas(Font font, float fontPixelSize, float resolutionMultiplier)
+    public FontAtlas GetFontAtlas(ScaledFont scaledFont, float resolutionMultiplier)
     {
-        var size = fontPixelSize * resolutionMultiplier;
+        var size = scaledFont.PixelSize * resolutionMultiplier;
 
-        if (_fontAtlasMap.TryGetValue((font, size), out var atlas))
+        if (_fontAtlasMap.TryGetValue(scaledFont, out var atlas))
             return atlas;
 
-        atlas = FontLoader.CreateFontAtlas(font, fontPixelSize, resolutionMultiplier);
-        _fontAtlasMap.Add((font, size), atlas);
+        atlas = FontLoader.CreateFontAtlas(scaledFont, resolutionMultiplier);
+        _fontAtlasMap.Add(scaledFont, atlas);
         atlas.GpuTexture = UploadTexture(atlas.AtlasBitmap, (uint)atlas.AtlasWidth, (uint)atlas.AtlasHeight);
         return atlas;
     }

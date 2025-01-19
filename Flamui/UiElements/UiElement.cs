@@ -18,6 +18,7 @@ public abstract class UiElement
     public BoxSize ActualContentSize;
     public UiElementInfo UiElementInfo;
     public BoxSize Rect;
+    // public Bounds FinalOnScreenSize;
 
     //----- Methods ------
 

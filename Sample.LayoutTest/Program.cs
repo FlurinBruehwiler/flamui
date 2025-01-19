@@ -1,5 +1,6 @@
 ﻿using Flamui;
 using Flamui.Components;
+using Flamui.Drawing;
 
 /*
  * Todo
@@ -20,7 +21,7 @@ app.Run();
 
 public class LayoutTest : FlamuiComponent
 {
-    private ColorDefinition c1 = new(43, 45, 48);
+    private ColorDefinition cc = new(43, 45, 48);
     private ColorDefinition c2 = new(30, 31, 34);
     private ColorDefinition c3 = new(75, 76, 79);
 
@@ -34,28 +35,26 @@ public class LayoutTest : FlamuiComponent
         ui.CascadingValues.TextColor = new ColorDefinition(188, 190, 196);
         ui.CascadingValues.TextSize = 17;
 
-
-        // GlfwProvider.GLFW.Value.GetFramebufferSize((WindowHandle*)window.Handle, out var frameBufferWidth, out var frameBufferHeight);
-        //Console.WriteLine($"FrameBufferSize: {ui.Window.Window.FramebufferSize}");
-
-        // GlfwProvider.GLFW.Value.GetWindowSize((WindowHandle*)window.Handle, out var windowWidth, out var windowHeight);
-        //Console.WriteLine($"WindowSize: {ui.Window.Window.Size}");
-
-        unsafe
+        using (ui.Div().Color(cc).Padding(10).Gap(10))
         {
-            // var monitor = GlfwProvider.GLFW.Value.GetWindowMonitor((WindowHandle*)ui.Window.Window.Handle);
-            // GlfwProvider.GLFW.Value.GetMonitorContentScale(monitor, out var xscale, out var yscale);
-            // Console.WriteLine($"Scale is x:{xscale}, y:{yscale}");
-        }
-
-        using (ui.Div().Color(c1).Padding(10).Gap(10))
-        {
-            using (var innerDiv = ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10))
+            using (var div = ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10))
             {
                 ui.StyledInput(ref input);
 
+                var text = ui.Text(loremIpsum).Size(20).Multiline();
+                // if (text.FinalOnScreenSize.ContainsPoint(ui.Window.MousePosition))
+                // {
+                //     foreach (var line in text.TextLayoutInfo.Lines)
+                //     {
+                //         if (line.Bounds.OffsetBy(text.FinalOnScreenSize.GetPosition()).ContainsPoint(ui.Window.MousePosition))
+                //         {
+                //             FontShaping.HitTest(new ScaledFont(text.UiTextInfo.Font, text.UiTextInfo.Size),
+                //                 line.TextContent.AsSpan(),
+                //                 ui.Window.MousePosition.X - line.Bounds.X - text.FinalOnScreenSize.X);
+                //         }
+                //     }
+                // }
 
-                ui.Text(loremIpsum).Size(20).Multiline();
                 ui.Text(loremIpsum).Size(40).Multiline();
 
                 // ui.Text(loremIpsum).Size(40);

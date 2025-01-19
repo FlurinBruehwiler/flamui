@@ -14,6 +14,41 @@ public struct GlyphBoundingBox
     public int y1;
 }
 
+public struct ScaledFont
+{
+    public Font Font;
+    public float PixelSize;
+    public float Scale;
+
+    public float Ascent => Font.UnscaledAscent * Scale;
+    public float Descent => Font.UnscaledDescent * Scale;
+    public float LineGap => Font.UnscaledLineGap * Scale;
+
+    public ScaledFont(Font font, float pixelSize)
+    {
+        Font = font;
+        PixelSize = pixelSize;
+        Scale = Font.GetScale(pixelSize);
+    }
+
+    public float GetCharWidth(char c)
+    {
+        if (Font.FontGlyphInfos.TryGetValue(c, out var info))
+        {
+            return info.UnscaledAdvanceWidth * Scale;
+        }
+
+        return 0;
+    }
+
+    public float GetHeight() => Ascent - Descent;
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Font.GetHashCode(), PixelSize.GetHashCode());
+    }
+}
+
 public class Font
 {
     public required string Name;
@@ -48,29 +83,13 @@ public class Font
 
 public class FontAtlas
 {
-    public required Font Font;
+    public required ScaledFont Font;
     public required byte[] AtlasBitmap;
     public required int AtlasWidth;
     public required int AtlasHeight;
     public required Dictionary<char, AtlasGlyphInfo> GlyphInfos;
 
-    public required float Scale;
     public GpuTexture GpuTexture;
-    public float Ascent => Font.UnscaledAscent * Scale;
-    public float Descent => Font.UnscaledDescent * Scale;
-    public float LineGap => Font.UnscaledLineGap * Scale;
-
-    public float GetHeight() => Ascent - Descent;
-
-    public float GetCharWidth(char c)
-    {
-        if (GlyphInfos.TryGetValue(c, out var info))
-        {
-            return info.FontGlyphInfo.UnscaledAdvanceWidth * Scale;
-        }
-
-        return 0;
-    }
 }
 
 public struct FontGlyphInfo
@@ -167,9 +186,9 @@ public class FontLoader
         };
     }
 
-    public static unsafe FontAtlas CreateFontAtlas(Font font, float pixelSize, float resolutionMultiplier)
+    public static unsafe FontAtlas CreateFontAtlas(ScaledFont scaledFont, float resolutionMultiplier)
     {
-        var scale = StbTrueType.stbtt_ScaleForPixelHeight(font.FontInfo, pixelSize);
+        // var scale = StbTrueType.stbtt_ScaleForPixelHeight(font.FontInfo, pixelSize);
 
         int maxCharWidth = 0;
         int maxCharHeight = 0;
@@ -183,7 +202,7 @@ public class FontLoader
             int xOff = 0;
             int yOff = 0;
 
-            var bitmap = StbTrueType.stbtt_GetCodepointBitmap(font.FontInfo, 0, scale * resolutionMultiplier, i, &width, &height, &xOff, &yOff);
+            var bitmap = StbTrueType.stbtt_GetCodepointBitmap(scaledFont.Font.FontInfo, 0, scaledFont.Scale * resolutionMultiplier, i, &width, &height, &xOff, &yOff);
 
             maxCharHeight = Math.Max(maxCharHeight, height);
             maxCharWidth = Math.Max(maxCharWidth, width);
@@ -255,8 +274,8 @@ public class FontLoader
                 AtlasWidth = c.Width,
                 AtlasHeight = c.Height,
                 // GlyphBoundingBox = bb,
-                FontGlyphInfo = font.FontGlyphInfos[c.Char],
-                Scale = scale
+                FontGlyphInfo = scaledFont.Font.FontGlyphInfos[c.Char],
+                Scale = scaledFont.Scale
             };
 
             if (currentCol == rowColCount - 1)
@@ -281,12 +300,11 @@ public class FontLoader
 
         return new FontAtlas
         {
-            Font = font,
+            Font = scaledFont,
             AtlasBitmap = fontAtlasBitmapData,
             AtlasWidth = atlasSize,
             AtlasHeight = atlasSize,
             GlyphInfos = glyphInfos,
-            Scale = scale,
         };
     }
 

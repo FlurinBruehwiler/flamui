@@ -1,8 +1,10 @@
+using Flamui.UiElements;
+
 namespace Flamui.Drawing;
 
 public static class FontShaping
 {
-    public static (float start, float end) GetPositionOfChar(FontAtlas fontAtlas, ReadOnlySpan<char> singleLine, int index)
+    public static (float start, float end) GetPositionOfChar(ScaledFont scaledFont, ReadOnlySpan<char> singleLine, int index)
     {
         float xCoord = 0;
 
@@ -15,7 +17,7 @@ public static class FontShaping
 
             var start = xCoord;
 
-            xCoord += fontAtlas.GetCharWidth(c);
+            xCoord += scaledFont.GetCharWidth(c);
 
             if (index == i)
             {
@@ -27,12 +29,13 @@ public static class FontShaping
     }
 
     /// <returns>The width of the text</returns>
-    public static float MeasureText(Font fontAtlas, float scale, ReadOnlySpan<char> singleLine)
+    public static float MeasureText(ScaledFont scaledFont, ArenaString singleLine)
     {
         var width = 0f;
-        foreach (var c in singleLine)
+        for (var i = 0; i < singleLine.Length; i++)
         {
-            width += fontAtlas.GetCharWidth(c, scale);
+            var c = singleLine[i];
+            width += scaledFont.GetCharWidth(c);
         }
 
         return width;
@@ -41,11 +44,11 @@ public static class FontShaping
     /// <summary>
     /// Performs a horizontal hit test against a piece of text.
     /// </summary>
-    /// <param name="fontAtlas">The font to use</param>
+    /// <param name="scaledFont">The font to use</param>
     /// <param name="singleLine">A piece of text, that lives on a single line</param>
     /// <param name="pos">The position relative to the left of the line</param>
     /// <returns>The index of the char that is under, -1 the pos was outside the text <see cref="pos"/></returns>
-    public static int HitTest(FontAtlas fontAtlas, ReadOnlySpan<char> singleLine, float pos)
+    public static int HitTest(ScaledFont scaledFont, ReadOnlySpan<char> singleLine, float pos)
     {
         float xCoord = 0;
 
@@ -56,7 +59,7 @@ public static class FontShaping
         {
             var c = singleLine[i];
 
-            xCoord += fontAtlas.GetCharWidth(c);
+            xCoord += scaledFont.GetCharWidth(c);
 
             if (pos < xCoord)
                 return i;
@@ -68,7 +71,7 @@ public static class FontShaping
     //rule: preferably only ever the start of a new word can go onto the next line,
     //so we make a new line, as soon as the next word + following whitespace doesn't fit on the current line
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
-    public static TextLayoutInfo LayoutText(Font fontAtlas, float scale, ReadOnlySpan<char> text, float maxWidth, bool multilineAllowed)
+    public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed)
     {
         List<Line> lines = [];
         float widthOfLongestLine = 0;
@@ -102,7 +105,7 @@ public static class FontShaping
                 continue;
             }
 
-            var charWidth = fontAtlas.GetCharWidth(c, scale);
+            var charWidth = scaledFont.GetCharWidth(c);
 
             currentLineWidth += charWidth;
             currentBlockWidth += charWidth;
@@ -130,22 +133,53 @@ public static class FontShaping
 
         AddLine(text.Length, text);
 
+        var yCoord = 0f;
+        for (var i = 0; i < lines.Count; i++)
+        {
+            var line = lines[i];
+
+            var bounds = line.Bounds with
+            {
+                X = horizontalAlignement switch
+                {
+                    TextAlign.Start => 0,
+                    TextAlign.Center => (maxWidth - line.Bounds.W) / 2,
+                    TextAlign.End => maxWidth - line.Bounds.W,
+                    _ => throw new ArgumentOutOfRangeException()
+                },
+                Y = yCoord,
+            };
+
+            lines[i] = line with
+            {
+                Bounds = bounds
+            };
+
+            yCoord += scaledFont.GetHeight() + scaledFont.LineGap;
+        }
+
         return new TextLayoutInfo
         {
             Lines = lines.ToArray(),
             MaxWidth = widthOfLongestLine,
-            TotalHeight = lines.Count * fontAtlas.GetHeight(scale) + lines.Count - 1 * (fontAtlas.UnscaledLineGap * scale),
+            TotalHeight = lines.Count * scaledFont.GetHeight() + lines.Count - 1 * (scaledFont.LineGap),
         };
 
-        void AddLine(int endIndex, ReadOnlySpan<char> t)
+        void AddLine(int endIndex, ArenaString t)
         {
             var r = new Range(new Index(currentLineStart), new Index(endIndex));
-            var width = MeasureText(fontAtlas, scale, t[r]);
+            var width = MeasureText(scaledFont, t[r]);
             widthOfLongestLine = Math.Max(widthOfLongestLine, width);
             lines.Add(new Line
             {
-                TextContent = r,
-                Width = width
+                TextContent = text[r],
+                Bounds = new Bounds
+                {
+                    W = width,
+                    H = scaledFont.GetHeight(),
+                    X = 0, //will be set later
+                    Y = 0
+                }
             });
         }
     }
@@ -160,6 +194,7 @@ public struct TextLayoutInfo
 
 public struct Line
 {
-    public Range TextContent;
-    public float Width;
+    public Bounds Bounds;
+    public ArenaString TextContent;
+    public Slice<float> CharOffsets; // the start of each char on the x axis
 }

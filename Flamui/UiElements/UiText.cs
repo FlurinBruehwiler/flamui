@@ -23,98 +23,40 @@ public struct UiTextInfo
 public class UiText : UiElement
 {
     public UiTextInfo UiTextInfo;
+    public TextLayoutInfo TextLayoutInfo;
 
     public override void Reset()
     {
         UiTextInfo = new();
+        TextLayoutInfo = default;
         base.Reset();
     }
 
     public override void Render(RenderContext renderContext, Point offset)
     {
-        Offset = offset;
-
         if (UiTextInfo.Content == string.Empty)
             return;
 
         var font = UiTextInfo.Font;
 
-        // var width = ;
-        //
-        // // Paint.GetFontMetrics(out var metrics);
-        //
-        // var actualX = offset.X;
-        // var actualY = offset.Y;
-        //
-        // actualY += UiTextInfo.VerticalAlignment switch
-        // {
-        //     TextAlign.Start => UiTextInfo.Size,
-        //     TextAlign.End => Rect.Height,
-        //     TextAlign.Center => Rect.Height / 2 - font.GetHeight() / 2,
-        //     _ => throw new ArgumentOutOfRangeException()
-        // };
-        //
-        // actualX += UiTextInfo.HorizontalAlignment switch
-        // {
-        //     TextAlign.End => Rect.Width - width,
-        //     TextAlign.Center => Rect.Width / 2 - width / 2,
-        //     TextAlign.Start => 0,
-        //     _ => throw new ArgumentOutOfRangeException()
-        // };
+        var scaledFont = new ScaledFont(font, UiTextInfo.Size);
 
-        var scale = font.GetScale(UiTextInfo.Size);
-
-        var entireText = UiTextInfo.Content.ToArenaString();
-
-        var yCoord = offset.Y;
         foreach (var line in TextLayoutInfo.Lines)
         {
-            var lineSpan = entireText[line.TextContent];
+            var bounds = line.Bounds;
+            bounds.X += offset.X;
+            bounds.Y += offset.Y;
 
-            var bounds = new Bounds
-            {
-                X = UiTextInfo.HorizontalAlignment switch
-                {
-                    TextAlign.Start => offset.X,
-                    TextAlign.Center => offset.X + (MaxWidth - line.Width) / 2,
-                    TextAlign.End => offset.X + (MaxWidth - line.Width),
-                    _ => throw new ArgumentOutOfRangeException()
-                },
-                Y = yCoord,
-                W = line.Width,
-                H = font.GetHeight(scale)
-            };
-
-            //debug rect
-            // renderContext.AddRect(bounds, this, new ColorDefinition(100, 0, 0, 100));
-
-            //avoid to string and use arenastring!!!!!!!
-            renderContext.AddText(bounds, lineSpan, UiTextInfo.Color, font, UiTextInfo.Size);
-
-            yCoord += font.GetHeight(scale) + font.UnscaledLineGap;
+            renderContext.AddText(bounds, line.TextContent, UiTextInfo.Color, scaledFont);
         }
     }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        var scale = UiTextInfo.Font.GetScale(UiTextInfo.Size);
-
-        TextLayoutInfo = FontShaping.LayoutText(UiTextInfo.Font, scale, UiTextInfo.Content, constraint.MaxWidth, UiTextInfo.Multiline);
-        MaxWidth = constraint.MaxWidth;
+        TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content, constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline);
 
         Rect = new BoxSize(TextLayoutInfo.MaxWidth, TextLayoutInfo.TotalHeight);
         return Rect;
-    }
-
-    public TextLayoutInfo TextLayoutInfo;
-    private float MaxWidth;
-
-    public Point Offset;
-
-    public UiText Width(float width)
-    {
-        // PWidth = new SizeDefinition(width, sizeKind);
-        return this;
     }
 
     public UiText Color(byte red, byte green, byte blue, byte transparency = 255)

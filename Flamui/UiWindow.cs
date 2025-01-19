@@ -5,7 +5,6 @@ using Flamui.Layouting;
 using Flamui.PerfTrace;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
-using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using MouseButton = Silk.NET.Input.MouseButton;

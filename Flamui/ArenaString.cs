@@ -1,6 +1,5 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Flamui;
 
@@ -84,7 +83,7 @@ public static class ArenaStringExtensions
 /// Many primitive types have a .ToArenaString() methods, to convert them to an arena string.
 /// </summary>
 [InterpolatedStringHandler]
-public struct ArenaString
+public struct ArenaString //todo implement IEnumerable
 {
     // private ArenaStringBuilder _arenaStringBuilder;
     private Slice<char> _slice;
@@ -96,11 +95,9 @@ public struct ArenaString
         _slice = slice;
     }
 
-    public static unsafe implicit operator ArenaString(string str)
+    public static implicit operator ArenaString(string str)
     {
-        var ptr = Ui.Arena.AddReference(str); //not sure if this is actually correct, probably not
-        var slice = new Slice<char>((char*)GCHandle.ToIntPtr(ptr), str.Length);
-        return new ArenaString { _slice = slice};
+        return str.ToArenaString();
     }
 
     [Pure]
@@ -133,6 +130,11 @@ public struct ArenaString
         {
             _slice = slice
         };
+    }
+
+    public override string ToString()
+    {
+        return AsSpan().ToString();
     }
 
     // public ArenaString(int literalLength, int formattedCount)

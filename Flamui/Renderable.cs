@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Contracts;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Flamui.Drawing;
@@ -52,15 +53,15 @@ public class RenderContext
         Add(cmd);
     }
 
-    public void AddText(Bounds bounds, ArenaString text, ColorDefinition color, Font font, float fontPixelSize)
+    public void AddText(Bounds bounds, ArenaString text, ColorDefinition color, ScaledFont scaledFont)
     {
         var cmd = new Command();
         cmd.Bounds = bounds;
         cmd.Type = CommandType.Text;
         cmd.String = text;
         cmd.Color = color;
-        cmd.Font.Set(Arena, font);
-        cmd.FontPixelSize = fontPixelSize;
+        cmd.Font.Set(Arena, scaledFont.Font);
+        cmd.FontSize = scaledFont.PixelSize;
 
         Add(cmd);
     }
@@ -137,9 +138,8 @@ public class RenderContext
                             canvas.ClipRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius);
                         break;
                     case CommandType.Text:
-                        canvas.Paint.Font = command.Font.Get();
+                        canvas.Paint.Font = new ScaledFont(command.Font.Get(), command.FontSize);
                         canvas.Paint.Color = command.Color;
-                        canvas.Paint.FontPixelSize = command.FontPixelSize;
                         canvas.DrawText(command.String.AsSpan(), command.Bounds.X, command.Bounds.Y);
                         break;
                     case CommandType.Matrix:
@@ -200,6 +200,31 @@ public struct Bounds
 
     public float Right => X + W;
 
+    [SetsRequiredMembers]
+    public Bounds(Vector2 position, Vector2 size)
+    {
+        X = position.X;
+        Y = position.Y;
+        W = size.X;
+        H = size.Y;
+    }
+
+    public Vector2 GetPosition()
+    {
+        return new Vector2(X, Y);
+    }
+
+    public Vector2 GetSize()
+    {
+        return new Vector2(W, H);
+    }
+
+    [Pure]
+    public Bounds OffsetBy(Vector2 offsetPosition)
+    {
+        return new Bounds(GetPosition() + offsetPosition, GetSize());
+    }
+
     [Pure]
     public bool ContainsPoint(Vector2 point)
     {
@@ -247,7 +272,7 @@ public struct Command
     public Bounds Bounds;
     public float Radius;
     public ManagedRef<Font> Font;
-    public float FontPixelSize;
+    public float FontSize;
     public ColorDefinition Color;
     public Matrix4X4<float> Matrix;
 }

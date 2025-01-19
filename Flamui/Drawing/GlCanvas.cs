@@ -8,8 +8,7 @@ namespace Flamui.Drawing;
 public struct Paint
 {
     public ColorDefinition Color;
-    public Font Font;
-    public float FontPixelSize;
+    public ScaledFont Font;
 }
 
 public class GlCanvas
@@ -36,7 +35,7 @@ public class GlCanvas
     {
         var point = new Vector2(1, 1).Multiply(MeshBuilder.Matrix);
 
-        var fontAtlas = _renderer.GetFontAtlas(Paint.Font, Paint.FontPixelSize, point.Y);
+        var fontAtlas = _renderer.GetFontAtlas(Paint.Font, point.Y);
 
         var xCoord = x;
 
@@ -44,7 +43,7 @@ public class GlCanvas
         {
             if (fontAtlas.GlyphInfos.TryGetValue(c, out var glyphInfo))
             {
-                DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture,(int)(xCoord + glyphInfo.LeftSideBearing), (int)(y + fontAtlas.Ascent + glyphInfo.YOff));
+                DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture,(int)(xCoord + glyphInfo.LeftSideBearing), (int)(y + fontAtlas.Font.Ascent + glyphInfo.YOff));
                 xCoord += glyphInfo.AdvanceWidth;
             }
             else

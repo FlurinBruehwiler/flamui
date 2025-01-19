@@ -22,7 +22,7 @@ public partial class Ui
     public Stack<CascadingStuff> CascadingStack = [];
     public CascadingStuff CascadingValues;
 
-    public static Arena Arena; //not used currently
+    public static Arena Arena;
 
     public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",

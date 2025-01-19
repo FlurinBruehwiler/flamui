@@ -1161,7 +1161,7 @@ public class LayoutingTests(ITestOutputHelper console)
             foreach (var line in text.TextLayoutInfo.Lines)
             {
                 sb.Append(new string(' ', indentation * 4));
-                sb.AppendLine($"Line = {text.UiTextInfo.Content[line.TextContent]}");
+                sb.AppendLine($"Line = {line.TextContent}");
             }
         }
 

@@ -2,12 +2,6 @@ using System.Numerics;
 
 namespace Flamui.Drawing;
 
-public struct TextPos
-{
-    public int Line;
-    public int Char;
-}
-
 public struct Vertex
 {
     public Vector2 Position;
@@ -23,18 +17,6 @@ public struct Vertex
         UV = uv;
         Color = color;
     }
-}
-
-public struct Rect
-{
-    public Rect(float x, float y, float width, float height)
-    {
-        Pos = new Vector2(x, y);
-        Size = new Vector2(width, height);
-    }
-
-    public Vector2 Pos;
-    public Vector2 Size;
 }
 
 public struct BezierCurve
