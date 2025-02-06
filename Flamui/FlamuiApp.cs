@@ -1,4 +1,5 @@
-﻿using Flamui.PerfTrace;
+﻿using System.Reflection;
+using Flamui.PerfTrace;
 using Microsoft.Extensions.DependencyInjection;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
@@ -57,6 +58,9 @@ public class FlamuiApp
 
         _windows.Add(new UiWindow(window, rootComponent, Services));
 
+        //hack to get paint during resize
+        window.GetType().GetField("_onFrame", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, new Action(() => UpdateWindow(window)));
+
         window.Initialize();
     }
 
@@ -78,21 +82,26 @@ public class FlamuiApp
                     continue;
                 }
 
-                window.DoEvents();
-
-                if (!window.IsClosing)
-                {
-                    window.DoUpdate();
-                }
-
-                if (!window.IsClosing)
-                {
-                    window.DoRender();
-                }
+                UpdateWindow(window);
             }
 
             if(_windows.Count == 0)
                 break;
+        }
+    }
+
+    private void UpdateWindow(IWindow window)
+    {
+        window.DoEvents();
+
+        if (!window.IsClosing)
+        {
+            window.DoUpdate();
+        }
+
+        if (!window.IsClosing)
+        {
+            window.DoRender();
         }
     }
 
