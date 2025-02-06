@@ -9,7 +9,7 @@ public class Input
 {
     public readonly MouseButtonState[] MouseButtonStates = new MouseButtonState[(int)MouseButton.Button12 + 1];
 
-    public Vector2 MousePosition { get; private set; }
+    public Vector2 MousePosition => _mouse.Position;
     public Vector2 LastMousePosition { get; private set; }
     public float ScrollDeltaX { get; private set; }
     public float ScrollDeltaY { get; private set; }
@@ -112,7 +112,6 @@ public class Input
         TextInput = string.Empty;
 
         LastMousePosition = MousePosition;
-        MousePosition = _mouse.Position;
 
         ScrollDeltaX = 0;
     }

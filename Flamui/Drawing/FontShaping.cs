@@ -45,10 +45,10 @@ public static class FontShaping
     /// Performs a horizontal hit test against a piece of text.
     /// </summary>
     /// <param name="scaledFont">The font to use</param>
-    /// <param name="singleLine">A piece of text, that lives on a single line</param>
+    /// <param name="singleLine">A line from TextLayoutInfo</param>
     /// <param name="pos">The position relative to the left of the line</param>
     /// <returns>The index of the char that is under, -1 the pos was outside the text <see cref="pos"/></returns>
-    public static int HitTest(ScaledFont scaledFont, ReadOnlySpan<char> singleLine, float pos)
+    public static int HitTest(ScaledFont scaledFont,ReadOnlySpan<char> singleLine, float pos)
     {
         float xCoord = 0;
 
@@ -64,6 +64,8 @@ public static class FontShaping
             if (pos < xCoord)
                 return i;
         }
+
+        return -1;
 
         return -1;
     }
@@ -161,8 +163,8 @@ public static class FontShaping
         return new TextLayoutInfo
         {
             Lines = lines.ToArray(),
-            MaxWidth = widthOfLongestLine,
-            TotalHeight = lines.Count * scaledFont.GetHeight() + lines.Count - 1 * (scaledFont.LineGap),
+            Width = widthOfLongestLine,
+            Height = lines.Count * scaledFont.GetHeight() + lines.Count - 1 * (scaledFont.LineGap),
         };
 
         void AddLine(int endIndex, ArenaString t)
@@ -188,8 +190,8 @@ public static class FontShaping
 public struct TextLayoutInfo
 {
     public Line[] Lines;
-    public float MaxWidth;
-    public float TotalHeight;
+    public float Width;
+    public float Height;
 }
 
 public struct Line

@@ -85,9 +85,11 @@ public unsafe partial class UiWindow : IDisposable
         window.Render += OnRender;
     }
 
-
     private void OnRender(double obj)
     {
+        if (!isInitialized)
+            return;
+
         using var _ = Systrace.BeginEvent(nameof(OnRender));
 
         Render();
@@ -105,6 +107,10 @@ public unsafe partial class UiWindow : IDisposable
 
     private void OnUpdate(double obj)
     {
+        if (!isInitialized)
+            return;
+
+        Console.WriteLine("Updating");
         Ui.Arena = RenderContext.Arena;
 
         ProcessInputs();
@@ -124,8 +130,11 @@ public unsafe partial class UiWindow : IDisposable
 
     private Renderer _renderer = new();
 
+    private bool isInitialized;
+
     private void OnLoad()
     {
+        Console.WriteLine("Loading");
         _hitTester = new HitTester(this);
         _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
         _input = new Input(Window);
@@ -148,6 +157,8 @@ public unsafe partial class UiWindow : IDisposable
         };
 
         _renderer.Initialize(Window);
+
+        isInitialized = true;
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

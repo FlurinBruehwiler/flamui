@@ -16,6 +16,7 @@ var builder = FlamuiApp.CreateBuilder();
 var app = builder.Build();
 
 app.CreateWindow<LayoutTest>("Sample.LayoutTest", new FlamuiWindowOptions());
+app.CreateWindow<LayoutTest>("Sample.LayoutTest2", new FlamuiWindowOptions());
 
 app.Run();
 
@@ -39,23 +40,21 @@ public class LayoutTest : FlamuiComponent
         {
             using (var div = ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10))
             {
+                /*
+                ui.Defered(() =>
+                {
+
+                });
+
+                ui.Canvas.DrawText();
+                ui.Canvas.DrawRect();
+                */
+
                 ui.StyledInput(ref input);
 
-                var text = ui.Text(loremIpsum).Size(20).Multiline();
-                // if (text.FinalOnScreenSize.ContainsPoint(ui.Window.MousePosition))
-                // {
-                //     foreach (var line in text.TextLayoutInfo.Lines)
-                //     {
-                //         if (line.Bounds.OffsetBy(text.FinalOnScreenSize.GetPosition()).ContainsPoint(ui.Window.MousePosition))
-                //         {
-                //             FontShaping.HitTest(new ScaledFont(text.UiTextInfo.Font, text.UiTextInfo.Size),
-                //                 line.TextContent.AsSpan(),
-                //                 ui.Window.MousePosition.X - line.Bounds.X - text.FinalOnScreenSize.X);
-                //         }
-                //     }
-                // }
+                ui.Text(loremIpsum).Size(20).Multiline().Selectable();
 
-                ui.Text(loremIpsum).Size(40).Multiline();
+                ui.Text(loremIpsum).Size(40).Multiline().Selectable();
 
                 // ui.Text(loremIpsum).Size(40);
             }

@@ -18,7 +18,7 @@ public record SizeConstraint(int Width, int Height);
 public class FlamuiApp
 {
     public IServiceProvider Services { get; private set; }
-    private UiWindow _window;
+    private List<UiWindow> _windows;
 
     internal FlamuiApp(IServiceCollection services)
     {
@@ -27,6 +27,7 @@ public class FlamuiApp
 
         var rootProvider = services.BuildServiceProvider();
         Services = rootProvider.CreateScope().ServiceProvider;
+        _windows = [];
         //
         // var uiThread = new Thread(_eventLoop.RunUiThread);
         // Dispatcher.UIThread = new Dispatcher(uiThread);
@@ -39,7 +40,7 @@ public class FlamuiApp
         Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
     }
 
-    public unsafe void CreateWindow<TRootComponent>(string title, FlamuiWindowOptions? options = null) where TRootComponent : FlamuiComponent
+    public void CreateWindow<TRootComponent>(string title, FlamuiWindowOptions? options = null) where TRootComponent : FlamuiComponent
     {
         options ??= new FlamuiWindowOptions();
 
@@ -52,20 +53,47 @@ public class FlamuiApp
 
         var window = Window.Create(o);
 
-        // GlfwProvider.GLFW.Value.GetFramebufferSize((WindowHandle*)window.Handle, out var frameBufferWidth, out var frameBufferHeight);
-        // Console.WriteLine($"FrameBufferSize: W:{frameBufferWidth} H:{frameBufferHeight}");
-        //
-        // GlfwProvider.GLFW.Value.GetWindowSize((WindowHandle*)window.Handle, out var windowWidth, out var windowHeight);
-        // Console.WriteLine($"FrameBufferSize: W:{windowWidth} H:{windowHeight}");
-
         var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
 
-        _window = new UiWindow(window, rootComponent, Services);
+        _windows.Add(new UiWindow(window, rootComponent, Services));
+
+        window.Initialize();
     }
 
     public void Run()
     {
-        _window.Window.Run();
+        while (true)
+        {
+            for (var i = 0; i < _windows.Count; i++)
+            {
+                var window = _windows[i].Window;
+
+                if (window.IsClosing)
+                {
+                    window.DoEvents();
+                    window.Reset();
+
+                    _windows.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+
+                window.DoEvents();
+
+                if (!window.IsClosing)
+                {
+                    window.DoUpdate();
+                }
+
+                if (!window.IsClosing)
+                {
+                    window.DoRender();
+                }
+            }
+
+            if(_windows.Count == 0)
+                break;
+        }
     }
 
     public static FlamuiBuilder CreateBuilder()

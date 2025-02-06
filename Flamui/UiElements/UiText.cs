@@ -1,4 +1,5 @@
-﻿using Flamui.Drawing;
+﻿using System.Numerics;
+using Flamui.Drawing;
 using Flamui.Layouting;
 
 namespace Flamui.UiElements;
@@ -18,12 +19,14 @@ public struct UiTextInfo
     public TextAlign VerticalAlignment = TextAlign.Center;
     public bool Multiline;
     public string Content = string.Empty;
+    public bool Selectable;
 }
 
 public class UiText : UiElement
 {
     public UiTextInfo UiTextInfo;
     public TextLayoutInfo TextLayoutInfo;
+    public (int line, int character)? DragStart;
 
     public override void Reset()
     {
@@ -41,6 +44,44 @@ public class UiText : UiElement
 
         var scaledFont = new ScaledFont(font, UiTextInfo.Size);
 
+        if (UiTextInfo.Selectable)
+        {
+            //todo not correct when matrix stuff....
+            if (new Bounds(new Vector2(offset.X, offset.Y), new Vector2(Rect.Width, Rect.Height)).ContainsPoint(Window.MousePosition))
+            {
+                for (var lineIndex = 0; lineIndex < TextLayoutInfo.Lines.Length; lineIndex++)
+                {
+                    var line = TextLayoutInfo.Lines[lineIndex];
+                    var bounds = line.Bounds;
+                    bounds.X += offset.X;
+                    bounds.Y += offset.Y;
+
+                    if (bounds.ContainsPoint(Window.MousePosition))
+                    {
+                        var characterIndex = FontShaping.HitTest(scaledFont, line.TextContent.AsSpan(),
+                            Window.MousePosition.X - bounds.X);
+                        if (characterIndex != -1)
+                        {
+                            if (DragStart == null)
+                                DragStart = (lineIndex, characterIndex);
+
+                            var range = FontShaping.GetPositionOfChar(scaledFont, line.TextContent.AsSpan(), characterIndex);
+
+                            renderContext.AddRect(new Bounds
+                            {
+                                X = bounds.X + range.start,
+                                Y = bounds.Y,
+                                W = range.end - range.start,
+                                H = bounds.H
+                            }, this, C.Blue5);
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
         foreach (var line in TextLayoutInfo.Lines)
         {
             var bounds = line.Bounds;
@@ -55,7 +96,7 @@ public class UiText : UiElement
     {
         TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content, constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline);
 
-        Rect = new BoxSize(TextLayoutInfo.MaxWidth, TextLayoutInfo.TotalHeight);
+        Rect = new BoxSize(TextLayoutInfo.Width, TextLayoutInfo.Height);
         return Rect;
     }
 
@@ -86,6 +127,12 @@ public class UiText : UiElement
     public UiText Multiline(bool multiline = true)
     {
         UiTextInfo.Multiline = multiline;
+        return this;
+    }
+
+    public UiText Selectable(bool selectable = true)
+    {
+        UiTextInfo.Selectable = selectable;
         return this;
     }
 
