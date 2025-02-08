@@ -172,8 +172,9 @@ public unsafe partial class UiWindow : IDisposable
                     UserScaling = new Vector2(Math.Clamp(UserScaling.X, 0.1f, 10f), Math.Clamp(UserScaling.Y, 0.1f, 10f));
                     break;
                 case ZoomType.ZoomContent:
+                    var mouseWorldPos = MousePosition;
                     ZoomOffset = MouseScreenPosition;
-                    ZoomTarget = MousePosition;
+                    ZoomTarget = mouseWorldPos;
                     Zoom *= new Vector2(factor, factor);
                     Zoom = new Vector2(Math.Clamp(Zoom.X, 0.01f, 100f), Math.Clamp(Zoom.Y, 0.01f, 100f));
                     break;
