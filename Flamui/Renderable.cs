@@ -75,7 +75,6 @@ public class RenderContext
         Add(cmd);
     }
 
-
     public void Add(Command command)
     {
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))

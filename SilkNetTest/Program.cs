@@ -1,4 +1,12 @@
-﻿using Silk.NET.Windowing;
+﻿using System.Numerics;
+using Silk.NET.Maths;
+using Silk.NET.Windowing;
+
+
+var mat = Matrix4X4.CreateTranslation(100f, 100f, 100f);
+var vec = new Vector4D<float>(0, 0, 0, 1);
+var res = Vector4D.Multiply(vec, mat);
+return;
 
 var window1 = Window.Create(WindowOptions.Default);
 var window2 = Window.Create(WindowOptions.Default);

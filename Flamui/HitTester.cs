@@ -16,7 +16,7 @@ public class HitTester
 
     public void HandleHitTest()
     {
-        HitTest(_window.MousePosition);
+        HitTest(_window.MouseScreenPosition);
 
         if (_window.IsMouseButtonPressed(MouseButton.Left))
         {
@@ -44,7 +44,7 @@ public class HitTester
             {
                 if (command.Type == CommandType.Matrix)
                 {
-                    point = point.Multiply(command.Matrix);
+                    point = point.Multiply(command.Matrix.Invert());
                 }
                 else if (command.Type == CommandType.Rect)
                 {

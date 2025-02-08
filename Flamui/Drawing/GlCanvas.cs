@@ -33,7 +33,7 @@ public class GlCanvas
 
     public void DrawText(ReadOnlySpan<char> text, float x, float y)
     {
-        var point = new Vector2(1, 1).Multiply(MeshBuilder.Matrix);
+        var point = new Vector2(1, 1).Multiply(MeshBuilder.Matrix.GetScale());
 
         var fontAtlas = _renderer.GetFontAtlas(Paint.Font, point.Y);
 

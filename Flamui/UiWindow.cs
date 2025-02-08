@@ -5,6 +5,7 @@ using Flamui.Layouting;
 using Flamui.PerfTrace;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using MouseButton = Silk.NET.Input.MouseButton;
@@ -110,7 +111,6 @@ public unsafe partial class UiWindow : IDisposable
         if (!isInitialized)
             return;
 
-        Console.WriteLine("Updating");
         Ui.Arena = RenderContext.Arena;
 
         ProcessInputs();
@@ -123,10 +123,119 @@ public unsafe partial class UiWindow : IDisposable
 
         HitDetection();
 
+        HandleZoomAndStuff();
+
         BuildUi();
     }
 
+    public enum ZoomType
+    {
+        ScaleContent, //Makes the content bigger changes the layout to still fit everything
+        ZoomContent, //Zooms in on part of the ui, while keeping everything sharp, allows pan
+        ZoomCanvas //Zoom in on part of the image, without changing the resolution, allows pan
+    }
+
+    private void HandleZoomAndStuff()
+    {
+        if (IsKeyPressed(Key.Escape))
+        {
+            Close();
+        }
+
+        if (IsKeyPressed(Key.Number1))
+        {
+            zoomType = ZoomType.ScaleContent;
+        }
+        else if (IsKeyPressed(Key.Number2))
+        {
+            zoomType = ZoomType.ZoomContent;
+        }
+        else if (IsKeyPressed(Key.Number3))
+        {
+            zoomType = ZoomType.ZoomCanvas;
+        }
+
+        if (IsMouseButtonDown(MouseButton.Right) && zoomType is ZoomType.ZoomContent)
+        {
+            var mouseDelta = MouseDelta;
+            ZoomTarget += mouseDelta * -1 / Zoom;
+        }
+
+        if (IsKeyDown(Key.ControlLeft) && ScrollDeltaY != 0)
+        {
+            var factor = (float)Math.Pow(1.1, ScrollDeltaY);
+
+            switch (zoomType)
+            {
+                case ZoomType.ScaleContent:
+                    UserScaling *= new Vector2(factor, factor);
+                    UserScaling = new Vector2(Math.Clamp(UserScaling.X, 0.1f, 10f), Math.Clamp(UserScaling.Y, 0.1f, 10f));
+                    break;
+                case ZoomType.ZoomContent:
+                    ZoomOffset = MouseScreenPosition;
+                    ZoomTarget = MousePosition;
+                    Zoom *= new Vector2(factor, factor);
+                    Zoom = new Vector2(Math.Clamp(Zoom.X, 0.01f, 100f), Math.Clamp(Zoom.Y, 0.01f, 100f));
+                    break;
+                case ZoomType.ZoomCanvas:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        if (IsKeyPressed(Key.R))
+        {
+            UserScaling = new Vector2(1, 1);
+            Zoom = new Vector2(1, 1);
+            ZoomOffset = new Vector2();
+            ZoomTarget = new Vector2();
+        }
+
+        //var mouseWorldPos = ScreenToWorld(MousePosition);
+        //Console.WriteLine(mouseWorldPos);
+    }
+
+    private Vector2 ScreenToWorld(Vector2 screenPosition)
+    {
+        if (Matrix4X4.Invert(GetWorldToScreenMatrix(), out var inverted))
+        {
+            return screenPosition.Multiply(inverted);
+        }
+
+        throw new Exception("ahh");
+    }
+
+    private Matrix4X4<float> GetWorldToScreenMatrix()
+    {
+        var origin = Matrix4X4.CreateTranslation(-ZoomTarget.X, -ZoomTarget.Y, 0);
+        var scale = Matrix4X4.CreateScale(GetCompleteScaling().X * Zoom.X);
+
+        var translate = Matrix4X4.CreateTranslation(ZoomOffset.X, ZoomOffset.Y, 0);
+
+        return  origin * scale * translate;
+    }
+
+    private ZoomType zoomType = ZoomType.ScaleContent;
+
+    public Vector2 Zoom = new(1, 1);
+    public Vector2 ZoomOffset = new(0, 0);
+    public Vector2 ZoomTarget;
+
+    /// <summary>
+    /// The DPI scaling from the OS
+    /// </summary>
     public Vector2 DpiScaling;
+
+    /// <summary>
+    /// The User can zoom in, to make stuff bigger
+    /// </summary>
+    public Vector2 UserScaling = new(1, 1);
+
+    /// <summary>
+    /// the complete scaling
+    /// </summary>
+    public Vector2 GetCompleteScaling() => DpiScaling * UserScaling;
 
     private Renderer _renderer = new();
 
@@ -175,7 +284,7 @@ public unsafe partial class UiWindow : IDisposable
 
     public void Close()
     {
-
+        Window.Close();
     }
 
     private void HitDetection()
@@ -191,7 +300,7 @@ public unsafe partial class UiWindow : IDisposable
 
     private void CreateRenderInstructions()
     {
-        RenderContext.AddMatrix(Matrix4X4.CreateScale(DpiScaling.X));
+        RenderContext.AddMatrix(GetWorldToScreenMatrix());
         RootContainer.Render(RenderContext, new Point());
     }
 
@@ -287,7 +396,7 @@ public unsafe partial class UiWindow : IDisposable
         _rootComponent.Build(Ui);
 
         RootContainer.PrepareLayout(Dir.Vertical);
-        RootContainer.Layout(new BoxConstraint(0, Window.Size.X / DpiScaling.X, 0, Window.Size.Y / DpiScaling.Y));
+        RootContainer.Layout(new BoxConstraint(0, Window.Size.X / GetCompleteScaling().X, 0, Window.Size.Y / GetCompleteScaling().Y));
     }
 
     private bool _renderHappened;

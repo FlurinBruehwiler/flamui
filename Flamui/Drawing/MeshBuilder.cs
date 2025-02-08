@@ -12,10 +12,31 @@ public enum TextureType
 
 public static class Extensions
 {
+
+    public static Matrix4X4<float> Invert(this Matrix4X4<float> mat)
+    {
+        if (Matrix4X4.Invert(mat, out var inv))
+        {
+            return inv;
+        }
+
+        throw new Exception("grr");
+    }
+
     public static Vector2 Multiply(this Vector2 position, Matrix4X4<float> mat)
     {
-        var transformedPosition = Vector4D.Multiply(new Vector4D<float>(position.X, position.Y, 0, 0), mat);
+        var transformedPosition = Vector4D.Multiply(new Vector4D<float>(position.X, position.Y, 0, 1), mat);
         return new Vector2(transformedPosition.X, transformedPosition.Y);
+    }
+
+    public static Matrix4X4<float> GetScale(this Matrix4X4<float> matrix)
+    {
+        return new Matrix4X4<float>(
+            matrix.M11, matrix.M12, matrix.M13, 0, // Keep scale from first row
+            matrix.M21, matrix.M22, matrix.M23, 0, // Keep scale from second row
+            matrix.M31, matrix.M32, matrix.M33, 0, // Keep scale from third row
+            0,        0,        0,        1  // Preserve identity for translation
+        );
     }
 }
 

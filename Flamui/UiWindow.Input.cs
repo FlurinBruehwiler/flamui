@@ -5,7 +5,8 @@ namespace Flamui;
 
 public partial class UiWindow
 {
-    public Vector2 MousePosition => _input.MousePosition;
+    public Vector2 MouseScreenPosition => _input.MousePosition;
+    public Vector2 MousePosition => ScreenToWorld(_input.MousePosition);
     public Vector2 MouseDelta => _input.MousePosition - _input.LastMousePosition;
     public float ScrollDeltaX => _input.ScrollDeltaX;
     public float ScrollDeltaY => _input.ScrollDeltaY;

@@ -114,6 +114,7 @@ public class Input
         LastMousePosition = MousePosition;
 
         ScrollDeltaX = 0;
+        ScrollDeltaY = 0;
     }
 
     private MouseButtonState GetMouseButton(MouseButton button)

@@ -1,6 +1,8 @@
-﻿using Flamui;
+﻿using System.Numerics;
+using Flamui;
 using Flamui.Components;
 using Flamui.Drawing;
+using Silk.NET.Input;
 
 /*
  * Todo
@@ -15,12 +17,11 @@ var builder = FlamuiApp.CreateBuilder();
 
 var app = builder.Build();
 
-app.CreateWindow<LayoutTest>("Sample.LayoutTest", new FlamuiWindowOptions());
-app.CreateWindow<LayoutTest>("Sample.LayoutTest2", new FlamuiWindowOptions());
+app.CreateWindow<LayoutTest>("Sample.LayoutTest");
 
 app.Run();
 
-public class LayoutTest : FlamuiComponent
+public class LayoutTest(FlamuiApp app) : FlamuiComponent
 {
     private ColorDefinition cc = new(43, 45, 48);
     private ColorDefinition c2 = new(30, 31, 34);
