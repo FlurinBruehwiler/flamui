@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Flamui.Drawing;
 using Flamui.Layouting;
+using Silk.NET.Input;
 
 namespace Flamui.UiElements;
 
@@ -22,16 +23,30 @@ public struct UiTextInfo
     public bool Selectable;
 }
 
+public struct TextPosition
+{
+    public TextPosition(int line, int character)
+    {
+        Line = line;
+        Character = character;
+    }
+
+    public int Line;
+    public int Character;
+}
+
 public class UiText : UiElement
 {
     public UiTextInfo UiTextInfo;
     public TextLayoutInfo TextLayoutInfo;
-    public (int line, int character)? DragStart;
+
+    public TextPosition CursorPosition = new(0, 0);
+    //public (int line, int character)? DragStart;
 
     public override void Reset()
     {
         UiTextInfo = new();
-        TextLayoutInfo = default;
+        //TextLayoutInfo = default;
         base.Reset();
     }
 
@@ -62,18 +77,13 @@ public class UiText : UiElement
                             Window.MousePosition.X - bounds.X);
                         if (characterIndex != -1)
                         {
-                            if (DragStart == null)
-                                DragStart = (lineIndex, characterIndex);
-
-                            var range = FontShaping.GetPositionOfChar(scaledFont, line.TextContent.AsSpan(), characterIndex);
-
-                            renderContext.AddRect(new Bounds
-                            {
-                                X = bounds.X + range.start,
-                                Y = bounds.Y,
-                                W = range.end - range.start,
-                                H = bounds.H
-                            }, this, C.Blue5);
+                            // renderContext.AddRect(new Bounds
+                            // {
+                            //     X = bounds.X + range.start,
+                            //     Y = bounds.Y,
+                            //     W = range.end - range.start,
+                            //     H = bounds.H
+                            // }, this, C.Blue5);
                         }
 
                         break;
@@ -82,19 +92,35 @@ public class UiText : UiElement
             }
         }
 
-        foreach (var line in TextLayoutInfo.Lines)
+        // var offset = TextLayoutInfo.Lines[0].CharOffsets[CursorIndex];
+
+        for (var i = 0; i < TextLayoutInfo.Lines.Length; i++)
         {
+            var line = TextLayoutInfo.Lines[i];
+
             var bounds = line.Bounds;
             bounds.X += offset.X;
             bounds.Y += offset.Y;
 
+            if (CursorPosition.Line == i)
+            {
+                var charOffset = CursorPosition.Character == 0 ? 0 : line.CharOffsets[CursorPosition.Character - 1];
+                renderContext.AddRect(new Bounds
+                {
+                    X = bounds.X + charOffset,
+                    Y = bounds.Y,
+                    W = 2,
+                    H = bounds.H
+                }, this, C.Red6);
+            }
             renderContext.AddText(bounds, line.TextContent, UiTextInfo.Color, scaledFont);
         }
     }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content, constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline);
+        TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
+            constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Window.RenderContext.Arena);
 
         Rect = new BoxSize(TextLayoutInfo.Width, TextLayoutInfo.Height);
         return Rect;

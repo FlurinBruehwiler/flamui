@@ -29,16 +29,20 @@ public static class FontShaping
     }
 
     /// <returns>The width of the text</returns>
-    public static float MeasureText(ScaledFont scaledFont, ArenaString singleLine)
+    public static (float totalWidth, Slice<float> charOffsets) MeasureText(ScaledFont scaledFont, ArenaString singleLine, Arena arena)
     {
+        var charOffsets = arena.AllocateSlice<float>(singleLine.Length);
+
         var width = 0f;
         for (var i = 0; i < singleLine.Length; i++)
         {
             var c = singleLine[i];
-            width += scaledFont.GetCharWidth(c);
+
+            width += scaledFont.GetAdvanceWith(c);
+            charOffsets[i] = width;
         }
 
-        return width;
+        return (width, charOffsets);
     }
 
     /// <summary>
@@ -48,7 +52,7 @@ public static class FontShaping
     /// <param name="singleLine">A line from TextLayoutInfo</param>
     /// <param name="pos">The position relative to the left of the line</param>
     /// <returns>The index of the char that is under, -1 the pos was outside the text <see cref="pos"/></returns>
-    public static int HitTest(ScaledFont scaledFont,ReadOnlySpan<char> singleLine, float pos)
+    public static int HitTest(ScaledFont scaledFont, ReadOnlySpan<char> singleLine, float pos)
     {
         float xCoord = 0;
 
@@ -73,9 +77,9 @@ public static class FontShaping
     //rule: preferably only ever the start of a new word can go onto the next line,
     //so we make a new line, as soon as the next word + following whitespace doesn't fit on the current line
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
-    public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed)
+    public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed, Arena arena)
     {
-        List<Line> lines = [];
+        List<Line> lines = []; //todo, arena allocate
         float widthOfLongestLine = 0;
 
         int currentBlockStart = 0;
@@ -165,12 +169,13 @@ public static class FontShaping
             Lines = lines.ToArray(),
             Width = widthOfLongestLine,
             Height = lines.Count * scaledFont.GetHeight() + lines.Count - 1 * (scaledFont.LineGap),
+            Content = text
         };
 
         void AddLine(int endIndex, ArenaString t)
         {
             var r = new Range(new Index(currentLineStart), new Index(endIndex));
-            var width = MeasureText(scaledFont, t[r]);
+            var (width, charOffsets) = MeasureText(scaledFont, t[r], arena);
             widthOfLongestLine = Math.Max(widthOfLongestLine, width);
             lines.Add(new Line
             {
@@ -181,7 +186,8 @@ public static class FontShaping
                     H = scaledFont.GetHeight(),
                     X = 0, //will be set later
                     Y = 0
-                }
+                },
+                CharOffsets = charOffsets
             });
         }
     }
@@ -189,6 +195,7 @@ public static class FontShaping
 
 public struct TextLayoutInfo
 {
+    public required ArenaString Content;
     public Line[] Lines;
     public float Width;
     public float Height;

@@ -41,6 +41,16 @@ public struct ScaledFont
         return 0;
     }
 
+    public int GetAdvanceWith(char c)
+    {
+        if (Font.FontGlyphInfos.TryGetValue(c, out var info))
+        {
+            return (int)(info.UnscaledAdvanceWidth * Scale);
+        }
+
+        return 0;
+    }
+
     public float GetHeight() => Ascent - Descent;
 
     public override int GetHashCode()

@@ -37,54 +37,54 @@ public class DebugWindow() : FlamuiComponent
 
     private void DisplayUiElement(Ui ui, UiElement flexContainer, int parentHash, int indentationLevel)
     {
-        var hashCode = flexContainer.Id.GetHashCode() + parentHash;
-        var key = Ui.S(hashCode);
+        // var hashCode = flexContainer.Id.GetHashCode() + parentHash;
+        // var key = Ui.S(hashCode);
+        //
+        // using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Direction(Dir.Horizontal)
+        //            .Gap(5).CrossAlign(XAlign.Center))
+        // {
+        //     if (flexContainer is UiElementContainer { Children.Count: > 0 })
+        //     {
+        //         using (ui.Div().Height(15).Width(15).Color(C.Blue5))
+        //         {
+        //         }
+        //     }
+        //     else
+        //     {
+        //         using (ui.Div().Height(15).Width(15))
+        //         {
+        //         }
+        //     }
+        //
+        //     ui.Text(ToString(flexContainer)).Color(ColorPalette.TextColor);
+        //
+        //     if (div.IsClicked)
+        //     {
+        //         // Ui.DebugSelectedUiElement = flexContainer;
+        //     }
 
-        using (var div = ui.Div(key).PaddingLeft(indentationLevel * 20).Height(20).Rounded(2).Direction(Dir.Horizontal)
-                   .Gap(5).CrossAlign(XAlign.Center))
-        {
-            if (flexContainer is UiElementContainer { Children.Count: > 0 })
-            {
-                using (ui.Div().Height(15).Width(15).Color(C.Blue5))
-                {
-                }
-            }
-            else
-            {
-                using (ui.Div().Height(15).Width(15))
-                {
-                }
-            }
+            //
+            // if (Ui.DebugSelectedUiElement == flexContainer)
+            // {
+            //     div.Color(C.Black / 5);
+            // }
+            // else if (div.IsHovered)
+            // {
+            //     div.Color(C.Black / 8);
+            // }
+            // else
+            // {
+            //     div.Color(C.Transparent);
+            // }
+        // }
 
-            ui.Text(ToString(flexContainer)).Color(ColorPalette.TextColor);
-
-            if (div.IsClicked)
-            {
-                Ui.DebugSelectedUiElement = flexContainer;
-            }
-
-
-            if (Ui.DebugSelectedUiElement == flexContainer)
-            {
-                div.Color(C.Black / 5);
-            }
-            else if (div.IsHovered)
-            {
-                div.Color(C.Black / 8);
-            }
-            else
-            {
-                div.Color(C.Transparent);
-            }
-        }
-
-        if (flexContainer is UiElementContainer container)
-        {
-            foreach (var containerChild in container.Children)
-            {
-                DisplayUiElement(ui, containerChild, hashCode, indentationLevel + 1);
-            }
-        }
+        // if (flexContainer is UiElementContainer container)
+        // {
+        //     foreach (var containerChild in container.Children)
+        //     {
+        //         DisplayUiElement(ui, containerChild, hashCode, indentationLevel + 1);
+        //     }
+        // }
     }
 
     private void DisplayDetail(Ui ui, UiElement flexContainer)
@@ -107,17 +107,17 @@ public class DebugWindow() : FlamuiComponent
 
         if (flexContainer is UiText uiText)
         {
-            return Ui.S(uiText.UiTextInfo.Content, x => $"{nameof(uiText)}: {x}");
+            // return Ui.S(uiText.UiTextInfo.Content, x => $"{nameof(uiText)}: {x}");
         }
 
         if (flexContainer is UiImage uiImage)
         {
-            return Ui.S(uiImage.Src, x => $"{nameof(uiText)}: {x}");
+            // return Ui.S(uiImage.Src, x => $"{nameof(uiText)}: {x}");
         }
 
         if (flexContainer is UiSvg uiSvg)
         {
-            return Ui.S(uiSvg.Src, x => $"{nameof(uiText)}: {x}");
+            // return Ui.S(uiSvg.Src, x => $"{nameof(uiText)}: {x}");
         }
 
         return flexContainer.ToString() ?? string.Empty;

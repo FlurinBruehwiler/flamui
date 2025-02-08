@@ -41,6 +41,8 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
         {
             using (var div = ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10))
             {
+                // ui.DrawRect(0, 0, 100, 100);
+
                 /*
                 ui.Defered(() =>
                 {
@@ -53,9 +55,9 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
 
                 ui.StyledInput(ref input);
 
-                ui.Text(loremIpsum).Size(20).Multiline().Selectable();
+                // ui.Text(loremIpsum).Size(20).Multiline().Selectable();
 
-                ui.Text(loremIpsum).Size(40).Multiline().Selectable();
+                // ui.Text(loremIpsum).Size(40).Multiline().Selectable();
 
                 // ui.Text(loremIpsum).Size(40);
             }

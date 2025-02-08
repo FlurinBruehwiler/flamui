@@ -18,6 +18,7 @@ public partial class Ui
     private IStackItem OpenElement => OpenElementStack.Peek();
     public UiWindow Window = null!;
     public FontManager FontManager;
+    public GlCanvas Canvas;
 
     public Stack<CascadingStuff> CascadingStack = [];
     public CascadingStuff CascadingValues;

@@ -22,6 +22,11 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
         Unsafe.InitBlock(Items, 0, (uint)(sizeof(int) * Count));
     }
 
+    public override string ToString()
+    {
+        return string.Join(", ", this.Select(x => x.ToString()));
+    }
+
     public Slice<T> SubSlice(int start, int length)
     {
         if (length < 0)

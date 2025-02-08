@@ -54,6 +54,9 @@ public class Arena
 
     public unsafe Slice<T> AllocateSlice<T>(int count) where T : unmanaged
     {
+        if (count == 0)
+            return new Slice<T>(null, 0);
+
         var span = VirtualBuffer.AllocateRange(sizeof(T) * count);
         fixed (byte* ptr = span)
         {

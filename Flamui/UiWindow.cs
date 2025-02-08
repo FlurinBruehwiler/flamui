@@ -192,9 +192,6 @@ public unsafe partial class UiWindow : IDisposable
             ZoomOffset = new Vector2();
             ZoomTarget = new Vector2();
         }
-
-        //var mouseWorldPos = ScreenToWorld(MousePosition);
-        //Console.WriteLine(mouseWorldPos);
     }
 
     private Vector2 ScreenToWorld(Vector2 screenPosition)
@@ -309,7 +306,7 @@ public unsafe partial class UiWindow : IDisposable
     {
         using var _ = Systrace.BeginEvent("RenderToCanvas");
 
-        DrawDebugOverlay(RenderContext);
+        // DrawDebugOverlay(RenderContext);
 
 
         //todo check if something has actually changed
@@ -325,33 +322,33 @@ public unsafe partial class UiWindow : IDisposable
         // _renderHappened = requiresRerender;
     }
 
-    private void DrawDebugOverlay(RenderContext renderContext)
-    {
-        if (IsDebugWindow)
-            return;
-
-        if (DebugSelectionModelEnabled)
-        {
-            var hoveredElement = HoveredElements.FirstOrDefault(x => x != null);
-            if (hoveredElement != null)
-            {
-                if (IsMouseButtonPressed(MouseButton.Left))
-                {
-                    DebugSelectedUiElement = hoveredElement;
-                    DebugSelectionModelEnabled = false;
-                }
-                else
-                {
-                    // DebugOutline(renderContext, hoveredElement.ComputedBounds);
-                }
-            }
-        }
-
-        if (DebugSelectedUiElement is not null && DebugSelectedUiElement.Window == this)
-        {
-            // DebugOutline(renderContext, DebugSelectedUiElement.ComputedBounds);
-        }
-    }
+    // private void DrawDebugOverlay(RenderContext renderContext)
+    // {
+    //     if (IsDebugWindow)
+    //         return;
+    //
+    //     if (DebugSelectionModelEnabled)
+    //     {
+    //         var hoveredElement = HoveredElements.FirstOrDefault(x => x != null);
+    //         if (hoveredElement != null)
+    //         {
+    //             if (IsMouseButtonPressed(MouseButton.Left))
+    //             {
+    //                 DebugSelectedUiElement = hoveredElement;
+    //                 DebugSelectionModelEnabled = false;
+    //             }
+    //             else
+    //             {
+    //                 // DebugOutline(renderContext, hoveredElement.ComputedBounds);
+    //             }
+    //         }
+    //     }
+    //
+    //     if (DebugSelectedUiElement is not null && DebugSelectedUiElement.Window == this)
+    //     {
+    //         // DebugOutline(renderContext, DebugSelectedUiElement.ComputedBounds);
+    //     }
+    // }
 
     private void DebugOutline(RenderContext renderContext, Bounds rect)
     {
