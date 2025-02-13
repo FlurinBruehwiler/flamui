@@ -24,8 +24,8 @@ jobs:
       - name: Build release
         run: dotnet build -c release
 
-#      - name: Test
-#        run: dotnet test --no-build --verbosity normal
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
 
       - name: Pack Flamui
         run: dotnet pack ./Flamui/Flamui.csproj --configuration Release --output ./PackOutput
