@@ -23,7 +23,7 @@ public class RenderContext
     public Arena Arena;
     public Dictionary<int, GrowableArenaBuffer<Command>> CommandBuffers = [];
 
-    private static VirtualArenaManager manager = new();
+    public static VirtualArenaManager manager = new();
 
     public void Reset()
     {

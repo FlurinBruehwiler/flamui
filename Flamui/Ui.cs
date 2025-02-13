@@ -23,6 +23,7 @@ public partial class Ui
     public Stack<CascadingStuff> CascadingStack = [];
     public CascadingStuff CascadingValues;
 
+    [ThreadStatic]
     public static Arena Arena;
 
     public T GetComponent<T>(string key = "",

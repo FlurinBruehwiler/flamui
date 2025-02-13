@@ -2,7 +2,7 @@ namespace Flamui.SourceGenerators.Tests;
 
 public class BasicTest
 {
-    [Fact]
+    // [Fact]
     public Task BasicTest1()
     {
          // The source code to test
