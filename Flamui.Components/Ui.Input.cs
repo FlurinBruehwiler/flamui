@@ -30,6 +30,24 @@ public static partial class UiExtensions
             {
                 t.CursorPosition = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, +1, ui.Window.IsKeyDown(Key.ControlLeft) ? MoveType.Word : MoveType.Single);
             }
+            if (ui.Window.IsKeyPressed(Key.Backspace))
+            {
+                var prevPos = t.CursorPosition;
+                t.CursorPosition = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, -1, ui.Window.IsKeyDown(Key.ControlLeft) ? MoveType.Word : MoveType.Single);
+                text = string.Concat(text.AsSpan(0, t.CursorPosition), text.AsSpan(prevPos));
+            }
+            if (ui.Window.IsKeyPressed(Key.Delete))
+            {
+                var prevPos = t.CursorPosition;
+                var deleteTo = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, +1, ui.Window.IsKeyDown(Key.ControlLeft) ? MoveType.Word : MoveType.Single);
+                text = string.Concat(text.AsSpan(0, prevPos), text.AsSpan(deleteTo));
+            }
+            if (ui.Window.IsKeyPressed(Key.V) && ui.Window.IsKeyDown(Key.ControlLeft))
+            {
+                var (before, after) = SplitCursor(text, t.CursorPosition);
+                text = string.Concat(before, ui.Window.Input.ClipboardText, after);
+                t.CursorPosition += ui.Window.Input.ClipboardText.Length;
+            }
 
             var input = ui.Window.TextInput;
 
@@ -38,19 +56,6 @@ public static partial class UiExtensions
                 var (before, after) = SplitCursor(text, t.CursorPosition);
                 text = string.Concat(before, input, after);
                 t.CursorPosition += input.Length;
-            }
-
-            if (ui.Window.IsKeyPressed(Key.Backspace) || ui.Window.IsKeyPressed(Key.Delete))
-            {
-                var (before, after) = SplitCursor(text, t.CursorPosition);
-
-                var b = before.Span;
-                var beforeLen = b.Length;
-
-                HandleBackspace(ui, ref b);
-
-                text = string.Concat(b, after.Span);
-                t.CursorPosition -= (beforeLen - b.Length);
             }
         }
 
@@ -118,25 +123,6 @@ public static partial class UiExtensions
         return cursorOffset;
     }
 
-    private static int TextPositionToTextOffset(TextPosition cursor, TextLayoutInfo layoutInfo)
-    {
-        int offset = 0;
-
-        for (var i = 0; i < layoutInfo.Lines.Length; i++)
-        {
-            var line = layoutInfo.Lines[i];
-
-            if (i == cursor.Line)
-            {
-                return offset + cursor.Character;
-            }
-
-            offset += line.TextContent.Length;
-        }
-
-        throw new Exception("Cursor outside of text :(");
-    }
-
     private static (ReadOnlyMemory<char> before, ReadOnlyMemory<char> after) SplitCursor(string text, int cursor)
     {
         return (text.AsMemory(0, cursor), text.AsMemory(cursor));
@@ -153,30 +139,5 @@ public static partial class UiExtensions
         }
 
         return true;
-    }
-
-    private static void HandleBackspace(Ui ui, ref ReadOnlySpan<char> text)
-    {
-        if (ui.Window.IsKeyDown(Key.ControlLeft))
-        {
-            text = text.TrimEnd();
-
-            if (!text.Contains(' '))
-            {
-                text = string.Empty;
-            }
-
-            for (var i = text.Length - 1; i > 0; i--)
-            {
-                if (text[i] != ' ') continue;
-                text = text[..(i + 1)];
-                break;
-            }
-        }
-        else
-        {
-            if(text.Length != 0)
-                text = text[..^1];
-        }
     }
 }

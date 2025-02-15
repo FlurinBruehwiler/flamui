@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿using System.Collections;
+using System.Numerics;
+using System.Reflection;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Windowing;
 using MouseButton = Silk.NET.Input.MouseButton;
@@ -14,6 +17,7 @@ public class Input
     public float ScrollDeltaX { get; private set; }
     public float ScrollDeltaY { get; private set; }
     public string TextInput { get; private set; } = string.Empty;
+    public string ClipboardText => _keyboard.ClipboardText;
 
     /// <summary>
     /// Keys that have been pressed once
@@ -35,7 +39,7 @@ public class Input
     /// </summary>
     public HashSet<Key> KeyUp { get; set; } = new();
 
-    public Input(IWindow window)
+    public unsafe Input(IWindow window)
     {
         var input = window.CreateInput();
 
@@ -46,6 +50,8 @@ public class Input
 
         foreach (var keyboard in input.Keyboards)
         {
+            _keyboard = keyboard;
+
             keyboard.KeyDown += (_, key, _) =>
             {
                 KeyDown.Add(key);
@@ -60,6 +66,20 @@ public class Input
             };
 
             keyboard.KeyChar += OnTextInput;
+
+            //fuck the fucking silk.net input abstraction!!!!!!!! should just use the raw glfw bindings
+            var subs = (IDictionary)keyboard.GetType().Assembly.GetType("Silk.NET.Input.Glfw.GlfwInputPlatform")!.GetField("_subs", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+            var glfwEvents = subs[window.Handle]!;
+            var field = glfwEvents.GetType().GetEvent("Key", BindingFlags.Instance | BindingFlags.Public)!;
+            var convertKeysMethod = keyboard.GetType().GetMethod("ConvertKey", BindingFlags.Static | BindingFlags.NonPublic, [typeof(Keys)])!;
+            field.AddEventHandler(glfwEvents, new GlfwCallbacks.KeyCallback( (_, key, _, action, _) =>
+            {
+                if (action == InputAction.Repeat)
+                {
+                    var k = (Key)convertKeysMethod.Invoke(null, [key])!;
+                    KeyPressed.Add(k);
+                }
+            }));
         }
 
         foreach (var mouse in input.Mice)
@@ -97,6 +117,7 @@ public class Input
     }
 
     private IMouse _mouse;
+    private IKeyboard _keyboard;
 
     public void OnAfterFrame()
     {

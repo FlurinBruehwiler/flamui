@@ -42,7 +42,7 @@ public unsafe partial class UiWindow : IDisposable
     //     }
     // }
 
-    private Input _input;
+    public Input Input;
     private HitTester _hitTester;
     private readonly TabIndexManager _tabIndexManager = new();
     public readonly Ui Ui = new();
@@ -96,7 +96,7 @@ public unsafe partial class UiWindow : IDisposable
         Render();
 
         //ToDo cleanup
-        _input.OnAfterFrame();
+        Input.OnAfterFrame();
 
         OldHoveredElements.Clear();
         foreach (var uiContainer in HoveredElements)
@@ -244,7 +244,7 @@ public unsafe partial class UiWindow : IDisposable
         Console.WriteLine("Loading");
         _hitTester = new HitTester(this);
         _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
-        _input = new Input(Window);
+        Input = new Input(Window);
 
         glfwSetWindowContentScaleCallback(Window.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
 

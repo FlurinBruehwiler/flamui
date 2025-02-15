@@ -5,12 +5,12 @@ namespace Flamui;
 
 public partial class UiWindow
 {
-    public Vector2 MouseScreenPosition => _input.MousePosition;
-    public Vector2 MousePosition => ScreenToWorld(_input.MousePosition);
-    public Vector2 MouseDelta => _input.MousePosition - _input.LastMousePosition;
-    public float ScrollDeltaX => _input.ScrollDeltaX;
-    public float ScrollDeltaY => _input.ScrollDeltaY;
-    public string TextInput => _input.TextInput;
+    public Vector2 MouseScreenPosition => Input.MousePosition;
+    public Vector2 MousePosition => ScreenToWorld(Input.MousePosition);
+    public Vector2 MouseDelta => Input.MousePosition - Input.LastMousePosition;
+    public float ScrollDeltaX => Input.ScrollDeltaX;
+    public float ScrollDeltaY => Input.ScrollDeltaY;
+    public string TextInput => Input.TextInput;
 
     /// <summary>
     /// Check if a key has been pressed once
@@ -19,7 +19,7 @@ public partial class UiWindow
     /// <returns></returns>
     public bool IsKeyPressed(Key scancode)
     {
-        return _input.KeyPressed.Contains(scancode);
+        return Input.KeyPressed.Contains(scancode);
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ public partial class UiWindow
     /// <returns></returns>
     public bool IsKeyDown(Key scancode)
     {
-        return _input.KeyDown.Contains(scancode);
+        return Input.KeyDown.Contains(scancode);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public partial class UiWindow
     /// <returns></returns>
     public bool IsKeyReleased(Key scancode)
     {
-        return _input.KeyReleased.Contains(scancode);
+        return Input.KeyReleased.Contains(scancode);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public partial class UiWindow
     /// <returns></returns>
     public bool IsKeyUp(Key scancode)
     {
-        return _input.KeyUp.Contains(scancode);
+        return Input.KeyUp.Contains(scancode);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public partial class UiWindow
     /// <returns></returns>
     public bool IsMouseButtonPressed(MouseButton mouseButtonKind)
     {
-        return _input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonPressed;
+        return Input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonPressed;
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public partial class UiWindow
     /// <returns></returns>
     public bool IsMouseButtonDown(MouseButton mouseButtonKind)
     {
-        return _input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonDown;
+        return Input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonDown;
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public partial class UiWindow
     /// <returns></returns>
     public bool IsMouseButtonReleased(MouseButton mouseButtonKind)
     {
-        return _input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonReleased;
+        return Input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonReleased;
     }
 
     /// <summary>
@@ -89,6 +89,6 @@ public partial class UiWindow
     /// <returns></returns>
     public bool IsMouseButtonUp(MouseButton mouseButtonKind)
     {
-        return _input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonUp;
+        return Input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonUp;
     }
 }
