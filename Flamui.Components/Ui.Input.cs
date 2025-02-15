@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Flamui.Drawing;
 using Flamui.UiElements;
-using Silk.NET.GLFW;
 using Silk.NET.Input;
 
 namespace Flamui.Components;
@@ -19,6 +18,7 @@ public static partial class UiExtensions
         [CallerLineNumber] int line = -1)
     {
         var t = ui.Text(text, key, path, line);
+        t.ShowCursor = hasFocus;
 
         if (hasFocus)
         {
@@ -35,14 +35,14 @@ public static partial class UiExtensions
 
             if (InputIsValid(input, inputType))
             {
-                var (before, after) = SplitCursor(text, ref t.TextLayoutInfo, t.CursorPosition);
+                var (before, after) = SplitCursor(text, t.CursorPosition);
                 text = string.Concat(before, input, after);
-                t.CursorPosition = new TextPosition(t.CursorPosition.Line, t.CursorPosition.Character + input.Length);
+                t.CursorPosition += input.Length;
             }
 
-            if (ui.Window.IsKeyPressed(Key.Backspace))
+            if (ui.Window.IsKeyPressed(Key.Backspace) || ui.Window.IsKeyPressed(Key.Delete))
             {
-                var (before, after) = SplitCursor(text, ref t.TextLayoutInfo, t.CursorPosition);
+                var (before, after) = SplitCursor(text, t.CursorPosition);
 
                 var b = before.Span;
                 var beforeLen = b.Length;
@@ -50,7 +50,7 @@ public static partial class UiExtensions
                 HandleBackspace(ui, ref b);
 
                 text = string.Concat(b, after.Span);
-                t.CursorPosition = new TextPosition(t.CursorPosition.Line, t.CursorPosition.Character - (beforeLen - b.Length));
+                t.CursorPosition -= (beforeLen - b.Length);
             }
         }
 
@@ -66,10 +66,61 @@ public static partial class UiExtensions
         Line
     }
 
-    private static TextPosition GetNewTextPosition(TextPosition cursor, TextLayoutInfo layoutInfo, int direction, MoveType moveType)
+    private static int GetNewTextPosition(int cursorOffset, TextLayoutInfo layoutInfo, int direction, MoveType moveType)
     {
         if (layoutInfo.Content.Length == 0)
-            return cursor;
+            return cursorOffset;
+
+        if (moveType == MoveType.Single)
+        {
+            if (direction == +1 && cursorOffset < layoutInfo.Content.Length)
+            {
+                return cursorOffset + 1;
+            }
+
+            if (direction == -1 && cursorOffset > 0)
+            {
+                return cursorOffset - 1;
+            }
+        }
+        else if (moveType == MoveType.Word)
+        {
+            bool hasEncounteredNonWhitespace = false;
+
+            while (true)
+            {
+                var nextOffset = cursorOffset + direction;
+                if (nextOffset < 0 || nextOffset >= layoutInfo.Content.Length)
+                {
+                    if (direction == +1 && nextOffset <= layoutInfo.Content.Length) cursorOffset += 1;
+
+                    return cursorOffset;
+                }
+
+                if (char.IsWhiteSpace(layoutInfo.Content[nextOffset]))
+                {
+                    if (hasEncounteredNonWhitespace)
+                    {
+                        if (direction == +1) cursorOffset += 1;
+
+                        return cursorOffset;
+                    }
+                }
+                else
+                {
+                    hasEncounteredNonWhitespace = true;
+                }
+
+                cursorOffset = nextOffset;
+            }
+        }
+
+        return cursorOffset;
+    }
+
+    private static int TextPositionToTextOffset(TextPosition cursor, TextLayoutInfo layoutInfo)
+    {
+        int offset = 0;
 
         for (var i = 0; i < layoutInfo.Lines.Length; i++)
         {
@@ -77,42 +128,18 @@ public static partial class UiExtensions
 
             if (i == cursor.Line)
             {
-                //todo goto next/prev line
-                if (direction == +1 && cursor.Character < line.TextContent.Length)
-                {
-                    return cursor with { Character = cursor.Character + 1 };
-                }
-
-                if (direction == -1 && cursor.Character > 0)
-                {
-                    return new TextPosition(cursor.Line, cursor.Character - 1);
-                }
-
-                break;
+                return offset + cursor.Character;
             }
+
+            offset += line.TextContent.Length;
         }
 
-        return cursor;
+        throw new Exception("Cursor outside of text :(");
     }
 
-    private static (ReadOnlyMemory<char> before, ReadOnlyMemory<char> after) SplitCursor(string text, ref TextLayoutInfo layoutInfo, TextPosition cursor)
+    private static (ReadOnlyMemory<char> before, ReadOnlyMemory<char> after) SplitCursor(string text, int cursor)
     {
-        if (text.Length == 0)
-            return (new ReadOnlyMemory<char>(), new ReadOnlyMemory<char>());
-
-        var beforeCount = 0;
-        for (var i = 0; i < layoutInfo.Lines.Length; i++)
-        {
-            if (i == cursor.Line)
-            {
-                beforeCount += cursor.Character;
-                break;
-            }
-
-            beforeCount += layoutInfo.Lines[i].TextContent.Length;
-        }
-
-        return (text.AsMemory(0, beforeCount), text.AsMemory(beforeCount));
+        return (text.AsMemory(0, cursor), text.AsMemory(cursor));
     }
 
     private static bool InputIsValid(string text, InputType inputType)

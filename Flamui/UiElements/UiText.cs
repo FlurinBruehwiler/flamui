@@ -40,7 +40,9 @@ public class UiText : UiElement
     public UiTextInfo UiTextInfo;
     public TextLayoutInfo TextLayoutInfo;
 
-    public TextPosition CursorPosition = new(0, 0);
+    public int CursorPosition = 0;
+    public bool ShowCursor = false;
+
     //public (int line, int character)? DragStart;
 
     public override void Reset()
@@ -52,8 +54,8 @@ public class UiText : UiElement
 
     public override void Render(RenderContext renderContext, Point offset)
     {
-        if (UiTextInfo.Content == string.Empty)
-            return;
+        // if (UiTextInfo.Content == string.Empty)
+        //     return;
 
         var font = UiTextInfo.Font;
 
@@ -94,6 +96,8 @@ public class UiText : UiElement
 
         // var offset = TextLayoutInfo.Lines[0].CharOffsets[CursorIndex];
 
+        var o = 0;
+
         for (var i = 0; i < TextLayoutInfo.Lines.Length; i++)
         {
             var line = TextLayoutInfo.Lines[i];
@@ -102,16 +106,17 @@ public class UiText : UiElement
             bounds.X += offset.X;
             bounds.Y += offset.Y;
 
-            if (CursorPosition.Line == i)
+            if (o <= CursorPosition && ShowCursor)
             {
-                var charOffset = CursorPosition.Character == 0 ? 0 : line.CharOffsets[CursorPosition.Character - 1];
+                var cursorOffsetOnLine = CursorPosition - o;
+                var charOffset = cursorOffsetOnLine == 0 ? 0 : line.CharOffsets[cursorOffsetOnLine - 1];
                 renderContext.AddRect(new Bounds
                 {
                     X = bounds.X + charOffset,
                     Y = bounds.Y,
-                    W = 2,
+                    W = 1,
                     H = bounds.H
-                }, this, C.Red6);
+                }, this, C.White);
             }
             renderContext.AddText(bounds, line.TextContent, UiTextInfo.Color, scaledFont);
         }

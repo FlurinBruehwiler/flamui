@@ -155,6 +155,7 @@ public class FontLoader
         stream!.CopyTo(ms);
         var fontData = ms.ToArray();
 
+        // Console.WriteLine($"Allocating {((float)fontData.Length)/1000/1000} MB");
         var ptr = Marshal.AllocHGlobal(fontData.Length); //todo maybe also free again????
         var slice = new Slice<byte>((byte*)ptr, fontData.Length);
         fontData.CopyTo(slice.Span);

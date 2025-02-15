@@ -76,6 +76,11 @@ public enum SizeKind
 
 public static class Extensions
 {
+    public static bool ContainsIndex<T>(this ReadOnlySpan<T> str, int idx)
+    {
+        return idx >= 0 && idx < str.Length;
+    }
+
     /// <summary>
     ///
     /// </summary>

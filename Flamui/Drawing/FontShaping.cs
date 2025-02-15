@@ -164,6 +164,9 @@ public static class FontShaping
             yCoord += scaledFont.GetHeight() + scaledFont.LineGap;
         }
 
+        if(lines.Count == 0)
+            AddLine(0, new ArenaString());
+
         return new TextLayoutInfo
         {
             Lines = lines.ToArray(),
