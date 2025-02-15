@@ -17,51 +17,96 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
+        //todo, if multiple inputs happen in the same frame, stuff breaks, this hole thing should be handled differently
+
         var t = ui.Text(text, key, path, line);
         t.ShowCursor = hasFocus;
 
         if (hasFocus)
         {
+            bool selectionDisable = false;
+
+            if (ui.Window.IsKeyPressed(Key.ShiftLeft))
+            {
+                t.SelectionStart = t.CursorPosition;
+            }
+
+            var moveType = ui.Window.IsKeyDown(Key.ControlLeft) ? MoveType.Word : MoveType.Single;
+
             if (ui.Window.IsKeyPressed(Key.Left))
             {
-                t.CursorPosition = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, -1, ui.Window.IsKeyDown(Key.ControlLeft) ? MoveType.Word : MoveType.Single);
+                if (!ui.Window.IsKeyDown(Key.ShiftLeft))
+                    selectionDisable = true;
+
+                t.CursorPosition = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, -1, moveType);
             }
             if (ui.Window.IsKeyPressed(Key.Right))
             {
-                t.CursorPosition = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, +1, ui.Window.IsKeyDown(Key.ControlLeft) ? MoveType.Word : MoveType.Single);
+                if (!ui.Window.IsKeyDown(Key.ShiftLeft))
+                    selectionDisable = true;
+
+                t.CursorPosition = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, +1, moveType);
             }
             if (ui.Window.IsKeyPressed(Key.Backspace))
             {
+                selectionDisable = true;
+
                 var prevPos = t.CursorPosition;
-                t.CursorPosition = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, -1, ui.Window.IsKeyDown(Key.ControlLeft) ? MoveType.Word : MoveType.Single);
+                t.CursorPosition = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, -1, moveType);
                 text = string.Concat(text.AsSpan(0, t.CursorPosition), text.AsSpan(prevPos));
             }
             if (ui.Window.IsKeyPressed(Key.Delete))
             {
+                selectionDisable = true;
+
                 var prevPos = t.CursorPosition;
-                var deleteTo = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, +1, ui.Window.IsKeyDown(Key.ControlLeft) ? MoveType.Word : MoveType.Single);
+                var deleteTo = GetNewTextPosition(t.CursorPosition, t.TextLayoutInfo, +1, moveType);
                 text = string.Concat(text.AsSpan(0, prevPos), text.AsSpan(deleteTo));
             }
             if (ui.Window.IsKeyPressed(Key.V) && ui.Window.IsKeyDown(Key.ControlLeft))
             {
-                var (before, after) = SplitCursor(text, t.CursorPosition);
+                selectionDisable = true;
+
+                var (before, after, cursorShift) = SplitCursor(text, t);
                 text = string.Concat(before, ui.Window.Input.ClipboardText, after);
-                t.CursorPosition += ui.Window.Input.ClipboardText.Length;
+                t.CursorPosition += ui.Window.Input.ClipboardText.Length - cursorShift;
+            }
+            if (ui.Window.IsKeyPressed(Key.C) && ui.Window.IsKeyDown(Key.ControlLeft))
+            {
+                var range = GetSelectedRange(t);
+                if (range.Start.Value != range.End.Value)
+                {
+                    ui.Window.Input.ClipboardText = text[range];
+                }
             }
 
             var input = ui.Window.TextInput;
 
             if (InputIsValid(input, inputType))
             {
-                var (before, after) = SplitCursor(text, t.CursorPosition);
+                selectionDisable = true;
+
+                var (before, after, cursorShift) = SplitCursor(text, t);
                 text = string.Concat(before, input, after);
-                t.CursorPosition += input.Length;
+                t.CursorPosition += input.Length - cursorShift;
+            }
+
+            if (selectionDisable)
+            {
+                t.SelectionStart = t.CursorPosition;
             }
         }
 
         t.UiTextInfo.Content = text;
 
         return t;
+    }
+
+    private static Range GetSelectedRange(UiText text)
+    {
+        var start = Math.Min(text.SelectionStart, text.CursorPosition);
+        var end = Math.Max(text.SelectionStart, text.CursorPosition);
+        return new Range(new Index(start), new Index(end));
     }
 
     enum MoveType
@@ -123,9 +168,17 @@ public static partial class UiExtensions
         return cursorOffset;
     }
 
-    private static (ReadOnlyMemory<char> before, ReadOnlyMemory<char> after) SplitCursor(string text, int cursor)
+    private static (ReadOnlyMemory<char> before, ReadOnlyMemory<char> after, int cursorShift) SplitCursor(string text, UiText uiText)
     {
-        return (text.AsMemory(0, cursor), text.AsMemory(cursor));
+        var selectionRange = GetSelectedRange(uiText);
+
+        int cursorShift = 0;
+        if (uiText.SelectionStart < uiText.CursorPosition)
+        {
+            cursorShift = selectionRange.End.Value - selectionRange.Start.Value;
+        }
+
+        return (text.AsMemory(0, selectionRange.Start.Value), text.AsMemory(selectionRange.End.Value), cursorShift);
     }
 
     private static bool InputIsValid(string text, InputType inputType)

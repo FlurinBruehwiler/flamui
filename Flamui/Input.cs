@@ -17,7 +17,11 @@ public class Input
     public float ScrollDeltaX { get; private set; }
     public float ScrollDeltaY { get; private set; }
     public string TextInput { get; private set; } = string.Empty;
-    public string ClipboardText => _keyboard.ClipboardText;
+    public string ClipboardText
+    {
+        get => _keyboard.ClipboardText;
+        set => _keyboard.ClipboardText = value;
+    }
 
     /// <summary>
     /// Keys that have been pressed once

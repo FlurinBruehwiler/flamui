@@ -40,6 +40,8 @@ public class UiText : UiElement
     public UiTextInfo UiTextInfo;
     public TextLayoutInfo TextLayoutInfo;
 
+    //the cursor + selection shouldn't really be handled by this UiElement i think, but not sure tbh :)
+    public int SelectionStart = 0;
     public int CursorPosition = 0;
     public bool ShowCursor = false;
 
@@ -106,18 +108,40 @@ public class UiText : UiElement
             bounds.X += offset.X;
             bounds.Y += offset.Y;
 
+            float selectionCharStartOffset = -1;
+            float cursorCharOffset = -1;
+
+            if (o <= SelectionStart && ShowCursor)
+            {
+                var cursorOffsetOnLine = SelectionStart - o;
+                selectionCharStartOffset = cursorOffsetOnLine == 0 ? 0 : line.CharOffsets[cursorOffsetOnLine - 1];
+            }
+
             if (o <= CursorPosition && ShowCursor)
             {
                 var cursorOffsetOnLine = CursorPosition - o;
-                var charOffset = cursorOffsetOnLine == 0 ? 0 : line.CharOffsets[cursorOffsetOnLine - 1];
+                cursorCharOffset = cursorOffsetOnLine == 0 ? 0 : line.CharOffsets[cursorOffsetOnLine - 1];
                 renderContext.AddRect(new Bounds
                 {
-                    X = bounds.X + charOffset,
+                    X = bounds.X + cursorCharOffset,
                     Y = bounds.Y,
                     W = 1,
                     H = bounds.H
                 }, this, C.White);
             }
+
+            if (selectionCharStartOffset != -1f && cursorCharOffset != -1f &&
+                selectionCharStartOffset != cursorCharOffset)
+            {
+                renderContext.AddRect(new Bounds
+                {
+                    X = bounds.X + Math.Min(selectionCharStartOffset, cursorCharOffset),
+                    Y = bounds.Y,
+                    W = Math.Abs(selectionCharStartOffset - cursorCharOffset),
+                    H = bounds.H
+                }, this, C.Blue6 / 2);
+            }
+
             renderContext.AddText(bounds, line.TextContent, UiTextInfo.Color, scaledFont);
         }
     }
