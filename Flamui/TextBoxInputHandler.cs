@@ -1,4 +1,5 @@
-﻿using Flamui.Drawing;
+﻿using System.Diagnostics;
+using Flamui.Drawing;
 using Silk.NET.Input;
 
 namespace Flamui;
@@ -10,11 +11,32 @@ public enum MoveType
     Line
 }
 
+public struct MyRange
+{
+    public MyRange(int start, int end)
+    {
+        if (start > end) throw new Exception("not allowd!!!");
+
+        Start = start;
+        End = end;
+    }
+
+    public int Start;
+    public int End;
+
+    public int GetLength() => End - Start;
+
+    public Range ToRange()
+    {
+        return new Range(new Index(Start), new Index(End));
+    }
+}
+
 public static class TextBoxInputHandler
 {
-    public static string ProcessInput(TextLayoutInfo textLayout, Input input, ref int cursorPosition, ref int selectionStart)
+    public static string ProcessInput(string text, TextLayoutInfo textLayout, Input input, ref int cursorPosition, ref int selectionStart)
     {
-        string text = textLayout.Content.ToString();
+        Debug.Assert(text.AsSpan().Equals(textLayout.Content.AsSpan(), StringComparison.Ordinal));
 
         bool selectionDisable = false;
 
@@ -58,17 +80,35 @@ public static class TextBoxInputHandler
         {
             selectionDisable = true;
 
-            var prevPos = cursorPosition;
-            cursorPosition = GetNewTextPosition(cursorPosition, textLayout, -1, moveType);
-            text = string.Concat(text.AsSpan(0, cursorPosition), text.AsSpan(prevPos));
+            if (GetSelectedRange(cursorPosition, selectionStart).GetLength() > 0)
+            {
+                var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
+                text = string.Concat(before, after);
+                cursorPosition -= cursorShift;
+            }
+            else
+            {
+                var prevPos = cursorPosition;
+                cursorPosition = GetNewTextPosition(cursorPosition, textLayout, -1, moveType);
+                text = string.Concat(text.AsSpan(0, cursorPosition), text.AsSpan(prevPos));
+            }
         }
         if (input.KeyPressed.Contains(Key.Delete))
         {
             selectionDisable = true;
 
-            var prevPos = cursorPosition;
-            var deleteTo = GetNewTextPosition(cursorPosition, textLayout, +1, moveType);
-            text = string.Concat(text.AsSpan(0, prevPos), text.AsSpan(deleteTo));
+            if (GetSelectedRange(cursorPosition, selectionStart).GetLength() > 0)
+            {
+                var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
+                text = string.Concat(before, after);
+                cursorPosition -= cursorShift;
+            }
+            else
+            {
+                var prevPos = cursorPosition;
+                var deleteTo = GetNewTextPosition(cursorPosition, textLayout, +1, moveType);
+                text = string.Concat(text.AsSpan(0, prevPos), text.AsSpan(deleteTo));
+            }
         }
         if (input.KeyPressed.Contains(Key.V) && input.KeyDown.Contains(Key.ControlLeft))
         {
@@ -81,18 +121,21 @@ public static class TextBoxInputHandler
         if (input.KeyPressed.Contains(Key.C) && input.KeyDown.Contains(Key.ControlLeft))
         {
             var range = GetSelectedRange(cursorPosition, selectionStart);
-            if (range.Start.Value != range.End.Value)
+            if (range.Start != range.End)
             {
-                input.ClipboardText = text[range];
+                input.ClipboardText = text[range.ToRange()];
             }
         }
         if (input.KeyPressed.Contains(Key.X) && input.KeyDown.Contains(Key.ControlLeft))
         {
             var range = GetSelectedRange(cursorPosition, selectionStart);
-            if (range.Start.Value != range.End.Value)
+            if (range.Start != range.End)
             {
-                input.ClipboardText = text[range];
+                input.ClipboardText = text[range.ToRange()];
             }
+            var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
+            text = string.Concat(before, after);
+            cursorPosition -= cursorShift;
         }
 
         if (input.TextInput != string.Empty)
@@ -112,11 +155,11 @@ public static class TextBoxInputHandler
         return text;
     }
     
-        public static Range GetSelectedRange(int cursorPosition, int selectionStart)
+    public static MyRange GetSelectedRange(int cursorPosition, int selectionStart)
     {
         var start = Math.Min(selectionStart, cursorPosition);
         var end = Math.Max(selectionStart, cursorPosition);
-        return new Range(new Index(start), new Index(end));
+        return new MyRange(start, end);
     }
 
     public static int GetNewTextPosition(int cursorOffset, TextLayoutInfo layoutInfo, int direction, MoveType moveType)
@@ -185,14 +228,23 @@ public static class TextBoxInputHandler
 
     public static (ReadOnlyMemory<char> before, ReadOnlyMemory<char> after, int cursorShift) SplitCursor(string text, int cursorPosition, int selectionStart)
     {
+        if (cursorPosition > selectionStart)
+        {
+            cursorPosition -= 1;
+        }
+
         var selectionRange = GetSelectedRange(cursorPosition, selectionStart);
 
         int cursorShift = 0;
         if (selectionStart < cursorPosition)
         {
-            cursorShift = selectionRange.End.Value - selectionRange.Start.Value;
+            cursorShift = selectionRange.End - selectionRange.Start;
+            if (cursorPosition > selectionStart)
+            {
+                cursorShift++;
+            }
         }
 
-        return (text.AsMemory(0, selectionRange.Start.Value), text.AsMemory(selectionRange.End.Value), cursorShift);
+        return (text.AsMemory(0, selectionRange.Start), text.AsMemory(selectionRange.End), cursorShift);
     }
 }

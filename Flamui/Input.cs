@@ -12,16 +12,24 @@ public class Input
 {
     public readonly MouseButtonState[] MouseButtonStates = new MouseButtonState[(int)MouseButton.Button12 + 1];
 
-    public Vector2 MousePosition => _mouse.Position;
+    public Vector2 MousePosition => _mouse?.Position ?? new Vector2();
     public Vector2 LastMousePosition { get; private set; }
     public float ScrollDeltaX { get; private set; }
     public float ScrollDeltaY { get; private set; }
     public string TextInput { get; set; } = string.Empty;
     public string ClipboardText
     {
-        get => _keyboard.ClipboardText;
-        set => _keyboard.ClipboardText = value;
+        get => _keyboard?.ClipboardText ?? ClipboardTextForTesting;
+        set
+        {
+            if (_keyboard != null)
+                _keyboard.ClipboardText = value;
+            else
+                ClipboardTextForTesting = value;
+        }
     }
+
+    public string ClipboardTextForTesting = string.Empty;
 
     /// <summary>
     /// Keys that have been pressed once
@@ -44,8 +52,8 @@ public class Input
     public HashSet<Key> KeyUp { get; set; } = new();
 
 
-    private IMouse _mouse;
-    private IKeyboard _keyboard;
+    private IMouse? _mouse;
+    private IKeyboard? _keyboard;
 
     public void OnAfterFrame()
     {
@@ -99,7 +107,7 @@ public class Input
                 inputObj.KeyReleased.Add(key);
             };
 
-            keyboard.KeyChar += (keyboard1, c) =>
+            keyboard.KeyChar += (_, c) =>
             {
                 inputObj.TextInput += c;
             };

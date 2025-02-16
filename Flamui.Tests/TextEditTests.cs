@@ -1,7 +1,6 @@
 ﻿using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Input;
-using StbTrueTypeSharp;
 
 namespace Flamui.Test;
 
@@ -62,6 +61,16 @@ public class TextEditTests
     }
 
     [Fact]
+    public void BackspaceSelection()
+    {
+        var initialText = "abc<def|";
+
+        var output = PerformKeyInput(initialText, Key.Backspace);
+
+        Assert.Equal("abc|", output);
+    }
+
+    [Fact]
     public void ControlBackspaceEnd()
     {
         var initialText = "abcdef|";
@@ -99,6 +108,36 @@ public class TextEditTests
         var output = PerformKeyInput(initialText, Key.Delete);
 
         Assert.Equal("abc|ef", output);
+    }
+
+    [Fact]
+    public void DeleteSelection()
+    {
+        var initialText = "a<bc|def";
+
+        var output = PerformKeyInput(initialText, Key.Delete);
+
+        Assert.Equal("a|def", output);
+    }
+
+    [Fact]
+    public void ControlDeleteEnd()
+    {
+        var initialText = "abcdef|";
+
+        var output = PerformKeyInput(initialText, Key.ControlLeft, Key.Delete);
+
+        Assert.Equal("abcdef|", output);
+    }
+
+    [Fact]
+    public void ControlDeleteMultipleWords()
+    {
+        var initialText = "abc| def ghi";
+
+        var output = PerformKeyInput(initialText, Key.ControlLeft, Key.Delete);
+
+        Assert.Equal("abc| ghi", output);
     }
 
     [Fact]
@@ -181,6 +220,36 @@ public class TextEditTests
         Assert.Equal("abc<def|", output);
     }
 
+    [Fact]
+    public void Paste()
+    {
+        var initialText = "abc|def";
+
+        var output = PerformKeyInputWithClipboard(initialText, "ghi", Key.ControlLeft, Key.V);
+
+        Assert.Equal("abcghi|def", output);
+    }
+
+    [Fact]
+    public void PasteOverSelection()
+    {
+        var initialText = "abc|de>f";
+
+        var output = PerformKeyInputWithClipboard(initialText, "ghi", Key.ControlLeft, Key.V);
+
+        Assert.Equal("abcghi|f", output);
+    }
+
+    [Fact]
+    public void Cut()
+    {
+        var initialText = "abc|de>f";
+
+        var output = PerformKeyInput(initialText, Key.ControlLeft, Key.V);
+
+        Assert.Equal("abc|f", output);
+    }
+
     private string PerformTextInput(string initialText, string inputText)
     {
         var input = new Input();
@@ -192,6 +261,21 @@ public class TextEditTests
     private string PerformKeyInput(string initialText, params ReadOnlySpan<Key> keys)
     {
         var input = new Input();
+
+        foreach (var key in keys)
+        {
+            input.KeyPressed.Add(key);
+            input.KeyDown.Add(key);
+        }
+
+        return ApplyInput(initialText, input);
+    }
+
+    private string PerformKeyInputWithClipboard(string initialText, string clipboardText, params ReadOnlySpan<Key> keys)
+    {
+        var input = new Input();
+        input.ClipboardText = clipboardText;
+
         foreach (var key in keys)
         {
             input.KeyPressed.Add(key);
@@ -213,7 +297,7 @@ public class TextEditTests
         if (selectionStart == -1)
             selectionStart = cursorPosition;
         else
-            initialText = initialText.Replace("<", string.Empty).Replace(">", string.Empty);;
+            initialText = initialText.Replace("<", string.Empty).Replace(">", string.Empty);
 
         var virtualBuffer = RenderContext.manager.CreateBuffer("TestArena", (UIntPtr)1_000);
         var arena = Ui.Arena = new Arena(virtualBuffer);
@@ -222,7 +306,7 @@ public class TextEditTests
 
         arena.Dispose();
 
-        var resultingString = TextBoxInputHandler.ProcessInput(layoutInfo, input, ref cursorPosition, ref selectionStart);
+        var resultingString = TextBoxInputHandler.ProcessInput(initialText, layoutInfo, input, ref cursorPosition, ref selectionStart);
 
         resultingString = resultingString.Insert(cursorPosition, "|");
 
