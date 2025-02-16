@@ -3,7 +3,7 @@ using Varena;
 
 namespace Flamui;
 
-public class Arena
+public class Arena : IDisposable
 {
     public VirtualBuffer VirtualBuffer;
 
@@ -67,5 +67,10 @@ public class Arena
                 Count = count
             };
         }
+    }
+
+    public void Dispose()
+    {
+        VirtualBuffer.Dispose();
     }
 }

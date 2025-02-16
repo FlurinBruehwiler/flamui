@@ -244,7 +244,7 @@ public unsafe partial class UiWindow : IDisposable
         Console.WriteLine("Loading");
         _hitTester = new HitTester(this);
         _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
-        Input = new Input(Window);
+        Input = Input.ConstructInputFromWindow(Window);
 
         glfwSetWindowContentScaleCallback(Window.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
 

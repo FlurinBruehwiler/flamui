@@ -16,7 +16,7 @@ public class Input
     public Vector2 LastMousePosition { get; private set; }
     public float ScrollDeltaX { get; private set; }
     public float ScrollDeltaY { get; private set; }
-    public string TextInput { get; private set; } = string.Empty;
+    public string TextInput { get; set; } = string.Empty;
     public string ClipboardText
     {
         get => _keyboard.ClipboardText;
@@ -43,82 +43,6 @@ public class Input
     /// </summary>
     public HashSet<Key> KeyUp { get; set; } = new();
 
-    public unsafe Input(IWindow window)
-    {
-        var input = window.CreateInput();
-
-        for (int i = 0; i <= (int)MouseButton.Button12; i++)
-        {
-            MouseButtonStates[i] = new MouseButtonState();
-        }
-
-        foreach (var keyboard in input.Keyboards)
-        {
-            _keyboard = keyboard;
-
-            keyboard.KeyDown += (_, key, _) =>
-            {
-                KeyDown.Add(key);
-                KeyPressed.Add(key);
-            };
-
-            keyboard.KeyUp += (_, key, _) =>
-            {
-                KeyUp.Add(key);
-                KeyDown.Remove(key);
-                KeyReleased.Add(key);
-            };
-
-            keyboard.KeyChar += OnTextInput;
-
-            //fuck the fucking silk.net input abstraction!!!!!!!! should just use the raw glfw bindings
-            var subs = (IDictionary)keyboard.GetType().Assembly.GetType("Silk.NET.Input.Glfw.GlfwInputPlatform")!.GetField("_subs", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
-            var glfwEvents = subs[window.Handle]!;
-            var field = glfwEvents.GetType().GetEvent("Key", BindingFlags.Instance | BindingFlags.Public)!;
-            var convertKeysMethod = keyboard.GetType().GetMethod("ConvertKey", BindingFlags.Static | BindingFlags.NonPublic, [typeof(Keys)])!;
-            field.AddEventHandler(glfwEvents, new GlfwCallbacks.KeyCallback( (_, key, _, action, _) =>
-            {
-                if (action == InputAction.Repeat)
-                {
-                    var k = (Key)convertKeysMethod.Invoke(null, [key])!;
-                    KeyPressed.Add(k);
-                }
-            }));
-        }
-
-        foreach (var mouse in input.Mice)
-        {
-            _mouse = mouse;
-
-            mouse.MouseDown += (_, button) =>
-            {
-                var mouseButton = GetMouseButton(button);
-                mouseButton.IsMouseButtonDown = true;
-                mouseButton.IsMouseButtonPressed = true;
-            };
-            mouse.MouseUp += (_, button) =>
-            {
-                var mouseButton = GetMouseButton(button);
-                mouseButton.IsMouseButtonUp = true;
-                mouseButton.IsMouseButtonDown = false;
-                mouseButton.IsMouseButtonReleased = true;
-            };
-            mouse.Scroll += (_, wheel) =>
-            {
-                ScrollDeltaX = wheel.X;
-                ScrollDeltaY = wheel.Y;
-            };
-            // mouse.MouseMove += (_, mouseDelta) =>
-            // {
-            //     MousePosition += mouseDelta;
-            // };
-        }
-    }
-
-    private void OnTextInput(IKeyboard keyboard, char charInput)
-    {
-        TextInput += charInput;
-    }
 
     private IMouse _mouse;
     private IKeyboard _keyboard;
@@ -145,6 +69,85 @@ public class Input
     private MouseButtonState GetMouseButton(MouseButton button)
     {
         return MouseButtonStates[(int)button];
+    }
+
+    public static unsafe Input ConstructInputFromWindow(IWindow window)
+    {
+        var input = window.CreateInput();
+
+        var inputObj = new Input();
+
+        for (int i = 0; i <= (int)MouseButton.Button12; i++)
+        {
+            inputObj.MouseButtonStates[i] = new MouseButtonState();
+        }
+
+        foreach (var keyboard in input.Keyboards)
+        {
+            inputObj._keyboard = keyboard;
+
+            keyboard.KeyDown += (_, key, _) =>
+            {
+                inputObj.KeyDown.Add(key);
+                inputObj.KeyPressed.Add(key);
+            };
+
+            keyboard.KeyUp += (_, key, _) =>
+            {
+                inputObj.KeyUp.Add(key);
+                inputObj.KeyDown.Remove(key);
+                inputObj.KeyReleased.Add(key);
+            };
+
+            keyboard.KeyChar += (keyboard1, c) =>
+            {
+                inputObj.TextInput += c;
+            };
+
+            //fuck the fucking silk.net input abstraction!!!!!!!! should just use the raw glfw bindings
+            var subs = (IDictionary)keyboard.GetType().Assembly.GetType("Silk.NET.Input.Glfw.GlfwInputPlatform")!.GetField("_subs", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+            var glfwEvents = subs[window.Handle]!;
+            var field = glfwEvents.GetType().GetEvent("Key", BindingFlags.Instance | BindingFlags.Public)!;
+            var convertKeysMethod = keyboard.GetType().GetMethod("ConvertKey", BindingFlags.Static | BindingFlags.NonPublic, [typeof(Keys)])!;
+            field.AddEventHandler(glfwEvents, new GlfwCallbacks.KeyCallback( (_, key, _, action, _) =>
+            {
+                if (action == InputAction.Repeat)
+                {
+                    var k = (Key)convertKeysMethod.Invoke(null, [key])!;
+                    inputObj.KeyPressed.Add(k);
+                }
+            }));
+        }
+
+        foreach (var mouse in input.Mice)
+        {
+            inputObj._mouse = mouse;
+
+            mouse.MouseDown += (_, button) =>
+            {
+                var mouseButton = inputObj.GetMouseButton(button);
+                mouseButton.IsMouseButtonDown = true;
+                mouseButton.IsMouseButtonPressed = true;
+            };
+            mouse.MouseUp += (_, button) =>
+            {
+                var mouseButton = inputObj.GetMouseButton(button);
+                mouseButton.IsMouseButtonUp = true;
+                mouseButton.IsMouseButtonDown = false;
+                mouseButton.IsMouseButtonReleased = true;
+            };
+            mouse.Scroll += (_, wheel) =>
+            {
+                inputObj.ScrollDeltaX = wheel.X;
+                inputObj.ScrollDeltaY = wheel.Y;
+            };
+            // mouse.MouseMove += (_, mouseDelta) =>
+            // {
+            //     MousePosition += mouseDelta;
+            // };
+        }
+
+        return inputObj;
     }
 }
 

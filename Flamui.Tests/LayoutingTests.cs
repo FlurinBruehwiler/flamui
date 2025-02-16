@@ -16,7 +16,7 @@ public class LayoutingTests : IDisposable
     {
         _console = console;
 
-        var virtualBuffer = RenderContext.manager.CreateBuffer("PerFrameArena", (UIntPtr)1_000_000);
+        var virtualBuffer = RenderContext.manager.CreateBuffer("TestArena", (UIntPtr)1_000);
         Ui.Arena = new Arena(virtualBuffer);
     }
 
