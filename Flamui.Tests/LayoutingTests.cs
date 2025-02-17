@@ -1094,6 +1094,27 @@ public class LayoutingTests : IDisposable
     }
 
     [Fact]
+    public void Text_Multiline()
+    {
+        var ui = GetUi();
+
+        using (ui.Div().Direction(Dir.Horizontal))
+        {
+            ui.Text(loremIpsum + "\n" + loremIpsum).Multiline().Color(188, 190, 196);
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:400, H:100
+                UiText = X:0, Y:0, W:336, H:32
+                    Line = Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Line = Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            """;
+
+        AssertUi(ui, 400, 100, expected);
+    }
+
+    [Fact]
     public void Text_Wrap()
     {
         var ui = GetUi();

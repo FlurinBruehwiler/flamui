@@ -121,13 +121,16 @@ public class UiText : UiElement
             {
                 var cursorOffsetOnLine = CursorPosition - o;
                 cursorCharOffset = cursorOffsetOnLine == 0 ? 0 : line.CharOffsets[cursorOffsetOnLine - 1];
-                renderContext.AddRect(new Bounds
+                if (SelectionStart == CursorPosition)
                 {
-                    X = bounds.X + cursorCharOffset,
-                    Y = bounds.Y,
-                    W = 1,
-                    H = bounds.H
-                }, this, C.White);
+                    renderContext.AddRect(new Bounds
+                    {
+                        X = bounds.X + cursorCharOffset,
+                        Y = bounds.Y,
+                        W = 1,
+                        H = bounds.H
+                    }, this, C.White);
+                }
             }
 
             if (selectionCharStartOffset != -1f && cursorCharOffset != -1f &&

@@ -6,9 +6,8 @@ namespace Flamui.Test;
 
 public class TextEditTests
 {
-    // Legend:
-    // |        The cursor
-    // </>    The selected text
+    // |      the cursor
+    // </>    the start of the selected text
 
     [Fact]
     public void TextInputEnd()
@@ -250,6 +249,26 @@ public class TextEditTests
         Assert.Equal("abc|f", output);
     }
 
+    [Fact]
+    public void DeleteAll()
+    {
+        var initialText = "<abcdef|";
+
+        var output = PerformKeyInput(initialText, Key.Backspace);
+
+        Assert.Equal("|", output);
+    }
+
+    [Fact]
+    public void SelectAll()
+    {
+        var initialText = "abc|def";
+
+        var output = PerformKeyInput(initialText, Key.ControlLeft, Key.A);
+
+        Assert.Equal("<abcdef|", output);
+    }
+
     private string PerformTextInput(string initialText, string inputText)
     {
         var input = new Input();
@@ -302,11 +321,12 @@ public class TextEditTests
         var virtualBuffer = RenderContext.manager.CreateBuffer("TestArena", (UIntPtr)1_000);
         var arena = Ui.Arena = new Arena(virtualBuffer);
 
-        var layoutInfo = FontShaping.LayoutText(CreateTestFont(), initialText, float.MaxValue, TextAlign.Start, false, arena);
+        var font = FontLoader.LoadFont("JetBrainsMono-Regular.ttf");
+        var layoutInfo = FontShaping.LayoutText(new ScaledFont(font, 20), initialText, float.MaxValue, TextAlign.Start, false, arena);
 
         arena.Dispose();
 
-        var resultingString = TextBoxInputHandler.ProcessInput(initialText, layoutInfo, input, ref cursorPosition, ref selectionStart);
+        var resultingString = TextBoxInputHandler.ProcessInput(initialText, layoutInfo, input, false, ref cursorPosition, ref selectionStart);
 
         resultingString = resultingString.Insert(cursorPosition, "|");
 
@@ -320,11 +340,5 @@ public class TextEditTests
         }
 
         return resultingString;
-    }
-
-    private ScaledFont CreateTestFont()
-    {
-        var font = FontLoader.LoadFont("JetBrainsMono-Regular.ttf");
-        return new ScaledFont(font, 20);
     }
 }

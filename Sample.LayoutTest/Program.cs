@@ -30,7 +30,7 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
     private const string loremIpsum =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
 
-    private string input = "";
+    private string input2 = "";
 
     public override void Build(Ui ui)
     {
@@ -53,7 +53,7 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
                 ui.Canvas.DrawRect();
                 */
 
-                ui.StyledInput(ref input);
+                ui.StyledInput(ref input2);
 
                 // ui.Text(loremIpsum).Size(20).Multiline().Selectable();
 

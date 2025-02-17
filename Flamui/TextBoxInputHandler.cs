@@ -34,7 +34,7 @@ public struct MyRange
 
 public static class TextBoxInputHandler
 {
-    public static string ProcessInput(string text, TextLayoutInfo textLayout, Input input, ref int cursorPosition, ref int selectionStart)
+    public static string ProcessInput(string text, TextLayoutInfo textLayout, Input input, bool allowMultiline, ref int cursorPosition, ref int selectionStart)
     {
         Debug.Assert(text.AsSpan().Equals(textLayout.Content.AsSpan(), StringComparison.Ordinal));
 
@@ -138,13 +138,24 @@ public static class TextBoxInputHandler
             cursorPosition -= cursorShift;
         }
 
-        if (input.TextInput != string.Empty)
+        if (input.KeyPressed.Contains(Key.A) && input.KeyDown.Contains(Key.ControlLeft))
+        {
+            selectionStart = 0;
+            cursorPosition = text.Length;
+        }
+
+        var textInput = input.TextInput;
+
+        if (allowMultiline && input.KeyPressed.Contains(Key.Enter))
+            textInput += "\n";
+
+        if (textInput != string.Empty)
         {
             selectionDisable = true;
 
             var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
-            text = string.Concat(before, input.TextInput, after);
-            cursorPosition += input.TextInput.Length - cursorShift;
+            text = string.Concat(before, textInput, after);
+            cursorPosition += textInput.Length - cursorShift;
         }
 
         if (selectionDisable)

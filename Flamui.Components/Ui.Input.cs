@@ -22,7 +22,7 @@ public static partial class UiExtensions
 
         if (hasFocus)
         {
-            text = TextBoxInputHandler.ProcessInput(text, t.TextLayoutInfo, ui.Window.Input, ref t.CursorPosition, ref t.SelectionStart);
+            text = TextBoxInputHandler.ProcessInput(text, t.TextLayoutInfo, ui.Window.Input, t.UiTextInfo.Multiline, ref t.CursorPosition, ref t.SelectionStart);
         }
 
         t.UiTextInfo.Content = text;
