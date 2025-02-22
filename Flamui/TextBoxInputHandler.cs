@@ -11,24 +11,22 @@ public enum MoveType
     Line
 }
 
-public struct MyRange
+public struct TextRange
 {
-    public MyRange(int start, int end)
+    public TextRange(int start, int length)
     {
-        if (start > end) throw new Exception("not allowd!!!");
+        if (length < 0) throw new Exception("not allowd!!!");
 
         Start = start;
-        End = end;
+        Length = length;
     }
 
     public int Start;
-    public int End;
-
-    public int GetLength() => End - Start;
+    public int Length;
 
     public Range ToRange()
     {
-        return new Range(new Index(Start), new Index(End));
+        return new Range(new Index(Start), new Index(Start + Length));
     }
 }
 
@@ -40,26 +38,39 @@ public static class TextBoxInputHandler
 
         bool selectionDisable = false;
 
-        if (input.KeyPressed.Contains(Key.ShiftLeft))
-        {
-            selectionStart = cursorPosition;
-        }
-
         var moveType = input.KeyDown.Contains(Key.ControlLeft) ? MoveType.Word : MoveType.Single;
 
         if (input.KeyPressed.Contains(Key.Left))
         {
             if (!input.KeyDown.Contains(Key.ShiftLeft))
+            {
                 selectionDisable = true;
+            }
 
-            cursorPosition = GetNewTextPosition(cursorPosition, textLayout, -1, moveType);
+            if (cursorPosition != selectionStart && !input.KeyDown.Contains(Key.ShiftLeft))
+            {
+                cursorPosition = Math.Min(cursorPosition, selectionStart);
+            }
+            else
+            {
+                cursorPosition = GetNewTextPosition(cursorPosition, textLayout, -1, moveType);
+            }
         }
         if (input.KeyPressed.Contains(Key.Right))
         {
             if (!input.KeyDown.Contains(Key.ShiftLeft))
+            {
                 selectionDisable = true;
+            }
 
-            cursorPosition = GetNewTextPosition(cursorPosition, textLayout, +1, moveType);
+            if (cursorPosition != selectionStart && !input.KeyDown.Contains(Key.ShiftLeft))
+            {
+                cursorPosition = Math.Max(cursorPosition, selectionStart);
+            }
+            else
+            {
+                cursorPosition = GetNewTextPosition(cursorPosition, textLayout, +1, moveType);
+            }
         }
         if (input.KeyPressed.Contains(Key.Home))
         {
@@ -80,11 +91,11 @@ public static class TextBoxInputHandler
         {
             selectionDisable = true;
 
-            if (GetSelectedRange(cursorPosition, selectionStart).GetLength() > 0)
+            if (GetSelectedRange(cursorPosition, selectionStart).Length > 0)
             {
                 var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
                 text = string.Concat(before, after);
-                cursorPosition -= cursorShift;
+                cursorPosition += cursorShift;
             }
             else
             {
@@ -97,11 +108,11 @@ public static class TextBoxInputHandler
         {
             selectionDisable = true;
 
-            if (GetSelectedRange(cursorPosition, selectionStart).GetLength() > 0)
+            if (GetSelectedRange(cursorPosition, selectionStart).Length > 0)
             {
                 var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
                 text = string.Concat(before, after);
-                cursorPosition -= cursorShift;
+                cursorPosition += cursorShift;
             }
             else
             {
@@ -116,12 +127,12 @@ public static class TextBoxInputHandler
 
             var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
             text = string.Concat(before, input.ClipboardText, after);
-            cursorPosition += input.ClipboardText.Length - cursorShift;
+            cursorPosition += input.ClipboardText.Length + cursorShift;
         }
         if (input.KeyPressed.Contains(Key.C) && input.KeyDown.Contains(Key.ControlLeft))
         {
             var range = GetSelectedRange(cursorPosition, selectionStart);
-            if (range.Start != range.End)
+            if (range.Length != 0)
             {
                 input.ClipboardText = text[range.ToRange()];
             }
@@ -129,13 +140,13 @@ public static class TextBoxInputHandler
         if (input.KeyPressed.Contains(Key.X) && input.KeyDown.Contains(Key.ControlLeft))
         {
             var range = GetSelectedRange(cursorPosition, selectionStart);
-            if (range.Start != range.End)
+            if (range.Length != 0)
             {
                 input.ClipboardText = text[range.ToRange()];
             }
             var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
             text = string.Concat(before, after);
-            cursorPosition -= cursorShift;
+            cursorPosition += cursorShift;
         }
 
         if (input.KeyPressed.Contains(Key.A) && input.KeyDown.Contains(Key.ControlLeft))
@@ -155,7 +166,7 @@ public static class TextBoxInputHandler
 
             var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
             text = string.Concat(before, textInput, after);
-            cursorPosition += textInput.Length - cursorShift;
+            cursorPosition += textInput.Length + cursorShift;
         }
 
         if (selectionDisable)
@@ -166,11 +177,11 @@ public static class TextBoxInputHandler
         return text;
     }
     
-    public static MyRange GetSelectedRange(int cursorPosition, int selectionStart)
+    public static TextRange GetSelectedRange(int cursorPosition, int selectionStart)
     {
         var start = Math.Min(selectionStart, cursorPosition);
         var end = Math.Max(selectionStart, cursorPosition);
-        return new MyRange(start, end);
+        return new TextRange(start, end - start);
     }
 
     public static int GetNewTextPosition(int cursorOffset, TextLayoutInfo layoutInfo, int direction, MoveType moveType)
@@ -239,23 +250,14 @@ public static class TextBoxInputHandler
 
     public static (ReadOnlyMemory<char> before, ReadOnlyMemory<char> after, int cursorShift) SplitCursor(string text, int cursorPosition, int selectionStart)
     {
-        if (cursorPosition > selectionStart)
-        {
-            cursorPosition -= 1;
-        }
-
         var selectionRange = GetSelectedRange(cursorPosition, selectionStart);
 
         int cursorShift = 0;
         if (selectionStart < cursorPosition)
         {
-            cursorShift = selectionRange.End - selectionRange.Start;
-            if (cursorPosition > selectionStart)
-            {
-                cursorShift++;
-            }
+            cursorShift = selectionRange.Length;
         }
 
-        return (text.AsMemory(0, selectionRange.Start), text.AsMemory(selectionRange.End), cursorShift);
+        return (text.AsMemory(0, selectionRange.Start), text.AsMemory(selectionRange.Start + selectionRange.Length), -cursorShift);
     }
 }

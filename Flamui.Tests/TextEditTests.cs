@@ -269,6 +269,108 @@ public class TextEditTests
         Assert.Equal("<abcdef|", output);
     }
 
+    [Fact]
+    public void SelectionActiveAndPressingShiftShouldNotDoAnything()
+    {
+        var initialText = "a<bcde|f";
+
+        var output = PerformKeyInput(initialText, Key.ShiftLeft);
+
+        Assert.Equal("a<bcde|f", output);
+    }
+
+    [Fact]
+    public void SelectionActiveAndPressingShiftShouldNotDoAnything2()
+    {
+        var initialText = "a|bcde>f";
+
+        var output = PerformKeyInput(initialText, Key.ShiftLeft);
+
+        Assert.Equal("a|bcde>f", output);
+    }
+
+    [Fact]
+    public void SelectionThenRight()
+    {
+        var initialText = "a|bcde>f";
+
+        var output = PerformKeyInput(initialText, Key.Right);
+
+        Assert.Equal("abcde|f", output);
+    }
+
+    [Fact]
+    public void SelectionThenLeft()
+    {
+        var initialText = "a|bcde>f";
+
+        var output = PerformKeyInput(initialText, Key.Left);
+
+        Assert.Equal("a|bcdef", output);
+    }
+
+    [Fact]
+    public void SelectionOtherThenRight()
+    {
+        var initialText = "a<bcde|f";
+
+        var output = PerformKeyInput(initialText, Key.Right);
+
+        Assert.Equal("abcde|f", output);
+    }
+
+    [Fact]
+    public void SelectionOtherThenLeft()
+    {
+        var initialText = "a<bcde|f";
+
+        var output = PerformKeyInput(initialText, Key.Right);
+
+        Assert.Equal("abcde|f", output);
+    }
+
+    [Fact]
+    public void SelectedRangeTest()
+    {
+        var text = "a<bcde|f";
+
+        var (cursorPosition, selectionStart) = ExtractMetadata(ref text);
+
+        var range = TextBoxInputHandler.GetSelectedRange(cursorPosition, selectionStart);
+
+        var subString = text[range.ToRange()];
+
+        Assert.Equal("bcde", subString);
+    }
+
+    [Fact]
+    public void SelectedRangeOtherTest()
+    {
+        var text = "a|bcde>f";
+
+        var (cursorPosition, selectionStart) = ExtractMetadata(ref text);
+
+        var range = TextBoxInputHandler.GetSelectedRange(cursorPosition, selectionStart);
+
+        var subString = text[range.ToRange()];
+
+        Assert.Equal("bcde", subString);
+    }
+
+    [Fact]
+    public void SelectedRangeEmptyTest()
+    {
+        var text = "a|bcdef";
+
+        var (cursorPosition, selectionStart) = ExtractMetadata(ref text);
+
+        var range = TextBoxInputHandler.GetSelectedRange(cursorPosition, selectionStart);
+
+        var subString = text[range.ToRange()];
+
+        Assert.Equal("", subString);
+    }
+
     private string PerformTextInput(string initialText, string inputText)
     {
         var input = new Input();
@@ -304,7 +406,7 @@ public class TextEditTests
         return ApplyInput(initialText, input);
     }
 
-    private string ApplyInput(string initialText, Input input)
+    private (int cursorPosition, int selectionStart) ExtractMetadata(ref string initialText)
     {
         Assert.True(initialText.Count(x => x is '<' or '>') <= 1);
         Assert.True(initialText.Count(x => x == '|') == 1);
@@ -316,7 +418,18 @@ public class TextEditTests
         if (selectionStart == -1)
             selectionStart = cursorPosition;
         else
+        {
             initialText = initialText.Replace("<", string.Empty).Replace(">", string.Empty);
+            if (selectionStart < cursorPosition)
+                cursorPosition--;
+        }
+
+        return (cursorPosition, selectionStart);
+    }
+
+    private string ApplyInput(string initialText, Input input)
+    {
+        var (cursorPosition, selectionStart) = ExtractMetadata(ref initialText);
 
         var virtualBuffer = RenderContext.manager.CreateBuffer("TestArena", (UIntPtr)1_000);
         var arena = Ui.Arena = new Arena(virtualBuffer);

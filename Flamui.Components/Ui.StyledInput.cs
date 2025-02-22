@@ -18,7 +18,7 @@ public static partial class UiExtensions
                 modalInputDiv.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
             }
 
-            ui.Input(ref text, modalInputDiv.HasFocusWithin, inputType).Multiline();
+            ui.Input(ref text, modalInputDiv.HasFocusWithin, inputType).Multiline(multiline);
 
             return modalInputDiv;
         }

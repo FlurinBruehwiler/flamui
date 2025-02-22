@@ -39,27 +39,9 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
 
         using (ui.Div().Color(cc).Padding(10).Gap(10))
         {
-            using (var div = ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10))
+            using (var div = ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10).Width(200))
             {
-                // ui.DrawRect(0, 0, 100, 100);
-
-                /*
-                ui.Defered(() =>
-                {
-
-                });
-
-                ui.Canvas.DrawText();
-                ui.Canvas.DrawRect();
-                */
-
                 ui.StyledInput(ref input2);
-
-                // ui.Text(loremIpsum).Size(20).Multiline().Selectable();
-
-                // ui.Text(loremIpsum).Size(40).Multiline().Selectable();
-
-                // ui.Text(loremIpsum).Size(40);
             }
         }
     }
