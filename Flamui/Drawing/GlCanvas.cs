@@ -84,7 +84,7 @@ public class GlCanvas
 
         _renderer.Gl.Enable(EnableCap.StencilTest);
 
-        _renderer.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+        _renderer.Gl.Clear(ClearBufferMask.StencilBufferBit);
         _renderer.Gl.StencilMask(0x00); //disables writing to the stencil buffer
 
         //draw the vertex buffer up to the clip

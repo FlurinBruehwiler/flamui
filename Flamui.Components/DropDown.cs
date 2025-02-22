@@ -22,8 +22,8 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             _filterText = string.Empty;
         }
 
-        using (var dropDownDiv = ui.Div().Rounded(2).Height(23).ShrinkWidth(150).Focusable().Padding(5).BorderColor(ColorPalette.BorderColor)
-                   .BorderWidth(1).Color(ColorPalette.BackgroundColor).Direction(Dir.Horizontal).MainAlign(MAlign.SpaceBetween))
+        using (var dropDownDiv = ui.Div().Rounded(2).Height(23).ShrinkWidth(150).Focusable().PaddingLeft(5).BorderColor(ColorPalette.BorderColor)
+                   .BorderWidth(1).Color(ColorPalette.BackgroundColor).Direction(Dir.Horizontal).MainAlign(MAlign.SpaceBetween).CrossAlign(XAlign.Center))
         {
             HandleStart(ui, dropDownDiv);
 

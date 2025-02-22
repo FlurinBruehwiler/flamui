@@ -44,7 +44,12 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
             {
                 using (ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10).Clip())
                 {
-
+                    var dropdown = ui.CreateDropDown(selectedOption);
+                    dropdown.Component.Option("Hi");
+                    dropdown.Component.Option("Anita");
+                    dropdown.Component.Option("Max");
+                    dropdown.Component.Option("Wynn");
+                    dropdown.Build(out selectedOption);
                 }
             }
         }
