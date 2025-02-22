@@ -33,7 +33,7 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.Rotation != 0)
         {
-            renderContext.AddMatrix(GetRotationMatrix(flexContainer, offset));
+            renderContext.PushMatrix(GetRotationMatrix(flexContainer, offset));
         }
 
         if (flexContainer.Info.ClipToIgnore is not null)
@@ -84,7 +84,7 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.ScrollConfigY.CanScroll || flexContainer.Info.ScrollConfigX.CanScroll)
         {
-            renderContext.AddMatrix(Matrix4X4.CreateTranslation(-flexContainer.ScrollPosX, -flexContainer.ScrollPosY, 0));
+            renderContext.PushMatrix(Matrix4X4.CreateTranslation(-flexContainer.ScrollPosX, -flexContainer.ScrollPosY, 0));
         }
 
         foreach (var childElement in flexContainer.Children)
@@ -99,7 +99,7 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.ScrollConfigY.CanScroll || flexContainer.Info.ScrollConfigX.CanScroll)
         {
-            renderContext.AddMatrix(Matrix4X4.CreateTranslation(0f, 0f, 0f)); //todo, maybe some kind of push and pop system
+            renderContext.PopMatrix(); //todo, maybe some kind of push and pop system
 
             flexContainer._scrollBarContainerX.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerX.UiElement.ParentData.Position));
             flexContainer._scrollBarContainerY.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerY.UiElement.ParentData.Position));
@@ -112,8 +112,7 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.Rotation != 0)
         {
-            Matrix4X4.Invert(GetRotationMatrix(flexContainer, offset), out var inverse);
-            renderContext.AddMatrix(inverse);
+            renderContext.PopMatrix();
         }
 
         //reapply clip

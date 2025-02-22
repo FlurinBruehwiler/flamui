@@ -81,6 +81,7 @@ public partial class FlexContainer
 
         var scrollBarContainer = dir == Dir.Horizontal ? _scrollBarContainerX : _scrollBarContainerY;
 
+        scrollBarContainer.UiElement = null;
         scrollBarContainer.DataStore.Reset();
 
         Window.Ui.OpenElementStack.Push(scrollBarContainer);

@@ -60,6 +60,28 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
                 {
 
                 }
+
+
+                using (ui.Div().Color(C.Red8).Height(140))
+                {
+
+                }
+
+                using (ui.Div().Color(C.Red8).Height(140))
+                {
+
+                }
+
+
+                using (ui.Div().Color(C.Red8).Height(140))
+                {
+
+                }
+
+                using (ui.Div().Color(C.Red8).Height(140))
+                {
+
+                }
             }
         }
     }

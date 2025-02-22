@@ -22,6 +22,7 @@ public class RenderContext
 
     public Arena Arena;
     public Dictionary<int, GrowableArenaBuffer<Command>> CommandBuffers = [];
+    private Stack<Matrix4X4<float>> MatrixStack = [];
 
     public static VirtualArenaManager manager = new();
 
@@ -29,6 +30,7 @@ public class RenderContext
     {
         CommandBuffers.Clear();
         Arena.Reset();
+        MatrixStack.Clear();
     }
 
     public void AddRect(Bounds bounds, UiElement uiElement, ColorDefinition color, float radius = 0)
@@ -66,10 +68,44 @@ public class RenderContext
         Add(cmd);
     }
 
-    public void AddMatrix(Matrix4X4<float> matrix)
+    /// <summary>
+    /// Multiplies the current matrix with the new matrix
+    /// </summary>
+    /// <param name="matrix"></param>
+    public void PushMatrix(Matrix4X4<float> matrix)
     {
+        var prevMat = Matrix4X4<float>.Identity;
+        if (MatrixStack.TryPeek(out var x))
+        {
+            prevMat = x;
+        }
+
+        var finalMat = Matrix4X4.Multiply(prevMat, matrix);
+
+        MatrixStack.Push(finalMat);
+
         var cmd = new Command();
-        cmd.Matrix = matrix;
+        cmd.Matrix = finalMat;
+        cmd.Type = CommandType.Matrix;
+
+        Add(cmd);
+    }
+
+    /// <summary>
+    /// Resets the matrix to what it was before it was pushed
+    /// </summary>
+    public void PopMatrix()
+    {
+        MatrixStack.Pop();
+
+        var mat = Matrix4X4<float>.Identity;
+        if (MatrixStack.TryPeek(out var x))
+        {
+            mat = x;
+        }
+
+        var cmd = new Command();
+        cmd.Matrix = mat;
         cmd.Type = CommandType.Matrix;
 
         Add(cmd);

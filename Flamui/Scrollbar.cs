@@ -61,8 +61,7 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
 
             track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (var thumb = ui.Div()
-                       .Rounded(settings.ThumbRadius))
+            using (var thumb = ui.Div().Rounded(settings.ThumbRadius))
             {
                 thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 

@@ -298,7 +298,7 @@ public unsafe partial class UiWindow : IDisposable
 
     private void CreateRenderInstructions()
     {
-        RenderContext.AddMatrix(GetWorldToScreenMatrix());
+        RenderContext.PushMatrix(GetWorldToScreenMatrix());
         RootContainer.Render(RenderContext, new Point());
     }
 
