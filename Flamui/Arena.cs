@@ -19,16 +19,16 @@ public class Arena : IDisposable
     /// As long as the arena lives (or until it is reset), the object is not garbage collected.
     /// Use <see cref="ManagedRef{T}"/> as an unmanaged wrapper over a managed object.
     /// </summary>
-    public GCHandle AddReference(object obj)
+    public ManagedRef<T> AddReference<T>(T obj) where T : class
     {
         if (!objectToHandle.TryGetValue(obj, out var handle))
         {
             handle = GCHandle.Alloc(obj);
             objectToHandle[obj] = handle;
-            return handle;
+            return new ManagedRef<T>(GCHandle.ToIntPtr(handle));
         }
 
-        return handle;
+        return new ManagedRef<T>(GCHandle.ToIntPtr(handle));
     }
 
     public void Reset()

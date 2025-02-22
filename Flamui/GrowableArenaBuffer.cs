@@ -1,4 +1,6 @@
+using System.Buffers;
 using System.Collections;
+using System.Runtime.InteropServices;
 
 namespace Flamui;
 
@@ -186,6 +188,33 @@ public unsafe class GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
         public bool IsFull()
         {
             return Count >= Items.Count;
+        }
+    }
+
+    public static bool CompareGrowableArenaBuffers(GrowableArenaBuffer<T> a, GrowableArenaBuffer<T> b)
+    {
+        if (a.Count != b.Count)
+            return false;
+
+        Chunk* chunkA = a._firstChunk;
+        Chunk* chunkB = b._firstChunk;
+
+        while (true)
+        {
+            if (chunkA == null && chunkB == null)
+                return true;
+
+            if (chunkA == null || chunkB == null)
+                return false;
+
+            //todo we really want to do byte wise comparision, then it would be much faster probably, but because these
+            //fucking GCHandles are unique per arena it doesn't work currently (for Commands), we should probably use an index or
+            //something instead of these raw GCHandles!!!!
+            if (!chunkA->Items.Span.SequenceEqual(chunkB->Items.Span))
+                return false;
+
+            chunkA = chunkA->NextChunk;
+            chunkB = chunkB->NextChunk;
         }
     }
 }

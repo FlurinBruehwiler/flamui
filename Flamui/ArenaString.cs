@@ -83,7 +83,7 @@ public static class ArenaStringExtensions
 /// Many primitive types have a .ToArenaString() methods, to convert them to an arena string.
 /// </summary>
 [InterpolatedStringHandler]
-public struct ArenaString //todo implement IEnumerable
+public struct ArenaString : IEquatable<ArenaString> //todo implement IEnumerable
 {
     // private ArenaStringBuilder _arenaStringBuilder;
     private Slice<char> _slice;
@@ -151,4 +151,18 @@ public struct ArenaString //todo implement IEnumerable
     // {
     //     _arenaStringBuilder.Add(t);
     // }
+    public bool Equals(ArenaString other)
+    {
+        return other.AsSpan().SequenceEqual(AsSpan());
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is ArenaString other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return string.GetHashCode(AsSpan());
+    }
 }

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Flamui.Drawing;
 using Flamui.Layouting;
@@ -304,21 +305,24 @@ public unsafe partial class UiWindow : IDisposable
 
     private void CreateRenderInstructions()
     {
+        using var _ = Systrace.BeginEvent(nameof(CreateRenderInstructions));
+
         RenderContext.PushMatrix(GetWorldToScreenMatrix());
         RootContainer.Render(RenderContext, new Point());
     }
 
     private void RenderToCanvas()
     {
-        using var _ = Systrace.BeginEvent("RenderToCanvas");
+        // using var _ = Systrace.BeginEvent("RenderToCanvas");
 
-        // DrawDebugOverlay(RenderContext);
 
         //RenderContext.PrintCommands();//todo remove
         //todo check if something has actually changed
-        RenderContext.Rerender(_renderer);
 
-
+        if (!RenderContextAreSame(RenderContext, LastRenderContext))
+        {
+            RenderContext.Rerender(_renderer);
+        }
 
         LastRenderContext.Reset();
         //swap Render Contexts
@@ -326,6 +330,29 @@ public unsafe partial class UiWindow : IDisposable
 
         _renderHappened = true;
         // _renderHappened = requiresRerender;
+    }
+
+    private bool RenderContextAreSame(RenderContext cA, RenderContext cB)
+    {
+        using var _ = Systrace.BeginEvent(nameof(RenderContextAreSame));
+
+        // using var _ = ConsoleTimer.Time("Render Equality");
+
+        if (cA.CommandBuffers.Count != cB.CommandBuffers.Count)
+        {
+            return false;
+        }
+
+        foreach (var (key, commandsA) in cA.CommandBuffers)
+        {
+            if (!cB.CommandBuffers.TryGetValue(key, out var commandsB))
+                return false;
+
+            if (! GrowableArenaBuffer<Command>.CompareGrowableArenaBuffers(commandsA, commandsB))
+                return false;
+        }
+
+        return true;
     }
 
     // private void DrawDebugOverlay(RenderContext renderContext)

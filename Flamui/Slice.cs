@@ -123,6 +123,5 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
             _current = default;
             _nextIndex = default;
         }
-
     }
 }

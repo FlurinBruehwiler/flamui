@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Flamui.Drawing;
+using Flamui.PerfTrace;
 using Flamui.UiElements;
 using Silk.NET.Maths;
 using Varena;
@@ -36,7 +37,7 @@ public class RenderContext
     public void AddRect(Bounds bounds, UiElement uiElement, ColorDefinition color, float radius = 0)
     {
         var cmd = new Command();
-        cmd.UiElement.Set(Arena, uiElement);
+        cmd.UiElement = Arena.AddReference(uiElement);
         cmd.Bounds = bounds;
         cmd.Radius = radius;
         cmd.Type = CommandType.Rect;
@@ -62,7 +63,7 @@ public class RenderContext
         cmd.Type = CommandType.Text;
         cmd.String = text;
         cmd.Color = color;
-        cmd.Font.Set(Arena, scaledFont.Font);
+        cmd.Font = Arena.AddReference(scaledFont.Font);
         cmd.FontSize = scaledFont.PixelSize;
 
         Add(cmd);
@@ -181,6 +182,8 @@ public class RenderContext
 
     public void Rerender(Renderer renderer)
     {
+        using var _ = Systrace.BeginEvent(nameof(Rerender));
+
         var canvas = new GlCanvas(renderer, Arena);
 
         var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
@@ -258,7 +261,7 @@ public class RenderContext
 //     }
 // }
 
-public struct Bounds
+public record struct Bounds
 {
     public required float X;
     public required float Y;
@@ -331,7 +334,7 @@ public enum CommandType : byte
     Matrix
 }
 
-public struct Command
+public struct Command : IEquatable<Command>
 {
     public CommandType Type;
     public ManagedRef<UiElement> UiElement;
@@ -342,26 +345,67 @@ public struct Command
     public float FontSize;
     public ColorDefinition Color;
     public Matrix4X4<float> Matrix;
+
+    public bool Equals(Command other)
+    {
+        return Type == other.Type && UiElement.Equals(other.UiElement) && String.Equals(other.String) && Bounds.Equals(other.Bounds) && Radius.Equals(other.Radius) && Font.Equals(other.Font) && FontSize.Equals(other.FontSize) && Color.Equals(other.Color) && Matrix.Equals(other.Matrix);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Command other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add((int)Type);
+        hashCode.Add(UiElement);
+        hashCode.Add(String);
+        hashCode.Add(Bounds);
+        hashCode.Add(Radius);
+        hashCode.Add(Font);
+        hashCode.Add(FontSize);
+        hashCode.Add(Color);
+        hashCode.Add(Matrix);
+        return hashCode.ToHashCode();
+    }
 }
 
-public struct ManagedRef<T> where T : class
+public struct ManagedRef<T> : IEquatable<ManagedRef<T>> where T : class
 {
-    private GCHandle handle;
+    private IntPtr handle;
 
-    public void Set(Arena arena, T value)
+    public ManagedRef(IntPtr handle)
     {
-        handle = arena.AddReference(value);
+        this.handle = handle;
     }
 
     [Pure]
-    public T Get()
+    public T? Get()
     {
-        if (handle.Target != null)
+        if (handle != default)
         {
-            return (T)handle.Target;
+            return (T)GCHandle.FromIntPtr(handle).Target!;
         }
 
-        throw new Exception("You sure this should be null????");
+        return null;
+        // throw new Exception("You sure this should be null????");
+    }
+
+    public bool Equals(ManagedRef<T> other)
+    {
+        return Get() == other.Get();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is ManagedRef<T> other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return Get().GetHashCode();
     }
 }
 

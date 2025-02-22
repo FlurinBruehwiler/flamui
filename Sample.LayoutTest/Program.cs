@@ -1,15 +1,10 @@
-﻿using System.Numerics;
-using Flamui;
+﻿using Flamui;
 using Flamui.Components;
-using Flamui.Drawing;
-using Silk.NET.Input;
 
 /*
  * Todo
  * - Scroll
- * - Text Selection/Editing etc
  * - Fix Border
- * - Fix Text
  * - Only rerender when changed
  */
 
@@ -42,7 +37,7 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
         {
             using (ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10).Clip())
             {
-                using (ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10).Clip())
+                using (ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10).Clip().ShrinkHeight())
                 {
                     var dropdown = ui.CreateDropDown(selectedOption);
                     dropdown.Component.Option("Hi");

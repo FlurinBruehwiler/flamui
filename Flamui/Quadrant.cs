@@ -209,7 +209,7 @@ public static class Extensions
     }
 }
 
-public struct ColorDefinition
+public record struct ColorDefinition
 {
     public byte Red;
     public byte Green;

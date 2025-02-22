@@ -57,25 +57,25 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.Color is { } color)
         {
-            //shadow
-            if (flexContainer.Info.PShadowColor is { } blurColor)
-            {
-                float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
-
-                //todo replace with readable code or something
-                var bounds = new Bounds
-                {
-                    X = offset.X - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Left,
-                    Y = offset.Y - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Top,
-                    H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth -
-                        flexContainer.Info.ShadowOffset.Top - flexContainer.Info.ShadowOffset.Bottom,
-                    W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth -
-                        flexContainer.Info.ShadowOffset.Left - flexContainer.Info.ShadowOffset.Right,
-                };
-
-                //todo shadowsigma from flexcontainer.Info
-                renderContext.AddRect(bounds, flexContainer, blurColor, flexContainer.Info.Radius == 0 ? 0 : borderRadius);
-            }
+            // //shadow
+            // if (flexContainer.Info.PShadowColor is { } blurColor)
+            // {
+            //     float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
+            //
+            //     //todo replace with readable code or something
+            //     var bounds = new Bounds
+            //     {
+            //         X = offset.X - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Left,
+            //         Y = offset.Y - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Top,
+            //         H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth -
+            //             flexContainer.Info.ShadowOffset.Top - flexContainer.Info.ShadowOffset.Bottom,
+            //         W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth -
+            //             flexContainer.Info.ShadowOffset.Left - flexContainer.Info.ShadowOffset.Right,
+            //     };
+            //
+            //     //todo shadowsigma from flexcontainer.Info
+            //     renderContext.AddRect(bounds, flexContainer, blurColor, flexContainer.Info.Radius == 0 ? 0 : borderRadius);
+            // }
 
             renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius);
         }
