@@ -99,7 +99,7 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.ScrollConfigY.CanScroll || flexContainer.Info.ScrollConfigX.CanScroll)
         {
-            renderContext.AddMatrix(Matrix4X4.CreateTranslation(flexContainer.ScrollPosX, flexContainer.ScrollPosY, 0));
+            renderContext.AddMatrix(Matrix4X4.CreateTranslation(0f, 0f, 0f)); //todo, maybe some kind of push and pop system
 
             flexContainer._scrollBarContainerX.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerX.UiElement.ParentData.Position));
             flexContainer._scrollBarContainerY.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerY.UiElement.ParentData.Position));

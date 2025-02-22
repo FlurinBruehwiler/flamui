@@ -111,6 +111,38 @@ public class RenderContext
 
     private static int rerenderCount;
 
+    public void PrintCommands()
+    {
+        Console.WriteLine("---------------------------------------");
+        var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
+        foreach (var (_, value) in sections)
+        {
+            Console.WriteLine("Section:");
+            foreach (var command in value)
+            {
+                switch (command.Type)
+                {
+                    case CommandType.Rect:
+                        Console.WriteLine($"Rect: {command.Bounds}, Line: {command.UiElement.Get().Id.Line}");
+                        break;
+                    case CommandType.ClipRect:
+                        Console.WriteLine($"ClipRect: {command.Bounds}");
+                        break;
+                    case CommandType.Text:
+                        Console.WriteLine($"Text: {command.String}, {command.Bounds}");
+                        break;
+                    case CommandType.Matrix:
+                        Console.WriteLine($"Matrix: {command.Matrix}");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(command.Type.ToString());
+                }
+            }
+        }
+
+        Console.WriteLine("-----------------------------------------");
+    }
+
     public void Rerender(Renderer renderer)
     {
         var canvas = new GlCanvas(renderer, Arena);

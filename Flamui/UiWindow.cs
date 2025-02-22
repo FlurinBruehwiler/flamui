@@ -308,7 +308,7 @@ public unsafe partial class UiWindow : IDisposable
 
         // DrawDebugOverlay(RenderContext);
 
-
+        //RenderContext.PrintCommands();//todo remove
         //todo check if something has actually changed
         RenderContext.Rerender(_renderer);
 
