@@ -1,8 +1,6 @@
 name: Publish Nuget Package
 
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -24,15 +22,11 @@ jobs:
       - name: Build release
         run: dotnet build -c release
 
-      - name: Test
-        run: dotnet test --test-adapter-path:.
+      - name: Pack Flamui
+        run: dotnet pack ./Flamui/Flamui.csproj --configuration Release --output ./PackOutput
 
-# TODO publish in separate action
-#      - name: Pack Flamui
-#        run: dotnet pack ./Flamui/Flamui.csproj --configuration Release --output ./PackOutput
-#
-#      - name: Pack Flamui.Components
-#        run: dotnet pack ./Flamui.Components/Flamui.Components.csproj --configuration Release --output ./PackOutput
-#
-#      - name: Push nuget.org
-#        run: dotnet nuget push "PackOutput/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json
+      - name: Pack Flamui.Components
+        run: dotnet pack ./Flamui.Components/Flamui.Components.csproj --configuration Release --output ./PackOutput
+
+      - name: Push nuget.org
+        run: dotnet nuget push "PackOutput/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json

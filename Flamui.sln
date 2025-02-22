@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".SolutionItems", ".Solution
 		.gitignore = .gitignore
 		README.md = README.md
 		.github\workflows\nuget_publish.yml = .github\workflows\nuget_publish.yml
+		.github\workflows\ci.yml = .github\workflows\ci.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flamui.Tests", "Flamui.Tests\Flamui.Tests.csproj", "{76D6EAD7-1871-44CB-BF86-6FA61EEA15A4}"
