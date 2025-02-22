@@ -241,6 +241,9 @@ public unsafe partial class UiWindow : IDisposable
 
     private void OnLoad()
     {
+        int darkMode = 1;
+        DwmSetWindowAttribute(Window.Native.Win32.Value.Hwnd, 20, ref darkMode, sizeof(int));
+
         Console.WriteLine("Loading");
         _hitTester = new HitTester(this);
         _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
@@ -276,6 +279,9 @@ public unsafe partial class UiWindow : IDisposable
 
     [DllImport("glfw3.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void glfwGetWindowContentScale(IntPtr window, float* xScale, float* yScale);
+
+    [DllImport("dwmapi.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
     public RenderContext LastRenderContext = new();
     public RenderContext RenderContext = new();

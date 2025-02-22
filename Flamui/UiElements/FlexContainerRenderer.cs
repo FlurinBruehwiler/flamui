@@ -107,6 +107,7 @@ public static class FlexContainerRenderer
 
         if (NeedsClip(flexContainer.Info))
         {
+            // renderContext.AddClipRect(new Bounds(new Vector2(-1000, -1000), new Vector2(2000, 2000)), 1);
             // renderContext.Add(new Restore());
         }
 
