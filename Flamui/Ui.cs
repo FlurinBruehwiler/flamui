@@ -149,7 +149,7 @@ public partial class Ui
 
         CascadingStack.Clear();
         CascadingValues = new CascadingStuff();
-        CascadingValues.Font = FontManager.GetFont("JetBrainsMono-Regular.ttf");
+        CascadingValues.Font = FontManager.GetFont("segoeui.ttf");
         CascadingValues.TextColor = C.Black;
         CascadingValues.TextSize = 15;
 

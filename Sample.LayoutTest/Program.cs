@@ -3,10 +3,8 @@ using Flamui.Components;
 
 /*
  * Todo
- * - non ascii text
  * - Scroll
  * - Fix Border
- * - Only rerender when changed
  */
 
 var builder = FlamuiApp.CreateBuilder();
@@ -41,6 +39,11 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
                 using (ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10).Clip().ShrinkHeight())
                 {
                     ui.StyledInput(ref input2);
+
+                    if (ui.Button("New Window", primary: true))
+                    {
+                        app.CreateWindow<LayoutTest>("Anoter Window");
+                    }
 
                     // var dropdown = ui.CreateDropDown(selectedOption);
                     // dropdown.Component.Option("Hi");

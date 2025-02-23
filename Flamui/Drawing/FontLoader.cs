@@ -220,12 +220,7 @@ public class FontLoader
 {
     public static unsafe Font LoadFont(string name)
     {
-        var asm = Assembly.GetExecutingAssembly();
-
-        using var stream = asm.GetManifestResourceStream($"Flamui.Drawing.{name}");
-        using MemoryStream ms = new MemoryStream();
-        stream!.CopyTo(ms);
-        var fontData = ms.ToArray();
+        var fontData = GetFont(name);
 
         // Console.WriteLine($"Allocating {((float)fontData.Length)/1000/1000} MB");
         var ptr = Marshal.AllocHGlobal(fontData.Length); //todo maybe also free again????
@@ -250,6 +245,22 @@ public class FontLoader
             UnscaledLineGap = lineGap,
             FontInfo = info,
         };
+    }
+
+    private static byte[] GetFont(string fileName)
+    {
+        var windowsFontLocation = Path.Combine(@"C:\Windows\Fonts\", fileName);
+        if (File.Exists(windowsFontLocation))
+        {
+            return File.ReadAllBytes(windowsFontLocation);
+        }
+
+        var asm = Assembly.GetExecutingAssembly();
+
+        using var stream = asm.GetManifestResourceStream($"Flamui.Drawing.{fileName}");
+        using MemoryStream ms = new MemoryStream();
+        stream!.CopyTo(ms);
+        return ms.ToArray();
     }
 
     public static FontAtlas CreateFontAtlas(ScaledFont scaledFont)
