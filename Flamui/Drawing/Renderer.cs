@@ -25,7 +25,8 @@ public enum Shader
 
 public class GpuTexture
 {
-    public uint TextureId;
+    public required GL Gl;
+    public required uint TextureId;
 }
 
 public class Renderer
@@ -42,16 +43,14 @@ public class Renderer
     private uint vbo;
     private uint ebo;
 
-    public FontAtlas GetFontAtlas(ScaledFont scaledFont, float resolutionMultiplier)
+    public FontAtlas GetFontAtlas(ScaledFont scaledFont)
     {
-        var size = scaledFont.PixelSize * resolutionMultiplier;
-
         if (_fontAtlasMap.TryGetValue(scaledFont, out var atlas))
             return atlas;
 
-        atlas = FontLoader.CreateFontAtlas(scaledFont, resolutionMultiplier);
+        atlas = FontLoader.CreateFontAtlas(scaledFont);
         _fontAtlasMap.Add(scaledFont, atlas);
-        atlas.GpuTexture = UploadTexture(atlas.AtlasBitmap, (uint)atlas.AtlasWidth, (uint)atlas.AtlasHeight);
+        atlas.GpuTexture = UploadTexture(new byte[atlas.AtlasWidth*atlas.AtlasHeight], (uint)atlas.AtlasWidth, (uint)atlas.AtlasHeight);
         return atlas;
     }
 
@@ -196,6 +195,7 @@ public class Renderer
         return new GpuTexture
         {
             TextureId = textureId,
+            Gl = Gl
         };
     }
 

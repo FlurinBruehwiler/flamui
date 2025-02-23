@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Silk.NET.OpenGL;
 using StbTrueTypeSharp;
 
 namespace Flamui.Drawing;
@@ -33,22 +34,12 @@ public struct ScaledFont
 
     public float GetCharWidth(char c)
     {
-        if (Font.FontGlyphInfos.TryGetValue(c, out var info))
-        {
-            return info.UnscaledAdvanceWidth * Scale;
-        }
-
-        return 0;
+        return Font.GetGlyphInfo(c).UnscaledAdvanceWidth * Scale;
     }
 
     public int GetAdvanceWith(char c)
     {
-        if (Font.FontGlyphInfos.TryGetValue(c, out var info))
-        {
-            return (int)(info.UnscaledAdvanceWidth * Scale);
-        }
-
-        return 0;
+        return (int)(Font.GetGlyphInfo(c).UnscaledAdvanceWidth * Scale);
     }
 
     public float GetHeight() => Ascent - Descent;
@@ -68,7 +59,27 @@ public class Font
     public required float UnscaledLineGap;
     public required StbTrueType.stbtt_fontinfo FontInfo;
 
-    public required Dictionary<char, FontGlyphInfo> FontGlyphInfos;
+    private Dictionary<char, FontGlyphInfo> fontGlyphInfos = [];
+
+    public unsafe FontGlyphInfo GetGlyphInfo(char c)
+    {
+        if (fontGlyphInfos.TryGetValue(c, out var info))
+            return info;
+
+        int advanceWidth = 0;
+        int leftSideBearing = 0;
+
+        StbTrueType.stbtt_GetCodepointHMetrics(FontInfo, c, &advanceWidth, &leftSideBearing);
+
+        info = new FontGlyphInfo
+        {
+            UnscaledAdvanceWidth = advanceWidth,
+            UnscaledLeftSideBearing = leftSideBearing
+        };
+
+        fontGlyphInfos[c] = info;
+        return info;
+    }
 
     public float GetScale(float pixelSize)
     {
@@ -80,26 +91,79 @@ public class Font
         return UnscaledAscent * scale - UnscaledDescent * scale;
     }
 
-    public float GetCharWidth(char c, float scale)
-    {
-        if (FontGlyphInfos.TryGetValue(c, out var info))
-        {
-            return info.UnscaledAdvanceWidth * scale;
-        }
-
-        return 0;
-    }
+    // public float GetCharWidth(char c, float scale)
+    // {
+    //     if (FontGlyphInfos.TryGetValue(c, out var info))
+    //     {
+    //         return info.UnscaledAdvanceWidth * scale;
+    //     }
+    //
+    //     return 0;
+    // }
 }
 
 public class FontAtlas
 {
     public required ScaledFont Font;
-    public required byte[] AtlasBitmap;
     public required int AtlasWidth;
     public required int AtlasHeight;
-    public required Dictionary<char, AtlasGlyphInfo> GlyphInfos;
 
     public GpuTexture GpuTexture;
+
+    public required LRUCache<char, AtlasGlyphInfo> Table;
+
+    public unsafe AtlasGlyphInfo FindGlyphEntry(char c, float resolutionMultiplier)
+    {
+        if (Table.TryGet(c, out var entry))
+        {
+            return entry;
+        }
+
+        entry = Table.GetLeastUsed();
+
+        int width = 0;
+        int height = 0;
+        int xOff = 0;
+        int yOff = 0;
+
+        var bitmap = StbTrueType.stbtt_GetCodepointBitmap(Font.Font.FontInfo, 0, Font.Scale * resolutionMultiplier, c,
+            &width, &height, &xOff, &yOff);
+        var bitmapSpan = new Span<byte>(bitmap, width * height);
+
+        for (var i = 0; i < bitmapSpan.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
+        {
+            ref var b = ref bitmapSpan[i];
+
+            var f = (double)b;
+            f = 255 * Math.Pow(f / 255, 0.5f);
+            b = (byte)f;
+        }
+
+        GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
+        GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+        GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, (uint)width, (uint)height, PixelFormat.Red, PixelType.UnsignedByte, (void*)bitmap);
+
+        Console.WriteLine($"Uploading {c} at {entry.AtlasX},{entry.AtlasY}");
+
+        var info = new AtlasGlyphInfo
+        {
+            Height = height / resolutionMultiplier,
+            Width = width / resolutionMultiplier,
+            XOff = xOff / resolutionMultiplier,
+            YOff = yOff / resolutionMultiplier,
+            AtlasX = entry.AtlasX,
+            AtlasY = entry.AtlasY,
+            AtlasWidth = width,
+            AtlasHeight = height,
+            // GlyphBoundingBox = bb,
+            FontGlyphInfo = Font.Font.GetGlyphInfo(c),
+            Scale = Font.Scale
+        };
+
+        Table.Add(c, info);
+
+        return info;
+    }
 }
 
 public struct FontGlyphInfo
@@ -128,22 +192,6 @@ public struct AtlasGlyphInfo
     // public required GlyphBoundingBox GlyphBoundingBox;
 }
 
-public unsafe struct CharInfo
-{
-    public required byte* Bitmap;
-    public required int Width;
-    public required int Height;
-    public required int XOff;
-    public required int YOff;
-    public required char Char;
-
-
-    public Span<byte> BitmapAsSpan()
-    {
-        return new Span<byte>(Bitmap, Width * Height);
-    }
-}
-
 public class FontLoader
 {
     public static unsafe Font LoadFont(string name)
@@ -169,22 +217,6 @@ public class FontLoader
         int lineGap = 0;
         StbTrueType.stbtt_GetFontVMetrics(info, &ascent, &descent, &lineGap);
 
-        Dictionary<char, FontGlyphInfo> glyphInfos = new('~' - ' ');
-
-        for (char i = ' '; i < '~'; i++)
-        {
-            int advanceWidth = 0;
-            int leftSideBearing = 0;
-
-            StbTrueType.stbtt_GetCodepointHMetrics(info, i, &advanceWidth, &leftSideBearing);
-
-            glyphInfos[i] = new FontGlyphInfo
-            {
-                UnscaledAdvanceWidth = advanceWidth,
-                UnscaledLeftSideBearing = leftSideBearing
-            };
-        }
-
         return new Font
         {
             Name = name,
@@ -193,129 +225,33 @@ public class FontLoader
             UnscaledDescent = descent,
             UnscaledLineGap = lineGap,
             FontInfo = info,
-            FontGlyphInfos = glyphInfos
         };
     }
 
-    public static unsafe FontAtlas CreateFontAtlas(ScaledFont scaledFont, float resolutionMultiplier)
+    public static FontAtlas CreateFontAtlas(ScaledFont scaledFont)
     {
-        // var scale = StbTrueType.stbtt_ScaleForPixelHeight(font.FontInfo, pixelSize);
+        var table = new LRUCache<char, AtlasGlyphInfo>(10*10);
 
-        int maxCharWidth = 0;
-        int maxCharHeight = 0;
-
-        CharInfo[] charInfos = new CharInfo['~' - ' '];
-
-        for (char i = ' '; i < '~'; i++)
+        for (int i = 1; i < 11; i++)
         {
-            int width = 0;
-            int height = 0;
-            int xOff = 0;
-            int yOff = 0;
-
-            var bitmap = StbTrueType.stbtt_GetCodepointBitmap(scaledFont.Font.FontInfo, 0, scaledFont.Scale * resolutionMultiplier, i, &width, &height, &xOff, &yOff);
-
-            maxCharHeight = Math.Max(maxCharHeight, height);
-            maxCharWidth = Math.Max(maxCharWidth, width);
-
-            charInfos[i - ' '] = new CharInfo
+            for (int j = 1; j < 11; j++)
             {
-                Bitmap = bitmap,
-                Width = width,
-                Height = height,
-                XOff = xOff,
-                YOff = yOff,
-                Char = i,
-            };
-        }
-
-        int rowColCount = (int)Math.Ceiling(Math.Sqrt(charInfos.Length));
-        int minAtlasWidth = rowColCount * maxCharHeight;
-        int minAtlasHeight = rowColCount * maxCharWidth;
-        int atlasSize = Math.Max(minAtlasHeight, minAtlasWidth);
-        atlasSize = RoundUpToNextPowerOfTwo(atlasSize);
-        //
-        // if (atlasSize % 2 != 0)
-        // {
-        //     atlasSize++;
-        // }
-        //todo make atalasSize even number
-
-        byte[] fontAtlasBitmapData = new byte[atlasSize * atlasSize];
-
-        BitRect fontAtlasBitmap = new BitRect
-        {
-            Data = fontAtlasBitmapData.AsSpan(),
-            Height = atlasSize,
-            Width = atlasSize
-        };
-        var glyphInfos = new Dictionary<char, AtlasGlyphInfo>(charInfos.Length);
-
-        int currentCol = 0;
-        int currentRow = 0;
-
-        for (var i = 0; i < charInfos.Length; i++)
-        {
-            var c = charInfos[i];
-
-            // var bb = new GlyphBoundingBox();
-
-            // StbTrueType.stbtt_GetCodepointBitmapBox(font.FontInfo, i, 0, scale, &bb.x0, &bb.y0, &bb.x1, &bb.y1);
-
-            var bitmap = new BitRect
-            {
-                Data = c.BitmapAsSpan(),
-                Height = c.Height,
-                Width = c.Width
-            };
-
-            int xOffset = currentCol * maxCharWidth;
-            int yOffset = currentRow * maxCharHeight;
-
-            Copy(bitmap, fontAtlasBitmap, xOffset, yOffset);
-
-            glyphInfos[c.Char] = new AtlasGlyphInfo
-            {
-                Height = c.Height / resolutionMultiplier,
-                Width = c.Width / resolutionMultiplier,
-                XOff = c.XOff / resolutionMultiplier,
-                YOff = c.YOff / resolutionMultiplier,
-                AtlasX = xOffset,
-                AtlasY = yOffset,
-                AtlasWidth = c.Width,
-                AtlasHeight = c.Height,
-                // GlyphBoundingBox = bb,
-                FontGlyphInfo = scaledFont.Font.FontGlyphInfos[c.Char],
-                Scale = scaledFont.Scale
-            };
-
-            if (currentCol == rowColCount - 1)
-            {
-                currentCol = 0;
-                currentRow++;
+                table.Add((char)(int.MaxValue - i - 100 * j), default(AtlasGlyphInfo) with
+                {
+                    AtlasX = i * 100,
+                    AtlasY = j * 100,
+                });
             }
-            else
-            {
-                currentCol++;
-            }
-        }
-
-        for (var i = 0; i < fontAtlasBitmapData.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
-        {
-            ref var b = ref fontAtlasBitmapData[i];
-
-            var f = (double)b;
-            f = 255 * Math.Pow(f / 255, 0.5f);
-            b = (byte)f;
         }
 
         return new FontAtlas
         {
             Font = scaledFont,
-            AtlasBitmap = fontAtlasBitmapData,
-            AtlasWidth = atlasSize,
-            AtlasHeight = atlasSize,
-            GlyphInfos = glyphInfos,
+            // AtlasBitmap = fontAtlasBitmapData,
+            AtlasWidth = 1024,
+            AtlasHeight = 1024,
+            Table = table
+            // GlyphInfos = glyphInfos,
         };
     }
 

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Numerics;
+using System.Text.Json;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -33,23 +34,18 @@ public class GlCanvas
 
     public void DrawText(ReadOnlySpan<char> text, float x, float y)
     {
-        var point = new Vector2(1, 1).Multiply(MeshBuilder.Matrix.GetScale());
+        var resolutionMultiplier = new Vector2(1, 1).Multiply(MeshBuilder.Matrix.GetScale()).Y;
 
-        var fontAtlas = _renderer.GetFontAtlas(Paint.Font, point.Y);
+        var fontAtlas = _renderer.GetFontAtlas(Paint.Font);
 
         var xCoord = x;
 
         foreach (var c in text)
         {
-            if (fontAtlas.GlyphInfos.TryGetValue(c, out var glyphInfo))
-            {
-                DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture,(int)(xCoord + glyphInfo.LeftSideBearing), (int)(y + fontAtlas.Font.Ascent + glyphInfo.YOff));
-                xCoord += glyphInfo.AdvanceWidth;
-            }
-            else
-            {
-                Console.WriteLine($"unknown glyph: {c}");
-            }
+            var glyphInfo = fontAtlas.FindGlyphEntry(c, resolutionMultiplier);
+
+            DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture,(int)(xCoord + glyphInfo.LeftSideBearing), (int)(y + fontAtlas.Font.Ascent + glyphInfo.YOff));
+            xCoord += glyphInfo.AdvanceWidth;
         }
     }
 
