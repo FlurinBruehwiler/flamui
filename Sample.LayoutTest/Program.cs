@@ -26,8 +26,8 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
     private const string loremIpsum =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
 
-    private string input2 = "";
-    private string selectedOption = "Hi";
+    private string input2 = "anita max wynn";
+    private string selectedOption = "";
 
     public override void Build(Ui ui)
     {

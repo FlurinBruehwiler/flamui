@@ -21,6 +21,7 @@ void main()
             out_color = texture(uTextures[int(texture_id)], frag_texCoords) * frag_color;
         }else if(texture_type == 2){
             out_color = texture(uTextures[int(texture_id)], frag_texCoords).r * frag_color;
+           // out_color = vec4(1, 0, 0, 1);
         }
     }else{
         float x = frag_texCoords.x;

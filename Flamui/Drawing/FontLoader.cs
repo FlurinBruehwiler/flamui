@@ -102,6 +102,12 @@ public class Font
     // }
 }
 
+public record struct GlyphCacheHash
+{
+    public char Character;
+    public float ResolutionMultiplier;
+}
+
 public class FontAtlas
 {
     public required ScaledFont Font;
@@ -110,11 +116,18 @@ public class FontAtlas
 
     public GpuTexture GpuTexture;
 
-    public required LRUCache<int, AtlasGlyphInfo> Table;
+    public required LRUCache<GlyphCacheHash, AtlasGlyphInfo> Table;
+
+    private nint GlyphTempMemory;
+
+    public FontAtlas()
+    {
+        GlyphTempMemory = Marshal.AllocHGlobal(100 * 100);
+    }
 
     public unsafe AtlasGlyphInfo FindGlyphEntry(char c, float resolutionMultiplier)
     {
-        var hash = HashCode.Combine(c, resolutionMultiplier);
+        var hash = new GlyphCacheHash { Character = c, ResolutionMultiplier = resolutionMultiplier };
 
         if (Table.TryGet(hash, out var entry))
         {
@@ -123,14 +136,23 @@ public class FontAtlas
 
         entry = Table.GetLeastUsed();
 
-        int width = 0;
-        int height = 0;
-        int xOff = 0;
-        int yOff = 0;
+        int ix0 = 0;
+        int iy0 = 0;
+        int ix1 = 0;
+        int iy1 = 0;
 
-        var bitmap = StbTrueType.stbtt_GetCodepointBitmap(Font.Font.FontInfo, 0, Font.Scale * resolutionMultiplier, c,
-            &width, &height, &xOff, &yOff);
-        var bitmapSpan = new Span<byte>(bitmap, width * height);
+        var scale = Font.Scale * resolutionMultiplier;
+        StbTrueType.stbtt_GetCodepointBitmapBox(Font.Font.FontInfo, c, scale, scale, &ix0, &iy0, &ix1, &iy1);
+        StbTrueType.stbtt_MakeCodepointBitmap(Font.Font.FontInfo, (byte*)GlyphTempMemory, 100, 100, 100, scale, scale, c);
+
+        int width = ix1 - ix0;
+        int height = iy1 - iy0;
+        int xOff = ix0;
+        int yOff = iy0;
+
+        var bitmapSpan = new Span<byte>((void*)GlyphTempMemory, 100 * 100);
+
+        Console.WriteLine($"glyph cache miss: {c}:{resolutionMultiplier}, inserting into slot {entry.SlotNumber}");
 
         for (var i = 0; i < bitmapSpan.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
         {
@@ -143,18 +165,17 @@ public class FontAtlas
 
         GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
         GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-        GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, (uint)width, (uint)height, PixelFormat.Red, PixelType.UnsignedByte, (void*)bitmap);
-
-        Console.WriteLine($"Uploading {c} at {entry.AtlasX},{entry.AtlasY}");
+        GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, (uint)100, (uint)100, PixelFormat.Red, PixelType.UnsignedByte, (void*)GlyphTempMemory);
 
         var info = new AtlasGlyphInfo
         {
-            Height = height / resolutionMultiplier,
-            Width = width / resolutionMultiplier,
-            XOff = xOff / resolutionMultiplier,
-            YOff = yOff / resolutionMultiplier,
+            Height = (float)height / resolutionMultiplier,
+            Width = (float)width / resolutionMultiplier,
+            XOff = (float)xOff / resolutionMultiplier,
+            YOff = (float)yOff / resolutionMultiplier,
             AtlasX = entry.AtlasX,
             AtlasY = entry.AtlasY,
+            SlotNumber = entry.SlotNumber,
             AtlasWidth = width,
             AtlasHeight = height,
             // GlyphBoundingBox = bb,
@@ -187,6 +208,7 @@ public struct AtlasGlyphInfo
     public required float Height; //height of the glyph
     public required float XOff;
     public required float YOff;
+    public required int SlotNumber;
 
     public int AdvanceWidth => (int)(FontGlyphInfo.UnscaledAdvanceWidth * Scale);
     public int LeftSideBearing => (int)(FontGlyphInfo.UnscaledLeftSideBearing * Scale);
@@ -232,17 +254,22 @@ public class FontLoader
 
     public static FontAtlas CreateFontAtlas(ScaledFont scaledFont)
     {
-        var table = new LRUCache<int, AtlasGlyphInfo>(10*10);
+        var table = new LRUCache<GlyphCacheHash, AtlasGlyphInfo>(10*10);
 
-        for (int i = 1; i < 11; i++)
+        int slotNumber = 0;
+
+        for (int i = 0; i < 10; i++)
         {
-            for (int j = 1; j < 11; j++)
+            for (int j = 0; j < 10; j++)
             {
-                table.Add((int.MaxValue - i - 100 * j).GetHashCode(), default(AtlasGlyphInfo) with
+                table.Add(new GlyphCacheHash{ Character = (char)(i * 10 + j), ResolutionMultiplier = i * j}, default(AtlasGlyphInfo) with
                 {
                     AtlasX = i * 100,
                     AtlasY = j * 100,
+                    SlotNumber = slotNumber
                 });
+
+                slotNumber++;
             }
         }
 

@@ -35,8 +35,6 @@ public class GlCanvas
     {
         var resolutionMultiplier = new Vector2(1, 1).Multiply(MeshBuilder.Matrix.GetScale()).Y;
 
-        Console.WriteLine(resolutionMultiplier);
-
         var fontAtlas = _renderer.GetFontAtlas(Paint.Font);
 
         var xCoord = x;
@@ -45,12 +43,13 @@ public class GlCanvas
         {
             var glyphInfo = fontAtlas.FindGlyphEntry(c, resolutionMultiplier);
 
-            DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture,(int)(xCoord + glyphInfo.LeftSideBearing), (int)(y + fontAtlas.Font.Ascent + glyphInfo.YOff));
+            // Console.WriteLine($"{c}: {fontAtlas.Font.Ascent}: {glyphInfo.YOff}, {glyphInfo.AtlasHeight}, {glyphInfo.Height}");
+            DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture, xCoord + glyphInfo.LeftSideBearing, y + fontAtlas.Font.Ascent + glyphInfo.YOff);
             xCoord += glyphInfo.AdvanceWidth;
         }
     }
-
-    private void DrawGlyph(FontAtlas fontAtlas, AtlasGlyphInfo atlasGlyphInfo, GpuTexture texture, int x, int y) //todo, maybe subpixel glyph positioning
+    //an
+    private void DrawGlyph(FontAtlas fontAtlas, AtlasGlyphInfo atlasGlyphInfo, GpuTexture texture, float x, float y) //todo, maybe subpixel glyph positioning
     {
         var uvXOffset = (1 / (float)fontAtlas.AtlasWidth) * atlasGlyphInfo.AtlasX;
         var uvYOffset = (1 / (float)fontAtlas.AtlasHeight) * atlasGlyphInfo.AtlasY;
