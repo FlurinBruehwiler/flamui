@@ -30,6 +30,7 @@ public class LRUCache<TKey, TValue> where TKey : notnull {
     }
 
     public bool TryGet(TKey key, out TValue value) {
+
         if(dictionary.TryGetValue(key, out var node))
         {
             Remove(node);
@@ -91,9 +92,15 @@ public class LRUCache<TKey, TValue> where TKey : notnull {
     {
         if (entry == head)
         {
-            entry.Next.Prev = entry.Prev;
+            head = entry.Next;
+            head.Prev = entry.Prev;
+
+            entry.Prev = null;
+            entry.Next = null;
+
             return;
         }
+
 
         entry.Prev.Next = entry.Next;
         if (entry.Next != null)
@@ -102,12 +109,18 @@ public class LRUCache<TKey, TValue> where TKey : notnull {
         }
         else
         {
+            entry.Prev.Next = null;
             head.Prev = entry.Prev;
         }
+
+        entry.Prev = null;
+        entry.Next = null;
+
     }
 
     private LRUCacheEntry AddFirst(TKey key, TValue value)
     {
+
         var entry = new LRUCacheEntry
         {
             Key = key,
@@ -117,5 +130,30 @@ public class LRUCache<TKey, TValue> where TKey : notnull {
         AddFirst(entry);
 
         return entry;
+    }
+
+    private void ValidateTable()
+    {
+        if (head == null)
+            return;
+
+        var current = head;
+        int counter = 1;
+
+        while (true)
+        {
+            current = current.Next;
+
+            if (current == null)
+            {
+                // Debug.Assert(counter == capacity);
+                break;
+            }
+
+            if(counter > capacity)
+                Debug.Assert(false);
+
+            counter++;
+        }
     }
 }

@@ -110,11 +110,13 @@ public class FontAtlas
 
     public GpuTexture GpuTexture;
 
-    public required LRUCache<char, AtlasGlyphInfo> Table;
+    public required LRUCache<int, AtlasGlyphInfo> Table;
 
     public unsafe AtlasGlyphInfo FindGlyphEntry(char c, float resolutionMultiplier)
     {
-        if (Table.TryGet(c, out var entry))
+        var hash = HashCode.Combine(c, resolutionMultiplier);
+
+        if (Table.TryGet(hash, out var entry))
         {
             return entry;
         }
@@ -160,7 +162,7 @@ public class FontAtlas
             Scale = Font.Scale
         };
 
-        Table.Add(c, info);
+        Table.Add(hash, info);
 
         return info;
     }
@@ -230,13 +232,13 @@ public class FontLoader
 
     public static FontAtlas CreateFontAtlas(ScaledFont scaledFont)
     {
-        var table = new LRUCache<char, AtlasGlyphInfo>(10*10);
+        var table = new LRUCache<int, AtlasGlyphInfo>(10*10);
 
         for (int i = 1; i < 11; i++)
         {
             for (int j = 1; j < 11; j++)
             {
-                table.Add((char)(int.MaxValue - i - 100 * j), default(AtlasGlyphInfo) with
+                table.Add((int.MaxValue - i - 100 * j).GetHashCode(), default(AtlasGlyphInfo) with
                 {
                     AtlasX = i * 100,
                     AtlasY = j * 100,

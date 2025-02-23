@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Numerics;
-using System.Text.Json;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -35,6 +34,8 @@ public class GlCanvas
     public void DrawText(ReadOnlySpan<char> text, float x, float y)
     {
         var resolutionMultiplier = new Vector2(1, 1).Multiply(MeshBuilder.Matrix.GetScale()).Y;
+
+        Console.WriteLine(resolutionMultiplier);
 
         var fontAtlas = _renderer.GetFontAtlas(Paint.Font);
 
