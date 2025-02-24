@@ -48,10 +48,13 @@ public struct ArenaList<T> where T : unmanaged
             {
                 _arena.AllocateSlice<T>(_backingSlice.Count);
                 _backingSlice = new Slice<T>(_backingSlice.Items, _backingSlice.Count * 2);
+                _backingSliceAllocateNum = _arena.AllocNum;
             }
             else
             {
                 var newSlice = _arena.AllocateSlice<T>(Capacity * 2);
+                _backingSliceAllocateNum = _arena.AllocNum;
+                
                 _backingSlice.Span.CopyTo(newSlice.Span);
                 _backingSlice = newSlice;
             }
