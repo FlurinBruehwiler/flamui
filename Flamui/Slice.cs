@@ -54,6 +54,11 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
         return new Slice<T>(&Items[start], Count - start);
     }
 
+    public bool ContainsIndex(int idx)
+    {
+        return idx < Count;
+    }
+
     public T this[int index]
     {
         get

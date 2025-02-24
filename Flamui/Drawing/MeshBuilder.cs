@@ -42,16 +42,16 @@ public static class Extensions
 
 public class MeshBuilder
 {
-    private GrowableArenaBuffer<Vertex> _vertices;
-    private GrowableArenaBuffer<uint> _indices;
+    private ArenaChunkedList<Vertex> _vertices;
+    private ArenaChunkedList<uint> _indices;
     private Dictionary<GpuTexture, int> _textureIdToTextureSlot;
     public Matrix4X4<float> Matrix;
     private Arena _arena;
 
     public MeshBuilder(Arena arena)
     {
-        _indices = new GrowableArenaBuffer<uint>(arena, 1000); //todo optimize chunk size
-        _vertices = new GrowableArenaBuffer<Vertex>(arena, 1000);
+        _indices = new ArenaChunkedList<uint>(arena, 1000); //todo optimize chunk size
+        _vertices = new ArenaChunkedList<Vertex>(arena, 1000);
         _textureIdToTextureSlot = new();
         Matrix = Matrix4X4<float>.Identity;
         _arena = arena;

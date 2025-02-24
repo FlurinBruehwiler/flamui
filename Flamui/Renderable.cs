@@ -22,7 +22,7 @@ public class RenderContext
     }
 
     public Arena Arena;
-    public Dictionary<int, GrowableArenaBuffer<Command>> CommandBuffers = [];
+    public Dictionary<int, ArenaChunkedList<Command>> CommandBuffers = [];
     private Stack<Matrix4X4<float>> MatrixStack = [];
 
     public static VirtualArenaManager manager = new();
@@ -56,13 +56,14 @@ public class RenderContext
         Add(cmd);
     }
 
-    public void AddText(Bounds bounds, ArenaString text, ColorDefinition color, ScaledFont scaledFont)
+    public void AddText(UiElement uiElement, Bounds bounds, ArenaString text, ColorDefinition color, ScaledFont scaledFont)
     {
         var cmd = new Command();
         cmd.Bounds = bounds;
         cmd.Type = CommandType.Text;
         cmd.String = text;
         cmd.Color = color;
+        cmd.UiElement = Arena.AddReference(uiElement);
         cmd.Font = Arena.AddReference(scaledFont.Font);
         cmd.FontSize = scaledFont.PixelSize;
 
@@ -116,7 +117,7 @@ public class RenderContext
     {
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
         {
-            commandBuffer = new GrowableArenaBuffer<Command>(Arena, 20);
+            commandBuffer = new ArenaChunkedList<Command>(Arena, 20);
             CommandBuffers.Add(ZIndexes.Peek(), commandBuffer);
         }
 

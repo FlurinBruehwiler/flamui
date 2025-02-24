@@ -349,7 +349,7 @@ public unsafe partial class UiWindow : IDisposable
             if (!cB.CommandBuffers.TryGetValue(key, out var commandsB))
                 return false;
 
-            if (! GrowableArenaBuffer<Command>.CompareGrowableArenaBuffers(commandsA, commandsB))
+            if (! ArenaChunkedList<Command>.CompareGrowableArenaBuffers(commandsA, commandsB))
                 return false;
         }
 

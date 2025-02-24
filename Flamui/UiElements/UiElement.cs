@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using Flamui.Layouting;
 
 namespace Flamui.UiElements;
@@ -18,7 +19,7 @@ public abstract class UiElement
     public BoxSize ActualContentSize;
     public UiElementInfo UiElementInfo;
     public BoxSize Rect;
-    // public Bounds FinalOnScreenSize;
+    public Bounds FinalOnScreenSize;
 
     //----- Methods ------
 

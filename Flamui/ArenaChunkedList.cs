@@ -1,6 +1,4 @@
-using System.Buffers;
 using System.Collections;
-using System.Runtime.InteropServices;
 
 namespace Flamui;
 
@@ -10,7 +8,7 @@ namespace Flamui;
 /// Linked list of chunks of size "chunkSize" allocated on an arena
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public unsafe class GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
+public unsafe class ArenaChunkedList<T> : IEnumerable<T> where T : unmanaged
 {
     private readonly Arena _arena;
     private readonly int _chunkSize;
@@ -20,7 +18,7 @@ public unsafe class GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
 
     public int Count { get; private set; }
 
-    public GrowableArenaBuffer(Arena arena, int chunkSize)
+    public ArenaChunkedList(Arena arena, int chunkSize)
     {
         _arena = arena;
         _chunkSize = chunkSize;
@@ -133,15 +131,15 @@ public unsafe class GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
         private Chunk* _currentChunk;
         private int _indexInChunk;
 
-        private readonly GrowableArenaBuffer<T> _buffer;
+        private readonly ArenaChunkedList<T> _chunkedList;
         object IEnumerator.Current => _current;
 
         private T _current;
 
-        public Enumerator(GrowableArenaBuffer<T> buffer)
+        public Enumerator(ArenaChunkedList<T> chunkedList)
         {
-            _buffer = buffer;
-            _currentChunk = _buffer._firstChunk;
+            _chunkedList = chunkedList;
+            _currentChunk = _chunkedList._firstChunk;
         }
 
         public void Dispose()
@@ -150,7 +148,7 @@ public unsafe class GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
 
         public bool MoveNext()
         {
-            if (_indexInChunk >= _buffer._chunkSize)
+            if (_indexInChunk >= _chunkedList._chunkSize)
             {
                 if (_currentChunk->NextChunk == null)
                 {
@@ -191,7 +189,7 @@ public unsafe class GrowableArenaBuffer<T> : IEnumerable<T> where T : unmanaged
         }
     }
 
-    public static bool CompareGrowableArenaBuffers(GrowableArenaBuffer<T> a, GrowableArenaBuffer<T> b)
+    public static bool CompareGrowableArenaBuffers(ArenaChunkedList<T> a, ArenaChunkedList<T> b)
     {
         if (a.Count != b.Count)
             return false;

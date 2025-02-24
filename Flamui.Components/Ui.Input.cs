@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Flamui.UiElements;
+using Silk.NET.Input;
 
 namespace Flamui.Components;
 
@@ -15,18 +16,58 @@ public static partial class UiExtensions
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
     {
-        //todo, if multiple inputs happen in the same frame, stuff breaks, this hole thing should be handled differently
-
-        var t = ui.Text(text, key, path, line);
-        t.ShowCursor = hasFocus;
-
-        if (hasFocus)
+        using (var hitBox = ui.Div().ShrinkHeight().Color(C.Transparent))
         {
-            text = TextBoxInputHandler.ProcessInput(text, t.TextLayoutInfo, ui.Window.Input, t.UiTextInfo.Multiline, ref t.CursorPosition, ref t.SelectionStart);
+            var t = ui.Text(text);
+
+            if (hitBox.IsClicked)
+            {
+                var l = t.TextLayoutInfo.Lines[0];
+
+                var pos = ui.Window.MousePosition - (t.FinalOnScreenSize.GetPosition() + l.Bounds.GetPosition());
+
+                if (pos.X < 0)
+                {
+                    t.SelectionStart = t.CursorPosition = 0;
+                }else if (pos.X > l.Bounds.W)
+                {
+                    t.SelectionStart = t.CursorPosition = text.Length;
+                }
+                else
+                {
+                    var offsets = l.CharOffsets;
+
+                    for (int i = 0; i < offsets.Count; i++)
+                    {
+                        if (offsets[i] > pos.X)
+                        {
+                            if (offsets.ContainsIndex(i - 1))
+                            {
+                                if (Math.Abs(offsets[i - 1] - pos.X) < Math.Abs(offsets[i] - pos.X))
+                                {
+                                    t.SelectionStart = t.CursorPosition = i;
+                                    break;
+                                }
+                            }
+
+                            t.SelectionStart = t.CursorPosition = i + 1;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            t.ShowCursor = hasFocus;
+
+            if (hasFocus)
+            {
+                //todo, if multiple inputs happen in the same frame, stuff breaks, this hole thing should be handled differently
+                text = TextBoxInputHandler.ProcessInput(text, t.TextLayoutInfo, ui.Window.Input, t.UiTextInfo.Multiline, ref t.CursorPosition, ref t.SelectionStart);
+            }
+
+            t.UiTextInfo.Content = text;
+
+            return t;
         }
-
-        t.UiTextInfo.Content = text;
-
-        return t;
     }
 }

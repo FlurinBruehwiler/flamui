@@ -42,7 +42,18 @@ public static class FlexSizeCalculator
             if (child.IsFlexible(out var config))
             {
                 if (isMainShrink)
+                {
                     throw InvalidLayoutException.Create(InvalidLayoutType.FractionWithinShrink, child);
+
+                    //todo allow single child with 100 percent
+                    // if (children.Count == 1 && config.Percentage == 100)
+                    // {
+                    //
+                    // }
+                    // else
+                    // {
+                    // }
+                }
 
                 totalPercentage += config.Percentage;
                 continue;

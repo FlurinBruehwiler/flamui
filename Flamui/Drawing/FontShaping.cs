@@ -45,41 +45,12 @@ public static class FontShaping
         return (width, charOffsets);
     }
 
-    /// <summary>
-    /// Performs a horizontal hit test against a piece of text.
-    /// </summary>
-    /// <param name="scaledFont">The font to use</param>
-    /// <param name="singleLine">A line from TextLayoutInfo</param>
-    /// <param name="pos">The position relative to the left of the line</param>
-    /// <returns>The index of the char that is under, -1 the pos was outside the text <see cref="pos"/></returns>
-    public static int HitTest(ScaledFont scaledFont, ReadOnlySpan<char> singleLine, float pos)
-    {
-        float xCoord = 0;
-
-        if (pos < 0)
-            return -1;
-
-        for (var i = 0; i < singleLine.Length; i++)
-        {
-            var c = singleLine[i];
-
-            xCoord += scaledFont.GetCharWidth(c);
-
-            if (pos < xCoord)
-                return i;
-        }
-
-        return -1;
-
-        return -1;
-    }
-
     //rule: preferably only ever the start of a new word can go onto the next line,
     //so we make a new line, as soon as the next word + following whitespace doesn't fit on the current line
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
     public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed, Arena arena)
     {
-        List<Line> lines = []; //todo, arena allocate
+        ArenaList<Line> lines = new ArenaList<Line>(Ui.Arena, 1); //todo, arena allocate
         float widthOfLongestLine = 0;
 
         int currentBlockStart = 0;
@@ -169,7 +140,7 @@ public static class FontShaping
 
         return new TextLayoutInfo
         {
-            Lines = lines.ToArray(),
+            Lines = lines.AsSlice(),
             Width = widthOfLongestLine,
             Height = lines.Count * scaledFont.GetHeight() + lines.Count - 1 * (scaledFont.LineGap),
             Content = text
@@ -199,7 +170,7 @@ public static class FontShaping
 public struct TextLayoutInfo
 {
     public required ArenaString Content;
-    public Line[] Lines;
+    public Slice<Line> Lines;
     public float Width;
     public float Height;
 }

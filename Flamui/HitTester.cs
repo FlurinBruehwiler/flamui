@@ -48,6 +48,14 @@ public class HitTester
                 }
                 else if (command.Type == CommandType.Rect)
                 {
+                    command.UiElement.Get().FinalOnScreenSize = command.Bounds;
+                    if (command.Bounds.ContainsPoint(point))
+                    {
+                        hitElements.Add(command.UiElement.Get());
+                    }
+                }else if (command.Type == CommandType.Text)
+                {
+                    command.UiElement.Get().FinalOnScreenSize = command.Bounds;
                     if (command.Bounds.ContainsPoint(point))
                     {
                         hitElements.Add(command.UiElement.Get());
