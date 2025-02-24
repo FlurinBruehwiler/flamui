@@ -7,6 +7,12 @@ public class Arena : IDisposable
 {
     public VirtualBuffer VirtualBuffer;
 
+    /// <summary>
+    /// Counts how many allocations happened (calls to <see cref="Allocate{T}"/> or <see cref="AllocateSlice{T}"/>)
+    /// This is useful for dynamic arrays that can make growing more efficient when no other allocation happened in between resizes
+    /// </summary>
+    public int AllocNum { get; private set; }
+
     private readonly Dictionary<object, GCHandle> objectToHandle = [];
 
     public Arena(VirtualBuffer virtualBuffer)
@@ -33,6 +39,7 @@ public class Arena : IDisposable
 
     public void Reset()
     {
+        AllocNum = 0;
         VirtualBuffer.Reset();
         foreach (var (_, value) in objectToHandle)
         {
@@ -43,6 +50,8 @@ public class Arena : IDisposable
 
     public unsafe T* Allocate<T>(T value) where T : unmanaged
     {
+        AllocNum++;
+
         var span = VirtualBuffer.AllocateRange(sizeof(T));
         fixed (byte* ptr = span)
         {
@@ -54,6 +63,8 @@ public class Arena : IDisposable
 
     public unsafe Slice<T> AllocateSlice<T>(int count) where T : unmanaged
     {
+        AllocNum++;
+
         if (count == 0)
             return new Slice<T>(null, 0);
 
