@@ -49,7 +49,9 @@ public class FlamuiApp
         {
             Size = new Vector2D<int>(options.Width, options.Height),
             Title = title,
-            Samples = 4
+            Samples = 4,
+            VSync = true,
+            ShouldSwapAutomatically = false
         };
 
         var window = Window.Create(o);
