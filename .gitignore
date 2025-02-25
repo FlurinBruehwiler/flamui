@@ -6,6 +6,7 @@
 **/*.received.cs
 
 Avalonia
+*.trace
 
 # User-specific files
 *.rsuser

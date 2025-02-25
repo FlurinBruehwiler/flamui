@@ -92,6 +92,8 @@ public unsafe partial class UiWindow : IDisposable
         if (!isInitialized)
             return;
 
+        var start = Stopwatch.GetTimestamp();
+
         using var _ = Systrace.BeginEvent(nameof(OnRender));
 
         Render();
@@ -105,6 +107,13 @@ public unsafe partial class UiWindow : IDisposable
             OldHoveredElements.Add(uiContainer);
         }
         HoveredElements.Clear();
+
+        var end = Stopwatch.GetElapsedTime(start);
+        if (end.TotalMilliseconds < 16) //todo we should probably also detect the refresh rate of monitor, to know how long to sleep for (or we can try to get vsync working)s
+        {
+            // Console.WriteLine($"Sleeping for {end.TotalMilliseconds}");
+            Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
+        }
     }
 
     private void OnUpdate(double obj)
@@ -321,6 +330,7 @@ public unsafe partial class UiWindow : IDisposable
 
         if (!RenderContextAreSame(RenderContext, LastRenderContext))
         {
+            _renderer.Gl.Viewport(Window.Size);
             RenderContext.Rerender(_renderer);
             Window.GLContext.SwapBuffers();
         }
@@ -426,6 +436,8 @@ public unsafe partial class UiWindow : IDisposable
         RootContainer.OpenElement();
 
         _rootComponent.Build(Ui);
+
+        Console.WriteLine(Window.Size.X);
 
         RootContainer.PrepareLayout(Dir.Vertical);
         RootContainer.Layout(new BoxConstraint(0, Window.Size.X / GetCompleteScaling().X, 0, Window.Size.Y / GetCompleteScaling().Y));
