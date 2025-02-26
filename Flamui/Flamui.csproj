@@ -42,6 +42,7 @@
     <ItemGroup>
       <EmbeddedResource Include="Drawing\Shaders\main_fragment.glsl" />
       <EmbeddedResource Include="Drawing\Shaders\main_vertex.glsl" />
+      <EmbeddedResource Include="Drawing\segoeui.ttf" />
     </ItemGroup>
 
 </Project>
