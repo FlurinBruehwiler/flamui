@@ -46,7 +46,7 @@ public partial class Ui
 
     public T GetData<T>(UiID id, Func<Ui, UiID, T> factoryMethod) where T : notnull
     {
-        return GetData(id, 0, (ui, uiId, _) => factoryMethod(ui, uiId));
+        return GetData(id, factoryMethod, static (ui, uiId, f) => f(ui, uiId));
     }
 
     public T GetData<T, TContext>(UiID id, TContext context, Func<Ui, UiID, TContext, T> factoryMethod) where T : notnull

@@ -50,7 +50,7 @@ public static class FontShaping
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
     public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed, Arena arena)
     {
-        ArenaList<Line> lines = new ArenaList<Line>(Ui.Arena, 1); //todo, arena allocate
+        ArenaList<Line> lines = new ArenaList<Line>(Ui.Arena, 1);
         float widthOfLongestLine = 0;
 
         int currentBlockStart = 0;

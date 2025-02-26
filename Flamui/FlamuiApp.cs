@@ -49,7 +49,7 @@ public class FlamuiApp
         {
             Size = new Vector2D<int>(options.Width, options.Height),
             Title = title,
-            VSync = false, //for some reason this doesn't work on my laptop, so we just sleep ourselves
+            VSync = true, //for some reason this doesn't work on my laptop, so we just sleep ourselves
             ShouldSwapAutomatically = false
         };
 

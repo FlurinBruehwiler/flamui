@@ -45,6 +45,11 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
                         app.CreateWindow<LayoutTest>("Anoter Window");
                     }
 
+                    using (ui.Div().Color(C.White).ShrinkHeight())
+                    {
+                        ui.Text(loremIpsum).Color(C.Black).Multiline();
+                    }
+
                     // var dropdown = ui.CreateDropDown(selectedOption);
                     // dropdown.Component.Option("Hi");
                     // dropdown.Component.Option("Anita");

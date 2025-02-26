@@ -434,7 +434,7 @@ public class TextEditTests
         var virtualBuffer = RenderContext.manager.CreateBuffer("TestArena", (UIntPtr)1_000);
         var arena = Ui.Arena = new Arena(virtualBuffer);
 
-        var font = FontLoader.LoadFont("JetBrainsMono-Regular.ttf");
+        var font = FontLoader.LoadFont("segoeui.ttf");
         var layoutInfo = FontShaping.LayoutText(new ScaledFont(font, 20), initialText, float.MaxValue, TextAlign.Start, false, arena);
 
         arena.Dispose();

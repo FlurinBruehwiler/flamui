@@ -1106,7 +1106,7 @@ public class LayoutingTests : IDisposable
         var expected =
             """
             FlexContainer = X:0, Y:0, W:400, H:100
-                UiText = X:0, Y:0, W:336, H:32
+                UiText = X:0, Y:0, W:241, H:32
                     Line = Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                     Line = Lorem ipsum dolor sit amet, consectetur adipiscing elit.
             """;
@@ -1127,7 +1127,7 @@ public class LayoutingTests : IDisposable
         var expected =
             """
             FlexContainer = X:0, Y:0, W:200, H:100
-                UiText = X:0, Y:0, W:168, H:32
+                UiText = X:0, Y:0, W:126, H:32
                     Line = Lorem ipsum dolor sit amet, 
                     Line = consectetur adipiscing elit.
             """;
@@ -1149,14 +1149,11 @@ public class LayoutingTests : IDisposable
         var expected =
             """
             FlexContainer = X:0, Y:0, W:400, H:400
-                UiText = X:0, Y:0, W:360, H:42
-                    Line = Lorem ipsum dolor sit amet, consectetur 
-                    Line = adipiscing elit.
-                UiText = X:0, Y:42, W:324, H:164
-                    Line = Lorem ipsum dolor 
-                    Line = sit amet, 
-                    Line = consectetur 
-                    Line = adipiscing elit.
+                UiText = X:0, Y:0, W:336, H:21
+                    Line = Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                UiText = X:0, Y:21, W:367, H:82
+                    Line = Lorem ipsum dolor sit amet, 
+                    Line = consectetur adipiscing elit.
             """;
 
         AssertUi(ui, 400, 400, expected);

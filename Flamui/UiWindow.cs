@@ -112,7 +112,7 @@ public unsafe partial class UiWindow : IDisposable
         if (end.TotalMilliseconds < 16) //todo we should probably also detect the refresh rate of monitor, to know how long to sleep for (or we can try to get vsync working)s
         {
             // Console.WriteLine($"Sleeping for {end.TotalMilliseconds}");
-            Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
+            // Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
         }
     }
 
@@ -437,7 +437,7 @@ public unsafe partial class UiWindow : IDisposable
 
         _rootComponent.Build(Ui);
 
-        Console.WriteLine(Window.Size.X);
+        // Console.WriteLine(Window.Size.X);
 
         RootContainer.PrepareLayout(Dir.Vertical);
         RootContainer.Layout(new BoxConstraint(0, Window.Size.X / GetCompleteScaling().X, 0, Window.Size.Y / GetCompleteScaling().Y));
