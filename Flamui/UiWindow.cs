@@ -92,6 +92,8 @@ public unsafe partial class UiWindow : IDisposable
         if (!isInitialized)
             return;
 
+        //is this correct?
+
         var start = Stopwatch.GetTimestamp();
 
         using var _ = Systrace.BeginEvent(nameof(OnRender));
@@ -99,7 +101,7 @@ public unsafe partial class UiWindow : IDisposable
         Render();
 
         //ToDo cleanup
-        Input.OnAfterFrame();
+
 
         OldHoveredElements.Clear();
         foreach (var uiContainer in HoveredElements)
@@ -136,13 +138,10 @@ public unsafe partial class UiWindow : IDisposable
         HandleZoomAndStuff();
 
         BuildUi();
-    }
 
-    public enum ZoomType
-    {
-        ScaleContent, //Makes the content bigger changes the layout to still fit everything
-        ZoomContent, //Zooms in on part of the ui, while keeping everything sharp, allows pan
-        ZoomCanvas //Zoom in on part of the image, without changing the resolution, allows pan
+        CreateRenderInstructions();
+
+        Input.OnAfterFrame();
     }
 
     private void HandleZoomAndStuff()
@@ -152,47 +151,27 @@ public unsafe partial class UiWindow : IDisposable
             Close();
         }
 
-        if (IsKeyPressed(Key.Number1))
-        {
-            zoomType = ZoomType.ScaleContent;
-        }
-        else if (IsKeyPressed(Key.Number2))
-        {
-            zoomType = ZoomType.ZoomContent;
-        }
-        else if (IsKeyPressed(Key.Number3))
-        {
-            zoomType = ZoomType.ZoomCanvas;
-        }
-
-        if (IsMouseButtonDown(MouseButton.Right) && zoomType is ZoomType.ZoomContent)
+        if (IsMouseButtonDown(MouseButton.Right))
         {
             var mouseDelta = MouseDelta;
             ZoomTarget += mouseDelta * -1 / Zoom;
         }
-
+        
         if (IsKeyDown(Key.ControlLeft) && ScrollDeltaY != 0)
         {
             var factor = (float)Math.Pow(1.1, ScrollDeltaY);
+            UserScaling *= new Vector2(factor, factor);
+            UserScaling = new Vector2(Math.Clamp(UserScaling.X, 0.1f, 10f), Math.Clamp(UserScaling.Y, 0.1f, 10f));
+        }
 
-            switch (zoomType)
-            {
-                case ZoomType.ScaleContent:
-                    UserScaling *= new Vector2(factor, factor);
-                    UserScaling = new Vector2(Math.Clamp(UserScaling.X, 0.1f, 10f), Math.Clamp(UserScaling.Y, 0.1f, 10f));
-                    break;
-                case ZoomType.ZoomContent:
-                    var mouseWorldPos = MousePosition;
-                    ZoomOffset = MouseScreenPosition;
-                    ZoomTarget = mouseWorldPos;
-                    Zoom *= new Vector2(factor, factor);
-                    Zoom = new Vector2(Math.Clamp(Zoom.X, 0.01f, 100f), Math.Clamp(Zoom.Y, 0.01f, 100f));
-                    break;
-                case ZoomType.ZoomCanvas:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+        if (IsKeyDown(Key.AltLeft) && ScrollDeltaY != 0)
+        {
+            var factor = (float)Math.Pow(1.1, ScrollDeltaY);
+            var mouseWorldPos = MousePosition;
+            ZoomOffset = MouseScreenPosition;
+            ZoomTarget = mouseWorldPos;
+            Zoom *= new Vector2(factor, factor);
+            Zoom = new Vector2(Math.Clamp(Zoom.X, 0.01f, 100f), Math.Clamp(Zoom.Y, 0.01f, 100f));
         }
 
         if (IsKeyPressed(Key.R))
@@ -224,7 +203,7 @@ public unsafe partial class UiWindow : IDisposable
         return  origin * scale * translate;
     }
 
-    private ZoomType zoomType = ZoomType.ScaleContent;
+    // private ZoomType zoomType = ZoomType.ScaleContent;
 
     public Vector2 Zoom = new(1, 1);
     public Vector2 ZoomOffset = new(0, 0);
@@ -308,7 +287,6 @@ public unsafe partial class UiWindow : IDisposable
 
     private void Render()
     {
-        CreateRenderInstructions();
         RenderToCanvas();
     }
 

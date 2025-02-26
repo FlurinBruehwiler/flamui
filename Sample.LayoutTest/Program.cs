@@ -47,7 +47,7 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
 
                     using (ui.Div().Color(C.White).ShrinkHeight())
                     {
-                        ui.Text(loremIpsum).Color(C.Black).Multiline();
+                        ui.Text(loremIpsum).Color(C.Black).Multiline().Size(30);
                     }
 
                     // var dropdown = ui.CreateDropDown(selectedOption);
