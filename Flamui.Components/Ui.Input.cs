@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using Flamui.UiElements;
-using Silk.NET.Input;
 
 namespace Flamui.Components;
 
@@ -37,7 +36,7 @@ public static partial class UiExtensions
                 {
                     var offsets = l.CharOffsets;
 
-                    for (int i = 0; i < offsets.Count; i++)
+                    for (int i = 0; i < offsets.Length; i++)
                     {
                         if (offsets[i] > pos.X)
                         {

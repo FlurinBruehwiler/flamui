@@ -24,13 +24,16 @@
         <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
         <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0" />
         <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
-        <PackageReference Include="SvgPathProperties" Version="1.1.2" />
         <PackageReference Include="Varena" Version="1.2.0" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="./Icons/*.svg">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="ThirdParty\tinyvg.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <TargetPath>runtimes\win-x64\native\tinyvg.dll</TargetPath>
         </None>
     </ItemGroup>
 

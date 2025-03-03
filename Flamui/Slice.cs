@@ -6,20 +6,20 @@ namespace Flamui;
 public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
 {
     public T* Items;
-    public int Count;
+    public int Length;
 
-    public Slice(T* items, int count)
+    public Slice(T* items, int length)
     {
         Items = items;
-        Count = count;
+        Length = length;
     }
 
-    public Span<T> Span => new(Items, Count);
-    public ReadOnlySpan<T> ReadonlySpan => new(Items, Count);
+    public Span<T> Span => new(Items, Length);
+    public ReadOnlySpan<T> ReadonlySpan => new(Items, Length);
 
     public void MemZero()
     {
-        Unsafe.InitBlock(Items, 0, (uint)(sizeof(int) * Count));
+        Unsafe.InitBlock(Items, 0, (uint)(sizeof(int) * Length));
     }
 
     public override string ToString()
@@ -35,7 +35,7 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
         if (start < 0)
             throw new ArgumentOutOfRangeException();
 
-        if (start + length > Count)
+        if (start + length > Length)
             throw new ArgumentOutOfRangeException();
 
         return new Slice<T>(&Items[start], length);
@@ -48,33 +48,31 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
         if (start < 0)
             throw new ArgumentOutOfRangeException();
 
-        if (start > Count)
+        if (start > Length)
             throw new ArgumentOutOfRangeException();
 
-        return new Slice<T>(&Items[start], Count - start);
+        return new Slice<T>(&Items[start], Length - start);
     }
 
     public bool ContainsIndex(int idx)
     {
-        return idx < Count;
+        return idx < Length;
     }
 
-    public T this[int index]
+    public ref T this[int index]
     {
         get
         {
-            if (index >= Count)
-                throw new IndexOutOfRangeException($"Index {index} isn't inside Count {Count}");
+            if (index >= Length)
+                throw new IndexOutOfRangeException($"Index {index} isn't inside Count {Length}");
 
-            return Items[index];
+            return ref Items[index];
         }
-        set
-        {
-            if (index >= Count)
-                throw new IndexOutOfRangeException();
+    }
 
-            Items[index] = value;
-        }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Items->GetHashCode(), Length.GetHashCode());
     }
 
     public Enumerator GetEnumerator()
@@ -113,7 +111,7 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
 
         public bool MoveNext()
         {
-            if (_buffer.Count > _nextIndex)
+            if (_buffer.Length > _nextIndex)
             {
                 _current = _buffer[_nextIndex];
                 _nextIndex++;

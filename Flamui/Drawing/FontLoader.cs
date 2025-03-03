@@ -111,8 +111,8 @@ public record struct GlyphCacheHash
 public class FontAtlas
 {
     public required ScaledFont Font;
-    public required int AtlasWidth;
-    public required int AtlasHeight;
+    public required uint AtlasWidth;
+    public required uint AtlasHeight;
 
     public GpuTexture GpuTexture;
 

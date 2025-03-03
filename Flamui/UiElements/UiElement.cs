@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Numerics;
 using Flamui.Layouting;
 
 namespace Flamui.UiElements;

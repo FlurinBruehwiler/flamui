@@ -1,5 +1,4 @@
 ﻿using Flamui;
-using Flamui.Components;
 
 /*
  * Todo
@@ -29,36 +28,9 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        ui.CascadingValues.TextColor = new ColorDefinition(188, 190, 196);
-        ui.CascadingValues.TextSize = 17;
-
-        using (ui.Div().Color(cc).Padding(10).Gap(10))
+        using (ui.Div().Width(100))
         {
-            using (ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10).Clip())
-            {
-                using (ui.Div().Color(c2).Rounded(2).Border(1, ColorPalette.BorderColor).Padding(20).Direction(Dir.Vertical).Gap(10).Clip().ShrinkHeight())
-                {
-                    ui.StyledInput(ref input2);
-
-                    if (ui.Button("New Window", primary: true))
-                    {
-                        app.CreateWindow<LayoutTest>("Anoter Window");
-                    }
-
-                    using (ui.Div().Color(C.White).ShrinkHeight())
-                    {
-                        ui.Text(loremIpsum).Color(C.Black).Multiline().Size(30);
-                    }
-
-                    // var dropdown = ui.CreateDropDown(selectedOption);
-                    // dropdown.Component.Option("Hi");
-                    // dropdown.Component.Option("Anita");
-                    // dropdown.Component.Option("Max");
-                    // dropdown.Component.Option("Wynn");
-                    // dropdown.Build(out selectedOption);
-                }
-            }
+            ui.SvgImage(@"C:\Users\bruhw\Downloads\test_tvg_file.tvg");
         }
     }
-
 }

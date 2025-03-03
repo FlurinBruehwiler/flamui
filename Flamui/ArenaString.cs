@@ -88,7 +88,7 @@ public struct ArenaString : IEquatable<ArenaString> //todo implement IEnumerable
     // private ArenaStringBuilder _arenaStringBuilder;
     private Slice<char> _slice;
 
-    public int Length => _slice.Count;
+    public int Length => _slice.Length;
 
     public ArenaString(Slice<char> slice)
     {

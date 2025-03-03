@@ -1,7 +1,5 @@
-﻿using System.Numerics;
-using Flamui.Drawing;
+﻿using Flamui.Drawing;
 using Flamui.Layouting;
-using Silk.NET.Input;
 
 namespace Flamui.UiElements;
 
@@ -67,7 +65,7 @@ public class UiText : UiElement
 
         var o = 0;
 
-        for (var i = 0; i < TextLayoutInfo.Lines.Count; i++)
+        for (var i = 0; i < TextLayoutInfo.Lines.Length; i++)
         {
             var line = TextLayoutInfo.Lines[i];
 

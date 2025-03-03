@@ -43,14 +43,26 @@ public class Renderer
     private uint vbo;
     private uint ebo;
 
-    public FontAtlas GetFontAtlas(ScaledFont scaledFont)
+    public unsafe FontAtlas GetFontAtlas(ScaledFont scaledFont)
     {
         if (_fontAtlasMap.TryGetValue(scaledFont, out var atlas))
             return atlas;
 
         atlas = FontLoader.CreateFontAtlas(scaledFont);
         _fontAtlasMap.Add(scaledFont, atlas);
-        atlas.GpuTexture = UploadTexture(new byte[atlas.AtlasWidth*atlas.AtlasHeight], (uint)atlas.AtlasWidth, (uint)atlas.AtlasHeight);
+        var content = new byte[atlas.AtlasWidth * atlas.AtlasHeight];
+        fixed (byte* c = content)
+        {
+            var bitmap = new Bitmap
+            {
+                Data = new Slice<byte>(c, content.Length),
+                Width = atlas.AtlasWidth,
+                Height = atlas.AtlasHeight,
+                BitmapFormat = BitmapFormat.R
+            };
+            atlas.GpuTexture = UploadTexture(bitmap);
+        }
+
         return atlas;
     }
 
@@ -157,7 +169,7 @@ public class Renderer
         return program;
     }
 
-    public unsafe GpuTexture UploadTexture(byte[] data, uint width, uint height)
+    public unsafe GpuTexture UploadTexture(Bitmap bitmap)
     {
         CheckError();
 
@@ -169,13 +181,23 @@ public class Renderer
 
         CheckError();
 
-        Debug.Assert(data.Length == width * height);
-        fixed (byte* ptr = data)
+        // Debug.Assert(data.Length == width * height);
+        fixed (byte* ptr = bitmap.Data.Span)
         {
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, width, height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
+            switch (bitmap.BitmapFormat)
+            {
+                case BitmapFormat.R:
+                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, bitmap.Width, bitmap.Height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
+                    break;
+                case BitmapFormat.RGBA:
+                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, bitmap.Width, bitmap.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
-        Console.WriteLine($"Uploading texture with the size: Width:  {width}, Height: {height}");
+        Console.WriteLine($"Uploading texture...");
 
         CheckError();
 
@@ -283,7 +305,7 @@ public class Renderer
 
         using (Systrace.BeginEvent("DrawElements"))
         {
-            Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Count, DrawElementsType.UnsignedInt,  (void*) 0);
+            Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
         }
 
         // using (Systrace.BeginEvent("GetError"))

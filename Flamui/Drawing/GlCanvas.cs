@@ -11,12 +11,87 @@ public struct Paint
     public ScaledFont Font;
 }
 
+public enum SegmentType
+{
+    Line,
+    Quadratic,
+    Cubic
+}
+
+public struct Segment
+{
+    public SegmentType SegmentType;
+    public Vector2 p1;
+    public Vector2 p2;
+    public Vector2 p3;
+    public Vector2 p4;
+}
+
+public struct Contour
+{
+    public ArenaList<Segment> Segments;
+}
+
+public struct GlPath
+{
+    public Vector2 CurrentPoint;
+    public ArenaList<Contour> Contours;
+
+    public GlPath()
+    {
+        Contours = new ArenaList<Contour>();
+        Contours.Add(new Contour());
+    }
+
+    public void MoveTo(Vector2 point)
+    {
+        CurrentPoint = point;
+    }
+
+    public void LineTo(Vector2 end)
+    {
+        Contours.Last().Segments.Add(new Segment
+        {
+            SegmentType = SegmentType.Line,
+            p1 = CurrentPoint,
+            p2 = end,
+        });
+        CurrentPoint = end;
+    }
+
+    public void QuadraticTo(Vector2 cp, Vector2 end)
+    {
+        Contours.Last().Segments.Add(new Segment
+        {
+            SegmentType = SegmentType.Quadratic,
+            p1 = CurrentPoint,
+            p2 = cp,
+            p3 = end
+        });
+        CurrentPoint = end;
+    }
+
+    public void CubicTo(Vector2 cp1, Vector2 cp2, Vector2 end)
+    {
+        Contours.Last().Segments.Add(new Segment
+        {
+            SegmentType = SegmentType.Cubic,
+            p1 = CurrentPoint,
+            p2 = cp1,
+            p3 = cp2,
+            p4 = end
+        });
+        CurrentPoint = end;
+    }
+}
+
 public class GlCanvas
 {
     public MeshBuilder MeshBuilder;
 
     private readonly Renderer _renderer;
     public Paint Paint;
+    private static Dictionary<Bitmap, GpuTexture> _textures = []; //Todo not static
 
     public GlCanvas(Renderer renderer, Arena arena)
     {
@@ -29,6 +104,23 @@ public class GlCanvas
     public void SetMatrix(Matrix4X4<float> matrix)
     {
         MeshBuilder.Matrix = matrix;
+    }
+
+    public void DrawBitmap(Bitmap bitmap, Bounds bounds)
+    {
+        if (!_textures.TryGetValue(bitmap, out var gpuTexture))
+        {
+            gpuTexture = _renderer.UploadTexture(bitmap);
+            _textures.Add(bitmap, gpuTexture);
+        }
+
+        uint topLeft = MeshBuilder.AddVertex(bounds.TopLeft(), new Vector2(0, 0), Paint.Color, textureType: TextureType.Texture, texture:gpuTexture);
+        uint topRight = MeshBuilder.AddVertex(bounds.TopRight(), new Vector2(1, 0), Paint.Color, textureType: TextureType.Texture, texture: gpuTexture);
+        uint bottomRight = MeshBuilder.AddVertex(bounds.BottomRight(), new Vector2(1, 1), Paint.Color, textureType: TextureType.Texture, texture: gpuTexture);
+        uint bottomLeft = MeshBuilder.AddVertex(bounds.BottomLeft(), new Vector2(0, 1), Paint.Color, textureType: TextureType.Texture, texture: gpuTexture);
+
+        MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
+        MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
     }
 
     public void DrawText(ReadOnlySpan<char> text, float x, float y)
@@ -168,5 +260,27 @@ public class GlCanvas
             MeshBuilder.AddVertex(p2, new Vector2(0.5f, 0), Paint.Color, 1),
             MeshBuilder.AddVertex(p3, new Vector2(1, 1), Paint.Color, 1)
         );
+    }
+
+    public void DrawPath(GlPath path)
+    {
+        foreach (var contour in path.Contours)
+        {
+            // Triangulation.Triangulate(contour.Segments.AsSlice().Span);
+
+            foreach (var segment in contour.Segments)
+            {
+                switch (segment.SegmentType)
+                {
+                    case SegmentType.Line:
+                        break;
+                    case SegmentType.Quadratic:
+                    case SegmentType.Cubic:
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+        }
     }
 }

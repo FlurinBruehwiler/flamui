@@ -10,8 +10,82 @@ public enum TextureType
     Text = 2
 }
 
+public ref struct VerticesEnumerator
+{
+    public VerticesEnumerator GetEnumerator() => this;
+
+    private readonly Span<Segment> _segments;
+    private int l;
+    private int p;
+    private Vector2 _current;
+
+    public Vector2 Current => _current;
+
+    public VerticesEnumerator(Span<Segment> segments)
+    {
+        _segments = segments;
+    }
+
+    public bool MoveNext()
+    {
+        if (p > _segments.Length - 1)
+            return false;
+
+        var segment = _segments[p];
+
+        if (l == 0)
+        {
+            l++;
+            _current = segment.p1;
+            return true;
+        }
+        if (l == 1)
+        {
+            l++;
+            _current = segment.p2;
+
+            if (segment.SegmentType == SegmentType.Line)
+            {
+                p++;
+                l = 0;
+            }
+            return true;
+        }
+        if (l == 2)
+        {
+            l++;
+            _current = segment.p3;
+
+            p++;
+            l = 0;
+            return true;
+        }
+
+        return false;
+    }
+}
+
 public static class Extensions
 {
+    public static VerticesEnumerator EnumeratePoints(this Span<Segment> segments)
+    {
+        return new VerticesEnumerator(segments);
+    }
+
+    public static T GetAt<T>(this IList<T> list, int index)
+    {
+        if (index >= list.Count)
+        {
+            return list[index % list.Count];
+        }
+
+        if (index < 0)
+        {
+            return list[index % list.Count + list.Count];
+        }
+
+        return list[index];
+    }
 
     public static Matrix4X4<float> Invert(this Matrix4X4<float> mat)
     {

@@ -185,7 +185,7 @@ public unsafe class ArenaChunkedList<T> : IEnumerable<T> where T : unmanaged
 
         public bool IsFull()
         {
-            return Count >= Items.Count;
+            return Count >= Items.Length;
         }
     }
 

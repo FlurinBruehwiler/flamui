@@ -1,5 +1,6 @@
-﻿using Flamui.Layouting;
-using SvgPathProperties;
+﻿using System.Numerics;
+using Flamui.Drawing;
+using Flamui.Layouting;
 using Point = Flamui.Layouting.Point;
 
 namespace Flamui.UiElements;
@@ -10,23 +11,13 @@ public class UiSvg : UiElement
     private float factor;
     public string Src { get; set; } = null!;
     public ColorDefinition? ColorDefinition { get; set; }
-    // private static readonly Dictionary<string, SKSvg> SSvgCache = new();
+    private static readonly Dictionary<string, Bitmap> SSvgCache = new();
 
     public override void Render(RenderContext renderContext, Point offset)
     {
-        // Console.WriteLine(factor);
+        var bitmap = GetBitmap();
 
-        // var matrix = SKMatrix.CreateScale(factor, factor);
-        //
-        // matrix.TransX = offset.X;
-        // matrix.TransY = offset.Y;
-        //
-        // renderContext.Add(new Picture
-        // {
-        //     SkPicture = GetSvg().Picture!,
-        //     SkMatrix = matrix,
-        //     Src = Src
-        // });
+        renderContext.AddBitmap(bitmap, new Bounds(new Vector2(offset.X, offset.Y), new Vector2(bitmap.Width, bitmap.Height) * factor));
     }
 
     public override void PrepareLayout(Dir dir)
@@ -40,53 +31,54 @@ public class UiSvg : UiElement
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        // var svg = GetSvg();
-        //
-        // var svgSize = svg.Picture!.CullRect;
-        //
-        // var svgRatio = svgSize.Width / svgSize.Height;
-        //
-        // //try to be as big as possible given the constraints
-        // var availableRatio = constraint.MaxWidth / constraint.MaxHeight;
-        //
-        // if (availableRatio > svgRatio) //Height is the limiting factor
-        // {
-        //     factor = constraint.MaxHeight / svgSize.Height;
-        // }
-        // else //Width is the limiting factor
-        // {
-        //     factor = constraint.MaxWidth / svgSize.Width;
-        // }
-        //
-        // Rect = new BoxSize(svgSize.Width * factor, svgSize.Height * factor);
-        // return Rect;
-        return new BoxSize();
+        var svg = GetBitmap();
+
+        var svgRatio = svg.Width / svg.Height;
+
+        //try to be as big as possible given the constraints
+        var availableRatio = constraint.MaxWidth / constraint.MaxHeight;
+
+        if (availableRatio > svgRatio) //Height is the limiting factor
+        {
+            factor = constraint.MaxHeight / svg.Height;
+        }
+        else //Width is the limiting factor
+        {
+            factor = constraint.MaxWidth / svg.Width;
+        }
+
+        Rect = new BoxSize(svg.Width * factor, svg.Height * factor);
+        return Rect;
     }
 
-    public void Parse()
+
+    private unsafe Bitmap GetBitmap()
     {
-        new SvgPath();
-    }
+        if (!SSvgCache.TryGetValue(Src, out var bitmap))
+        {
+            var bytes = File.ReadAllBytes(Src);
 
-    //
-    // private SKSvg GetSvg()
-    // {
-    //     if (!SSvgCache.TryGetValue(Src, out var svg))
-    //     {
-    //         Console.WriteLine($"Loading {Src}");
-    //         svg = new SKSvg();
-    //         var svgDoc = SvgExtensions.Open(Src);
-    //         if (ColorDefinition is { } cd)
-    //         {
-    //             svgDoc!.Fill = new SvgColourServer(Color.FromArgb(cd.Alpha, cd.Red, cd.Green, cd.Blue));
-    //         }
-    //         svg.FromSvgDocument(svgDoc);
-    //         SSvgCache.Add(Src, svg);
-    //     }
-    //
-    //     if (svg.Picture is null)
-    //         throw new Exception("unable to load svg");
-    //
-    //     return svg;
-    // }
+            fixed (byte* tvg = bytes)
+            {
+                TinyvgBitmap tinyvgBitmap = default;
+                var err = TinyVG.tinyvg_render_bitmap(tvg, bytes.Length, TinyvgAntiAlias.X16, 100, 100, ref tinyvgBitmap);
+                if (err != TinyvgError.Success)
+                {
+                    throw new Exception($"Error rendering svg: {err}");
+                }
+
+                bitmap = new Bitmap
+                {
+                    Width = tinyvgBitmap.Width,
+                    Height = tinyvgBitmap.Height,
+                    Data = new Slice<byte>((byte*)tinyvgBitmap.Pixels, (int)(tinyvgBitmap.Width * tinyvgBitmap.Height * 4)),
+                    BitmapFormat = BitmapFormat.RGBA
+                };
+            }
+
+            SSvgCache.Add(Src, bitmap);
+        }
+
+        return bitmap;
+    }
 }
