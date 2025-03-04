@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="./Icons/*.svg">
+        <None Update="./Icons/TVG/*.tvg">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="ThirdParty\tinyvg.dll">
@@ -46,6 +46,10 @@
       <EmbeddedResource Include="Drawing\Shaders\main_fragment.glsl" />
       <EmbeddedResource Include="Drawing\Shaders\main_vertex.glsl" />
       <EmbeddedResource Include="Drawing\segoeui.ttf" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Icons\TVG\" />
     </ItemGroup>
 
 </Project>

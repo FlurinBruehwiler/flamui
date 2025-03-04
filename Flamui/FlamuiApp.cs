@@ -108,7 +108,7 @@ public class FlamuiApp
 
     public static FlamuiBuilder CreateBuilder()
     {
-        Systrace.Initialize("trace.trace");
+        // Systrace.Initialize("trace.trace");
         return new FlamuiBuilder();
     }
 }

@@ -26,11 +26,38 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
     private string input2 = "anita max wynn";
     private string selectedOption = "";
 
+    private string[] icons =
+    [
+        "account_tree.tvg",
+        "add.tvg",
+        "archive.tvg",
+        "arrow_left_alt.tvg",
+        "arrow_right_alt.tvg",
+        "check.tvg",
+        "chevron_right.tvg",
+        "delete.tvg",
+        "description.tvg",
+        "expand_more.tvg",
+        "folder.tvg",
+        "forum.tvg",
+        "history.tvg",
+        "info.tvg",
+        "refresh.tvg",
+        "shelves.tvg",
+        "unarchive.tvg",
+    ];
+
     public override void Build(Ui ui)
     {
-        using (ui.Div().Width(100).Height(100))
+        using (ui.Div().Margin(10).Color(C.Gray6).ScrollVertical().Clip())
         {
-            ui.SvgImage(@"C:\Users\bruhw\Downloads\test_tvg_file.tvg");
+            foreach (var icon in icons)
+            {
+                using (ui.Div(icon).Width(100).Height(100))
+                {
+                    ui.SvgImage($"Icons/TVG/{icon}");
+                }
+            }
         }
     }
 }

@@ -92,14 +92,14 @@ public class GlCanvas
     private readonly Renderer _renderer;
     public Paint Paint;
     private static Dictionary<Bitmap, GpuTexture> _textures = []; //Todo not static
-    private static VgAtlas _vgAtlas;
+    private static VgAtlas? _vgAtlas;
 
     public GlCanvas(Renderer renderer, Arena arena)
     {
         _renderer = renderer;
         MeshBuilder = new MeshBuilder(arena);
 
-        _vgAtlas = new VgAtlas(renderer);
+        _vgAtlas ??= new VgAtlas(renderer);
         Start();
     }
 
