@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Point = Flamui.Layouting.Point;
@@ -9,9 +8,9 @@ namespace Flamui.UiElements;
 //Todo, we should probably offload svg loading onto a separate thread, or do them async etc., or maybe preload them
 public class UiSvg : UiElement
 {
-    public string Src { get; set; } = null!;
+    public ArenaString Src { get; set; } = default;
     public ColorDefinition? ColorDefinition { get; set; }
-    private static readonly Dictionary<string, (Slice<byte>, float aspectRatio)> SSvgCache = new();
+    private static readonly Dictionary<int, (Slice<byte>, float aspectRatio)> SSvgCache = new();
 
     public override void Render(RenderContext renderContext, Point offset)
     {
@@ -51,9 +50,9 @@ public class UiSvg : UiElement
 
     private unsafe (Slice<byte>, float aspectRatio) GetBitmap()
     {
-        if (!SSvgCache.TryGetValue(Src, out var entry))
+        if (!SSvgCache.TryGetValue(Src.GetHashCode(), out var entry))
         {
-            var bytes = File.ReadAllBytes(Src);
+            var bytes = File.ReadAllBytes(Src.ToString());
 
             var (width, height) = TinyVG.ParseHeader(bytes);
 
@@ -62,7 +61,7 @@ public class UiSvg : UiElement
             bytes.AsSpan().CopyTo(dest);
 
             entry = (new Slice<byte>(ptr, bytes.Length), (float)width / (float)height);
-            SSvgCache.Add(Src, entry);
+            SSvgCache.Add(Src.GetHashCode(), entry);
         }
 
         return entry;

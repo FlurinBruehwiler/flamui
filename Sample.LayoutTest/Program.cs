@@ -49,10 +49,11 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        using (ui.Div().Margin(10).Color(C.Gray6).ScrollVertical().Clip())
+        using (ui.Div().Margin(10).Color(C.Gray6).ScrollVertical().Clip().Padding(10))
         {
             foreach (var icon in icons)
             {
+                ui.Text(icon, icon).Size(20);
                 using (ui.Div(icon).Width(100).Height(100))
                 {
                     ui.SvgImage($"Icons/TVG/{icon}");

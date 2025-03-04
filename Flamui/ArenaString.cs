@@ -5,29 +5,29 @@ namespace Flamui;
 
 public struct ArenaStringBuilder
 {
-    private readonly Arena _arena;
+    public ArenaList<char> _backingList;
 
     public ArenaStringBuilder(Arena arena, int capacity)
     {
-        _arena = arena;
+        _backingList = new ArenaList<char>(arena, capacity);
     }
 
     public void Add(ArenaString arenaString)
     {
-
+        _backingList.AddRange(arenaString.AsSpan());
     }
 
     public void Add<T>(T val)
     {
-        if (val is int i) {
-            i.ToArenaString();
-        }
-        else if (val is bool b) {
-            b.ToArenaString();
-        }
-        else if (val is char c) {
-            c.ToArenaString();
-        }
+        var arenaString = val switch
+        {
+            int i => i.ToArenaString(),
+            bool b => b.ToArenaString(),
+            char c => c.ToArenaString(),
+            string s => s,
+            _ => throw new Exception($"{typeof(T)} is currently not supported :(")
+        };
+        Add(arenaString);
     }
 
     public ArenaString Build()
@@ -85,7 +85,7 @@ public static class ArenaStringExtensions
 [InterpolatedStringHandler]
 public struct ArenaString : IEquatable<ArenaString> //todo implement IEnumerable
 {
-    // private ArenaStringBuilder _arenaStringBuilder;
+    private ArenaStringBuilder _arenaStringBuilder;
     private Slice<char> _slice;
 
     public int Length => _slice.Length;
@@ -137,20 +137,23 @@ public struct ArenaString : IEquatable<ArenaString> //todo implement IEnumerable
         return AsSpan().ToString();
     }
 
-    // public ArenaString(int literalLength, int formattedCount)
-    // {
-    //     _arenaStringBuilder = new ArenaStringBuilder(Ui.Arena, literalLength);
-    // }
-    //
-    // public void AppendLiteral(string s)
-    // {
-    //     _arenaStringBuilder.Add((ArenaString)s);
-    // }
-    //
-    // public void AppendFormatted<T>(T t)
-    // {
-    //     _arenaStringBuilder.Add(t);
-    // }
+    public ArenaString(int literalLength, int formattedCount)
+    {
+        _arenaStringBuilder = new ArenaStringBuilder(Ui.Arena, literalLength);
+    }
+
+    public void AppendLiteral(string s)
+    {
+        _arenaStringBuilder.Add((ArenaString)s);
+        _slice = _arenaStringBuilder._backingList.AsSlice();
+    }
+
+    public void AppendFormatted<T>(T t)
+    {
+        _arenaStringBuilder.Add(t);
+        _slice = _arenaStringBuilder._backingList.AsSlice();
+    }
+
     public bool Equals(ArenaString other)
     {
         return other.AsSpan().SequenceEqual(AsSpan());

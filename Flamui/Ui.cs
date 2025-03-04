@@ -84,7 +84,7 @@ public partial class Ui
         return div;
     }
 
-    public UiText Text(string content,
+    public UiText Text(ArenaString content,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)
@@ -106,7 +106,7 @@ public partial class Ui
         return text;
     }
 
-    public UiSvg SvgImage(string src, ColorDefinition? colorDefinition = null,
+    public UiSvg SvgImage(ArenaString src, ColorDefinition? colorDefinition = null,
         string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)

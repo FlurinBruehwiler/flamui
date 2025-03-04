@@ -17,7 +17,7 @@ public struct UiTextInfo
     public TextAlign HorizontalAlignment = TextAlign.Start;
     public TextAlign VerticalAlignment = TextAlign.Center;
     public bool Multiline;
-    public string Content = string.Empty;
+    public ArenaString Content = default;
 }
 
 public struct TextPosition

@@ -29,24 +29,29 @@ public struct ArenaList<T> : IEnumerable<T> where T : unmanaged
         _backingSliceAllocateNum = arena.AllocNum;
     }
 
-    public unsafe void Add(T value)
+    public void AddRange(ReadOnlySpan<T> values)
+    {
+        EnsureInit();
+        ResizeIfNeeded(Count + values.Length);
+        values.CopyTo(_backingSlice.Span.Slice(Count));
+        Count += values.Length;
+    }
+
+    public void Add(T value)
+    {
+        EnsureInit();
+
+        ResizeIfNeeded(Count);
+
+        _backingSlice[Count] = value;
+        Count++;
+    }
+
+    private unsafe void ResizeIfNeeded(int neededCapacity)
     {
         var arena = Ui.Arena;
 
-        if (_arenaHash == 0)
-            _arenaHash = arena.GetHashCode();
-
-        Debug.Assert(arena.GetHashCode() == _arenaHash);
-
-        if (Capacity == 0) //in case the ArenaList isn't initialized via the constructor
-        {
-            _backingSlice = arena.AllocateSlice<T>(1);
-            _backingSliceAllocateNum = arena.AllocNum;
-        }
-
-        Debug.Assert(Count <= Capacity);
-
-        if (Count == Capacity)
+        if (neededCapacity >= Capacity)
         {
             //if there hasn't been another allocation on the arena, we don't need to allocate a new slice, we can just "extend" the current one
 
@@ -62,14 +67,11 @@ public struct ArenaList<T> : IEnumerable<T> where T : unmanaged
             {
                 var newSlice = arena.AllocateSlice<T>(Capacity * 2);
                 _backingSliceAllocateNum = arena.AllocNum;
-                
+
                 _backingSlice.Span.CopyTo(newSlice.Span);
                 _backingSlice = newSlice;
             }
         }
-
-        _backingSlice[Count] = value;
-        Count++;
     }
 
     public ref T this[int index]
@@ -101,6 +103,23 @@ public struct ArenaList<T> : IEnumerable<T> where T : unmanaged
     public Enumerator GetEnumerator()
     {
         return new Enumerator(this);
+    }
+
+    private void EnsureInit()
+    {
+        var arena = Ui.Arena;
+
+        if (_arenaHash == 0)
+            _arenaHash = arena.GetHashCode();
+
+        Debug.Assert(arena.GetHashCode() == _arenaHash);
+
+        if (Capacity == 0) //in case the ArenaList isn't initialized via the constructor
+        {
+            _backingSlice = arena.AllocateSlice<T>(1);
+            _backingSliceAllocateNum = arena.AllocNum;
+        }
+        Debug.Assert(Count <= Capacity);
     }
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator()
