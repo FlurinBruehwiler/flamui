@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Flamui.Drawing;
 using Flamui.UiElements;
@@ -53,6 +54,15 @@ public record struct Bounds
         H = size.Y;
     }
 
+    [SetsRequiredMembers]
+    public Bounds(float x, float y, float width, float height)
+    {
+        X = x;
+        Y = y;
+        W = width;
+        H = height;
+    }
+
     public Vector2 GetPosition()
     {
         return new Vector2(X, Y);
@@ -78,9 +88,13 @@ public record struct Bounds
         return withinX && withinY;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 TopLeft() => new(X, Y);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 TopRight() => new(X + W, Y);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 BottomLeft() => new(X, Y + H);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 BottomRight() => new(X + W, Y + H);
 
     //
@@ -113,7 +127,8 @@ public enum CommandType : byte
     Text,
     Matrix,
     Path,
-    Picture
+    Picture,
+    TinyVG
 }
 
 public struct Command : IEquatable<Command>
@@ -129,6 +144,8 @@ public struct Command : IEquatable<Command>
     public ColorDefinition Color;
     public Matrix4X4<float> Matrix;
     public Bitmap Bitmap;
+    public int VGId;
+    public Slice<byte> VGData;
 
     public bool Equals(Command other)
     {

@@ -28,7 +28,7 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        using (ui.Div().Width(100))
+        using (ui.Div().Width(100).Height(100))
         {
             ui.SvgImage(@"C:\Users\bruhw\Downloads\test_tvg_file.tvg");
         }

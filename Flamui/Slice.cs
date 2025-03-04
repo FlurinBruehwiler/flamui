@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Flamui;
 
-public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
+public unsafe struct Slice<T> : IEnumerable<T>, IEquatable<Slice<T>> where T : unmanaged
 {
     public T* Items;
     public int Length;
@@ -19,7 +19,7 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
 
     public void MemZero()
     {
-        Unsafe.InitBlock(Items, 0, (uint)(sizeof(int) * Length));
+        Unsafe.InitBlock(Items, 0, (uint)(sizeof(T) * Length));
     }
 
     public override string ToString()
@@ -72,7 +72,7 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Items->GetHashCode(), Length.GetHashCode());
+        return HashCode.Combine(unchecked((int)(long)Items), Length);
     }
 
     public Enumerator GetEnumerator()
@@ -126,5 +126,25 @@ public unsafe struct Slice<T> : IEnumerable<T> where T : unmanaged
             _current = default;
             _nextIndex = default;
         }
+    }
+
+    public bool Equals(Slice<T> other)
+    {
+        return Items == other.Items && Length == other.Length;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Slice<T> other && Equals(other);
+    }
+
+    public static bool operator ==(Slice<T> left, Slice<T> right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Slice<T> left, Slice<T> right)
+    {
+        return !(left == right);
     }
 }

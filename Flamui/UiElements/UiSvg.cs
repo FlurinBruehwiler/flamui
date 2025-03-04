@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Point = Flamui.Layouting.Point;
@@ -8,16 +9,15 @@ namespace Flamui.UiElements;
 //Todo, we should probably offload svg loading onto a separate thread, or do them async etc., or maybe preload them
 public class UiSvg : UiElement
 {
-    private float factor;
     public string Src { get; set; } = null!;
     public ColorDefinition? ColorDefinition { get; set; }
-    private static readonly Dictionary<string, Bitmap> SSvgCache = new();
+    private static readonly Dictionary<string, (Slice<byte>, float aspectRatio)> SSvgCache = new();
 
     public override void Render(RenderContext renderContext, Point offset)
     {
         var bitmap = GetBitmap();
 
-        renderContext.AddBitmap(bitmap, new Bounds(new Vector2(offset.X, offset.Y), new Vector2(bitmap.Width, bitmap.Height) * factor));
+        renderContext.AddVectorGraphics(Src.GetHashCode(), bitmap.Item1, new Bounds(offset.X, offset.Y, Rect.Width, Rect.Height));
     }
 
     public override void PrepareLayout(Dir dir)
@@ -31,54 +31,40 @@ public class UiSvg : UiElement
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        var svg = GetBitmap();
-
-        var svgRatio = svg.Width / svg.Height;
+        var (_, svgRatio) = GetBitmap();
 
         //try to be as big as possible given the constraints
         var availableRatio = constraint.MaxWidth / constraint.MaxHeight;
 
         if (availableRatio > svgRatio) //Height is the limiting factor
         {
-            factor = constraint.MaxHeight / svg.Height;
+            Rect = new BoxSize(constraint.MaxHeight * svgRatio, constraint.MaxHeight);
         }
         else //Width is the limiting factor
         {
-            factor = constraint.MaxWidth / svg.Width;
+            Rect = new BoxSize(constraint.MaxWidth, constraint.MaxWidth / svgRatio);
         }
 
-        Rect = new BoxSize(svg.Width * factor, svg.Height * factor);
         return Rect;
     }
 
 
-    private unsafe Bitmap GetBitmap()
+    private unsafe (Slice<byte>, float aspectRatio) GetBitmap()
     {
-        if (!SSvgCache.TryGetValue(Src, out var bitmap))
+        if (!SSvgCache.TryGetValue(Src, out var entry))
         {
             var bytes = File.ReadAllBytes(Src);
 
-            fixed (byte* tvg = bytes)
-            {
-                TinyvgBitmap tinyvgBitmap = default;
-                var err = TinyVG.tinyvg_render_bitmap(tvg, bytes.Length, TinyvgAntiAlias.X16, 100, 100, ref tinyvgBitmap);
-                if (err != TinyvgError.Success)
-                {
-                    throw new Exception($"Error rendering svg: {err}");
-                }
+            var (width, height) = TinyVG.ParseHeader(bytes);
 
-                bitmap = new Bitmap
-                {
-                    Width = tinyvgBitmap.Width,
-                    Height = tinyvgBitmap.Height,
-                    Data = new Slice<byte>((byte*)tinyvgBitmap.Pixels, (int)(tinyvgBitmap.Width * tinyvgBitmap.Height * 4)),
-                    BitmapFormat = BitmapFormat.RGBA
-                };
-            }
+            var ptr = (byte*)Marshal.AllocHGlobal(bytes.Length);
+            var dest = new Span<byte>(ptr, bytes.Length);
+            bytes.AsSpan().CopyTo(dest);
 
-            SSvgCache.Add(Src, bitmap);
+            entry = (new Slice<byte>(ptr, bytes.Length), (float)width / (float)height);
+            SSvgCache.Add(Src, entry);
         }
 
-        return bitmap;
+        return entry;
     }
 }

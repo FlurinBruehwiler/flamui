@@ -85,6 +85,17 @@ public class RenderContext
         Add(cmd);
     }
 
+    public void AddVectorGraphics(int vgId, Slice<byte> vgData, Bounds bounds)
+    {
+        var cmd = new Command();
+        cmd.Type = CommandType.TinyVG;
+        cmd.Bounds = bounds;
+        cmd.VGId = vgId;
+        cmd.VGData = vgData;
+
+        Add(cmd);
+    }
+
     /// <summary>
     /// Multiplies the current matrix with the new matrix
     /// </summary>
@@ -233,6 +244,9 @@ public class RenderContext
                         break;
                     case CommandType.Picture:
                         canvas.DrawBitmap(command.Bitmap, command.Bounds);
+                        break;
+                    case CommandType.TinyVG:
+                        canvas.DrawTinyVG(command.VGId, command.VGData, command.Bounds);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(command.Type.ToString());

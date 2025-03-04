@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -21,6 +23,51 @@ public struct Bitmap
     public override int GetHashCode()
     {
         return HashCode.Combine(Width.GetHashCode(), Height.GetHashCode(), Data.GetHashCode());
+    }
+
+    public int Stride()
+    {
+        return BitmapFormat switch
+        {
+            BitmapFormat.R => 1 * (int)Width,
+            BitmapFormat.RGBA => 4 * (int)Width,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+
+    public void CopyTo(Bitmap bitmap)
+    {
+        if (Width > bitmap.Width || Height > bitmap.Height)
+            throw new Exception("Bitmap is too large :(");
+
+        bitmap.Data.MemZero();
+
+        var stride = Stride();
+
+        for (int y = 0; y < Height; y++)
+        {
+            Data.Span.Slice(y * stride, stride).CopyTo(bitmap.Data.Span.Slice(y * bitmap.Stride(), stride));
+        }
+    }
+
+    public readonly void PrintToConsole()
+    {
+        for (int i = 0; i < Height; i++)
+        {
+            for (int j = 0; j < Width; j++)
+            {
+                if (BitmapFormat == BitmapFormat.RGBA)
+                {
+                    var val1 = Data[(int)((i * Width + j) * 4)];
+                    var val2 = Data[(int)((i * Width + j) * 4) + 1];
+                    var val3 = Data[(int)((i * Width + j) * 4) + 2];
+                    var val4 = Data[(int)((i * Width + j) * 4) + 3];
+                    var fin = val1 + val2 + val3;
+                    Console.Write($"{fin,3}");
+                }
+            }
+            Console.WriteLine();
+        }
     }
 }
 
