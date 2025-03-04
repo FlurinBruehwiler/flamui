@@ -302,10 +302,6 @@ public unsafe partial class UiWindow : IDisposable
     {
         // using var _ = Systrace.BeginEvent("RenderToCanvas");
 
-
-        //RenderContext.PrintCommands();//todo remove
-        //todo check if something has actually changed
-
         if (!RenderContextAreSame(RenderContext, LastRenderContext))
         {
             RenderContext.PrintCommands();

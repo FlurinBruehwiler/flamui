@@ -135,6 +135,8 @@ public class Renderer
         }
 
         CheckError();
+
+        Gl.Enable(EnableCap.StencilTest);
     }
 
     private int[] textureSlotUniformLocations = new int[10];
@@ -241,6 +243,9 @@ public class Renderer
 
     public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)
     {
+        if (mesh.Indices.Length == 0) //empty mesh, noting to do...
+            return;
+
         using var _ = Systrace.BeginEvent(nameof(DrawMesh));
 
         Gl.BindVertexArray(_vao);
@@ -263,6 +268,8 @@ public class Renderer
             Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
             Gl.BufferData(BufferTargetARB.ElementArrayBuffer, mesh.Indices.ReadonlySpan, BufferUsageARB.StaticDraw);
         }
+
+        //todo, do we need to do this on every DrawMesh call?
 
         const int stride = 3 + 2 + 1 + 4 + 1 + 1; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color + 1 texturetype + 1 textureId
 

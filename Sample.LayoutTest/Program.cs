@@ -14,7 +14,7 @@ app.CreateWindow<LayoutTest>("Sample.LayoutTest");
 
 app.Run();
 
-public class LayoutTest(FlamuiApp app) : FlamuiComponent
+public class LayoutTest : FlamuiComponent
 {
     private ColorDefinition cc = new(43, 45, 48);
     private ColorDefinition c2 = new(30, 31, 34);
@@ -59,6 +59,11 @@ public class LayoutTest(FlamuiApp app) : FlamuiComponent
                     ui.SvgImage($"Icons/TVG/{icon}");
                 }
             }
+        }
+
+        using (ui.Div().Color(C.Green7))
+        {
+
         }
     }
 }

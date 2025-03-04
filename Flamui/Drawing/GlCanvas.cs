@@ -187,21 +187,33 @@ public class GlCanvas
         ClipRoundedRect(x, y, width, height, 0);
     }
 
+    public void ClearClip()
+    {
+        Flush();
+
+        _renderer.Gl.StencilMask(0xFF);
+        _renderer.Gl.ClearStencil(1);
+        _renderer.Gl.Clear(ClearBufferMask.StencilBufferBit);
+        _renderer.Gl.StencilMask(0x00);
+
+    }
+
     public void ClipRoundedRect(float x, float y, float width, float height, float radius)
     {
         //magic code that I don't really understand...
 
-        _renderer.Gl.Enable(EnableCap.StencilTest);
-
-        _renderer.Gl.Clear(ClearBufferMask.StencilBufferBit);
-        _renderer.Gl.StencilMask(0x00); //disables writing to the stencil buffer
+        // _renderer.Gl.StencilMask(0x00); //disables writing to the stencil buffer
 
         //draw the vertex buffer up to the clip
         Flush();
 
+        _renderer.Gl.StencilMask(0xFF); //enables writing to the stencil buffer
+
+        _renderer.Gl.ClearStencil(0);
+        _renderer.Gl.Clear(ClearBufferMask.StencilBufferBit);
+
         //explain: glStencilFunc(GL_EQUAL, 1, 0xFF) is tells OpenGL that whenever the stencil value of a fragment is equal (GL_EQUAL) to the reference value 1, the fragment passes the test and is drawn, otherwise discarded.
         _renderer.Gl.StencilFunc(StencilFunction.Always,1, 0xFF); //compares stencil buffer content to ref, to determine if the pixel should have an effect
-        _renderer.Gl.StencilMask(0xFF); //enables writing to the stencil buffer
         _renderer.Gl.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace); //how to actually update the stencil buffer
 
         _renderer.Gl.ColorMask(false, false, false, false);
@@ -228,6 +240,8 @@ public class GlCanvas
         _renderer.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         _renderer.Gl.StencilMask(0xFF);
         _renderer.Gl.StencilFunc(StencilFunction.Always, 1, 0xFF);
+
+
     }
 
     public void Flush()

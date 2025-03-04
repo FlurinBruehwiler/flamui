@@ -128,7 +128,8 @@ public enum CommandType : byte
     Matrix,
     Path,
     Picture,
-    TinyVG
+    TinyVG,
+    ClearClip
 }
 
 public struct Command : IEquatable<Command>

@@ -80,7 +80,11 @@ public static class FlexContainerRenderer
             renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius);
         }
 
-        ClipContent(renderContext, flexContainer, flexContainer.Info, offset);
+
+        if (NeedsClip(flexContainer.Info))
+        {
+            renderContext.PushClip(flexContainer.Rect.ToBounds(offset), flexContainer.Info.Radius);
+        }
 
         if (flexContainer.Info.ScrollConfigY.CanScroll || flexContainer.Info.ScrollConfigX.CanScroll)
         {
@@ -107,8 +111,7 @@ public static class FlexContainerRenderer
 
         if (NeedsClip(flexContainer.Info))
         {
-            // renderContext.AddClipRect(new Bounds(new Vector2(-1000, -1000), new Vector2(2000, 2000)), 1);
-            // renderContext.Add(new Restore());
+            renderContext.PopClip();
         }
 
         if (flexContainer.Info.Rotation != 0)
@@ -122,22 +125,6 @@ public static class FlexContainerRenderer
         if (flexContainer.Info.ZIndex != 0)
         {
             renderContext.RestoreZIndex();
-        }
-    }
-
-    private static void ClipContent(RenderContext renderContext, UiElement uiElement, FlexContainerInfo Info, Point offset)
-    {
-        if (NeedsClip(Info))
-        {
-            // renderContext.Add(new Save());
-
-            renderContext.AddClipRect(uiElement.Rect.ToBounds(offset), Info.Radius);
-            // renderContext.Add(new RectClip
-            // {
-            //     Bounds = ,
-            //     Radius = Info.Radius,
-            //     ClipOperation = SKClipOperation.Intersect
-            // });
         }
     }
 

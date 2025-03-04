@@ -19,6 +19,7 @@ public class RenderContext
     public Arena Arena;
     public Dictionary<int, ArenaChunkedList<Command>> CommandBuffers = [];
     private Stack<Matrix4X4<float>> MatrixStack = [];
+    private Stack<Command> ClipStack = [];
 
     public void Reset()
     {
@@ -44,16 +45,6 @@ public class RenderContext
         var cmd = new Command();
         cmd.Path = path;
         cmd.Color = color;
-
-        Add(cmd);
-    }
-
-    public void AddClipRect(Bounds bounds, float radius = 0)
-    {
-        var cmd = new Command();
-        cmd.Bounds = bounds;
-        cmd.Radius = radius;
-        cmd.Type = CommandType.ClipRect;
 
         Add(cmd);
     }
@@ -91,6 +82,34 @@ public class RenderContext
         cmd.VGData = vgData;
 
         Add(cmd);
+    }
+
+    public void PushClip(Bounds bounds, float radius = 0)
+    {
+        var cmd = new Command();
+        cmd.Bounds = bounds;
+        cmd.Radius = radius;
+        cmd.Type = CommandType.ClipRect;
+
+        ClipStack.Push(cmd);
+
+        Add(cmd);
+    }
+
+    public void PopClip()
+    {
+        ClipStack.Pop();
+
+        if (ClipStack.TryPeek(out var cmd))
+        {
+            Add(cmd);
+        }
+        else
+        {
+            cmd = new Command();
+            cmd.Type = CommandType.ClearClip;
+            Add(cmd);
+        }
     }
 
     /// <summary>
@@ -196,10 +215,13 @@ public class RenderContext
                         Console.WriteLine($"Matrix: {command.Matrix}");
                         break;
                     case CommandType.TinyVG:
-                        Console.WriteLine("VG");
+                        Console.WriteLine("VG:");
                         break;
                     case CommandType.Picture:
-                        Console.WriteLine("Picture");
+                        Console.WriteLine("Picture:");
+                        break;
+                    case CommandType.ClearClip:
+                        Console.WriteLine("ClearClip:");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(command.Type.ToString());
@@ -250,6 +272,9 @@ public class RenderContext
                         break;
                     case CommandType.TinyVG:
                         canvas.DrawTinyVG(command.VGId, command.VGData, command.Bounds);
+                        break;
+                    case CommandType.ClearClip:
+                        canvas.ClearClip();
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(command.Type.ToString());
