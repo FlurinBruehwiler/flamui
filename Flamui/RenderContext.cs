@@ -13,15 +13,12 @@ public class RenderContext
     public RenderContext()
     {
         ZIndexes.Push(0);
-        var virtualBuffer = manager.CreateBuffer("PerFrameArena", (UIntPtr)1_000_000);
-        Arena = new Arena(virtualBuffer);
+        Arena = new Arena("PerFrameArena", 1_000_000);
     }
 
     public Arena Arena;
     public Dictionary<int, ArenaChunkedList<Command>> CommandBuffers = [];
     private Stack<Matrix4X4<float>> MatrixStack = [];
-
-    public static VirtualArenaManager manager = new();
 
     public void Reset()
     {
@@ -197,6 +194,12 @@ public class RenderContext
                         break;
                     case CommandType.Matrix:
                         Console.WriteLine($"Matrix: {command.Matrix}");
+                        break;
+                    case CommandType.TinyVG:
+                        Console.WriteLine("VG");
+                        break;
+                    case CommandType.Picture:
+                        Console.WriteLine("Picture");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(command.Type.ToString());

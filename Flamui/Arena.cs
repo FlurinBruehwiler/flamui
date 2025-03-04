@@ -36,9 +36,11 @@ public class Arena : IAllocator, IDisposable
 
     private readonly Dictionary<object, GCHandle> objectToHandle = [];
 
-    public Arena(VirtualBuffer virtualBuffer)
+    public static VirtualArenaManager manager = new();
+
+    public Arena(string name, int size)
     {
-        VirtualBuffer = virtualBuffer;
+        VirtualBuffer = manager.CreateBuffer(name, (UIntPtr)size);
     }
 
     /// <summary>

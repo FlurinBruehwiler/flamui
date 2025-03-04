@@ -308,7 +308,8 @@ public unsafe partial class UiWindow : IDisposable
 
         if (!RenderContextAreSame(RenderContext, LastRenderContext))
         {
-            Console.WriteLine("rerender");
+            RenderContext.PrintCommands();
+
             _renderer.Gl.Viewport(Window.Size);
             RenderContext.Rerender(_renderer);
             Window.GLContext.SwapBuffers();

@@ -69,6 +69,8 @@ public class VgAtlas
             return entry;
         }
 
+        Console.WriteLine("VG cache miss");
+
         entry = Table.GetLeastUsed();
 
         fixed (byte* tvg = vgData)

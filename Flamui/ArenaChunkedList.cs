@@ -157,6 +157,7 @@ public unsafe class ArenaChunkedList<T> : IEnumerable<T> where T : unmanaged
                 }
 
                 _currentChunk = _currentChunk->NextChunk;
+                _indexInChunk = 0;
             }
 
             if (_indexInChunk >= _currentChunk->Count)

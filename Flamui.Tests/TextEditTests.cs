@@ -431,8 +431,7 @@ public class TextEditTests
     {
         var (cursorPosition, selectionStart) = ExtractMetadata(ref initialText);
 
-        var virtualBuffer = RenderContext.manager.CreateBuffer("TestArena", (UIntPtr)1_000);
-        var arena = Ui.Arena = new Arena(virtualBuffer);
+        var arena = Ui.Arena = new Arena("TestArena", 1_000);
 
         var font = FontLoader.LoadFont("segoeui.ttf");
         var layoutInfo = FontShaping.LayoutText(new ScaledFont(font, 20), initialText, float.MaxValue, TextAlign.Start, false, arena);
