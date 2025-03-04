@@ -183,7 +183,8 @@ public class GlCanvas
 
     public void ClipRect(float x, float y, float width, float height)
     {
-        //todo
+        //todo, we can to more efficient clipping if it isn't a rounded rect....
+        ClipRoundedRect(x, y, width, height, 0);
     }
 
     public void ClipRoundedRect(float x, float y, float width, float height, float radius)
