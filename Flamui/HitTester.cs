@@ -33,9 +33,13 @@ public class HitTester
         }
     }
 
-    private void HitTest(Vector2 point)
+    List<UiElement> hitElements = new();
+
+    private void HitTest(Vector2 originalPoint)
     {
-        var hitElements = new List<UiElement>();
+        var transformedPoint = originalPoint;
+
+        hitElements.Clear();
 
         //from back to front
         foreach (var (_, value) in _window.LastRenderContext.CommandBuffers.OrderBy(x => x.Key))
@@ -44,19 +48,19 @@ public class HitTester
             {
                 if (command.Type == CommandType.Matrix)
                 {
-                    point = point.Multiply(command.Matrix.Invert());
+                    transformedPoint = originalPoint.Multiply(command.Matrix.Invert());
                 }
                 else if (command.Type == CommandType.Rect)
                 {
                     command.UiElement.Get().FinalOnScreenSize = command.Bounds;
-                    if (command.Bounds.ContainsPoint(point))
+                    if (command.Bounds.ContainsPoint(transformedPoint))
                     {
                         hitElements.Add(command.UiElement.Get());
                     }
                 }else if (command.Type == CommandType.Text)
                 {
                     command.UiElement.Get().FinalOnScreenSize = command.Bounds;
-                    if (command.Bounds.ContainsPoint(point))
+                    if (command.Bounds.ContainsPoint(transformedPoint))
                     {
                         hitElements.Add(command.UiElement.Get());
                     }
