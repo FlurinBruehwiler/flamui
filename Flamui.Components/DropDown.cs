@@ -29,7 +29,10 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
             ui.Text(SelectedOption.ToString() ?? string.Empty).Color(ColorPalette.TextColor);
 
-            // ui.SvgImage("./Icons/expand_more.svg");
+            using (ui.Div().Height(23).Width(23))
+            {
+                ui.SvgImage("Icons/TVG/expand_more.tvg");
+            }
 
             if (_isExpanded)
             {

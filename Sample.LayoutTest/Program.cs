@@ -1,4 +1,5 @@
 ﻿using Flamui;
+using Flamui.Components;
 
 /*
  * Todo
@@ -24,7 +25,7 @@ public class LayoutTest : FlamuiComponent
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
 
     private string input2 = "anita max wynn";
-    private string selectedOption = "";
+    private string selectedOption = "John";
 
     private string[] icons =
     [
@@ -49,7 +50,9 @@ public class LayoutTest : FlamuiComponent
 
     public override void Build(Ui ui)
     {
-        using (ui.Div().Margin(10).Color(C.Gray6).ScrollVertical().Clip().Padding(10))
+        ui.CascadingValues.TextColor = C.White;
+
+        using (ui.Div().Margin(10).Color(C.Gray6).ScrollVertical().Clip().Padding(10).Rounded(10))
         {
             foreach (var icon in icons)
             {
@@ -61,9 +64,16 @@ public class LayoutTest : FlamuiComponent
             }
         }
 
-        using (ui.Div().Color(C.Green7))
+        using (ui.Div().Color(C.Gray6).Padding(10).Rounded(10).Margin(10).Gap(10))
         {
+            var dd = ui.CreateDropDown(selectedOption);
+            dd.Component.Option("John");
+            dd.Component.Option("Albert");
+            dd.Component.Option("Div");
+            dd.Component.Option("Size");
+            dd.Build(out selectedOption);
 
+            ui.StyledInput(ref input2);
         }
     }
 }

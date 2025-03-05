@@ -241,7 +241,9 @@ public class GlCanvas
         _renderer.Gl.StencilMask(0xFF);
         _renderer.Gl.StencilFunc(StencilFunction.Always, 1, 0xFF);
 
-
+        // _renderer.Gl.Enable(EnableCap.FramebufferSrgb);
+        _renderer.Gl.Enable(EnableCap.Blend);
+        _renderer.Gl.BlendFunc(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
     }
 
     public void Flush()

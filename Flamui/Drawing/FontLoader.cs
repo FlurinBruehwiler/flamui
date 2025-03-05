@@ -154,14 +154,14 @@ public class FontAtlas
 
         Console.WriteLine($"glyph cache miss: {c}:{resolutionMultiplier}, inserting into slot {entry.SlotNumber}");
 
-        for (var i = 0; i < bitmapSpan.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
-        {
-            ref var b = ref bitmapSpan[i];
-
-            var f = (double)b;
-            f = 255 * Math.Pow(f / 255, 0.5f);
-            b = (byte)f;
-        }
+        // for (var i = 0; i < bitmapSpan.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
+        // {
+        //     ref var b = ref bitmapSpan[i];
+        //
+        //     var f = (double)b;
+        //     f = 255 * Math.Pow(f / 255, 0.5f);
+        //     b = (byte)f;
+        // }
 
         GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
         GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);

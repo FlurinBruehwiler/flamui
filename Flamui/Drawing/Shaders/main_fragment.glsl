@@ -20,7 +20,8 @@ void main()
         }else if(texture_type == 1){
             out_color = texture(uTextures[int(texture_id)], frag_texCoords);
         }else if(texture_type == 2){
-            out_color = texture(uTextures[int(texture_id)], frag_texCoords).r * frag_color;
+            float alpha = texture(uTextures[int(texture_id)], frag_texCoords).r;
+            out_color = vec4(frag_color.rgb * alpha, alpha);
            // out_color = vec4(1, 0, 0, 1);
         }
     }else{
@@ -50,6 +51,8 @@ void main()
             discard;
         }
 
-        out_color = vec4(frag_color.r, frag_color.g, frag_color.b, frag_color.a * opacity);
+        opacity *= frag_color.a;
+
+        out_color = vec4(frag_color.r * opacity, frag_color.g * opacity, frag_color.b * opacity, opacity);
     }
 }

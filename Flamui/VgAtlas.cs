@@ -93,6 +93,16 @@ public class VgAtlas
                 BitmapFormat = BitmapFormat.RGBA
             };
 
+            //premultiply alpha
+            for (int i = 0; i < bitmap.Height * bitmap.Width; i++)
+            {
+                var a = (float)bitmap.Data[i * 4 + 3] / 255;
+
+                bitmap.Data[i * 4 + 0] = (byte)((float)bitmap.Data[i * 4 + 0] * a);
+                bitmap.Data[i * 4 + 1] = (byte)((float)bitmap.Data[i * 4 + 1] * a);
+                bitmap.Data[i * 4 + 2] = (byte)((float)bitmap.Data[i * 4 + 2] * a);
+            }
+
             bitmap.CopyTo(tempBitmap);
             // tempBitmap.PrintToConsole();
 
