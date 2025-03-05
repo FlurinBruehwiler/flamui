@@ -53,19 +53,21 @@ public struct ArenaList<T> : IEnumerable<T> where T : unmanaged
 
         if (neededCapacity >= Capacity)
         {
+            var newCapacity = Math.Max(neededCapacity, _backingSlice.Length * 2);
+
             //if there hasn't been another allocation on the arena, we don't need to allocate a new slice, we can just "extend" the current one
 
             //todo, this isn't really elegant or easy to understand, would be better to have a method directly on the
             //arena, that can tell you if a slice is at the end of the arena, and therefore allows *zero* cost resize
             if (_backingSliceAllocateNum == arena.AllocNum)
             {
-                arena.AllocateSlice<T>(_backingSlice.Length);
-                _backingSlice = new Slice<T>(_backingSlice.Items, _backingSlice.Length * 2);
+                arena.AllocateSlice<T>(newCapacity - _backingSlice.Length);
+                _backingSlice = new Slice<T>(_backingSlice.Items, newCapacity);
                 _backingSliceAllocateNum = arena.AllocNum;
             }
             else
             {
-                var newSlice = arena.AllocateSlice<T>(Capacity * 2);
+                var newSlice = arena.AllocateSlice<T>(newCapacity);
                 _backingSliceAllocateNum = arena.AllocNum;
 
                 _backingSlice.Span.CopyTo(newSlice.Span);

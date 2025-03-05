@@ -25,6 +25,8 @@ public struct ArenaStringBuilder
             bool b => b.ToArenaString(),
             char c => c.ToArenaString(),
             string s => s,
+            float f => f.ToArenaString(),
+            double d => d.ToArenaString(),
             _ => throw new Exception($"{typeof(T)} is currently not supported :(")
         };
         Add(arenaString);
@@ -63,6 +65,28 @@ public static class ArenaStringExtensions
     {
         var buffer = Ui.Arena.AllocateSlice<char>(5);
         if (i.TryFormat(buffer.Span, out var charsWritten))
+        {
+            return new ArenaString(buffer.SubSlice(0, charsWritten));
+        }
+
+        throw new Exception("Error!!");
+    }
+
+    public static ArenaString ToArenaString(this float f)
+    {
+        var buffer = Ui.Arena.AllocateSlice<char>(20);
+        if (f.TryFormat(buffer.Span, out var charsWritten))
+        {
+            return new ArenaString(buffer.SubSlice(0, charsWritten));
+        }
+
+        throw new Exception("Error!!");
+    }
+
+    public static ArenaString ToArenaString(this double f)
+    {
+        var buffer = Ui.Arena.AllocateSlice<char>(20);
+        if (f.TryFormat(buffer.Span, out var charsWritten))
         {
             return new ArenaString(buffer.SubSlice(0, charsWritten));
         }

@@ -181,10 +181,10 @@ public class GlCanvas
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
     }
 
-    public void ClipRect(float x, float y, float width, float height)
+    public void ClipRect(float x, float y, float width, float height, ClipMode clipMode)
     {
         //todo, we can to more efficient clipping if it isn't a rounded rect....
-        ClipRoundedRect(x, y, width, height, 0);
+        ClipRoundedRect(x, y, width, height, 0, clipMode);
     }
 
     public void ClearClip()
@@ -192,13 +192,14 @@ public class GlCanvas
         Flush();
 
         _renderer.Gl.StencilMask(0xFF);
+        _renderer.Gl.StencilFunc(StencilFunction.Equal, 1, 0xFF);
         _renderer.Gl.ClearStencil(1);
         _renderer.Gl.Clear(ClearBufferMask.StencilBufferBit);
         _renderer.Gl.StencilMask(0x00);
 
     }
 
-    public void ClipRoundedRect(float x, float y, float width, float height, float radius)
+    public void ClipRoundedRect(float x, float y, float width, float height, float radius, ClipMode clipMode)
     {
         //magic code that I don't really understand...
 
@@ -226,7 +227,15 @@ public class GlCanvas
         _renderer.Gl.ColorMask(true, true, true, true);
         _renderer.Gl.DepthMask(true);
 
-        _renderer.Gl.StencilFunc(StencilFunction.Equal, 1, 0xFF); //switch to Notequal, if we want to invert the clip
+
+        if (clipMode == ClipMode.OnlyDrawWithin)
+        {
+            _renderer.Gl.StencilFunc(StencilFunction.Equal, 1, 0xFF);
+        }else if (clipMode == ClipMode.OnlyDrawOutside)
+        {
+            _renderer.Gl.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
+        }
+
         _renderer.Gl.StencilMask(0x00); //disables writing to the stencil buffer
         //_renderer.Gl.Disable(EnableCap.StencilTest);
 

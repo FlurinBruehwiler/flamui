@@ -16,7 +16,7 @@ public static partial class UiExtensions
             }
             else
             {
-                btn.BorderWidth(1).BorderColor(ColorPalette.BorderColor).Color(C.Transparent);
+                btn.BorderWidth(1).BorderColor(ColorPalette.BorderColor).Color(ColorPalette.BackgroundColor);
             }
 
             if (btn.HasFocusWithin)

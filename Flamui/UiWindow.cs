@@ -87,8 +87,12 @@ public unsafe partial class UiWindow : IDisposable
         window.Render += OnRender;
     }
 
+    public double DeltaTime;
+
     private void OnRender(double obj)
     {
+        DeltaTime = obj;
+
         if (!isInitialized)
             return;
 

@@ -45,6 +45,13 @@ public static class FlexContainerRenderer
         {
             float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
 
+            var needsClip = flexContainer.Info.Color == null || flexContainer.Info.Color.Value.Alpha != 255;
+
+            if (needsClip)
+            {
+                renderContext.PushClip(flexContainer.Rect.ToBounds(offset), ClipMode.OnlyDrawOutside, flexContainer.Info.Radius);
+            }
+
             var bounds = new Bounds
             {
                 X = offset.X - flexContainer.Info.BorderWidth,
@@ -53,6 +60,11 @@ public static class FlexContainerRenderer
                 H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
             };
             renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
+
+            if (needsClip)
+            {
+                renderContext.PopClip();
+            }
         }
 
         if (flexContainer.Info.Color is { } color)
@@ -83,7 +95,7 @@ public static class FlexContainerRenderer
 
         if (NeedsClip(flexContainer.Info))
         {
-            renderContext.PushClip(flexContainer.Rect.ToBounds(offset), flexContainer.Info.Radius);
+            renderContext.PushClip(flexContainer.Rect.ToBounds(offset), ClipMode.OnlyDrawWithin, flexContainer.Info.Radius);
         }
 
         if (flexContainer.Info.ScrollConfigY.CanScroll || flexContainer.Info.ScrollConfigX.CanScroll)

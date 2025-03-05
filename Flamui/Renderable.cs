@@ -147,6 +147,7 @@ public struct Command : IEquatable<Command>
     public Bitmap Bitmap;
     public int VGId;
     public Slice<byte> VGData;
+    public ClipMode ClipMode;
 
     public bool Equals(Command other)
     {

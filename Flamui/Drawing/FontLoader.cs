@@ -152,7 +152,7 @@ public class FontAtlas
 
         var bitmapSpan = new Span<byte>((void*)GlyphTempMemory, 100 * 100);
 
-        Console.WriteLine($"glyph cache miss: {c}:{resolutionMultiplier}, inserting into slot {entry.SlotNumber}");
+        // Console.WriteLine($"glyph cache miss: {c}:{resolutionMultiplier}, inserting into slot {entry.SlotNumber}");
 
         // for (var i = 0; i < bitmapSpan.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
         // {

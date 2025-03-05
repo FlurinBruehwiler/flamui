@@ -6,6 +6,13 @@ using Varena;
 
 namespace Flamui;
 
+public enum ClipMode : byte
+{
+
+    OnlyDrawWithin,
+    OnlyDrawOutside
+}
+
 public class RenderContext
 {
     public Stack<int> ZIndexes = new();
@@ -84,12 +91,13 @@ public class RenderContext
         Add(cmd);
     }
 
-    public void PushClip(Bounds bounds, float radius = 0)
+    public void PushClip(Bounds bounds, ClipMode clipMode, float radius = 0)
     {
         var cmd = new Command();
         cmd.Bounds = bounds;
         cmd.Radius = radius;
         cmd.Type = CommandType.ClipRect;
+        cmd.ClipMode = clipMode;
 
         ClipStack.Push(cmd);
 
@@ -255,9 +263,9 @@ public class RenderContext
                         break;
                     case CommandType.ClipRect:
                         if(command.Radius == 0)
-                            canvas.ClipRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H);
+                            canvas.ClipRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.ClipMode);
                         else
-                            canvas.ClipRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius);
+                            canvas.ClipRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius, command.ClipMode);
                         break;
                     case CommandType.Text:
                         canvas.Paint.Font = new ScaledFont(command.Font.Get(), command.FontSize);

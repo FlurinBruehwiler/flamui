@@ -64,7 +64,7 @@ public class LayoutTest : FlamuiComponent
             }
         }
 
-        using (ui.Div().Color(C.Gray6).Padding(10).Rounded(10).Margin(10).Gap(10))
+        using (ui.Div().Color(ColorPalette.BackgroundColor).Padding(10).Rounded(10).Margin(10).Gap(10))
         {
             var dd = ui.CreateDropDown(selectedOption);
             dd.Component.Option("John");
@@ -74,6 +74,13 @@ public class LayoutTest : FlamuiComponent
             dd.Build(out selectedOption);
 
             ui.StyledInput(ref input2);
+
+            ui.Button("Press me!");
+
+            ui.Button("Press me!", primary: true);
+
+            var fps = (float)(1 / ui.Window.DeltaTime);
+            ui.Text($"{fps} fps");
         }
     }
 }

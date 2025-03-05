@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Flamui.Drawing;
+using Flamui.PerfTrace;
 using Silk.NET.OpenGL;
 
 namespace Flamui;
@@ -69,7 +70,8 @@ public class VgAtlas
             return entry;
         }
 
-        Console.WriteLine("VG cache miss");
+        using var _ = ConsoleTimer.Time("VG generation");
+
 
         entry = Table.GetLeastUsed();
 

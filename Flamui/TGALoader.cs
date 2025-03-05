@@ -38,7 +38,10 @@ public struct Bitmap
     public void CopyTo(Bitmap bitmap)
     {
         if (Width > bitmap.Width || Height > bitmap.Height)
-            throw new Exception("Bitmap is too large :(");
+        {
+            Console.WriteLine("VG too large :(");
+            return;
+        }
 
         bitmap.Data.MemZero();
 
