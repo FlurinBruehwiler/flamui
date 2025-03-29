@@ -48,7 +48,7 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
             }
         }
 
-        using (var track = ui.Div().Padding(settings.Padding).ZIndex(100))
+        using (var track = ui.Div().Padding(settings.Padding))
         {
             if (scrollService.Dir == Dir.Vertical)
             {

@@ -150,7 +150,7 @@ public class FontAtlas
         int xOff = ix0;
         int yOff = iy0;
 
-        var bitmapSpan = new Span<byte>((void*)GlyphTempMemory, 100 * 100);
+        // var bitmapSpan = new Span<byte>((void*)GlyphTempMemory, 100 * 100);
 
         // Console.WriteLine($"glyph cache miss: {c}:{resolutionMultiplier}, inserting into slot {entry.SlotNumber}");
 
