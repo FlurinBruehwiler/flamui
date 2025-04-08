@@ -10,32 +10,6 @@ using Font = Flamui.Drawing.Font;
 
 namespace Flamui;
 
-// public struct Save : IRenderFragment
-// {
-//     public void Render(SKCanvas canvas)
-//     {
-//         canvas.Save();
-//     }
-//
-//     public bool UiEquals(IRenderFragment renderFragment)
-//     {
-//         return renderFragment is Save;
-//     }
-// }
-
-// public struct Restore : IRenderFragment
-// {
-//     public void Render(SKCanvas canvas)
-//     {
-//         canvas.Restore();
-//     }
-//
-//     public bool UiEquals(IRenderFragment renderFragment)
-//     {
-//         return renderFragment is Restore;
-//     }
-// }
-
 public record struct Bounds
 {
     public required float X;
@@ -97,23 +71,6 @@ public record struct Bounds
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 BottomRight() => new(X + W, Y + H);
 
-    //
-    // public SKRect ToRect()
-    // {
-    //     return SKRect.Create(X, Y, W, H);
-    // }
-
-    public Bounds Inflate(float x, float y)
-    {
-        return new Bounds
-        {
-            X = X - x,
-            Y = Y - y,
-            W = W + 2 * x,
-            H = H + 2 * y
-        };
-    }
-
     public override string ToString()
     {
         return $"x:{X}, y:{Y}, w:{W}, h:{H}";
@@ -132,6 +89,96 @@ public enum CommandType : byte
     ClearClip
 }
 
+//todo make this more compact, either create a union via InlineArrays, or make a more compact growable arena buffer,
+//that can hold different sized structs, this then wouldn't support indexing, but we don't need that anyway
+
+[StructLayout(LayoutKind.Explicit)]
+public struct CommandUnion
+{
+    [FieldOffset(0)] public required CommandType CommandType;
+
+    [FieldOffset(1)] public RectCommand RectCommand;
+    [FieldOffset(1)] public MatrixCommand MatrixCommand;
+
+    public bool TryGetRect(out RectCommand rectCommand)
+    {
+        if (CommandType == CommandType.Rect)
+        {
+            rectCommand = RectCommand;
+            return true;
+        }
+
+        rectCommand = default;
+        return false;
+    }
+
+    public bool TryGetMatrix(out MatrixCommand matrixCommand)
+    {
+        if (CommandType == CommandType.Matrix)
+        {
+            matrixCommand = MatrixCommand;
+            return true;
+        }
+
+        matrixCommand = default;
+        return false;
+    }
+
+    public static explicit operator MatrixCommand(CommandUnion commandUnion)
+    {
+        if (commandUnion.TryGetMatrix(out var command))
+        {
+            return command;
+        }
+
+        throw new InvalidCastException();
+    }
+
+    public static explicit operator RectCommand(CommandUnion commandUnion)
+    {
+        if (commandUnion.TryGetRect(out var command))
+        {
+            return command;
+        }
+
+        throw new InvalidCastException();
+    }
+
+    public static implicit operator CommandUnion(RectCommand rectCommand)
+    {
+        var commandUnion = new CommandUnion
+        {
+            CommandType = CommandType.Rect,
+            RectCommand = rectCommand
+        };
+
+        return commandUnion;
+    }
+
+    public static implicit operator CommandUnion(MatrixCommand matrixCommand)
+    {
+        var commandUnion = new CommandUnion
+        {
+            CommandType = CommandType.Rect,
+            MatrixCommand = matrixCommand
+        };
+
+        return commandUnion;
+    }
+}
+
+public struct RectCommand
+{
+    public Bounds Bounds;
+    public ColorDefinition ColorDefinition;
+}
+
+public struct MatrixCommand
+{
+    public Matrix4X4<float> Matrix;
+}
+
+//idea: create a source generator that generates discriminated unions for structs using InlineArrays
 public struct Command : IEquatable<Command>
 {
     public CommandType Type;
@@ -210,94 +257,3 @@ public struct ManagedRef<T> : IEquatable<ManagedRef<T>> where T : class
         return Get().GetHashCode();
     }
 }
-
-// public struct Bitmap : IRenderFragment
-// {
-//     public required Bounds Bounds;
-//     public required SKBitmap SkBitmap;
-//     private static readonly SKPaint Paint = Helpers.GetNewAntialiasedPaint();
-//
-//     public void Render(SKCanvas canvas)
-//     {
-//         canvas.DrawBitmap(SkBitmap, Bounds.ToRect(), Paint);
-//     }
-//
-//     public bool UiEquals(IRenderFragment renderFragment)
-//     {
-//         if (renderFragment is not Bitmap bitmap)
-//             return false;
-//
-//         return bitmap.Bounds.BoundsEquals(Bounds);
-//     }
-// }
-
-// public struct Picture : IRenderFragment //ToDo, should also be clickable
-// {
-//     public required SKPicture SkPicture;
-//     public required SKMatrix SkMatrix;
-//     public required string Src;
-//
-//     public void Render(SKCanvas canvas)
-//     {
-//         canvas.DrawPicture(SkPicture, ref SkMatrix);
-//     }
-//
-//     public bool UiEquals(IRenderFragment renderFragment)
-//     {
-//         if (renderFragment is not Picture pic)
-//             return false;
-//
-//         return pic.Src == Src && SkMatrix == pic.SkMatrix;
-//     }
-// }
-
-
-// public struct Circle : IRenderFragment //ToDo, should also be clickable
-// {
-//     public required SKPaint SkPaint;
-//     public required SKPoint Pos;
-//     public required float Radius;
-//
-//     public void Render(SKCanvas canvas)
-//     {
-//         canvas.DrawCircle(Pos, Radius, SkPaint);
-//     }
-//
-//     public bool UiEquals(IRenderFragment renderFragment)
-//     {
-//         if (renderFragment is not Circle circle)
-//             return false;
-//
-//         return circle.Pos == Pos && circle.Radius == Radius;
-//     }
-// }
-
-// public struct Path : IRenderFragment //ToDo maybe should also be clickable
-// {
-//     public required SKPoint Start;
-//     public required SKPoint StartHandle;
-//     public required SKPoint EndHandle;
-//     public required SKPoint End;
-//     public required SKPaint SkPaint;
-//
-//     private static SKPath _path = new();
-//
-//     public void Render(SKCanvas canvas)
-//     {
-//         _path.MoveTo(Start);
-//         _path.CubicTo(StartHandle, EndHandle, End);
-//
-//         canvas.DrawPath(_path, SkPaint);
-//
-//         _path.Reset();
-//     }
-//
-//     public bool UiEquals(IRenderFragment renderFragment)
-//     {
-//         if (renderFragment is not Path path)
-//             return false;
-//
-//         return path.Start == Start && path.StartHandle == StartHandle && path.EndHandle == EndHandle &&
-//                path.End == End;
-//     }
-// }

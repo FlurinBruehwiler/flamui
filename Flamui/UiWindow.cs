@@ -1,11 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.PerfTrace;
 using Flamui.UiElements;
 using Microsoft.Extensions.DependencyInjection;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
@@ -235,18 +237,37 @@ public unsafe partial class UiWindow : IDisposable
     private void OnLoad()
     {
         int darkMode = 1;
-        DwmSetWindowAttribute(Window.Native.Win32.Value.Hwnd, 20, ref darkMode, sizeof(int));
+        if (OperatingSystem.IsWindows())
+        {
+            WindowNative.DwmSetWindowAttribute(Window.Native.Win32.Value.Hwnd, 20, ref darkMode, sizeof(int));
+        }
 
         Console.WriteLine("Loading");
         _hitTester = new HitTester(this);
         _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
         Input = Input.ConstructInputFromWindow(Window);
 
-        glfwSetWindowContentScaleCallback(Window.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
+        if (OperatingSystem.IsWindows())
+        {
+            WindowNative.glfwSetWindowContentScaleCallback(Window.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
+        }
+        else if(OperatingSystem.IsLinux())
+        {
+            LinuxNative.glfwSetWindowContentScaleCallback(Window.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
+        }
 
         float xScale = 1;
         float yScale = 1;
-        glfwGetWindowContentScale(Window.Handle, &xScale, &yScale);
+
+        if (OperatingSystem.IsWindows())
+        {
+            WindowNative.glfwGetWindowContentScale(Window.Handle, &xScale, &yScale);
+        }
+        else if (OperatingSystem.IsLinux())
+        {
+            LinuxNative.glfwGetWindowContentScale(Window.Handle, &xScale, &yScale);
+        }
+
         DpiScaling = new Vector2(xScale, yScale);
         // Console.WriteLine($"Initial scale: {xScale}, {yScale}");
 
@@ -263,18 +284,6 @@ public unsafe partial class UiWindow : IDisposable
 
         isInitialized = true;
     }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void CallbackDelegate(IntPtr window, float xScale, float yScale);
-
-    [DllImport("glfw3.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void glfwSetWindowContentScaleCallback(IntPtr window, CallbackDelegate callback);
-
-    [DllImport("glfw3.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void glfwGetWindowContentScale(IntPtr window, float* xScale, float* yScale);
-
-    [DllImport("dwmapi.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
     public RenderContext LastRenderContext = new();
     public RenderContext RenderContext = new();

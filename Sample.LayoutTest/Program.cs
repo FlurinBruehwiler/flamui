@@ -1,12 +1,17 @@
 ﻿using Flamui;
 using Flamui.Components;
 
-/*
- * Todo
- * - Scroll
- * - Fix Border
- */
+CommandUnion union = new RectCommand
+{
+    Bounds = new Bounds(10, 10, 100, 100),
+    ColorDefinition = new ColorDefinition(10, 100, 10)
+};
 
+RectCommand rectCommand = (RectCommand)union;
+
+Console.WriteLine(rectCommand.Bounds.X);
+
+/*
 var builder = FlamuiApp.CreateBuilder();
 
 var app = builder.Build();
@@ -84,3 +89,5 @@ public class LayoutTest : FlamuiComponent
         }
     }
 }
+
+*/

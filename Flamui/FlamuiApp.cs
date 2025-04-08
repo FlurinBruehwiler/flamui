@@ -108,7 +108,11 @@ public class FlamuiApp
 
     public static FlamuiBuilder CreateBuilder()
     {
-        // Systrace.Initialize("trace.trace");
-        return new FlamuiBuilder();
+        if (OperatingSystem.IsLinux() || OperatingSystem.IsWindows())
+        {
+            return new FlamuiBuilder();
+        }
+
+        throw new Exception("Flamui is currently only supported on windows and linux");
     }
 }
