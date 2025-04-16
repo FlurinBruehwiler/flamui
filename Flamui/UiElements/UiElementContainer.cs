@@ -21,7 +21,7 @@ public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
 
     public void Dispose()
     {
-        Window.Ui.CascadingValues = Window.Ui.CascadingStack.Pop();
-        Window.Ui.OpenElementStack.Pop();
+        Tree.Ui.CascadingValues = Tree.Ui.CascadingStack.Pop();
+        Tree.Ui.OpenElementStack.Pop();
     }
 }

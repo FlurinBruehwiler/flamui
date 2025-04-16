@@ -1,15 +1,4 @@
-﻿using Flamui;
-using Flamui.Components;
-
-CommandUnion union = new RectCommand
-{
-    Bounds = new Bounds(10, 10, 100, 100),
-    ColorDefinition = new ColorDefinition(10, 100, 10)
-};
-
-RectCommand rectCommand = (RectCommand)union;
-
-Console.WriteLine(rectCommand.Bounds.X);
+﻿Console.WriteLine("foo");
 
 /*
 var builder = FlamuiApp.CreateBuilder();

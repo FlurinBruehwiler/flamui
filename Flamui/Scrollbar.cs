@@ -40,11 +40,11 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
         {
             if (scrollService.Dir == Dir.Vertical)
             {
-                scrollService.ApplyBarDelta(ui.Window.MouseDelta.Y);
+                scrollService.ApplyBarDelta(ui.Tree.MouseDelta.Y);
             }
             else
             {
-                scrollService.ApplyBarDelta(ui.Window.MouseDelta.X);
+                scrollService.ApplyBarDelta(ui.Tree.MouseDelta.X);
             }
         }
 
@@ -84,7 +84,7 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) 
                     // SDL_CaptureMouse(SDL_bool.SDL_TRUE); //TODO
                 }
 
-                if(_isDragging && ui.Window.IsMouseButtonReleased(MouseButton.Left))
+                if(_isDragging && ui.Tree.IsMouseButtonReleased(MouseButton.Left))
                 {
                     _isDragging = false;
                     // SDL_CaptureMouse(SDL_bool.SDL_FALSE); //TODO

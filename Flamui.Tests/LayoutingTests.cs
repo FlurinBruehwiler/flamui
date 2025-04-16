@@ -1210,14 +1210,14 @@ public class LayoutingTests : IDisposable
     private Ui GetUi()
     {
         var ui = new Ui();
-        var window = new UiWindow(ui);
+        var window = new UiTree(ui);
 
         var rootContainer = new FlexContainer
         {
             Id = new UiID("RootElement", "", 0, 0),
-            Window = window
+            Tree = window
         };
-        ui.Window = window;
+        ui.Tree = window;
         ui.FontManager = new FontManager();
 
         ui.ResetStuff();

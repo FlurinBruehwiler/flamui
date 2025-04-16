@@ -1,4 +1,4 @@
-﻿using StbImageWriteSharp;
+﻿
 
 namespace Playground;
 
@@ -58,8 +58,8 @@ public static class Program
         using (var fileStream = File.OpenWrite(@"C:\Programming\Github\ImageTest\"))
         {
             var bitmap = face.glyph->bitmap;
-            var imageWriter = new ImageWriter();
-            imageWriter.WriteBmp((void*)bitmap.buffer, bitmap.width, bitmap.rows, ColorComponents.Grey, fileStream);
+            // var imageWriter = new ImageWriter();
+            // imageWriter.WriteBmp((void*)bitmap.buffer, bitmap.width, bitmap.rows, ColorComponents.Grey, fileStream);
         }
 
     }

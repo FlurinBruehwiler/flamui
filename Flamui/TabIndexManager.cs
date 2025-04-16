@@ -5,28 +5,28 @@ namespace Flamui;
 
 public class TabIndexManager
 {
-    public void HandleTab(UiWindow window)
+    public void HandleTab(UiTree tree)
     {
-        if (!window.IsKeyPressed(Key.Tab))
+        if (!tree.IsKeyPressed(Key.Tab))
             return;
 
-        if (window.ActiveDiv is null)
+        if (tree.ActiveDiv is null)
             return;
 
-        var shouldSearchBackwards = window.IsKeyDown(Key.ShiftLeft) || window.IsKeyDown(Key.ShiftRight);
+        var shouldSearchBackwards = tree.IsKeyDown(Key.ShiftLeft) || tree.IsKeyDown(Key.ShiftRight);
 
         if (shouldSearchBackwards)
         {
-            if (GetPreviousFocusable(window.ActiveDiv, skipSelfCheck: true) is { } previousFocusable)
+            if (GetPreviousFocusable(tree.ActiveDiv, skipSelfCheck: true) is { } previousFocusable)
             {
-                window.ActiveDiv = previousFocusable;
+                tree.ActiveDiv = previousFocusable;
             }
         }
         else
         {
-            if (GetNextFocusable(window.ActiveDiv, skipSelfCheck: true) is { } nextFocusable)
+            if (GetNextFocusable(tree.ActiveDiv, skipSelfCheck: true) is { } nextFocusable)
             {
-                window.ActiveDiv = nextFocusable;
+                tree.ActiveDiv = nextFocusable;
             }
         }
     }

@@ -7,29 +7,29 @@ namespace Flamui;
 
 public class HitTester
 {
-    private readonly UiWindow _window;
+    private readonly UiTree _tree;
 
-    public HitTester(UiWindow window)
+    public HitTester(UiTree tree)
     {
-        _window = window;
+        _tree = tree;
     }
 
     public void HandleHitTest()
     {
-        HitTest(_window.MouseScreenPosition);
+        HitTest(_tree.MouseScreenPosition);
 
-        if (_window.IsMouseButtonPressed(MouseButton.Left))
+        if (_tree.IsMouseButtonPressed(MouseButton.Left))
         {
-            foreach (var windowHoveredDiv in _window.HoveredElements)
+            foreach (var windowHoveredDiv in _tree.HoveredElements)
             {
                 if (windowHoveredDiv is FlexContainer { Info.Focusable:true} uiContainer)
                 {
-                    _window.ActiveDiv = uiContainer;
+                    _tree.ActiveDiv = uiContainer;
                     return;
                 }
             }
 
-            _window.ActiveDiv = null;
+            _tree.ActiveDiv = null;
         }
     }
 
@@ -42,7 +42,7 @@ public class HitTester
         hitElements.Clear();
 
         //from back to front
-        foreach (var (_, value) in _window.LastRenderContext.CommandBuffers.OrderBy(x => x.Key))
+        foreach (var (_, value) in _tree.RenderContext.CommandBuffers.OrderBy(x => x.Key))
         {
             foreach (var command in value)
             {
@@ -75,7 +75,7 @@ public class HitTester
 
             if (hitElement is { } uiElement)
             {
-                _window.HoveredElements.Add(uiElement);
+                _tree.HoveredElements.Add(uiElement);
             }
 
             if (hitElement is FlexContainer { Info.BlockHit: true })

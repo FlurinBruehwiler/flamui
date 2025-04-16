@@ -9,7 +9,7 @@ public abstract class UiElement
     //----- Data ------
     public required UiID Id { get; init; }
     public UiElementContainer Parent { get; set; }
-    public required UiWindow Window { get; init; }
+    public required UiTree Tree { get; init; }
     public bool IsActive;
     // public Bounds ComputedBounds;
     public ParentData ParentData { get; set; }

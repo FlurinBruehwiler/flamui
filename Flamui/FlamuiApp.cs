@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Flamui.PerfTrace;
 using Microsoft.Extensions.DependencyInjection;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
@@ -19,7 +18,7 @@ public record SizeConstraint(int Width, int Height);
 public class FlamuiApp
 {
     public IServiceProvider Services { get; private set; }
-    private List<UiWindow> _windows;
+    private List<PhysicalWindow> _windows;
 
     internal FlamuiApp(IServiceCollection services)
     {
@@ -35,7 +34,7 @@ public class FlamuiApp
         // uiThread.Start();
     }
 
-    public void RegisterOnAfterInput(Action<UiWindow> window)
+    public void RegisterOnAfterInput(Action<UiTree> window)
     {
         //maybe not constantly resolve the service
         Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
@@ -57,7 +56,7 @@ public class FlamuiApp
 
         var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
 
-        _windows.Add(new UiWindow(window, rootComponent, Services));
+        _windows.Add(PhysicalWindow.Create(window, new UiTree(rootComponent, Services)));
 
         //hack to get paint during resize
         window.GetType().GetField("_onFrame", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, new Action(() => UpdateWindow(window)));

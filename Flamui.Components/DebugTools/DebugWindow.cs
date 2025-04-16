@@ -6,7 +6,7 @@ public class DebugWindow() : FlamuiComponent
 {
     public override void Build(Ui ui)
     {
-        ui.Window.IsDebugWindow = true;
+        ui.Tree.IsDebugWindow = true;
 
         // var otherWindow = EventLoop.Windows.First(x => x != ui.Window);
         return;

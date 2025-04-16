@@ -65,7 +65,7 @@ public partial class FlexContainer
     {
         //TODO pls refactor this very ugly code!!!!!!!!!!!!!!!
 
-        var scrollbar = Window.Ui.GetData(Id with { Key = dir == Dir.Horizontal ? "Horizontal" : "Vertical"}, (container: this, dir: dir), static (_, _, hi) =>
+        var scrollbar = Tree.Ui.GetData(Id with { Key = dir == Dir.Horizontal ? "Horizontal" : "Vertical"}, (container: this, dir: dir), static (_, _, hi) =>
         {
             var settings = ScrollbarSettings.Default;
 
@@ -84,9 +84,9 @@ public partial class FlexContainer
         scrollBarContainer.UiElement = null;
         scrollBarContainer.DataStore.Reset();
 
-        Window.Ui.OpenElementStack.Push(scrollBarContainer);
-        scrollbar.Build(Window.Ui);
-        Window.Ui.OpenElementStack.Pop();
+        Tree.Ui.OpenElementStack.Push(scrollBarContainer);
+        scrollbar.Build(Tree.Ui);
+        Tree.Ui.OpenElementStack.Pop();
 
         if (scrollBarContainer.UiElement is null)
             return 0;

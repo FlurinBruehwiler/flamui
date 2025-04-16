@@ -17,7 +17,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
     public override void Build(Ui ui)
     {
-        if (_filterText is null && ui.Window.TextInput != string.Empty)
+        if (_filterText is null && ui.Tree.TextInput != string.Empty)
         {
             _filterText = string.Empty;
         }
@@ -100,7 +100,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             if (dropDownDiv.HasFocusWithin)
             {
                 dropDownDiv.BorderWidth(2).BorderColor(ColorPalette.AccentColor);
-                if (!_isExpanded && (ui.Window.IsKeyPressed(Key.Enter) || ui.Window.IsKeyPressed(Key.Space)))
+                if (!_isExpanded && (ui.Tree.IsKeyPressed(Key.Enter) || ui.Tree.IsKeyPressed(Key.Space)))
                 {
                     OpenMenu();
                     return;
@@ -109,7 +109,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
 
             if (_isExpanded)
             {
-                if (ui.Window.IsKeyPressed(Key.Enter))
+                if (ui.Tree.IsKeyPressed(Key.Enter))
                 {
                     if (_hoveredOption != -1)
                     {
@@ -118,25 +118,25 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                         return;
                     }
                 }
-                else if (ui.Window.IsKeyPressed(Key.Down))
+                else if (ui.Tree.IsKeyPressed(Key.Down))
                 {
                     if (_hoveredOption < _filteredOptions.Count - 1)
                     {
                         _hoveredOption++;
                     }
-                }else if (ui.Window.IsKeyPressed(Key.Up))
+                }else if (ui.Tree.IsKeyPressed(Key.Up))
                 {
                     if (_hoveredOption > 0)
                     {
                         _hoveredOption--;
                     }
-                }else if (ui.Window.IsKeyPressed(Key.Escape))
+                }else if (ui.Tree.IsKeyPressed(Key.Escape))
                 {
                     CloseMenu();
                     return;
                 }
 
-                if (!string.IsNullOrEmpty(ui.Window.TextInput) && _filterText is not null)
+                if (!string.IsNullOrEmpty(ui.Tree.TextInput) && _filterText is not null)
                 {
                     UpdateFilteredOptions();
                 }
@@ -176,7 +176,7 @@ public class DropDown<T> : FlamuiComponent where T : notnull
                 _filterText = string.Empty;
                 goto case StartingState.Opened;
             case StartingState.Opened:
-                ui.Window.ActiveDiv = dropDownDiv;
+                ui.Tree.ActiveDiv = dropDownDiv;
                 OpenMenu();
                 break;
             default:

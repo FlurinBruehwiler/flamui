@@ -16,7 +16,7 @@ public partial class Ui
 {
     public readonly Stack<IStackItem> OpenElementStack = new();
     private IStackItem OpenElement => OpenElementStack.Peek();
-    public UiWindow Window = null!;
+    public UiTree Tree = null!;
     public FontManager FontManager;
 
     public Stack<CascadingStuff> CascadingStack = [];
@@ -37,7 +37,7 @@ public partial class Ui
     {
         return GetData(id, type, static (ui, _, type) =>
         {
-            var comp = (FlamuiComponent)ActivatorUtilities.CreateInstance(ui.Window.ServiceProvider, type);
+            var comp = (FlamuiComponent)ActivatorUtilities.CreateInstance(ui.Tree.ServiceProvider, type);
             comp.OnInitialized();
             return comp;
         });
@@ -71,7 +71,7 @@ public partial class Ui
         var div = GetData(id, static (ui, id) => new FlexContainer
         {
             Id = id,
-            Window = ui.Window
+            Tree = ui.Tree
         });
 
         OpenElement.AddChild(div);
@@ -93,7 +93,7 @@ public partial class Ui
         var text = GetData(id, static (ui, id) => new UiText
         {
             Id = id,
-            Window = ui.Window,
+            Tree = ui.Tree,
         });
 
         OpenElement.AddChild(text);
@@ -115,7 +115,7 @@ public partial class Ui
         var svg = GetData(id, static (ui, id) => new UiSvg
         {
             Id = id,
-            Window = ui.Window
+            Tree = ui.Tree
         });
 
         svg.ColorDefinition = colorDefinition;
@@ -134,7 +134,7 @@ public partial class Ui
         var image = GetData(id, static (ui, id) => new UiImage
         {
             Id = id,
-            Window = ui.Window,
+            Tree = ui.Tree,
         });
 
         image.Src = src;
@@ -145,7 +145,6 @@ public partial class Ui
 
     public void ResetStuff()
     {
-
         CascadingStack.Clear();
         CascadingValues = new CascadingStuff();
         CascadingValues.Font = FontManager.GetFont("segoeui.ttf");

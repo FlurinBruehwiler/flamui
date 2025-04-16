@@ -114,7 +114,7 @@ public class UiText : UiElement
     public override BoxSize Layout(BoxConstraint constraint)
     {
         TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
-            constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Window.RenderContext.Arena);
+            constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Tree.Arena);
 
         Rect = new BoxSize(TextLayoutInfo.Width, TextLayoutInfo.Height);
         return Rect;

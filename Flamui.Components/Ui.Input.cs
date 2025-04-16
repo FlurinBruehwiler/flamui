@@ -23,7 +23,7 @@ public static partial class UiExtensions
             {
                 var l = t.TextLayoutInfo.Lines[0];
 
-                var pos = ui.Window.MousePosition - (t.FinalOnScreenSize.GetPosition() + l.Bounds.GetPosition());
+                var pos = ui.Tree.MousePosition - (t.FinalOnScreenSize.GetPosition() + l.Bounds.GetPosition());
 
                 if (pos.X < 0)
                 {
@@ -61,7 +61,7 @@ public static partial class UiExtensions
             if (hasFocus)
             {
                 //todo, if multiple inputs happen in the same frame, stuff breaks, this hole thing should be handled differently
-                text = TextBoxInputHandler.ProcessInput(text, t.TextLayoutInfo, ui.Window.Input, t.UiTextInfo.Multiline, ref t.CursorPosition, ref t.SelectionStart);
+                text = TextBoxInputHandler.ProcessInput(text, t.TextLayoutInfo, ui.Tree.Input, t.UiTextInfo.Multiline, ref t.CursorPosition, ref t.SelectionStart);
             }
 
             t.UiTextInfo.Content = text;

@@ -3,7 +3,7 @@ using Silk.NET.Input;
 
 namespace Flamui;
 
-public partial class UiWindow
+public partial class UiTree
 {
     public Vector2 MouseScreenPosition => Input.MousePosition;
     public Vector2 MousePosition => ScreenToWorld(Input.MousePosition);

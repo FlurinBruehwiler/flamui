@@ -21,8 +21,8 @@ public static partial class UiExtensions
             {
                 div.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
 
-                if (ui.Window.IsKeyPressed(Key.Space) ||
-                    ui.Window.IsKeyPressed(Key.Enter))
+                if (ui.Tree.IsKeyPressed(Key.Space) ||
+                    ui.Tree.IsKeyPressed(Key.Enter))
                 {
                     enabled = !enabled;
                 }
