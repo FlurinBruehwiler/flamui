@@ -1209,22 +1209,21 @@ public class LayoutingTests : IDisposable
 
     private Ui GetUi()
     {
-        var ui = new Ui();
-        var window = new UiTree(ui);
+        var tree = new UiTree();
 
         var rootContainer = new FlexContainer
         {
             Id = new UiID("RootElement", "", 0, 0),
-            Tree = window
+            Tree = tree
         };
-        ui.Tree = window;
-        ui.FontManager = new FontManager();
+        tree.Ui.Tree = tree;
+        tree.Ui.FontManager = new FontManager();
 
-        ui.ResetStuff();
+        tree.Ui.ResetStuff();
 
-        ui.OpenElementStack.Push(rootContainer);
+        tree.Ui.OpenElementStack.Push(rootContainer);
         rootContainer.OpenElement();
 
-        return ui;
+        return tree.Ui;
     }
 }

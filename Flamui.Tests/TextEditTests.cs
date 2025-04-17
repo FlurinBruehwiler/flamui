@@ -373,7 +373,7 @@ public class TextEditTests
 
     private string PerformTextInput(string initialText, string inputText)
     {
-        var input = new Input();
+        var input = new Input(x => x);
         input.TextInput = inputText;
 
         return ApplyInput(initialText, input);
@@ -381,7 +381,7 @@ public class TextEditTests
 
     private string PerformKeyInput(string initialText, params ReadOnlySpan<Key> keys)
     {
-        var input = new Input();
+        var input = new Input(x => x);
 
         foreach (var key in keys)
         {
@@ -394,7 +394,7 @@ public class TextEditTests
 
     private string PerformKeyInputWithClipboard(string initialText, string clipboardText, params ReadOnlySpan<Key> keys)
     {
-        var input = new Input();
+        var input = new Input(x => x);
         input.ClipboardText = clipboardText;
 
         foreach (var key in keys)

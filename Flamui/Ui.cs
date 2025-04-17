@@ -12,6 +12,26 @@ public struct CascadingStuff
     public float TextSize;
 }
 
+//should there be a difference between Ui and UiTree? -> yes there should be,
+
+
+// how should the connection between the window and the uiTree be handled? Should the uiTree know about the window? No, I don't think so.
+// Should the window know about the uiTee? Yes, probably. But it would also be clean to have another separate piece that connects the whole thing, but that might over abstract the entire thing, so we really shouldn't do that.
+
+
+//
+
+/*
+ * var window = Window.Create();
+ * window.uiTree.OnUpdate((ui) => {
+ *      using(ui.Div())
+*       {
+ *
+*       }
+ * })
+ */
+
+
 public partial class Ui
 {
     public readonly Stack<IStackItem> OpenElementStack = new();

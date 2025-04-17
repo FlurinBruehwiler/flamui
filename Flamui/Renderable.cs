@@ -146,6 +146,7 @@ public struct ManagedRef<T> : IEquatable<ManagedRef<T>> where T : class
     }
 
     [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T? Get()
     {
         if (handle != default)
@@ -168,6 +169,6 @@ public struct ManagedRef<T> : IEquatable<ManagedRef<T>> where T : class
 
     public override int GetHashCode()
     {
-        return Get().GetHashCode();
+        return Get()?.GetHashCode() ?? 0;
     }
 }

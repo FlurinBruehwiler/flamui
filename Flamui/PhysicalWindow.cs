@@ -2,6 +2,7 @@
 using System.Numerics;
 using Flamui.Drawing;
 using Flamui.PerfTrace;
+using Silk.NET.Maths;
 using Silk.NET.Windowing;
 
 namespace Flamui;
@@ -55,8 +56,7 @@ public class PhysicalWindow
 
         using var _ = Systrace.BeginEvent(nameof(OnRender));
 
-        var commands = StaticFunctions.Render(UiTree);
-
+        var commands = StaticFunctions.Render(UiTree, GetWorldToScreenMatrix());
         if (!commands.IsEqualTo(LastCommandBuffer))
         {
             LastCommandBuffer = commands;
@@ -83,7 +83,7 @@ public class PhysicalWindow
 
     private void OnUpdate(double obj)
     {
-        UiTree.Update(Window.Size.X, Window.Size.Y);
+        UiTree.Update(Window.Size.X / GetCompleteScaling().X, Window.Size.Y / GetCompleteScaling().Y);
     }
 
     private unsafe void OnLoad()
@@ -97,7 +97,7 @@ public class PhysicalWindow
         Console.WriteLine("Loading");
         // _hitTester = new HitTester(this);
         // _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
-        Input = Input.ConstructInputFromWindow(Window);
+        Input = Input.ConstructInputFromWindow(Window, (v) => ScreenToWorld(v));
 
         if (OperatingSystem.IsWindows())
         {
@@ -132,5 +132,29 @@ public class PhysicalWindow
         // };
         //
         // _renderer.Initialize(Window);
+    }
+
+    public Vector2 Zoom = new(1, 1);
+    public Vector2 ZoomOffset = new(0, 0);
+    public Vector2 ZoomTarget;
+
+    private Vector2 ScreenToWorld(Vector2 screenPosition)
+    {
+        if (Matrix4X4.Invert(GetWorldToScreenMatrix(), out var inverted))
+        {
+            return screenPosition.Multiply(inverted);
+        }
+
+        throw new Exception("ahh");
+    }
+
+    public Matrix4X4<float> GetWorldToScreenMatrix()
+    {
+        var origin = Matrix4X4.CreateTranslation(-ZoomTarget.X, -ZoomTarget.Y, 0);
+        var scale = Matrix4X4.CreateScale(GetCompleteScaling().X * Zoom.X);
+
+        var translate = Matrix4X4.CreateTranslation(ZoomOffset.X, ZoomOffset.Y, 0);
+
+        return  origin * scale * translate;
     }
 }

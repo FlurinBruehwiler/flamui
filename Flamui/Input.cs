@@ -10,9 +10,10 @@ namespace Flamui;
 
 public class Input
 {
+    private readonly Func<Vector2, Vector2> _screenToWorld;
     public readonly MouseButtonState[] MouseButtonStates = new MouseButtonState[(int)MouseButton.Button12 + 1];
 
-    public Vector2 MousePosition => _mouse?.Position ?? new Vector2();
+    public Vector2 MousePosition => _screenToWorld(_mouse?.Position ?? new Vector2()); //todo(refactor) properties are dangerous, this results in a matrix multiply each time the MousePosition is accessed!!!!!, pls make better
     public Vector2 LastMousePosition { get; private set; }
     public float ScrollDeltaX { get; private set; }
     public float ScrollDeltaY { get; private set; }
@@ -28,6 +29,7 @@ public class Input
                 ClipboardTextForTesting = value;
         }
     }
+
 
     public string ClipboardTextForTesting = string.Empty;
 
@@ -55,6 +57,11 @@ public class Input
     private IMouse? _mouse;
     private IKeyboard? _keyboard;
 
+    public Input(Func<Vector2, Vector2> screenToWorld)
+    {
+        _screenToWorld = screenToWorld;
+    }
+
     public void OnAfterFrame()
     {
         foreach (var mouseButtonState in MouseButtonStates)
@@ -79,11 +86,11 @@ public class Input
         return MouseButtonStates[(int)button];
     }
 
-    public static unsafe Input ConstructInputFromWindow(IWindow window)
+    public static unsafe Input ConstructInputFromWindow(IWindow window, Func<Vector2, Vector2> screenToWorld)
     {
         var input = window.CreateInput();
 
-        var inputObj = new Input();
+        var inputObj = new Input(screenToWorld);
 
         for (int i = 0; i <= (int)MouseButton.Button12; i++)
         {

@@ -1,20 +1,22 @@
-﻿using Flamui.Drawing;
+﻿using System.Numerics;
+using Flamui.Drawing;
 using Flamui.Layouting;
+using Silk.NET.Maths;
 
 namespace Flamui;
 
 //pls explain to me why we can't have standalone functions in c#!!!!!!!!!
 public static class StaticFunctions
 {
-    public static CommandBuffer Render(UiTree uiTree)
+    public static CommandBuffer Render(UiTree uiTree, Matrix4X4<float> mat)
     {
-        var renderContext = uiTree.RenderContext;
+        var renderContext = uiTree._renderContext;
         renderContext.Reset();
 
-        renderContext.PushMatrix(uiTree.GetWorldToScreenMatrix());
+        renderContext.PushMatrix(mat);
         uiTree.RootContainer.Render(renderContext, new Point());
 
-        return uiTree.RenderContext.GetRenderInstructions();
+        return uiTree._renderContext.GetRenderInstructions();
     }
 
     public static void ExecuteRenderInstructions(CommandBuffer commands, Renderer renderer, Arena arena)

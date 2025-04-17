@@ -6,7 +6,7 @@ namespace Flamui;
 public partial class UiTree
 {
     public Vector2 MouseScreenPosition => Input.MousePosition;
-    public Vector2 MousePosition => ScreenToWorld(Input.MousePosition);
+    public Vector2 MousePosition => Input.MousePosition;
     public Vector2 MouseDelta => Input.MousePosition - Input.LastMousePosition;
     public float ScrollDeltaX => Input.ScrollDeltaX;
     public float ScrollDeltaY => Input.ScrollDeltaY;
