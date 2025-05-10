@@ -373,7 +373,7 @@ public class TextEditTests
 
     private string PerformTextInput(string initialText, string inputText)
     {
-        var input = new Input(x => x);
+        var input = new UiTree();
         input.TextInput = inputText;
 
         return ApplyInput(initialText, input);
@@ -381,7 +381,7 @@ public class TextEditTests
 
     private string PerformKeyInput(string initialText, params ReadOnlySpan<Key> keys)
     {
-        var input = new Input(x => x);
+        var input = new UiTree();
 
         foreach (var key in keys)
         {
@@ -394,8 +394,8 @@ public class TextEditTests
 
     private string PerformKeyInputWithClipboard(string initialText, string clipboardText, params ReadOnlySpan<Key> keys)
     {
-        var input = new Input(x => x);
-        input.ClipboardText = clipboardText;
+        var input = new UiTree();
+        input.UiTreeHost = new TestUiTreeHost(clipboardText);
 
         foreach (var key in keys)
         {
@@ -427,7 +427,7 @@ public class TextEditTests
         return (cursorPosition, selectionStart);
     }
 
-    private string ApplyInput(string initialText, Input input)
+    private string ApplyInput(string initialText, UiTree input)
     {
         var (cursorPosition, selectionStart) = ExtractMetadata(ref initialText);
 

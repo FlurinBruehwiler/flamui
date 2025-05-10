@@ -13,8 +13,7 @@ public class PhysicalWindow
 {
     private PhysicalWindow() { }
 
-    public IWindow Window;
-    public Input Input;
+    public IWindow GlfWindow;
 
     /// <summary>
     /// The DPI scaling from the OS
@@ -42,7 +41,7 @@ public class PhysicalWindow
         var w = new PhysicalWindow();
 
         w.UiTree = uiTree;
-        w.Window = window;
+        w.GlfWindow = window;
         window.Load += w.OnLoad;
         window.Update += w.OnUpdate;
         window.Render += w.OnRender;
@@ -61,9 +60,9 @@ public class PhysicalWindow
         {
             LastCommandBuffer = commands;
 
-            _renderer.Gl.Viewport(Window.Size);
+            _renderer.Gl.Viewport(GlfWindow.Size);
             StaticFunctions.ExecuteRenderInstructions(commands, _renderer, null);
-            Window.GLContext.SwapBuffers();
+            GlfWindow.GLContext.SwapBuffers();
         }
 
         // OldHoveredElements.Clear();
@@ -83,7 +82,9 @@ public class PhysicalWindow
 
     private void OnUpdate(double obj)
     {
-        UiTree.Update(Window.Size.X / GetCompleteScaling().X, Window.Size.Y / GetCompleteScaling().Y);
+        UiTree.Update(GlfWindow.Size.X / GetCompleteScaling().X, GlfWindow.Size.Y / GetCompleteScaling().Y);
+
+
     }
 
     private unsafe void OnLoad()
@@ -91,21 +92,21 @@ public class PhysicalWindow
         int darkMode = 1;
         if (OperatingSystem.IsWindows())
         {
-            WindowNative.DwmSetWindowAttribute(Window.Native.Win32.Value.Hwnd, 20, ref darkMode, sizeof(int));
+            WindowNative.DwmSetWindowAttribute(GlfWindow.Native.Win32.Value.Hwnd, 20, ref darkMode, sizeof(int));
         }
 
         Console.WriteLine("Loading");
         // _hitTester = new HitTester(this);
         // _registrationManager = ServiceProvider.GetRequiredService<RegistrationManager>();
-        Input = Input.ConstructInputFromWindow(Window, (v) => ScreenToWorld(v));
+        Input.SetupInputCallbacks(this);
 
         if (OperatingSystem.IsWindows())
         {
-            WindowNative.glfwSetWindowContentScaleCallback(Window.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
+            WindowNative.glfwSetWindowContentScaleCallback(GlfWindow.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
         }
         else if(OperatingSystem.IsLinux())
         {
-            LinuxNative.glfwSetWindowContentScaleCallback(Window.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
+            LinuxNative.glfwSetWindowContentScaleCallback(GlfWindow.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
         }
 
         float xScale = 1;
@@ -113,11 +114,11 @@ public class PhysicalWindow
 
         if (OperatingSystem.IsWindows())
         {
-            WindowNative.glfwGetWindowContentScale(Window.Handle, &xScale, &yScale);
+            WindowNative.glfwGetWindowContentScale(GlfWindow.Handle, &xScale, &yScale);
         }
         else if (OperatingSystem.IsLinux())
         {
-            LinuxNative.glfwGetWindowContentScale(Window.Handle, &xScale, &yScale);
+            LinuxNative.glfwGetWindowContentScale(GlfWindow.Handle, &xScale, &yScale);
         }
 
         DpiScaling = new Vector2(xScale, yScale);

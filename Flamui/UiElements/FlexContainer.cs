@@ -127,11 +127,11 @@ public partial class FlexContainer : UiElementContainer
         {
             if (Tree.IsKeyDown(Key.ShiftLeft)) //todo handle ScrollDeltaX
             {
-                CalculateScrollPos(ref ScrollPosX, Dir.Vertical, -Tree.ScrollDeltaY);
+                CalculateScrollPos(ref ScrollPosX, Dir.Vertical, -Tree.ScrollDelta.X);
             }
             else
             {
-                CalculateScrollPos(ref ScrollPosY, Dir.Vertical, -Tree.ScrollDeltaY);
+                CalculateScrollPos(ref ScrollPosY, Dir.Vertical, -Tree.ScrollDelta.Y);
             }
 
             LayoutScrollbar(Dir.Vertical);
@@ -139,12 +139,12 @@ public partial class FlexContainer : UiElementContainer
         }
         else if (Info.ScrollConfigY.CanScroll)
         {
-            CalculateScrollPos(ref ScrollPosY, Dir.Vertical, -Tree.ScrollDeltaY);
+            CalculateScrollPos(ref ScrollPosY, Dir.Vertical, -Tree.ScrollDelta.Y);
             LayoutScrollbar(Dir.Vertical);
         }
         else if (Info.ScrollConfigX.CanScroll)
         {
-            CalculateScrollPos(ref ScrollPosX, Dir.Horizontal, -Tree.ScrollDeltaY);
+            CalculateScrollPos(ref ScrollPosX, Dir.Horizontal, -Tree.ScrollDelta.X);
             LayoutScrollbar(Dir.Horizontal);
         }
 

@@ -32,7 +32,9 @@ public struct TextRange
 
 public static class TextBoxInputHandler
 {
-    public static string ProcessInput(string text, TextLayoutInfo textLayout, Input input, bool allowMultiline, ref int cursorPosition, ref int selectionStart)
+    //ok, we need to handle this differently anyway, it should handle the events directly
+
+    public static string ProcessInput(string text, TextLayoutInfo textLayout, UiTree input, bool allowMultiline, ref int cursorPosition, ref int selectionStart)
     {
         Debug.Assert(text.AsSpan().Equals(textLayout.Content.AsSpan(), StringComparison.Ordinal));
 
@@ -126,15 +128,15 @@ public static class TextBoxInputHandler
             selectionDisable = true;
 
             var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
-            text = string.Concat(before, input.ClipboardText, after);
-            cursorPosition += input.ClipboardText.Length + cursorShift;
+            text = string.Concat(before, input.GetClipboardText(), after);
+            cursorPosition += input.GetClipboardText().Length + cursorShift;
         }
         if (input.KeyPressed.Contains(Key.C) && input.KeyDown.Contains(Key.ControlLeft))
         {
             var range = GetSelectedRange(cursorPosition, selectionStart);
             if (range.Length != 0)
             {
-                input.ClipboardText = text[range.ToRange()];
+                input.SetClipboardText(text[range.ToRange()]);
             }
         }
         if (input.KeyPressed.Contains(Key.X) && input.KeyDown.Contains(Key.ControlLeft))
@@ -142,7 +144,7 @@ public static class TextBoxInputHandler
             var range = GetSelectedRange(cursorPosition, selectionStart);
             if (range.Length != 0)
             {
-                input.ClipboardText = text[range.ToRange()];
+                input.SetClipboardText(text[range.ToRange()]);
             }
             var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
             text = string.Concat(before, after);

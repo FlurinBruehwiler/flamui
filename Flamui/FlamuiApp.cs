@@ -56,7 +56,7 @@ public class FlamuiApp
 
         var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
 
-        _windows.Add(PhysicalWindow.Create(window, new UiTree(rootComponent, Services)));
+        _windows.Add(PhysicalWindow.Create(window, new UiTree(rootComponent)));
 
         //hack to get paint during resize
         window.GetType().GetField("_onFrame", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, new Action(() => UpdateWindow(window)));
@@ -70,7 +70,7 @@ public class FlamuiApp
         {
             for (var i = 0; i < _windows.Count; i++)
             {
-                var window = _windows[i].Window;
+                var window = _windows[i].GlfWindow;
 
                 if (window.IsClosing)
                 {

@@ -42,10 +42,11 @@ public partial class UiTree
     public RenderContext _renderContext;
     private UiElement? _activeContainer;
     public UiElementContainer RootContainer;
-    public Input Input;
+    // public Input Input;
     private readonly TabIndexManager _tabIndexManager = new();
     public readonly Ui Ui = new();
     List<UiElement> hitElements = new();
+    public IUiTreeHost UiTreeHost;
 
 
     public UiElement? ActiveDiv
@@ -98,7 +99,7 @@ public partial class UiTree
 
         BuildUi(width, height);
 
-        Input.OnAfterFrame();
+        CleanupInputAfterFrame();
     }
 
     // private void HandleZoomAndStuff()
@@ -142,7 +143,7 @@ public partial class UiTree
 
     public void HandleHitTest()
     {
-        HitTest(MouseScreenPosition);
+        HitTest(MousePosition);
 
         if (IsMouseButtonPressed(MouseButton.Left))
         {

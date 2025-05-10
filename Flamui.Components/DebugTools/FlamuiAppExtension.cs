@@ -8,8 +8,8 @@ public static class FlamuiAppExtension
     {
         flamuiApp.RegisterOnAfterInput(window =>
         {
-            if (window.IsDebugWindow)
-                return;
+            // if (window.IsDebugWindow)
+                // return;
 
             if (window.IsKeyPressed(Key.F12))
             {

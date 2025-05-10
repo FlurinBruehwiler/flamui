@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
+using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
 
@@ -7,12 +9,53 @@ namespace Flamui;
 
 public partial class UiTree
 {
-    public Vector2 MouseScreenPosition => Input.MousePosition;
-    public Vector2 MousePosition => Input.MousePosition;
-    public Vector2 MouseDelta => Input.MousePosition - Input.LastMousePosition;
-    public float ScrollDeltaX => Input.ScrollDeltaX;
-    public float ScrollDeltaY => Input.ScrollDeltaY;
-    public string TextInput => Input.TextInput;
+    private void CleanupInputAfterFrame()
+    {
+        foreach (var mouseButtonState in MouseButtonStates)
+        {
+            mouseButtonState.IsMouseButtonPressed = false;
+            mouseButtonState.IsMouseButtonReleased = false;
+        }
+
+        KeyPressed.Clear();
+        KeyReleased.Clear();
+
+        TextInput = string.Empty;
+
+        LastMousePosition = MousePosition;
+
+        ScrollDelta = default;
+    }
+
+    //the UiTree should only know the mouse position relative to itself, and not care about or even know about the screen position,
+    //we also want to only calculate it once per frame, and not constantly
+    public Vector2 MousePosition => throw new NotImplementedException(); //this is the tricky part,
+    public Vector2 LastMousePosition;
+    public Vector2 MouseDelta => MousePosition - LastMousePosition;
+    public Vector2 ScrollDelta;
+    public string TextInput;
+
+    public readonly MouseButtonState[] MouseButtonStates = Enumerable.Range(0, (int)MouseButton.Button12 + 1).Select(_ => new MouseButtonState()).ToArray();
+
+    /// <summary>
+    /// Keys that have been pressed once
+    /// </summary>
+    public HashSet<Key> KeyPressed { get; set; } = new();
+
+    /// <summary>
+    /// Keys that are being pressed
+    /// </summary>
+    public HashSet<Key> KeyDown { get; set; } = new();
+
+    /// <summary>
+    /// Keys that have been release once
+    /// </summary>
+    public HashSet<Key> KeyReleased { get; set; } = new();
+
+    /// <summary>
+    /// Keys that are not being pressed
+    /// </summary>
+    public HashSet<Key> KeyUp { get; set; } = new();
 
     /// <summary>
     /// Check if a key has been pressed once
@@ -21,7 +64,7 @@ public partial class UiTree
     /// <returns></returns>
     public bool IsKeyPressed(Key scancode)
     {
-        return Input.KeyPressed.Contains(scancode);
+        return KeyPressed.Contains(scancode);
     }
 
     /// <summary>
@@ -31,7 +74,7 @@ public partial class UiTree
     /// <returns></returns>
     public bool IsKeyDown(Key scancode)
     {
-        return Input.KeyDown.Contains(scancode);
+        return KeyDown.Contains(scancode);
     }
 
     /// <summary>
@@ -41,7 +84,7 @@ public partial class UiTree
     /// <returns></returns>
     public bool IsKeyReleased(Key scancode)
     {
-        return Input.KeyReleased.Contains(scancode);
+        return KeyReleased.Contains(scancode);
     }
 
     /// <summary>
@@ -51,7 +94,7 @@ public partial class UiTree
     /// <returns></returns>
     public bool IsKeyUp(Key scancode)
     {
-        return Input.KeyUp.Contains(scancode);
+        return KeyUp.Contains(scancode);
     }
 
     /// <summary>
@@ -61,7 +104,7 @@ public partial class UiTree
     /// <returns></returns>
     public bool IsMouseButtonPressed(MouseButton mouseButtonKind)
     {
-        return Input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonPressed;
+        return MouseButtonStates[(int)mouseButtonKind].IsMouseButtonPressed;
     }
 
     /// <summary>
@@ -71,7 +114,7 @@ public partial class UiTree
     /// <returns></returns>
     public bool IsMouseButtonDown(MouseButton mouseButtonKind)
     {
-        return Input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonDown;
+        return MouseButtonStates[(int)mouseButtonKind].IsMouseButtonDown;
     }
 
     /// <summary>
@@ -81,7 +124,7 @@ public partial class UiTree
     /// <returns></returns>
     public bool IsMouseButtonReleased(MouseButton mouseButtonKind)
     {
-        return Input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonReleased;
+        return MouseButtonStates[(int)mouseButtonKind].IsMouseButtonReleased;
     }
 
     /// <summary>
@@ -91,6 +134,16 @@ public partial class UiTree
     /// <returns></returns>
     public bool IsMouseButtonUp(MouseButton mouseButtonKind)
     {
-        return Input.MouseButtonStates[(int)mouseButtonKind].IsMouseButtonUp;
+        return MouseButtonStates[(int)mouseButtonKind].IsMouseButtonUp;
+    }
+
+    public string GetClipboardText()
+    {
+        return UiTreeHost.GetClipboardText();
+    }
+
+    public void SetClipboardText(string text)
+    {
+        UiTreeHost.SetClipboardText(text);
     }
 }

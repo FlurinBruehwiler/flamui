@@ -25,121 +25,75 @@ the KeyBoard events only get send to that one (this is how html does it)
 
 With mouse events, we send it to the UiTree the Mouse is currently hovering, and only the innermost. (again, this is how html does it)
 
+Who keeps track which area on screen is occupied by which uiTree?
+
+Either we have keep a list around of all UiTrees. I don't really like this, because then we need to keep it in sync.
+We should rather at the start of the input processing phase, walk the root UiTree and search for nested UiTrees.
+But this is way more expensive because we need to walk the entire tree. How ofter per frame do we walk the entire tree, we should start counting this!!!!
+
+
+
  */
-public class Input
+public static class Input
 {
-    private readonly Func<Vector2, Vector2> _screenToWorld;
-    public readonly MouseButtonState[] MouseButtonStates = new MouseButtonState[(int)MouseButton.Button12 + 1];
 
-    public Vector2 MousePosition => _screenToWorld(_mouse?.Position ?? new Vector2()); //todo(refactor) properties are dangerous, this results in a matrix multiply each time the MousePosition is accessed!!!!!, pls make better
-    public Vector2 LastMousePosition { get; private set; }
-    public float ScrollDeltaX { get; private set; }
-    public float ScrollDeltaY { get; private set; }
-    public string TextInput { get; set; } = string.Empty;
-    public string ClipboardText
+
+    private static MouseButtonState GetMouseButton(MouseButton button, PhysicalWindow window)
     {
-        get => _keyboard?.ClipboardText ?? ClipboardTextForTesting;
-        set
-        {
-            if (_keyboard != null)
-                _keyboard.ClipboardText = value;
-            else
-                ClipboardTextForTesting = value;
-        }
+        var uiTree = GetHoveredUiTree(window);
+
+        return uiTree.MouseButtonStates[(int)button];
     }
 
-
-    public string ClipboardTextForTesting = string.Empty;
-
-    /// <summary>
-    /// Keys that have been pressed once
-    /// </summary>
-    public HashSet<Key> KeyPressed { get; set; } = new();
-
-    /// <summary>
-    /// Keys that are being pressed
-    /// </summary>
-    public HashSet<Key> KeyDown { get; set; } = new();
-
-    /// <summary>
-    /// Keys that have been release once
-    /// </summary>
-    public HashSet<Key> KeyReleased { get; set; } = new();
-
-    /// <summary>
-    /// Keys that are not being pressed
-    /// </summary>
-    public HashSet<Key> KeyUp { get; set; } = new();
-
-
-    private IMouse? _mouse;
-    private IKeyboard? _keyboard;
-
-    public Input(Func<Vector2, Vector2> screenToWorld)
+    //for keyboard input
+    private static UiTree GetFocusedUiTree(PhysicalWindow window)
     {
-        _screenToWorld = screenToWorld;
+        //todo, implement actual logic
+        return window.UiTree;
     }
 
-    public void OnAfterFrame()
+    //for mouse input
+    private static UiTree GetHoveredUiTree(PhysicalWindow window)
     {
-        foreach (var mouseButtonState in MouseButtonStates)
-        {
-            mouseButtonState.IsMouseButtonPressed = false;
-            mouseButtonState.IsMouseButtonReleased = false;
-        }
-
-        KeyPressed.Clear();
-        KeyReleased.Clear();
-
-        TextInput = string.Empty;
-
-        LastMousePosition = MousePosition;
-
-        ScrollDeltaX = 0;
-        ScrollDeltaY = 0;
+        //todo, implement actual logic
+        return window.UiTree;
     }
 
-    private MouseButtonState GetMouseButton(MouseButton button)
+    public static unsafe void SetupInputCallbacks(PhysicalWindow window)
     {
-        return MouseButtonStates[(int)button];
-    }
+        var glfwWindow = window.GlfWindow;
 
-    public static unsafe Input ConstructInputFromWindow(IWindow window, Func<Vector2, Vector2> screenToWorld)
-    {
-        var input = window.CreateInput();
-
-        var inputObj = new Input(screenToWorld);
-
-        for (int i = 0; i <= (int)MouseButton.Button12; i++)
-        {
-            inputObj.MouseButtonStates[i] = new MouseButtonState();
-        }
+        var input = glfwWindow.CreateInput();
 
         foreach (var keyboard in input.Keyboards)
         {
-            inputObj._keyboard = keyboard;
-
             keyboard.KeyDown += (_, key, _) =>
             {
-                inputObj.KeyDown.Add(key);
-                inputObj.KeyPressed.Add(key);
+                var uiTree = GetFocusedUiTree(window);
+
+                uiTree.KeyDown.Add(key);
+                uiTree.KeyPressed.Add(key);
             };
 
             keyboard.KeyUp += (_, key, _) =>
             {
-                inputObj.KeyUp.Add(key);
-                inputObj.KeyDown.Remove(key);
-                inputObj.KeyReleased.Add(key);
+                var uiTree = GetFocusedUiTree(window);
+
+                uiTree.KeyUp.Add(key);
+                uiTree.KeyDown.Remove(key);
+                uiTree.KeyReleased.Add(key);
             };
 
             keyboard.KeyChar += (_, c) =>
             {
-                inputObj.TextInput += c;
+                var uiTree = GetFocusedUiTree(window);
+
+                uiTree.TextInput += c;
             };
 
-            //fuck the fucking silk.net input abstraction!!!!!!!! should just use the raw glfw bindings
+            //f*** the silk.net input abstraction!!!!!!!! should just use the raw glfw bindings
             var subs = (IDictionary)keyboard.GetType().Assembly.GetType("Silk.NET.Input.Glfw.GlfwInputPlatform")!.GetField("_subs", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
-            var glfwEvents = subs[window.Handle]!;
+            var glfwEvents = subs[glfwWindow.Handle]!;
             var field = glfwEvents.GetType().GetEvent("Key", BindingFlags.Instance | BindingFlags.Public)!;
             var convertKeysMethod = keyboard.GetType().GetMethod("ConvertKey", BindingFlags.Static | BindingFlags.NonPublic, [typeof(Keys)])!;
             field.AddEventHandler(glfwEvents, new GlfwCallbacks.KeyCallback( (_, key, _, action, _) =>
@@ -147,40 +101,35 @@ public class Input
                 if (action == InputAction.Repeat)
                 {
                     var k = (Key)convertKeysMethod.Invoke(null, [key])!;
-                    inputObj.KeyPressed.Add(k);
+
+                    var uiTree = GetFocusedUiTree(window);
+
+                    uiTree.KeyPressed.Add(k);
                 }
             }));
         }
 
         foreach (var mouse in input.Mice)
         {
-            inputObj._mouse = mouse;
-
             mouse.MouseDown += (_, button) =>
             {
-                var mouseButton = inputObj.GetMouseButton(button);
+                var mouseButton = GetMouseButton(button, window);
                 mouseButton.IsMouseButtonDown = true;
                 mouseButton.IsMouseButtonPressed = true;
             };
             mouse.MouseUp += (_, button) =>
             {
-                var mouseButton = inputObj.GetMouseButton(button);
+                var mouseButton = GetMouseButton(button, window);
                 mouseButton.IsMouseButtonUp = true;
                 mouseButton.IsMouseButtonDown = false;
                 mouseButton.IsMouseButtonReleased = true;
             };
             mouse.Scroll += (_, wheel) =>
             {
-                inputObj.ScrollDeltaX = wheel.X;
-                inputObj.ScrollDeltaY = wheel.Y;
+                var uiTree = GetHoveredUiTree(window);
+                uiTree.ScrollDelta = new Vector2(wheel.X, wheel.Y);
             };
-            // mouse.MouseMove += (_, mouseDelta) =>
-            // {
-            //     MousePosition += mouseDelta;
-            // };
         }
-
-        return inputObj;
     }
 }
 

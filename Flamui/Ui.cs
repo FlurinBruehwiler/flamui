@@ -57,9 +57,12 @@ public partial class Ui
     {
         return GetData(id, type, static (ui, _, type) =>
         {
-            var comp = (FlamuiComponent)ActivatorUtilities.CreateInstance(ui.Tree.ServiceProvider, type);
-            comp.OnInitialized();
-            return comp;
+            //todo have to think about components, dependency injection etc...
+            // var comp = (FlamuiComponent)ActivatorUtilities.CreateInstance(ui.Tree, type);
+            // comp.OnInitialized();
+            // return comp;
+            throw new NotImplementedException();
+            return new object();
         });
     }
 
