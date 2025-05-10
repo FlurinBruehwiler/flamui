@@ -20,7 +20,7 @@ public unsafe class ArenaChunkedList<T> : IEnumerable<T> where T : unmanaged
 
     public ArenaChunkedList(Arena arena, int chunkSize)
     {
-        _arena = arena;
+        _arena = arena ?? throw new ArgumentNullException();
         _chunkSize = chunkSize;
 
         _firstChunk = AppendNewChunk();

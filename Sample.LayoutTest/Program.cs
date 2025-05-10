@@ -1,6 +1,6 @@
-﻿Console.WriteLine("foo");
+﻿using Flamui;
+using Flamui.Components;
 
-/*
 var builder = FlamuiApp.CreateBuilder();
 
 var app = builder.Build();
@@ -46,17 +46,17 @@ public class LayoutTest : FlamuiComponent
     {
         ui.CascadingValues.TextColor = C.White;
 
-        using (ui.Div().Margin(10).Color(C.Gray6).ScrollVertical().Clip().Padding(10).Rounded(10))
-        {
-            foreach (var icon in icons)
-            {
-                ui.Text(icon, icon).Size(20);
-                using (ui.Div(icon).Width(100).Height(100))
-                {
-                    ui.SvgImage($"Icons/TVG/{icon}");
-                }
-            }
-        }
+        // using (ui.Div().Margin(10).Color(C.Gray6).ScrollVertical().Clip().Padding(10).Rounded(10))
+        // {
+        //     foreach (var icon in icons)
+        //     {
+        //         ui.Text(icon, icon).Size(20);
+        //         using (ui.Div(icon).Width(100).Height(100))
+        //         {
+        //             ui.SvgImage($"Icons/TVG/{icon}");
+        //         }
+        //     }
+        // }
 
         using (ui.Div().Color(ColorPalette.BackgroundColor).Padding(10).Rounded(10).Margin(10).Gap(10))
         {
@@ -73,10 +73,9 @@ public class LayoutTest : FlamuiComponent
 
             ui.Button("Press me!", primary: true);
 
-            var fps = (float)(1 / ui.Window.DeltaTime);
-            ui.Text($"{fps} fps");
+            // var fps = (float)(1 / ui.Window.DeltaTime);
+            // ui.Text($"{fps} fps");
         }
     }
 }
 
-*/

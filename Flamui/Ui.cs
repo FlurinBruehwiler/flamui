@@ -57,12 +57,9 @@ public partial class Ui
     {
         return GetData(id, type, static (ui, _, type) =>
         {
-            //todo have to think about components, dependency injection etc...
-            // var comp = (FlamuiComponent)ActivatorUtilities.CreateInstance(ui.Tree, type);
-            // comp.OnInitialized();
-            // return comp;
-            throw new NotImplementedException();
-            return new object();
+             var comp = (FlamuiComponent)Activator.CreateInstance(type)!;
+             comp.OnInitialized();
+             return comp;
         });
     }
 
@@ -141,9 +138,9 @@ public partial class Ui
             Tree = ui.Tree
         });
 
+        OpenElement.AddChild(svg);
         svg.ColorDefinition = colorDefinition;
         svg.Src = src;
-        OpenElement.AddChild(svg);
 
         return svg;
     }

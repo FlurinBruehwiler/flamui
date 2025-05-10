@@ -29,7 +29,7 @@ public partial class UiTree
 
     //the UiTree should only know the mouse position relative to itself, and not care about or even know about the screen position,
     //we also want to only calculate it once per frame, and not constantly
-    public Vector2 MousePosition => throw new NotImplementedException(); //this is the tricky part,
+    public Vector2 MousePosition; //this is the tricky part,
     public Vector2 LastMousePosition;
     public Vector2 MouseDelta => MousePosition - LastMousePosition;
     public Vector2 ScrollDelta;

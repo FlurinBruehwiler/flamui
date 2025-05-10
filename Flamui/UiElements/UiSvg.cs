@@ -52,6 +52,12 @@ public class UiSvg : UiElement
     {
         if (!SSvgCache.TryGetValue(Src.GetHashCode(), out var entry))
         {
+            if (Src.ToString().Any(x => x == default))
+            {
+
+            }
+
+
             var bytes = File.ReadAllBytes(Src.ToString());
 
             var (width, height) = TinyVG.ParseHeader(bytes);
@@ -65,5 +71,11 @@ public class UiSvg : UiElement
         }
 
         return entry;
+    }
+
+    public override void Reset()
+    {
+        Src = default;
+        base.Reset();
     }
 }

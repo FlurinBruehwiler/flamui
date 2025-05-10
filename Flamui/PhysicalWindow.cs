@@ -2,6 +2,7 @@
 using System.Numerics;
 using Flamui.Drawing;
 using Flamui.PerfTrace;
+using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 
@@ -14,6 +15,8 @@ public class PhysicalWindow
     private PhysicalWindow() { }
 
     public IWindow GlfWindow;
+
+    public Glfw GlfwApi;
 
     /// <summary>
     /// The DPI scaling from the OS
@@ -32,7 +35,6 @@ public class PhysicalWindow
 
     public UiTree UiTree;
 
-    // public RenderContext RenderContext = new();
     public CommandBuffer LastCommandBuffer;
     private readonly Renderer _renderer = new();
 
@@ -42,6 +44,9 @@ public class PhysicalWindow
 
         w.UiTree = uiTree;
         w.GlfWindow = window;
+        w.GlfwApi = Glfw.GetApi();
+
+        uiTree.UiTreeHost = new NativeUiTreeHost(window, w.GlfwApi);
         window.Load += w.OnLoad;
         window.Update += w.OnUpdate;
         window.Render += w.OnRender;
@@ -61,7 +66,7 @@ public class PhysicalWindow
             LastCommandBuffer = commands;
 
             _renderer.Gl.Viewport(GlfWindow.Size);
-            StaticFunctions.ExecuteRenderInstructions(commands, _renderer, null);
+            StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Ui.Arena);
             GlfWindow.GLContext.SwapBuffers();
         }
 
@@ -80,11 +85,12 @@ public class PhysicalWindow
         }
     }
 
-    private void OnUpdate(double obj)
+    private unsafe void OnUpdate(double obj)
     {
+        GlfwApi.GetCursorPos((WindowHandle*)GlfWindow.Handle, out var x, out var y);
+        UiTree.MousePosition = new Vector2((float)x, (float)y);
+
         UiTree.Update(GlfWindow.Size.X / GetCompleteScaling().X, GlfWindow.Size.Y / GetCompleteScaling().Y);
-
-
     }
 
     private unsafe void OnLoad()
@@ -132,7 +138,7 @@ public class PhysicalWindow
         //     Window = this
         // };
         //
-        // _renderer.Initialize(Window);
+        _renderer.Initialize(GlfWindow);
     }
 
     public Vector2 Zoom = new(1, 1);

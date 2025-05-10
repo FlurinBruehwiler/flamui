@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
 
@@ -23,7 +24,7 @@ public class FlamuiApp
     internal FlamuiApp(IServiceCollection services)
     {
         services.AddSingleton(this);
-        services.AddSingleton<RegistrationManager>();
+        // services.AddSingleton<RegistrationManager>();
 
         var rootProvider = services.BuildServiceProvider();
         Services = rootProvider.CreateScope().ServiceProvider;
@@ -37,7 +38,7 @@ public class FlamuiApp
     public void RegisterOnAfterInput(Action<UiTree> window)
     {
         //maybe not constantly resolve the service
-        Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
+        // Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
     }
 
     public void CreateWindow<TRootComponent>(string title, FlamuiWindowOptions? options = null) where TRootComponent : FlamuiComponent
@@ -62,6 +63,8 @@ public class FlamuiApp
         window.GetType().GetField("_onFrame", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, new Action(() => UpdateWindow(window)));
 
         window.Initialize();
+
+        Run();
     }
 
     public void Run()

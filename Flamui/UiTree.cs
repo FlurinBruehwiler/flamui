@@ -68,8 +68,7 @@ public partial class UiTree
     }
 
     public List<UiElement> HoveredElements { get; set; } = new();
-    public List<UiElement>OldHoveredElements { get; set; } = new();
-    private RegistrationManager _registrationManager;
+    public List<UiElement> OldHoveredElements { get; set; } = new();
 
     //for testing
     public UiTree()
@@ -79,19 +78,23 @@ public partial class UiTree
     public UiTree(FlamuiComponent rootComponent)
     {
         _rootComponent = rootComponent;
+        _renderContext = new RenderContext();
+        Ui.FontManager = new FontManager();
+
+        RootContainer = new FlexContainer
+        {
+            Id = new UiID("anita", "", 0, 0),
+            Tree = this
+        };
+        Ui.Tree = this;
     }
 
     public void Update(float width, float height)
     {
-        // Ui.Arena = RenderContext.Arena;
+        Ui.Arena = _renderContext.Arena;
+        Arena = _renderContext.Arena;
 
         ProcessInputs();
-
-        //ToDo cleanup
-        foreach (var action in _registrationManager.OnAfterInput)
-        {
-            action(this);
-        }
 
         HandleHitTest();
 

@@ -28,7 +28,7 @@ public abstract class UiElement
 
     public virtual void Reset()
     {
-        UiElementInfo = new();
+        UiElementInfo = default;
     }
 
     public virtual void PrepareLayout(Dir dir)

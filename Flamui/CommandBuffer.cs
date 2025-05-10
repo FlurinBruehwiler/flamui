@@ -1,4 +1,6 @@
-﻿namespace Flamui;
+﻿using Microsoft.VisualBasic.CompilerServices;
+
+namespace Flamui;
 
 public struct CommandBuffer
 {
@@ -6,6 +8,9 @@ public struct CommandBuffer
 
     public bool IsEqualTo(CommandBuffer otherBuffer)
     {
+        if (otherBuffer.InnerBuffers == null)
+            return false;
+
         if (this.InnerBuffers.Count != otherBuffer.InnerBuffers.Count)
         {
             return false;

@@ -11,6 +11,15 @@ public enum ClipMode : byte
     OnlyDrawOutside
 }
 
+/*
+
+Think again what exactly a RenderContext is....
+
+
+
+
+ */
+
 public class RenderContext
 {
     public Stack<int> ZIndexes = new();
