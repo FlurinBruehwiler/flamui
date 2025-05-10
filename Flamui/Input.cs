@@ -8,6 +8,24 @@ using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
 
+/*
+
+The question is, what is this class????
+
+Should it be the global abstraction over input or the per UiTree abstraction, I'm inclined to say the latter.
+
+From an architectural standpoint we get global input callbacks form GLFW,
+we then need to decide to what UiTrees we want to send this input.
+
+Ok, so lets say, that this class here just is here for distributing glfw events to UiTrees.
+For testing, we have a testing driver, that sends events to a UiTree, i.e. this class will not be used for testing.
+
+How do we decide where to send the keyboard input event? Is there some kind of focus system, like if one UiTree is focus,
+the KeyBoard events only get send to that one (this is how html does it)
+
+With mouse events, we send it to the UiTree the Mouse is currently hovering, and only the innermost. (again, this is how html does it)
+
+ */
 public class Input
 {
     private readonly Func<Vector2, Vector2> _screenToWorld;

@@ -8,41 +8,45 @@ using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
 
+/*
+What is a UiTree?
+
+The typical arrangement is:
+
+Window
+    UiTree
+
+But we can also have headless uiTrees for testing
+
+UiTree
+UiTree
+etc.
+
+Can we have nested UiTrees??
+We want it for the purpose of a F12 debug menu, there we have a completely isolated DebugMenu / Overlay
+
+Window
+    UiTree (The debug Menu / overlay)
+        UiTree (the actual application)
+
+It is also useful for some kind of plugin architecture, where a plugin can host content within the host app, without being able to affect it.
+The question is, shouldn't this be already handled by the hierarchical nature of the uiTree, should lower nodes be able to affect upper nodes?
+The thing is, we want input isolation, input data is accessible throughout a UiTree, but if we want to isolate input, we probably need nested UiTrees.
+I'm not yet 100% sure about this.
+
+ */
 public partial class UiTree
 {
-    // public IWindow Window;
-    private FlamuiComponent _rootComponent;
-    public IServiceProvider ServiceProvider;
-    public bool IsDebugWindow;
+    private FlamuiComponent _rootComponent; //should this be here, should the component model be a fundamental part of flamui?
     public Arena Arena;
     public RenderContext _renderContext;
-
-    // private UiContainer? _hoveredContainer;
     private UiElement? _activeContainer;
-
     public UiElementContainer RootContainer;
-
-    // private UiContainer? HoveredDiv
-    // {
-    //     get => _hoveredContainer;
-    //     set
-    //     {
-    //         if (HoveredDiv is not null)
-    //         {
-    //             HoveredDiv.IsHovered = false;
-    //         }
-    //
-    //         _hoveredContainer = value;
-    //         if (value is not null)
-    //         {
-    //             value.IsHovered = true;
-    //         }
-    //     }
-    // }
-
     public Input Input;
     private readonly TabIndexManager _tabIndexManager = new();
     public readonly Ui Ui = new();
+    List<UiElement> hitElements = new();
+
 
     public UiElement? ActiveDiv
     {
@@ -63,7 +67,7 @@ public partial class UiTree
     }
 
     public List<UiElement> HoveredElements { get; set; } = new();
-    public List<UiElement> OldHoveredElements { get; set; } = new();
+    public List<UiElement>OldHoveredElements { get; set; } = new();
     private RegistrationManager _registrationManager;
 
     //for testing
@@ -71,10 +75,9 @@ public partial class UiTree
     {
     }
 
-    public UiTree(FlamuiComponent rootComponent, IServiceProvider serviceProvider)
+    public UiTree(FlamuiComponent rootComponent)
     {
         _rootComponent = rootComponent;
-        ServiceProvider = serviceProvider;
     }
 
     public void Update(float width, float height)
@@ -136,9 +139,6 @@ public partial class UiTree
     //         ZoomTarget = new Vector2();
     //     }
     // }
-
-
-    List<UiElement> hitElements = new();
 
     public void HandleHitTest()
     {

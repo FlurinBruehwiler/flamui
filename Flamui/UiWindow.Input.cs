@@ -3,6 +3,8 @@ using Silk.NET.Input;
 
 namespace Flamui;
 
+//This is kind of the input abstraction on a per uiTree basis
+
 public partial class UiTree
 {
     public Vector2 MouseScreenPosition => Input.MousePosition;
