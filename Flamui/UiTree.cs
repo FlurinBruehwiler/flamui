@@ -97,55 +97,14 @@ public partial class UiTree
         currentArena.Reset();
         Ui.Arena = currentArena;
 
-        ProcessInputs();
+        _tabIndexManager.HandleTab(this);
 
         HandleHitTest();
-
-        // HandleZoomAndStuff();
 
         BuildUi(width, height);
 
         CleanupInputAfterFrame();
     }
-
-    // private void HandleZoomAndStuff()
-    // {
-    //     if (IsKeyPressed(Key.Escape))
-    //     {
-    //         //todo(refactor)
-    //     }
-    //
-    //     if (IsMouseButtonDown(MouseButton.Right))
-    //     {
-    //         var mouseDelta = MouseDelta;
-    //         ZoomTarget += mouseDelta * -1 / Zoom;
-    //     }
-    //
-    //     if (IsKeyDown(Key.ControlLeft) && ScrollDeltaY != 0)
-    //     {
-    //         var factor = (float)Math.Pow(1.1, ScrollDeltaY);
-    //         UserScaling *= new Vector2(factor, factor);
-    //         UserScaling = new Vector2(Math.Clamp(UserScaling.X, 0.1f, 10f), Math.Clamp(UserScaling.Y, 0.1f, 10f));
-    //     }
-    //
-    //     if (IsKeyDown(Key.AltLeft) && ScrollDeltaY != 0)
-    //     {
-    //         var factor = (float)Math.Pow(1.1, ScrollDeltaY);
-    //         var mouseWorldPos = MousePosition;
-    //         ZoomOffset = MouseScreenPosition;
-    //         ZoomTarget = mouseWorldPos;
-    //         Zoom *= new Vector2(factor, factor);
-    //         Zoom = new Vector2(Math.Clamp(Zoom.X, 0.01f, 100f), Math.Clamp(Zoom.Y, 0.01f, 100f));
-    //     }
-    //
-    //     if (IsKeyPressed(Key.R))
-    //     {
-    //         UserScaling = new Vector2(1, 1);
-    //         Zoom = new Vector2(1, 1);
-    //         ZoomOffset = new Vector2();
-    //         ZoomTarget = new Vector2();
-    //     }
-    // }
 
     public void HandleHitTest()
     {
@@ -158,8 +117,6 @@ public partial class UiTree
                 if (windowHoveredDiv is FlexContainer { Info.Focusable:true} uiContainer)
                 {
                     ActiveDiv = uiContainer;
-
-                    Console.WriteLine($"Clicked ({MousePosition}: {windowHoveredDiv.Id}");
 
                     return;
                 }
@@ -191,6 +148,7 @@ public partial class UiTree
                     command.UiElement.Get().FinalOnScreenSize = command.Bounds;
                     if (command.Bounds.ContainsPoint(transformedPoint))
                     {
+                        Console.WriteLine($"Hovered {command.Bounds}");
                         hitElements.Add(command.UiElement.Get());
                     }
                 }else if (command.Type == CommandType.Text)
@@ -221,11 +179,6 @@ public partial class UiTree
         }
     }
 
-
-    private void ProcessInputs()
-    {
-        _tabIndexManager.HandleTab(this);
-    }
 
     private void BuildUi(float width, float height)
     {

@@ -3,8 +3,10 @@ using System.Numerics;
 using Flamui.Drawing;
 using Flamui.PerfTrace;
 using Silk.NET.GLFW;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
+using MouseButton = Silk.NET.GLFW.MouseButton;
 
 namespace Flamui;
 
@@ -81,16 +83,26 @@ public class PhysicalWindow
         if (end.TotalMilliseconds < 16) //todo we should probably also detect the refresh rate of monitor, to know how long to sleep for (or we can try to get vsync working)s
         {
             // Console.WriteLine($"Sleeping for {end.TotalMilliseconds}ms");
-            Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
+            // Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
         }
     }
+
+    private Vector2 lastScreenMousePosition;
 
     private unsafe void OnUpdate(double obj)
     {
         GlfwApi.GetCursorPos((WindowHandle*)GlfWindow.Handle, out var x, out var y);
-        UiTree.MousePosition = ScreenToWorld(new Vector2((float)x, (float)y));
+        var screenMousePos = new Vector2((float)x, (float)y);
+
+        HandleZoomAndStuff(screenMousePos - lastScreenMousePosition);
+
+        UiTree.MousePosition = screenMousePos;//ScreenToWorld();
+
+        Console.WriteLine(UiTree.MousePosition);
 
         UiTree.Update(GlfWindow.Size.X / GetCompleteScaling().X, GlfWindow.Size.Y / GetCompleteScaling().Y);
+
+        lastScreenMousePosition = screenMousePos;
     }
 
     private unsafe void OnLoad()
@@ -129,21 +141,53 @@ public class PhysicalWindow
 
         DpiScaling = new Vector2(xScale, yScale);
 
-        // Ui.Window = this;
-        // Ui.FontManager = new FontManager();
-        //
-        // RootContainer = new FlexContainer
-        // {
-        //     Id = new UiID("RootElement", "", 0, 0),
-        //     Window = this
-        // };
-        //
         _renderer.Initialize(GlfWindow);
     }
 
     public Vector2 Zoom = new(1, 1);
     public Vector2 ZoomOffset = new(0, 0);
     public Vector2 ZoomTarget;
+
+    private unsafe void HandleZoomAndStuff(Vector2 mouseDelta)
+    {
+        if (UiTree.IsKeyPressed(Key.Escape))
+        {
+            //todo(refactor)
+        }
+
+        if (UiTree.IsMouseButtonDown(Silk.NET.Input.MouseButton.Right))
+        {
+            Console.WriteLine(mouseDelta.ToString());
+            ZoomTarget += mouseDelta * -1 / Zoom;
+        }
+
+        if (UiTree.IsKeyDown(Key.ControlLeft) && UiTree.ScrollDelta.Y != 0)
+        {
+            var factor = (float)Math.Pow(1.1, UiTree.ScrollDelta.Y);
+            UserScaling *= new Vector2(factor, factor);
+            UserScaling = new Vector2(Math.Clamp(UserScaling.X, 0.1f, 10f), Math.Clamp(UserScaling.Y, 0.1f, 10f));
+        }
+
+        if (UiTree.IsKeyDown(Key.AltLeft) && UiTree.ScrollDelta.Y != 0)
+        {
+            GlfwApi.GetCursorPos((WindowHandle*)GlfWindow.Handle, out var x, out var y);
+
+            var factor = (float)Math.Pow(1.1, UiTree.ScrollDelta.Y);
+            var mouseWorldPos = UiTree.MousePosition;
+            ZoomOffset = new Vector2((float)x, (float)y);
+            ZoomTarget = mouseWorldPos;
+            Zoom *= new Vector2(factor, factor);
+            Zoom = new Vector2(Math.Clamp(Zoom.X, 0.01f, 100f), Math.Clamp(Zoom.Y, 0.01f, 100f));
+        }
+
+        if (UiTree.IsKeyPressed(Key.R))
+        {
+            UserScaling = new Vector2(1, 1);
+            Zoom = new Vector2(1, 1);
+            ZoomOffset = new Vector2();
+            ZoomTarget = new Vector2();
+        }
+    }
 
     private Vector2 ScreenToWorld(Vector2 screenPosition)
     {
