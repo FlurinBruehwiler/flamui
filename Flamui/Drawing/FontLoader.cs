@@ -32,14 +32,11 @@ public struct ScaledFont
         Scale = Font.GetScale(pixelSize);
     }
 
-    public float GetCharWidth(char c)
+
+
+    public float GetAdvanceWith(char c)
     {
         return Font.GetGlyphInfo(c).UnscaledAdvanceWidth * Scale;
-    }
-
-    public int GetAdvanceWith(char c)
-    {
-        return (int)(Font.GetGlyphInfo(c).UnscaledAdvanceWidth * Scale);
     }
 
     public float GetHeight() => Ascent - Descent;
@@ -210,8 +207,8 @@ public struct AtlasGlyphInfo
     public required float YOff;
     public required int SlotNumber;
 
-    public int AdvanceWidth => (int)(FontGlyphInfo.UnscaledAdvanceWidth * Scale);
-    public int LeftSideBearing => (int)(FontGlyphInfo.UnscaledLeftSideBearing * Scale);
+    public float AdvanceWidth => FontGlyphInfo.UnscaledAdvanceWidth * Scale;
+    public float LeftSideBearing => FontGlyphInfo.UnscaledLeftSideBearing * Scale;
 
     // public required GlyphBoundingBox GlyphBoundingBox;
 }

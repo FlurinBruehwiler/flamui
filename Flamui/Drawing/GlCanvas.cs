@@ -92,14 +92,11 @@ public class GlCanvas
     private readonly Renderer _renderer;
     public Paint Paint;
     private static Dictionary<Bitmap, GpuTexture> _textures = []; //Todo not static
-    private static VgAtlas? _vgAtlas;
-
     public GlCanvas(Renderer renderer, Arena arena)
     {
         _renderer = renderer;
         MeshBuilder = new MeshBuilder(arena);
 
-        _vgAtlas ??= new VgAtlas(renderer);
         Start();
     }
 
@@ -127,16 +124,18 @@ public class GlCanvas
 
     public void DrawTinyVG(int vgId, Slice<byte> tinyVG, Bounds bounds)
     {
+        _renderer.VgAtlas ??= new VgAtlas(_renderer);
+
         var resolutionMultiplier = new Vector2(1, 1).Multiply(MeshBuilder.Matrix.GetScale()).Y;
-        var entry = _vgAtlas.GetAtlasEntry(vgId, tinyVG.Span, (uint)(bounds.W * resolutionMultiplier),
+        var entry = _renderer.VgAtlas.GetAtlasEntry(vgId, tinyVG.Span, (uint)(bounds.W * resolutionMultiplier),
             (uint)(bounds.H * resolutionMultiplier));
 
         var entryBounds = new Bounds(new Vector2(entry.X, entry.Y) / 1000, new Vector2(entry.Width, entry.Height) / 1000);
 
-        uint topLeft = MeshBuilder.AddVertex(bounds.TopLeft(), entryBounds.TopLeft(), Paint.Color, textureType: TextureType.Texture, texture: _vgAtlas.GpuTexture);
-        uint topRight = MeshBuilder.AddVertex(bounds.TopRight(), entryBounds.TopRight(), Paint.Color, textureType: TextureType.Texture, texture: _vgAtlas.GpuTexture);
-        uint bottomRight = MeshBuilder.AddVertex(bounds.BottomRight(), entryBounds.BottomRight(), Paint.Color, textureType: TextureType.Texture, texture: _vgAtlas.GpuTexture);
-        uint bottomLeft = MeshBuilder.AddVertex(bounds.BottomLeft(), entryBounds.BottomLeft(), Paint.Color, textureType: TextureType.Texture, texture: _vgAtlas.GpuTexture);
+        uint topLeft = MeshBuilder.AddVertex(bounds.TopLeft(), entryBounds.TopLeft(), Paint.Color, textureType: TextureType.Texture, texture: _renderer.VgAtlas.GpuTexture);
+        uint topRight = MeshBuilder.AddVertex(bounds.TopRight(), entryBounds.TopRight(), Paint.Color, textureType: TextureType.Texture, texture: _renderer.VgAtlas.GpuTexture);
+        uint bottomRight = MeshBuilder.AddVertex(bounds.BottomRight(), entryBounds.BottomRight(), Paint.Color, textureType: TextureType.Texture, texture: _renderer.VgAtlas.GpuTexture);
+        uint bottomLeft = MeshBuilder.AddVertex(bounds.BottomLeft(), entryBounds.BottomLeft(), Paint.Color, textureType: TextureType.Texture, texture: _renderer.VgAtlas.GpuTexture);
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);

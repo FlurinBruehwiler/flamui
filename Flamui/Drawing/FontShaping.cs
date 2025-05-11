@@ -6,7 +6,7 @@ public static class FontShaping
 {
     public static (float start, float end) GetPositionOfChar(ScaledFont scaledFont, ReadOnlySpan<char> singleLine, int index)
     {
-        float xCoord = 0;
+        float horizontalPosition = 0;
 
         if (index < 0 || index > singleLine.Length)
             return default;
@@ -15,13 +15,13 @@ public static class FontShaping
         {
             var c = singleLine[i];
 
-            var start = xCoord;
+            var start = horizontalPosition;
 
-            xCoord += scaledFont.GetCharWidth(c);
+            horizontalPosition += scaledFont.GetAdvanceWith(c);
 
             if (index == i)
             {
-                return (start, xCoord);
+                return (start, horizontalPosition);
             }
         }
 
@@ -82,7 +82,7 @@ public static class FontShaping
                 continue;
             }
 
-            var charWidth = scaledFont.GetCharWidth(c);
+            var charWidth = scaledFont.GetAdvanceWith(c);
 
             currentLineWidth += charWidth;
             currentBlockWidth += charWidth;

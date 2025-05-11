@@ -41,6 +41,7 @@ public class Renderer
 
     private uint vbo;
     private uint ebo;
+    public VgAtlas? VgAtlas;
 
     public unsafe FontAtlas GetFontAtlas(ScaledFont scaledFont)
     {

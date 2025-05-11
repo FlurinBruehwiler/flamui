@@ -17,11 +17,13 @@ using Flamui.Components;
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
  * - Implement the Idea of a LayoutBreak which is really important for slightly more complex layouts
  * - Finish Text Box editing (text selection, working multiline)
+ * - Rethink Components (do we really want class based components, or do we go into the direction that pangui goes??
  */
 
 var builder = FlamuiApp.CreateBuilder();
 
 var app = builder.Build();
+LayoutTest.app = app;
 
 app.CreateWindow<LayoutTest>("Sample.LayoutTest");
 
@@ -29,6 +31,8 @@ app.Run();
 
 public class LayoutTest : FlamuiComponent
 {
+    public static FlamuiApp app;
+
     private ColorDefinition cc = new(43, 45, 48);
     private ColorDefinition c2 = new(30, 31, 34);
     private ColorDefinition c3 = new(75, 76, 79);
@@ -98,7 +102,10 @@ public class LayoutTest : FlamuiComponent
 
             ui.StyledInput(ref input2);
 
-            ui.Button("Press me!");
+            if (ui.Button("Press me!"))
+            {
+                app.CreateWindow<LayoutTest>("Anita");
+            }
 
             ui.Button("Press me!", primary: true);
 

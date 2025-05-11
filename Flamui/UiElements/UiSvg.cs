@@ -57,7 +57,6 @@ public class UiSvg : UiElement
 
             }
 
-
             var bytes = File.ReadAllBytes(Src.ToString());
 
             var (width, height) = TinyVG.ParseHeader(bytes);

@@ -84,9 +84,11 @@ public partial class UiTree
             Tree = this
         };
         Ui.Tree = this;
-        currentArena = new Arena("PerFrameArena1", 1_000_000);
-        lastArena = new Arena("PerFramArena2", 1_000_000);
+        currentArena = new Arena($"PerFrameArena1 {++incId}", 1_000_000);
+        lastArena = new Arena($"PerFramArena2 {++incId}", 1_000_000);
     }
+
+    private static int incId;
 
     private Arena currentArena;
     private Arena lastArena;
@@ -148,7 +150,6 @@ public partial class UiTree
                     command.UiElement.Get().FinalOnScreenSize = command.Bounds;
                     if (command.Bounds.ContainsPoint(transformedPoint))
                     {
-                        Console.WriteLine($"Hovered {command.Bounds}");
                         hitElements.Add(command.UiElement.Get());
                     }
                 }else if (command.Type == CommandType.Text)

@@ -72,7 +72,6 @@ public class VgAtlas
 
         using var _ = ConsoleTimer.Time("VG generation");
 
-
         entry = Table.GetLeastUsed();
 
         fixed (byte* tvg = vgData)

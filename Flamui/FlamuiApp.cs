@@ -63,8 +63,6 @@ public class FlamuiApp
         window.GetType().GetField("_onFrame", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, new Action(() => UpdateWindow(window)));
 
         window.Initialize();
-
-        Run();
     }
 
     public void Run()
