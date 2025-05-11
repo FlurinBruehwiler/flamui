@@ -27,10 +27,8 @@ public class RenderContext
     public RenderContext()
     {
         ZIndexes.Push(0);
-        Arena = new Arena("PerFrameArena", 1_000_000);
     }
 
-    public Arena Arena;
     public Dictionary<int, ArenaChunkedList<Command>> CommandBuffers = [];
     private Stack<Matrix4X4<float>> MatrixStack = [];
     private Stack<Command> ClipStack = [];
@@ -38,14 +36,13 @@ public class RenderContext
     public void Reset()
     {
         CommandBuffers.Clear();
-        Arena.Reset();
         MatrixStack.Clear();
     }
 
     public void AddRect(Bounds bounds, UiElement? uiElement, ColorDefinition color, float radius = 0)
     {
         var cmd = new Command();
-        cmd.UiElement = uiElement != null ? Arena.AddReference(uiElement) : default;
+        cmd.UiElement = uiElement != null ? Ui.Arena.AddReference(uiElement) : default;
         cmd.Bounds = bounds;
         cmd.Radius = radius;
         cmd.Type = CommandType.Rect;
@@ -70,8 +67,8 @@ public class RenderContext
         cmd.Type = CommandType.Text;
         cmd.String = text;
         cmd.Color = color;
-        cmd.UiElement = Arena.AddReference(uiElement);
-        cmd.Font = Arena.AddReference(scaledFont.Font);
+        cmd.UiElement = Ui.Arena.AddReference(uiElement);
+        cmd.Font = Ui.Arena.AddReference(scaledFont.Font);
         cmd.FontSize = scaledFont.PixelSize;
 
         Add(cmd);
@@ -174,7 +171,7 @@ public class RenderContext
     {
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
         {
-            commandBuffer = new ArenaChunkedList<Command>(Arena, 20);
+            commandBuffer = new ArenaChunkedList<Command>(Ui.Arena, 20);
             CommandBuffers.Add(ZIndexes.Peek(), commandBuffer);
         }
 

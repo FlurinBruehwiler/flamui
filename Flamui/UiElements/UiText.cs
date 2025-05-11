@@ -60,7 +60,6 @@ public class UiText : UiElement
 
         var scaledFont = new ScaledFont(font, UiTextInfo.Size);
 
-
         // var offset = TextLayoutInfo.Lines[0].CharOffsets[CursorIndex];
 
         var o = 0;
@@ -114,7 +113,7 @@ public class UiText : UiElement
     public override BoxSize Layout(BoxConstraint constraint)
     {
         TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
-            constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Tree.Arena);
+            constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Ui.Arena);
 
         Rect = new BoxSize(TextLayoutInfo.Width, TextLayoutInfo.Height);
         return Rect;

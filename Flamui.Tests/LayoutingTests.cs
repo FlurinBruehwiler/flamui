@@ -1218,7 +1218,7 @@ public class LayoutingTests : IDisposable
         };
         tree.Ui.Tree = tree;
         tree.Ui.FontManager = new FontManager();
-        tree.Arena = new Arena("test_arena", 10_000);
+        Ui.Arena = new Arena("test_arena", 10_000);
 
         tree.Ui.ResetStuff();
 

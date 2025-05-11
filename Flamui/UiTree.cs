@@ -38,7 +38,6 @@ I'm not yet 100% sure about this.
 public partial class UiTree
 {
     private FlamuiComponent _rootComponent; //should this be here, should the component model be a fundamental part of flamui?
-    public Arena Arena;
     public RenderContext _renderContext = new RenderContext();
     private UiElement? _activeContainer;
     public UiElementContainer RootContainer;
@@ -85,12 +84,18 @@ public partial class UiTree
             Tree = this
         };
         Ui.Tree = this;
+        currentArena = new Arena("PerFrameArena1", 1_000_000);
+        lastArena = new Arena("PerFramArena2", 1_000_000);
     }
+
+    private Arena currentArena;
+    private Arena lastArena;
 
     public void Update(float width, float height)
     {
-        Ui.Arena = _renderContext.Arena;
-        Arena = _renderContext.Arena;
+        (currentArena, lastArena) = (lastArena, currentArena);
+        currentArena.Reset();
+        Ui.Arena = currentArena;
 
         ProcessInputs();
 
@@ -153,6 +158,9 @@ public partial class UiTree
                 if (windowHoveredDiv is FlexContainer { Info.Focusable:true} uiContainer)
                 {
                     ActiveDiv = uiContainer;
+
+                    Console.WriteLine($"Clicked ({MousePosition}: {windowHoveredDiv.Id}");
+
                     return;
                 }
             }
@@ -165,7 +173,9 @@ public partial class UiTree
     {
         var transformedPoint = originalPoint;
 
+
         hitElements.Clear();
+        HoveredElements.Clear();
 
         //from back to front
         foreach (var (_, value) in _renderContext.CommandBuffers.OrderBy(x => x.Key))

@@ -61,7 +61,7 @@ public class PhysicalWindow
         using var _ = Systrace.BeginEvent(nameof(OnRender));
 
         var commands = StaticFunctions.Render(UiTree, GetWorldToScreenMatrix());
-        if (!commands.IsEqualTo(LastCommandBuffer))
+        // if (!commands.IsEqualTo(LastCommandBuffer)) //todo, re-add change detection
         {
             LastCommandBuffer = commands;
 
@@ -80,15 +80,15 @@ public class PhysicalWindow
         var end = Stopwatch.GetElapsedTime(start);
         if (end.TotalMilliseconds < 16) //todo we should probably also detect the refresh rate of monitor, to know how long to sleep for (or we can try to get vsync working)s
         {
-            // Console.WriteLine($"Sleeping for {end.TotalMilliseconds}");
-            // Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
+            // Console.WriteLine($"Sleeping for {end.TotalMilliseconds}ms");
+            Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
         }
     }
 
     private unsafe void OnUpdate(double obj)
     {
         GlfwApi.GetCursorPos((WindowHandle*)GlfWindow.Handle, out var x, out var y);
-        UiTree.MousePosition = new Vector2((float)x, (float)y);
+        UiTree.MousePosition = ScreenToWorld(new Vector2((float)x, (float)y));
 
         UiTree.Update(GlfWindow.Size.X / GetCompleteScaling().X, GlfWindow.Size.Y / GetCompleteScaling().Y);
     }

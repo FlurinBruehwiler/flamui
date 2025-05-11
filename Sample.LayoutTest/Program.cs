@@ -60,6 +60,17 @@ public class LayoutTest : FlamuiComponent
 
         using (ui.Div().Color(ColorPalette.BackgroundColor).Padding(10).Rounded(10).Margin(10).Gap(10))
         {
+            // for (int i = 0; i < 10; i++)
+            // {
+            //     using (var div = ui.Div(i.ToString()).Height(50).Color(C.Black))
+            //     {
+            //         if (div.IsHovered)
+            //         {
+            //             div.Color(C.Red8);
+            //         }
+            //     }
+            // }
+
             var dd = ui.CreateDropDown(selectedOption);
             dd.Component.Option("John");
             dd.Component.Option("Albert");
