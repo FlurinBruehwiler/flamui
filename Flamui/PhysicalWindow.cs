@@ -6,7 +6,7 @@ using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
-using MouseButton = Silk.NET.GLFW.MouseButton;
+
 
 namespace Flamui;
 
@@ -16,7 +16,7 @@ public class PhysicalWindow
 {
     private PhysicalWindow() { }
 
-    public IWindow GlfWindow;
+    public IWindow GlfwWindow;
 
     public Glfw GlfwApi;
 
@@ -45,7 +45,7 @@ public class PhysicalWindow
         var w = new PhysicalWindow();
 
         w.UiTree = uiTree;
-        w.GlfWindow = window;
+        w.GlfwWindow = window;
         w.GlfwApi = Glfw.GetApi();
 
         uiTree.UiTreeHost = new NativeUiTreeHost(window, w.GlfwApi);
@@ -67,9 +67,9 @@ public class PhysicalWindow
         {
             LastCommandBuffer = commands;
 
-            _renderer.Gl.Viewport(GlfWindow.Size);
+            _renderer.Gl.Viewport(GlfwWindow.Size);
             StaticFunctions.ExecuteRenderInstructions(commands, _renderer, Ui.Arena);
-            GlfWindow.GLContext.SwapBuffers();
+            GlfwWindow.GLContext.SwapBuffers();
         }
 
         // OldHoveredElements.Clear();
@@ -88,19 +88,32 @@ public class PhysicalWindow
     }
 
     private Vector2 lastScreenMousePosition;
+    private int framecount;
 
     private unsafe void OnUpdate(double obj)
     {
-        GlfwApi.GetCursorPos((WindowHandle*)GlfWindow.Handle, out var x, out var y);
+        framecount++;
+
+        //a few frames after startup we do this to reduce memory usage drastically
+        //https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-setprocessworkingsetsize
+        if (framecount == 10)
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                using var process = Process.GetCurrentProcess();
+
+                WindowsNative.SetProcessWorkingSetSize(process.Handle, (UIntPtr)sizeof(UIntPtr) - 1, (UIntPtr)sizeof(UIntPtr) - 1);
+            }
+        }
+
+        GlfwApi.GetCursorPos((WindowHandle*)GlfwWindow.Handle, out var x, out var y);
         var screenMousePos = new Vector2((float)x, (float)y);
 
         HandleZoomAndStuff(screenMousePos - lastScreenMousePosition);
 
         UiTree.MousePosition = screenMousePos;//ScreenToWorld();
 
-        Console.WriteLine(UiTree.MousePosition);
-
-        UiTree.Update(GlfWindow.Size.X / GetCompleteScaling().X, GlfWindow.Size.Y / GetCompleteScaling().Y);
+        UiTree.Update(GlfwWindow.Size.X / GetCompleteScaling().X, GlfwWindow.Size.Y / GetCompleteScaling().Y);
 
         lastScreenMousePosition = screenMousePos;
     }
@@ -110,7 +123,7 @@ public class PhysicalWindow
         int darkMode = 1;
         if (OperatingSystem.IsWindows())
         {
-            WindowNative.DwmSetWindowAttribute(GlfWindow.Native.Win32.Value.Hwnd, 20, ref darkMode, sizeof(int));
+            WindowsNative.DwmSetWindowAttribute(GlfwWindow.Native.Win32.Value.Hwnd, 20, ref darkMode, sizeof(int));
         }
 
         Console.WriteLine("Loading");
@@ -120,11 +133,11 @@ public class PhysicalWindow
 
         if (OperatingSystem.IsWindows())
         {
-            WindowNative.glfwSetWindowContentScaleCallback(GlfWindow.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
+            WindowsNative.glfwSetWindowContentScaleCallback(GlfwWindow.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
         }
         else if(OperatingSystem.IsLinux())
         {
-            LinuxNative.glfwSetWindowContentScaleCallback(GlfWindow.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
+            LinuxNative.glfwSetWindowContentScaleCallback(GlfwWindow.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
         }
 
         float xScale = 1;
@@ -132,32 +145,32 @@ public class PhysicalWindow
 
         if (OperatingSystem.IsWindows())
         {
-            WindowNative.glfwGetWindowContentScale(GlfWindow.Handle, &xScale, &yScale);
+            WindowsNative.glfwGetWindowContentScale(GlfwWindow.Handle, &xScale, &yScale);
         }
         else if (OperatingSystem.IsLinux())
         {
-            LinuxNative.glfwGetWindowContentScale(GlfWindow.Handle, &xScale, &yScale);
+            LinuxNative.glfwGetWindowContentScale(GlfwWindow.Handle, &xScale, &yScale);
         }
 
         DpiScaling = new Vector2(xScale, yScale);
 
-        _renderer.Initialize(GlfWindow);
+        _renderer.Initialize(GlfwWindow);
     }
 
     public Vector2 Zoom = new(1, 1);
     public Vector2 ZoomOffset = new(0, 0);
     public Vector2 ZoomTarget;
 
+    //not yet sure if this is the correct place for this....
     private unsafe void HandleZoomAndStuff(Vector2 mouseDelta)
     {
         if (UiTree.IsKeyPressed(Key.Escape))
         {
-            //todo(refactor)
+            GlfwWindow.Close();
         }
 
         if (UiTree.IsMouseButtonDown(Silk.NET.Input.MouseButton.Right))
         {
-            Console.WriteLine(mouseDelta.ToString());
             ZoomTarget += mouseDelta * -1 / Zoom;
         }
 
@@ -170,7 +183,7 @@ public class PhysicalWindow
 
         if (UiTree.IsKeyDown(Key.AltLeft) && UiTree.ScrollDelta.Y != 0)
         {
-            GlfwApi.GetCursorPos((WindowHandle*)GlfWindow.Handle, out var x, out var y);
+            GlfwApi.GetCursorPos((WindowHandle*)GlfwWindow.Handle, out var x, out var y);
 
             var factor = (float)Math.Pow(1.1, UiTree.ScrollDelta.Y);
             var mouseWorldPos = UiTree.MousePosition;

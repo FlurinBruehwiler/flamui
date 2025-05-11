@@ -73,7 +73,7 @@ public class FlamuiApp
         {
             for (var i = 0; i < _windows.Count; i++)
             {
-                var window = _windows[i].GlfWindow;
+                var window = _windows[i].GlfwWindow;
 
                 if (window.IsClosing)
                 {

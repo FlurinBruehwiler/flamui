@@ -1,6 +1,24 @@
 ﻿using Flamui;
 using Flamui.Components;
 
+/*
+ * Things that need to be done for SwissSkills:
+ * - Test Multiwindow
+ *      - Implement easy to use Modals
+ * - Implement some kind of Grid
+ * - Get Flamui running on a VM (where normal OpenGL doesn't work, so we need some kind of Software renderer,
+ *   either DirectX, which has a fallback software renderer, or we stick to OpenGL and use a library that implements
+ *   OpenGL on the CPU, or use a library like TinySkia or full on Skia
+ * - implement error boundaries, so that when something in Build or Layout crashes, the program keeps on running until
+ *   the next hot reload, this should lead to much faster iteration, which is important for swiss skills
+ * - Implement more prebuilt components for faster development (take inspiration from shadcn)
+ *
+ * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
+ * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
+ * - Implement the Idea of a LayoutBreak which is really important for slightly more complex layouts
+ * - Finish Text Box editing (text selection, working multiline)
+ */
+
 var builder = FlamuiApp.CreateBuilder();
 
 var app = builder.Build();

@@ -61,7 +61,7 @@ public static class Input
 
     public static unsafe void SetupInputCallbacks(PhysicalWindow window)
     {
-        var glfwWindow = window.GlfWindow;
+        var glfwWindow = window.GlfwWindow;
 
         var input = glfwWindow.CreateInput();
 
