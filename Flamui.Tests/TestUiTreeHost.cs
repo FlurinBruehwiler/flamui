@@ -2,7 +2,7 @@
 
 public class TestUiTreeHost : IUiTreeHost
 {
-    private readonly string _clipboardText;
+    private string _clipboardText;
 
     public TestUiTreeHost(string clipboardText)
     {
@@ -16,6 +16,6 @@ public class TestUiTreeHost : IUiTreeHost
 
     public void SetClipboardText(string text)
     {
-        throw new NotImplementedException();
+        _clipboardText = text;
     }
 }

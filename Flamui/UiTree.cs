@@ -39,7 +39,7 @@ public partial class UiTree
 {
     private FlamuiComponent _rootComponent; //should this be here, should the component model be a fundamental part of flamui?
     public Arena Arena;
-    public RenderContext _renderContext;
+    public RenderContext _renderContext = new RenderContext();
     private UiElement? _activeContainer;
     public UiElementContainer RootContainer;
     // public Input Input;
@@ -78,8 +78,6 @@ public partial class UiTree
     public UiTree(FlamuiComponent rootComponent)
     {
         _rootComponent = rootComponent;
-        _renderContext = new RenderContext();
-        Ui.FontManager = new FontManager();
 
         RootContainer = new FlexContainer
         {

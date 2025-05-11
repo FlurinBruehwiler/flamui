@@ -37,7 +37,7 @@ public partial class Ui
     public readonly Stack<IStackItem> OpenElementStack = new();
     private IStackItem OpenElement => OpenElementStack.Peek();
     public UiTree Tree = null!;
-    public FontManager FontManager;
+    public FontManager FontManager = new();
 
     public Stack<CascadingStuff> CascadingStack = [];
     public CascadingStuff CascadingValues;

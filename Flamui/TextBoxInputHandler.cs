@@ -149,6 +149,7 @@ public static class TextBoxInputHandler
             var (before, after, cursorShift) = SplitCursor(text, cursorPosition, selectionStart);
             text = string.Concat(before, after);
             cursorPosition += cursorShift;
+            selectionStart = cursorPosition;
         }
 
         if (input.KeyPressed.Contains(Key.A) && input.KeyDown.Contains(Key.ControlLeft))

@@ -33,7 +33,7 @@ public partial class UiTree
     public Vector2 LastMousePosition;
     public Vector2 MouseDelta => MousePosition - LastMousePosition;
     public Vector2 ScrollDelta;
-    public string TextInput;
+    public string TextInput = string.Empty;
 
     public readonly MouseButtonState[] MouseButtonStates = Enumerable.Range(0, (int)MouseButton.Button12 + 1).Select(_ => new MouseButtonState()).ToArray();
 

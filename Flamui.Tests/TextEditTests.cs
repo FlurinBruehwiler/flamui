@@ -224,7 +224,7 @@ public class TextEditTests
     {
         var initialText = "abc|def";
 
-        var output = PerformKeyInputWithClipboard(initialText, "ghi", Key.ControlLeft, Key.V);
+        var output = PerformKeyInputWithHost(initialText, new TestUiTreeHost(clipboardText:  "ghi"), Key.ControlLeft, Key.V);
 
         Assert.Equal("abcghi|def", output);
     }
@@ -234,7 +234,7 @@ public class TextEditTests
     {
         var initialText = "abc|de>f";
 
-        var output = PerformKeyInputWithClipboard(initialText, "ghi", Key.ControlLeft, Key.V);
+        var output = PerformKeyInputWithHost(initialText, new TestUiTreeHost(clipboardText:  "ghi"), Key.ControlLeft, Key.V);
 
         Assert.Equal("abcghi|f", output);
     }
@@ -244,9 +244,51 @@ public class TextEditTests
     {
         var initialText = "abc|de>f";
 
-        var output = PerformKeyInput(initialText, Key.ControlLeft, Key.V);
+        var host = new TestUiTreeHost(string.Empty);
+
+        var output = PerformKeyInputWithHost(initialText, host, Key.ControlLeft, Key.X);
 
         Assert.Equal("abc|f", output);
+        Assert.Equal("de", host.GetClipboardText());
+    }
+
+    [Fact]
+    public void CutWithoutSelection()
+    {
+        var initialText = "abc|def";
+
+        var host = new TestUiTreeHost("hi");
+
+        var output = PerformKeyInputWithHost(initialText, host, Key.ControlLeft, Key.X);
+
+        Assert.Equal("abc|def", output);
+        Assert.Equal("hi", host.GetClipboardText());
+    }
+
+    [Fact]
+    public void Copy()
+    {
+        var initialText = "abc|de>f";
+
+        var host = new TestUiTreeHost(string.Empty);
+
+        var output = PerformKeyInputWithHost(initialText, host, Key.ControlLeft, Key.C);
+
+        Assert.Equal("abc|de>f", output);
+        Assert.Equal("de", host.GetClipboardText());
+    }
+
+    [Fact]
+    public void CopyWithoutSelection()
+    {
+        var initialText = "abc|def";
+
+        var host = new TestUiTreeHost("hi");
+
+        var output = PerformKeyInputWithHost(initialText, host, Key.ControlLeft, Key.C);
+
+        Assert.Equal("abc|def", output);
+        Assert.Equal("hi", host.GetClipboardText());
     }
 
     [Fact]
@@ -381,21 +423,13 @@ public class TextEditTests
 
     private string PerformKeyInput(string initialText, params ReadOnlySpan<Key> keys)
     {
-        var input = new UiTree();
-
-        foreach (var key in keys)
-        {
-            input.KeyPressed.Add(key);
-            input.KeyDown.Add(key);
-        }
-
-        return ApplyInput(initialText, input);
+        return PerformKeyInputWithHost(initialText, new TestUiTreeHost(string.Empty), keys);
     }
 
-    private string PerformKeyInputWithClipboard(string initialText, string clipboardText, params ReadOnlySpan<Key> keys)
+    private string PerformKeyInputWithHost(string initialText, TestUiTreeHost uiTreeHost, params ReadOnlySpan<Key> keys)
     {
         var input = new UiTree();
-        input.UiTreeHost = new TestUiTreeHost(clipboardText);
+        input.UiTreeHost = uiTreeHost;
 
         foreach (var key in keys)
         {

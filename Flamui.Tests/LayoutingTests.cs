@@ -1185,7 +1185,7 @@ public class LayoutingTests : IDisposable
     private void BuildTextualRepresentation(UiElement element, StringBuilder sb, int indentation, Point position)
     {
         sb.Append(new string(' ', indentation * 4));
-        sb.AppendLine($"{element.GetType().Name} = X:{position.X}, Y:{position.Y}, W:{element.Rect.Width}, H:{element.Rect.Height}");
+        sb.Append($"{element.GetType().Name} = X:{position.X}, Y:{position.Y}, W:{element.Rect.Width}, H:{element.Rect.Height}\n");
 
         if (element is UiText text)
         {
@@ -1193,7 +1193,7 @@ public class LayoutingTests : IDisposable
             foreach (var line in text.TextLayoutInfo.Lines)
             {
                 sb.Append(new string(' ', indentation * 4));
-                sb.AppendLine($"Line = {line.TextContent}");
+                sb.Append($"Line = {line.TextContent}\n");
             }
         }
 
@@ -1218,6 +1218,7 @@ public class LayoutingTests : IDisposable
         };
         tree.Ui.Tree = tree;
         tree.Ui.FontManager = new FontManager();
+        tree.Arena = new Arena("test_arena", 10_000);
 
         tree.Ui.ResetStuff();
 
