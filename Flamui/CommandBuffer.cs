@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic.CompilerServices;
-
-namespace Flamui;
+﻿namespace Flamui;
 
 public struct CommandBuffer
 {

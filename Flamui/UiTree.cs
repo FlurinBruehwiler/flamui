@@ -2,8 +2,6 @@
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
-using Silk.NET.Input;
-using Silk.NET.Maths;
 using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
@@ -184,7 +182,7 @@ public partial class UiTree
     private void BuildUi(float width, float height)
     {
         Ui.ResetStuff();
-        Ui.OpenElementStack.Push(RootContainer);
+        Ui.PushOpenElement(RootContainer);
 
         RootContainer.OpenElement();
 

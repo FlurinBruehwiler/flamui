@@ -1160,7 +1160,7 @@ public class LayoutingTests : IDisposable
 
     private void AssertUi(Ui ui, int width, int height, string expected)
     {
-        var root = (UiElementContainer)ui.OpenElementStack.Pop();
+        var root = ui.PopElement();
 
         root.PrepareLayout(Dir.Vertical);
         root.Layout(new BoxConstraint(0, width, 0, height));
@@ -1222,7 +1222,7 @@ public class LayoutingTests : IDisposable
 
         tree.Ui.ResetStuff();
 
-        tree.Ui.OpenElementStack.Push(rootContainer);
+        tree.Ui.PushOpenElement(rootContainer);
         rootContainer.OpenElement();
 
         return tree.Ui;

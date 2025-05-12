@@ -1,6 +1,6 @@
 ﻿namespace Flamui.UiElements;
 
-public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
+public abstract class UiElementContainer : UiElement, IDisposable
 {
     public List<UiElement> Children { get; set; } = new List<UiElement>();
 
@@ -21,7 +21,6 @@ public abstract class UiElementContainer : UiElement, IDisposable, IStackItem
 
     public void Dispose()
     {
-        Tree.Ui.CascadingValues = Tree.Ui.CascadingStack.Pop();
-        Tree.Ui.OpenElementStack.Pop();
+        Tree.Ui.PopElement();
     }
 }

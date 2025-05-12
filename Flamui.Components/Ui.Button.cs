@@ -2,8 +2,20 @@
 
 namespace Flamui.Components;
 
+/*
+ * We could create on giant dictionary, with ID => UiElement, but the ID wouldn't just consist of the location in the source code, but also combined with the parent ID.
+ */
+
 public static partial class UiExtensions
 {
+    public static bool Button2(this Ui ui, string text, bool primary = false, bool focusable = true)
+    {
+        ui.ScopeHashStack.Push(123321); //callsite hash
+        var res = Button(ui, text, primary, focusable);
+        ui.ScopeHashStack.Pop();
+        return res;
+    }
+
     public static bool Button(this Ui ui, string text, bool primary = false, bool focusable = true, string key = "",
         [CallerFilePath] string path = "",
         [CallerLineNumber] int line = -1)

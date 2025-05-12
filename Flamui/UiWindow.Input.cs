@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using Silk.NET.GLFW;
 using Silk.NET.Input;
 using MouseButton = Silk.NET.Input.MouseButton;
 

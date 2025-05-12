@@ -1,5 +1,3 @@
-using Flamui.Layouting;
-
 namespace Flamui.UiElements;
 
 public struct ScrollInputInfo
@@ -48,8 +46,8 @@ public partial class FlexContainer
     public ScrollInputInfo ScrollInputInfoX;
     public ScrollInputInfo ScrollInputInfoY;
 
-    public readonly EmptyStack _scrollBarContainerY = new();
-    public readonly EmptyStack _scrollBarContainerX = new();
+    // public readonly EmptyStack _scrollBarContainerY = new();
+    // public readonly EmptyStack _scrollBarContainerX = new();
 
     public float GetScrollPosInDir(Dir dir)
     {
@@ -79,14 +77,16 @@ public partial class FlexContainer
             return comp;
         });
 
+        //todo re-add scrolling
+/*
         var scrollBarContainer = dir == Dir.Horizontal ? _scrollBarContainerX : _scrollBarContainerY;
 
         scrollBarContainer.UiElement = null;
         scrollBarContainer.DataStore.Reset();
 
-        Tree.Ui.OpenElementStack.Push(scrollBarContainer);
+        // Tree.Ui.OpenElementStack.Push(scrollBarContainer);
         scrollbar.Build(Tree.Ui);
-        Tree.Ui.OpenElementStack.Pop();
+        // Tree.Ui.OpenElementStack.Pop();
 
         if (scrollBarContainer.UiElement is null)
             return 0;
@@ -108,6 +108,8 @@ public partial class FlexContainer
         }
 
         return scrollBarContainer.UiElement.Rect.Width;
+        */
+        return 0;
     }
 
 

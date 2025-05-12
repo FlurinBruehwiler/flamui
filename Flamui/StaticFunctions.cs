@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Flamui.Drawing;
+﻿using Flamui.Drawing;
 using Flamui.Layouting;
 using Silk.NET.Maths;
 

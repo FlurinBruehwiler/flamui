@@ -1,5 +1,4 @@
 ﻿using Flamui.Drawing;
-using Flamui.PerfTrace;
 using Flamui.UiElements;
 using Silk.NET.Maths;
 

@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using Flamui.Drawing;
 using Flamui.UiElements;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Flamui;
 
@@ -34,16 +33,37 @@ public struct CascadingStuff
 
 public partial class Ui
 {
-    public readonly Stack<IStackItem> OpenElementStack = new();
-    private IStackItem OpenElement => OpenElementStack.Peek();
+    public Dictionary<int, object> LastFrameDataStore;
+    public Dictionary<int, object> CurrentFrameDataStore;
+
+    public Stack<int> ScopeHashStack = new();
+    public int CurrentScopeHash => ScopeHashStack.Peek();
+
+    private readonly Stack<UiElementContainer> OpenElementStack = new();
+    private UiElementContainer OpenElement => OpenElementStack.Peek();
+
     public UiTree Tree = null!;
     public FontManager FontManager = new();
 
-    public Stack<CascadingStuff> CascadingStack = [];
+    private Stack<CascadingStuff> CascadingStack = [];
     public CascadingStuff CascadingValues;
 
     [ThreadStatic]
     public static Arena Arena;
+
+    public void PushOpenElement(UiElementContainer container)
+    {
+        CascadingStack.Push(CascadingValues);
+        OpenElementStack.Push(container);
+        ScopeHashStack.Push(container.Id.GetHashCode());
+    }
+
+    public UiElementContainer PopElement()
+    {
+        CascadingValues = CascadingStack.Pop();
+        ScopeHashStack.Pop();
+        return OpenElementStack.Pop();
+    }
 
     public T GetComponent<T>(string key = "",
         [CallerFilePath] string path = "",
@@ -63,22 +83,22 @@ public partial class Ui
         });
     }
 
-    public T GetData<T>(UiID id, Func<Ui, UiID, T> factoryMethod) where T : notnull
+    public T GetData<T>(UiID id, Func<Ui, UiID, T> factoryMethod) where T : class
     {
         return GetData(id, factoryMethod, static (ui, uiId, f) => f(ui, uiId));
     }
 
-    public T GetData<T, TContext>(UiID id, TContext context, Func<Ui, UiID, TContext, T> factoryMethod) where T : notnull
+    public T GetData<T, TContext>(UiID id, TContext context, Func<Ui, UiID, TContext, T> factoryMethod) where T : class
     {
-        var parentContainer = OpenElementStack.Peek();
-        if (parentContainer.DataStore.OldDataById.TryGetValue(id, out var data))
+        var globalId = HashCode.Combine(CurrentScopeHash, id.GetHashCode());
+        if (LastFrameDataStore.TryGetValue(globalId, out var data))
         {
-            parentContainer.DataStore.Data.Add(id, data);
+            CurrentFrameDataStore.Add(globalId, data);
             return (T)data;
         }
 
         var value = factoryMethod(this, id, context);
-        parentContainer.DataStore.Data.Add(id, value);
+        CurrentFrameDataStore.Add(globalId, value);
         return value;
     }
 
@@ -96,8 +116,7 @@ public partial class Ui
 
         OpenElement.AddChild(div);
 
-        OpenElementStack.Push(div);
-        CascadingStack.Push(CascadingValues);
+        PushOpenElement(div);
 
         div.OpenElement();
 

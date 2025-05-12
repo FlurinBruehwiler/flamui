@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
 

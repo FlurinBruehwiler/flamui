@@ -37,6 +37,9 @@ public class DropDown<T> : FlamuiComponent where T : notnull
             if (_isExpanded)
             {
                 //ToDo should be on hight z order!!! but with the current z ordering system this doesn't work if it is already in a hight z order container :(
+                //  ^
+                //  |
+                // is this still true???
                 using (ui.Div().BlockHit().ShrinkHeight()
                            .ZIndex(100)
                            .Padding(5)
