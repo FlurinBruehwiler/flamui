@@ -97,6 +97,9 @@ public partial class UiTree
         currentArena.Reset();
         Ui.Arena = currentArena;
 
+        (Ui.CurrentFrameDataStore, Ui.LastFrameDataStore) = (Ui.LastFrameDataStore, Ui.CurrentFrameDataStore);
+        Ui.CurrentFrameDataStore.Clear();
+
         _tabIndexManager.HandleTab(this);
 
         HandleHitTest();

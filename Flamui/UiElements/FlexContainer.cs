@@ -85,11 +85,15 @@ public partial class FlexContainer : UiElementContainer
             if (IsActive)
                 return true;
 
-            foreach (var uiElement in DataStore.OldDataById) //ToDo, maybe old children again
-            {
-                if (uiElement.Value is FlexContainer { IsActive: true })
-                    return true;
-            }
+            return false;
+            //todo
+            throw new NotImplementedException();
+            //yea this has never actually worked, we would need to do this recursivley
+            // foreach (var uiElement in DataStore.OldDataById) //ToDo, maybe old children again
+            // {
+            //     if (uiElement.Value is FlexContainer { IsActive: true })
+            //         return true;
+            // }
 
             return false;
         }

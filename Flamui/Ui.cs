@@ -30,11 +30,16 @@ public struct CascadingStuff
  * })
  */
 
+/*
+ * We still need some kind of host, that hosts the main event loop, although.....
+ *
+ */
+
 
 public partial class Ui
 {
-    public Dictionary<int, object> LastFrameDataStore;
-    public Dictionary<int, object> CurrentFrameDataStore;
+    public Dictionary<int, object> LastFrameDataStore = [];
+    public Dictionary<int, object> CurrentFrameDataStore = [];
 
     public Stack<int> ScopeHashStack = new();
     public int CurrentScopeHash => ScopeHashStack.Peek();

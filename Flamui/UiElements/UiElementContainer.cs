@@ -4,8 +4,6 @@ public abstract class UiElementContainer : UiElement, IDisposable
 {
     public List<UiElement> Children { get; set; } = new List<UiElement>();
 
-    public DataStore DataStore { get; } = new();
-
     public void AddChild(UiElement uiElement)
     {
         uiElement.Reset();
@@ -15,7 +13,6 @@ public abstract class UiElementContainer : UiElement, IDisposable
 
     public void OpenElement()
     {
-        DataStore.Reset();
         Children.Clear();
     }
 
