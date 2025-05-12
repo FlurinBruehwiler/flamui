@@ -2,33 +2,34 @@
 
 namespace Flamui.SourceGenerators;
 
-public readonly record struct FlamuiComponentSg
+public readonly record struct MethodSignature
 {
-    public readonly INamedTypeSymbol Component;
-    public readonly string FullName;
+    public readonly IMethodSymbol MethodSymbol;
+    public readonly string Name;
+    public readonly string ReturnTypeFullName;
 
-    public readonly EquatableArray<ComponentParameter> Parameters;
+    public readonly EquatableArray<ParameterDefinition> Parameters;
 
-    public FlamuiComponentSg(List<ComponentParameter> parameters, INamedTypeSymbol component, string fullName)
+    public MethodSignature(List<ParameterDefinition> parameters, IMethodSymbol methodSymbol, string name)
     {
-        Component = component;
-        FullName = fullName;
-        Parameters = new EquatableArray<ComponentParameter>(parameters.ToArray());
+        MethodSymbol = methodSymbol;
+        Name = name;
+        Parameters = new EquatableArray<ParameterDefinition>(parameters.ToArray());
     }
 }
 
-public readonly record struct ComponentParameter
+public readonly record struct ParameterDefinition
 {
     public readonly string Name;
     public readonly bool Mandatory;
     public readonly string FullTypename;
     public readonly bool IsRef;
 
-    public ComponentParameter(string name, string fullTypename, bool mandatory, bool isRef)
+    public ParameterDefinition(string name, string fullTypename)
     {
         Name = name;
-        Mandatory = mandatory;
-        IsRef = isRef;
+        Mandatory = false;
+        IsRef = false;
         FullTypename = fullTypename;
     }
 }

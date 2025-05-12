@@ -6,20 +6,25 @@
 
 namespace Playground
 {
-    public static class Program
+    public class Program
     {
         public static void Main()
         {
-            Test();
+            new Program()
+                .
+Test();
         }
 
-        public static void Test()
+        public void Test()
         {
             Console.WriteLine("Not Intercepted");
         }
+    }
 
-        [System.Runtime.CompilerServices.InterceptsLocation("C:\\CMI-GitHub\\flamui\\InterceptorTests\\Program.cs", 13, 13)]
-        public static void TestInterception()
+    public static class Extensions
+    {
+        [System.Runtime.CompilerServices.InterceptsLocation("C:\\CMI-GitHub\\flamui\\InterceptorTests\\Program.cs", 15, 1)]
+        public static void TestInterception(this Program program)
         {
             Console.WriteLine("Intercepted!!!");
         }

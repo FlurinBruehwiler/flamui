@@ -3,9 +3,8 @@
 namespace Flamui.Components;
 
 /*
- * We could create on giant dictionary, with ID => UiElement, but the ID wouldn't just consist of the location in the source code, but also combined with the parent ID.
+ * We could create one giant dictionary, with ID => UiElement, but the ID wouldn't just consist of the location in the source code, but also combined with the parent ID.
  */
-
 public static partial class UiExtensions
 {
     public static bool Button2(this Ui ui, string text, bool primary = false, bool focusable = true)

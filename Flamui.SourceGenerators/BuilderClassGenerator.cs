@@ -1,146 +1,68 @@
-using Microsoft.CodeAnalysis;
-
 namespace Flamui.SourceGenerators;
 
 public static class BuilderClassGenerator
 {
-    public static string Generate(FlamuiComponentSg component)
+    public static string Generate(MethodSignature method)
     {
         var sb = new SourceBuilder();
 
-        if (!component.Component.ContainingNamespace.IsGlobalNamespace)
+        if (!method.MethodSymbol.ContainingNamespace.IsGlobalNamespace)
         {
-            sb.AppendFormat("namespace {0};", component.Component.ContainingNamespace.ToDisplayString()).AppendLine();
+            sb.AppendFormat("namespace {0};", method.MethodSymbol.ContainingNamespace.ToDisplayString()).AppendLine();
             sb.AppendLine();
         }
 
-        sb.Append("public partial struct ");
-        AppendBuilderName(sb, component.Component);
-        sb.AppendLine();
+        sb.AppendLine("public static partial class UiExtensions");
         sb.AppendLine("{");
         sb.AddIndent();
 
-        BuildFields(sb, component);
+        sb.AppendFormat("public static {0} {1}(this ", method.ReturnTypeFullName, method.Name);
 
-        BuildConstructor(sb, component);
+        sb.AppendFormat("{0} receiverType", method.MethodSymbol.ReceiverType!.ToDisplayString());
 
-        foreach (var parameter in component.Parameters.AsSpan())
+        bool isFirst = true;
+        foreach (var parameter in method.Parameters)
         {
-            if(parameter.Mandatory)
-                continue;
+            if (isFirst)
+            {
+                sb.Append(", ");
+                isFirst = false;
+            }
 
-            sb.AppendLine();
-
-            BuildParameterMethods(sb, parameter, component.Component.Name);
+            sb.AppendFormat("{0} {1}", parameter.FullTypename, parameter.Name);
         }
 
-        BuildBuildMethod(sb, component);
+        sb.AppendLine(")");
+
+        sb.AppendLine("{");
+        sb.AddIndent();
+
+        sb.AppendFormat("ui.ScopeHashStack.Push({0});", 123);
+        sb.AppendFormat("var res = receiverType.{0}(", method.Name);
+
+        isFirst = true;
+        foreach (var parameter in method.Parameters)
+        {
+            if (isFirst)
+            {
+                sb.Append(", ");
+                isFirst = false;
+            }
+
+            sb.AppendFormat("{0}", parameter.Name);
+        }
+
+        sb.AppendLine(");");
+
+        sb.AppendLine("ui.ScopeHashStack.Pop();");
+        sb.AppendLine("return res;");
+
+        sb.RemoveIndent();
+        sb.AppendLine("}");
 
         sb.RemoveIndent();
         sb.AppendLine("}");
 
         return sb.ToString();
-    }
-
-    public static void AppendBuilderName(SourceBuilder sb, INamedTypeSymbol component)
-    {
-        sb.Append(component.Name);
-        sb.Append("Builder");
-        AppendGenericParameters(sb, component);
-    }
-
-    public static void AppendGenericParameters(SourceBuilder sb, INamedTypeSymbol component)
-    {
-        if (component.IsGenericType)
-        {
-            sb.Append("<");
-            var separator = string.Empty;
-            foreach (var componentTypeParameter in component.TypeParameters)
-            {
-                sb.Append(separator);
-                sb.Append(componentTypeParameter.Name);
-                separator = ", ";
-            }
-
-            sb.Append(">");
-        }
-    }
-
-    private static void BuildConstructor(SourceBuilder sb, FlamuiComponentSg component)
-    {
-        sb.AppendFormat("public {0}Builder(Flamui.Ui ui, {1} component)", component.Component.Name, component.Component.ToDisplayString()).AppendLine();
-        sb.AppendLine("{");
-        sb.AddIndent();
-
-        sb.AppendLine("Component = component;");
-        sb.AppendLine("_ui = ui;");
-
-        sb.RemoveIndent();
-        sb.AppendLine("}");
-    }
-
-    private static void BuildParameterMethods(SourceBuilder sb, ComponentParameter parameter, string typeName)
-    {
-        sb.AppendFormat("public {0}Builder {1}({2}{3} {1})", typeName, parameter.Name, parameter.IsRef ? "ref " : string.Empty, parameter.FullTypename);
-        sb.AppendLine("{");
-        sb.AddIndent();
-
-        BuildFieldAssignement(sb, parameter);
-
-        sb.AppendLine("return this;");
-
-        sb.RemoveIndent();
-        sb.AppendLine("}");
-    }
-
-    private static void BuildFields(SourceBuilder sb, FlamuiComponentSg flamuiComponentSg)
-    {
-        sb.AppendFormat("public {0} Component {{ get; }}", flamuiComponentSg.Component.ToDisplayString()).AppendLine();
-
-        sb.AppendLine("private readonly Flamui.Ui _ui;");
-
-        sb.AppendLine();
-    }
-
-    private static void BuildFieldAssignement(SourceBuilder sb, ComponentParameter componentParameter)
-    {
-        sb.AppendFormat("Component.{0} = {0};", componentParameter.Name, componentParameter.Name).AppendLine();
-    }
-
-    private static void BuildBuildMethod(SourceBuilder sb, FlamuiComponentSg sg)
-    {
-        sb.AppendLine();
-        sb.Append("public void Build(");
-
-        var separator = string.Empty;
-
-        foreach (var parameter in sg.Parameters.AsSpan())
-        {
-            if (parameter.IsRef)
-            {
-                sb.Append(separator);
-                sb.AppendFormat("out {0} {1}", parameter.FullTypename, parameter.Name);
-                separator = ", ";
-            }
-        }
-
-        sb.AppendLine(")");
-        sb.AppendLine("{");
-        sb.AddIndent();
-
-        sb.AppendLine("Component.Build(_ui);");
-
-        foreach (var parameter in sg.Parameters.AsSpan())
-        {
-            if (parameter.IsRef)
-            {
-                sb.AppendFormat("{0} = Component.{0};", parameter.Name);
-            }
-        }
-
-        sb.AppendLine();
-
-        sb.RemoveIndent();
-        sb.AppendLine("}");
     }
 }

@@ -14,23 +14,15 @@ public class MethodGenerator : IIncrementalGenerator
     {
         context.RegisterPostInitializationOutput(x =>
         {
-            x.AddSource("FlamuiSourceGenerators.ParameterAttribute.cs", @"
+            x.AddSource("FlamuiSourceGenerators.UiFragmentAttribute.cs", @"
 namespace Flamui;
 
-[AttributeUsage(AttributeTargets.Property)]
-public class ParameterAttribute : Attribute
+[AttributeUsage(AttributeTargets.Method)]
+public class UiFragmentAttribute : Attribute
 {
 }
 ");
 
-            x.AddSource("FlamuiSourceGenerators.RefParameterAttribute.cs", @"
-namespace Flamui;
-
-[AttributeUsage(AttributeTargets.Property)]
-public class RefParameterAttribute : Attribute
-{
-}
-");
         });
 
         var flamuiComponents = context.SyntaxProvider.CreateSyntaxProvider(
@@ -42,86 +34,51 @@ public class RefParameterAttribute : Attribute
             if (tuple is null)
                 return default;
 
-            return TypeSymbolToComponent(tuple.Value.Item1, tuple.Value.Item2);
+            return MethodSymbolToSomething(tuple.Value.Item1, tuple.Value.Item2);
         });
 
         context.RegisterSourceOutput(res, (ctx, component) =>
         {
             var result = BuilderClassGenerator.Generate(component);
-            ctx.AddSource($"FlamuiSourceGenerators.{component.FullName.ToFileName()}Builder.g.cs",
+            ctx.AddSource($"FlamuiSourceGenerators.{component.Name.ToFileName()}.g.cs",
                 SourceText.From(result, Encoding.UTF8));
 
-            var result2 = CreateMethodGenerator.Generate(component);
-            ctx.AddSource($"FlamuiSourceGenerators.{component.FullName.ToFileName()}.g.cs",
-                SourceText.From(result2, Encoding.UTF8));
         });
     }
 
-    private static FlamuiComponentSg TypeSymbolToComponent(INamedTypeSymbol component, GeneratorSyntaxContext syntaxContext)
+    private static MethodSignature MethodSymbolToSomething(IMethodSymbol component, GeneratorSyntaxContext syntaxContext)
     {
         // var attributeClass = syntaxContext.SemanticModel.Compilation.GetTypeByMetadataName("Flamui.ParameterAttribute");
 
-        var parameters = new List<ComponentParameter>();
+        var parameters = new List<ParameterDefinition>();
 
-        foreach (var symbol in component.GetMembers())
+        foreach (var parameter in component.Parameters)
         {
-            if(symbol is not IPropertySymbol propertySymbol)
-                continue;
-
-            foreach (var attributeData in propertySymbol.GetAttributes())
-            {
-                if(attributeData.AttributeClass is null)
-                    continue;
-
-                if(attributeData.AttributeClass.ContainingNamespace.ToDisplayString() != "Flamui")
-                    continue;
-
-                var isRef = false;
-
-                if (attributeData.AttributeClass.Name == "RefParameterAttribute")
-                {
-                    isRef = true;
-                }
-                else if (attributeData.AttributeClass.Name != "ParameterAttribute")
-                {
-                    continue;
-                }
-
-                var isRequired = propertySymbol.IsRequired;
-
-                parameters.Add(new ComponentParameter(propertySymbol.Name, propertySymbol.Type.ToDisplayString(), isRequired, isRef));
-                break;
-            }
+            parameters.Add(new ParameterDefinition(parameter.Name, parameter.Type.ToDisplayString()));
         }
 
-        return new FlamuiComponentSg(parameters, component, component.ToDisplayString());
+        return new MethodSignature(parameters, component, component.ToDisplayString());
     }
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
     {
-        return syntaxNode is ClassDeclarationSyntax { BaseList.Types.Count: >= 1 };
+        return syntaxNode is InvocationExpressionSyntax;
     }
 
-    private (INamedTypeSymbol, GeneratorSyntaxContext)? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
+    private (IMethodSymbol, GeneratorSyntaxContext)? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
     {
-        var classDeclarationSyntax = (ClassDeclarationSyntax)syntaxContext.Node;
+        var invocationExpressionSyntax = (InvocationExpressionSyntax)syntaxContext.Node;
 
-        if (classDeclarationSyntax.BaseList is null)
+        var symbol = syntaxContext.SemanticModel.GetDeclaredSymbol(invocationExpressionSyntax);
+
+        if (symbol is not IMethodSymbol methodSymbol)
             return null;
 
-        var symbol = syntaxContext.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax);
+        var attributes = methodSymbol.GetAttributes();
 
-        if (symbol is not INamedTypeSymbol namedTypeSymbol)
-            return null;
-
-        if (namedTypeSymbol.BaseType is null)
-            return null;
-
-        var flamuiComponent = syntaxContext.SemanticModel.Compilation.GetTypeByMetadataName("Flamui.FlamuiComponent");
-
-        if (SymbolEqualityComparer.Default.Equals(flamuiComponent, namedTypeSymbol.BaseType))
+        if (attributes.Any(x => x.AttributeClass?.GetFullName() == "Flamui.UiFragmentAttribute"))
         {
-            return (namedTypeSymbol, syntaxContext);
+            return (methodSymbol, syntaxContext);
         }
 
         return null;
