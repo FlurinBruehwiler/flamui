@@ -78,27 +78,6 @@ public partial class FlexContainer : UiElementContainer
         }
     }
 
-    public bool HasFocusWithin
-    {
-        get
-        {
-            if (IsActive)
-                return true;
-
-            return false;
-            //todo
-            throw new NotImplementedException();
-            //yea this has never actually worked, we would need to do this recursivley
-            // foreach (var uiElement in DataStore.OldDataById) //ToDo, maybe old children again
-            // {
-            //     if (uiElement.Value is FlexContainer { IsActive: true })
-            //         return true;
-            // }
-
-            return false;
-        }
-    }
-
     public override void Render(RenderContext renderContext, Point offset)
     {
         FlexContainerRenderer.Render(renderContext, this, offset);

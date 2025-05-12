@@ -1,7 +1,10 @@
 ﻿namespace Flamui.UiElements;
 
+
 public abstract class UiElementContainer : UiElement, IDisposable
 {
+    public bool HasFocusWithin;
+
     public List<UiElement> Children { get; set; } = new List<UiElement>();
 
     public void AddChild(UiElement uiElement)
@@ -19,5 +22,10 @@ public abstract class UiElementContainer : UiElement, IDisposable
     public void Dispose()
     {
         Tree.Ui.PopElement();
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
     }
 }

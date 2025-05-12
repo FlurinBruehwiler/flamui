@@ -54,12 +54,39 @@ public partial class UiTree
             if (ActiveDiv is not null)
             {
                 ActiveDiv.IsActive = false;
+                SetHasFocusWithinOfParentsAndSelf(ActiveDiv, false);
             }
 
             _activeContainer = value;
+
             if (value is not null)
             {
                 value.IsActive = true;
+
+                SetHasFocusWithinOfParentsAndSelf(value, true);
+            }
+        }
+    }
+
+    private static void SetHasFocusWithinOfParentsAndSelf(UiElement element, bool value)
+    {
+
+        if (element is UiElementContainer c)
+        {
+            c.HasFocusWithin = value;
+        }
+
+        var current = element;
+        while (true)
+        {
+            if (current.Parent != null)
+            {
+                current.Parent.HasFocusWithin = value;
+                current = current.Parent;
+            }
+            else
+            {
+                return;
             }
         }
     }
