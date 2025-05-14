@@ -2,9 +2,9 @@ using Flamui.UiElements;
 
 namespace Flamui.Components.DebugTools;
 
-public class DebugWindow() : FlamuiComponent
+public class DebugWindow()
 {
-    public override void Build(Ui ui)
+    public void Build(Ui ui)
     {
         // ui.Tree.IsDebugWindow = true;
 

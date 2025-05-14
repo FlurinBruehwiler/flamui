@@ -35,7 +35,7 @@ I'm not yet 100% sure about this.
  */
 public partial class UiTree
 {
-    private FlamuiComponent _rootComponent; //should this be here, should the component model be a fundamental part of flamui?
+    private Action<Ui> _buildAction;
     public RenderContext _renderContext = new RenderContext();
     private UiElement? _activeContainer;
     public UiElementContainer RootContainer;
@@ -99,9 +99,9 @@ public partial class UiTree
     {
     }
 
-    public UiTree(FlamuiComponent rootComponent)
+    public UiTree(Action<Ui> buildAction)
     {
-        _rootComponent = rootComponent;
+        _buildAction = buildAction;
 
         RootContainer = new FlexContainer
         {
@@ -216,7 +216,7 @@ public partial class UiTree
 
         RootContainer.OpenElement();
 
-        _rootComponent.Build(Ui);
+        _buildAction(Ui);
 
         RootContainer.PrepareLayout(Dir.Vertical);
         RootContainer.Layout(new BoxConstraint(0, width, 0, height));

@@ -25,11 +25,11 @@ public class ScrollbarSettings
     public int Padding;
 }
 
-public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings) : FlamuiComponent
+public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings)
 {
     private bool _isDragging;
 
-    public override void Build(Ui ui)
+    public void Build(Ui ui)
     {
         scrollService.MinBarSize = settings.MinTrackSize;
 

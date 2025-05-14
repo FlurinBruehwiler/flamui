@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
 
@@ -17,30 +16,14 @@ public record SizeConstraint(int Width, int Height);
 
 public class FlamuiApp
 {
-    public IServiceProvider Services { get; private set; }
     private List<PhysicalWindow> _windows;
 
-    internal FlamuiApp(IServiceCollection services)
+    public FlamuiApp()
     {
-        services.AddSingleton(this);
-        // services.AddSingleton<RegistrationManager>();
-
-        var rootProvider = services.BuildServiceProvider();
-        Services = rootProvider.CreateScope().ServiceProvider;
         _windows = [];
-        //
-        // var uiThread = new Thread(_eventLoop.RunUiThread);
-        // Dispatcher.UIThread = new Dispatcher(uiThread);
-        // uiThread.Start();
     }
 
-    public void RegisterOnAfterInput(Action<UiTree> window)
-    {
-        //maybe not constantly resolve the service
-        // Services.GetRequiredService<RegistrationManager>().OnAfterInput.Add(window);
-    }
-
-    public void CreateWindow<TRootComponent>(string title, FlamuiWindowOptions? options = null) where TRootComponent : FlamuiComponent
+    public void CreateWindow(string title, Action<Ui> buildFunc, FlamuiWindowOptions? options = null)
     {
         options ??= new FlamuiWindowOptions();
 
@@ -54,9 +37,8 @@ public class FlamuiApp
 
         var window = Window.Create(o);
 
-        var rootComponent = ActivatorUtilities.CreateInstance<TRootComponent>(Services);
 
-        _windows.Add(PhysicalWindow.Create(window, new UiTree(rootComponent)));
+        _windows.Add(PhysicalWindow.Create(window, new UiTree(buildFunc)));
 
         //hack to get paint during resize
         window.GetType().GetField("_onFrame", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, new Action(() => UpdateWindow(window)));
@@ -103,15 +85,5 @@ public class FlamuiApp
         {
             window.DoRender();
         }
-    }
-
-    public static FlamuiBuilder CreateBuilder()
-    {
-        if (OperatingSystem.IsLinux() || OperatingSystem.IsWindows())
-        {
-            return new FlamuiBuilder();
-        }
-
-        throw new Exception("Flamui is currently only supported on windows and linux");
     }
 }

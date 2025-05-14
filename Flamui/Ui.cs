@@ -70,24 +70,6 @@ public partial class Ui
         return OpenElementStack.Pop();
     }
 
-    public T GetComponent<T>(string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1) where T : FlamuiComponent
-    {
-        var id = new UiID(key, path, line, typeof(T).GetHashCode());
-        return (T)GetComponentInternal(typeof(T), id);
-    }
-
-    private object GetComponentInternal(Type type, UiID id)
-    {
-        return GetData(id, type, static (ui, _, type) =>
-        {
-             var comp = (FlamuiComponent)Activator.CreateInstance(type)!;
-             comp.OnInitialized();
-             return comp;
-        });
-    }
-
     public T GetData<T>(UiID id, Func<Ui, UiID, T> factoryMethod) where T : class
     {
         return GetData(id, factoryMethod, static (ui, uiId, f) => f(ui, uiId));

@@ -72,9 +72,7 @@ public partial class FlexContainer
                 settings.TrackColor = settings.TrackHoverColor;
             }
 
-            var comp = new Scrollbar(new ScrollService(hi.container, hi.dir), settings);
-            comp.OnInitialized();
-            return comp;
+            return new Scrollbar(new ScrollService(hi.container, hi.dir), settings);
         });
 
         //todo re-add scrolling

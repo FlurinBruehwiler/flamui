@@ -9,7 +9,6 @@ in float texture_id;
 uniform int stencil_enabled; //0 = disabled, 1 = enabled
 uniform sampler2D uTextures[10]; //maximum of 10 textures
 
-
 out vec4 out_color;
 
 void main()
