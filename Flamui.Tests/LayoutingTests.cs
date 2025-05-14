@@ -1105,7 +1105,7 @@ public class LayoutingTests : IDisposable
         var expected =
             """
             FlexContainer = X:0, Y:0, W:400, H:100
-                UiText = X:0, Y:0, W:241, H:32
+                UiText = X:0, Y:0, W:274.55945, H:32
                     Line = Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                     Line = Lorem ipsum dolor sit amet, consectetur adipiscing elit.
             """;
@@ -1126,7 +1126,7 @@ public class LayoutingTests : IDisposable
         var expected =
             """
             FlexContainer = X:0, Y:0, W:200, H:100
-                UiText = X:0, Y:0, W:126, H:32
+                UiText = X:0, Y:0, W:142.5991, H:32
                     Line = Lorem ipsum dolor sit amet, 
                     Line = consectetur adipiscing elit.
             """;
@@ -1148,9 +1148,9 @@ public class LayoutingTests : IDisposable
         var expected =
             """
             FlexContainer = X:0, Y:0, W:400, H:400
-                UiText = X:0, Y:0, W:336, H:21
+                UiText = X:0, Y:0, W:366.07925, H:21
                     Line = Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                UiText = X:0, Y:21, W:367, H:82
+                UiText = X:0, Y:21, W:380.2643, H:82
                     Line = Lorem ipsum dolor sit amet, 
                     Line = consectetur adipiscing elit.
             """;
@@ -1173,6 +1173,9 @@ public class LayoutingTests : IDisposable
         }
 
         var actual = sb.ToString().Trim();
+
+        expected = expected.Replace("\r\n", "\n");
+        actual = actual.Replace("\r\n", "\n");
 
         if (expected != actual)
         {

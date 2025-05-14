@@ -20,7 +20,8 @@ public static class CodeGeneration
 
         var returnType = method.ReturnTypeFullName ?? "void";
 
-        sb.AppendFormat("public static {0} {1}(this ", returnType, method.Name);
+        // sb.AppendLine("[]"); //todo inline aggressive
+         sb.AppendFormat("public static {0} {1}(this ", returnType, method.Name);
 
         sb.AppendFormat("{0} receiverType", method.MethodSymbol.ReceiverType!.ToDisplayString());
 
@@ -41,7 +42,8 @@ public static class CodeGeneration
         sb.AppendLine("{");
         sb.AddIndent();
 
-        sb.AppendFormat("ui.ScopeHashStack.Push({0});\n", 123);
+        sb.AppendFormat("ui.ScopeHashStack.Push({0});", 123);
+        sb.AppendLine();
         sb.AppendFormat("var res = receiverType.{0}(", method.Name);
 
         isFirst = true;

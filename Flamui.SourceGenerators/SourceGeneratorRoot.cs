@@ -70,7 +70,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
 
         foreach (var parameter in methodSymbol.Parameters)
         {
-            if (parameter.Type.GetFullName() == "Flamui.Ui")
+            if (parameter.Type.GetFullName() == "Flamui.Flamui.Ui")
                 return (methodSymbol, syntaxContext);
         }
 

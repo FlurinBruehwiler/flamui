@@ -16,10 +16,9 @@ public class Test
     public static void Build(Ui ui)
     {
         var t = new Test();
-        t.Button();
+        t.Button(ui);
     }
 
-    [UiFragmentAttribute]
     public void Button(Ui ui)
     {
     }
