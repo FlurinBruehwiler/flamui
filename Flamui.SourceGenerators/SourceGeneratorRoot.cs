@@ -1,4 +1,5 @@
 using System.Text;
+using Flamui.SourceGenerators.Infra;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -8,23 +9,10 @@ namespace Flamui.SourceGenerators;
 // https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md
 
 [Generator]
-public class MethodGenerator : IIncrementalGenerator
+public class SourceGeneratorRoot : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(x =>
-        {
-            x.AddSource("FlamuiSourceGenerators.UiFragmentAttribute.cs", @"
-namespace Flamui;
-
-[AttributeUsage(AttributeTargets.Method)]
-public class UiFragmentAttribute : Attribute
-{
-}
-");
-
-        });
-
         var flamuiComponents = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: Filter, transform: Transform)
             .Where(static m => m is not null);
@@ -39,7 +27,7 @@ public class UiFragmentAttribute : Attribute
 
         context.RegisterSourceOutput(res, (ctx, component) =>
         {
-            var result = BuilderClassGenerator.Generate(component);
+            var result = CodeGeneration.Generate(component);
             ctx.AddSource($"FlamuiSourceGenerators.{component.Name.ToFileName()}.g.cs",
                 SourceText.From(result, Encoding.UTF8));
 
@@ -57,28 +45,33 @@ public class UiFragmentAttribute : Attribute
             parameters.Add(new ParameterDefinition(parameter.Name, parameter.Type.ToDisplayString()));
         }
 
-        return new MethodSignature(parameters, component, component.ToDisplayString());
+        return new MethodSignature(parameters, component, component.Name);
     }
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
     {
-        return syntaxNode is InvocationExpressionSyntax;
+        if (syntaxNode is not InvocationExpressionSyntax invocationExpressionSyntax)
+            return false;
+
+        if (invocationExpressionSyntax.ArgumentList.Arguments.Count == 0)
+            return false;
+
+        return true;
     }
 
     private (IMethodSymbol, GeneratorSyntaxContext)? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
     {
         var invocationExpressionSyntax = (InvocationExpressionSyntax)syntaxContext.Node;
 
-        var symbol = syntaxContext.SemanticModel.GetDeclaredSymbol(invocationExpressionSyntax);
+        var symbol = syntaxContext.SemanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol;
 
         if (symbol is not IMethodSymbol methodSymbol)
             return null;
 
-        var attributes = methodSymbol.GetAttributes();
-
-        if (attributes.Any(x => x.AttributeClass?.GetFullName() == "Flamui.UiFragmentAttribute"))
+        foreach (var parameter in methodSymbol.Parameters)
         {
-            return (methodSymbol, syntaxContext);
+            if (parameter.Type.GetFullName() == "Flamui.Ui")
+                return (methodSymbol, syntaxContext);
         }
 
         return null;

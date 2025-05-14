@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Flamui.SourceGenerators;
+namespace Flamui.SourceGenerators.Infra;
 
 public class SourceBuilder
 {

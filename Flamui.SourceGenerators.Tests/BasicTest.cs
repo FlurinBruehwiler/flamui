@@ -2,7 +2,7 @@ namespace Flamui.SourceGenerators.Tests;
 
 public class BasicTest
 {
-    // [Fact]
+    [Fact]
     public Task BasicTest1()
     {
          // The source code to test
@@ -11,12 +11,16 @@ using Flamui;
 
 namespace Sample.ComponentGallery;
 
-public partial class RootComponent<T> : FlamuiComponent
+public class Test
 {
-    [Parameter(true)]
-    public required T IsEnabled { get; set; }
+    public static void Build(Ui ui)
+    {
+        var t = new Test();
+        t.Button();
+    }
 
-    public override void Build()
+    [UiFragmentAttribute]
+    public void Button(Ui ui)
     {
     }
 }";

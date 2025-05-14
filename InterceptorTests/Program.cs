@@ -1,32 +1,28 @@
-﻿namespace System.Runtime.CompilerServices
-{
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    file sealed class InterceptsLocationAttribute(string filePath, int line, int column) : Attribute;
-}
+﻿namespace InterceptorTests;
 
-namespace Playground
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+file sealed class InterceptsLocationAttribute(string filePath, int line, int column) : Attribute;
+
+public class Program
 {
-    public class Program
+    public static void Main()
     {
-        public static void Main()
-        {
-            new Program()
-                .
-Test();
-        }
-
-        public void Test()
-        {
-            Console.WriteLine("Not Intercepted");
-        }
+        new Program()
+            .
+            Test();
     }
 
-    public static class Extensions
+    public void Test()
     {
-        [System.Runtime.CompilerServices.InterceptsLocation("C:\\CMI-GitHub\\flamui\\InterceptorTests\\Program.cs", 15, 1)]
-        public static void TestInterception(this Program program)
-        {
-            Console.WriteLine("Intercepted!!!");
-        }
+        Console.WriteLine("Not Intercepted");
+    }
+}
+
+public static class Extensions
+{
+    [InterceptsLocation("C:\\CMI-GitHub\\flamui\\InterceptorTests\\Program.cs", 15, 1)]
+    public static void TestInterception(this Program program)
+    {
+        Console.WriteLine("Intercepted!!!");
     }
 }

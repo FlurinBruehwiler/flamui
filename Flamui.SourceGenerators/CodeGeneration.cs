@@ -1,6 +1,8 @@
+using Flamui.SourceGenerators.Infra;
+
 namespace Flamui.SourceGenerators;
 
-public static class BuilderClassGenerator
+public static class CodeGeneration
 {
     public static string Generate(MethodSignature method)
     {
@@ -16,7 +18,9 @@ public static class BuilderClassGenerator
         sb.AppendLine("{");
         sb.AddIndent();
 
-        sb.AppendFormat("public static {0} {1}(this ", method.ReturnTypeFullName, method.Name);
+        var returnType = method.ReturnTypeFullName ?? "void";
+
+        sb.AppendFormat("public static {0} {1}(this ", returnType, method.Name);
 
         sb.AppendFormat("{0} receiverType", method.MethodSymbol.ReceiverType!.ToDisplayString());
 
@@ -37,7 +41,7 @@ public static class BuilderClassGenerator
         sb.AppendLine("{");
         sb.AddIndent();
 
-        sb.AppendFormat("ui.ScopeHashStack.Push({0});", 123);
+        sb.AppendFormat("ui.ScopeHashStack.Push({0});\n", 123);
         sb.AppendFormat("var res = receiverType.{0}(", method.Name);
 
         isFirst = true;

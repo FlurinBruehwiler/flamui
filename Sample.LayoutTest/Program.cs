@@ -3,7 +3,7 @@ using Flamui.Components;
 
 /*
  * Things that need to be done for SwissSkills:
- * - Test Multiwindow
+ * - Test Multiwindow - done
  *      - Implement easy to use Modals (with a similar system as Pangui)
  * - Implement some kind of Grid
  * - Get Flamui running on a VM (where normal OpenGL doesn't work, so we need some kind of Software renderer,
@@ -13,6 +13,7 @@ using Flamui.Components;
  *   the next hot reload, this should lead to much faster iteration, which is important for swiss skills
  * - Implement more prebuilt components for faster development (take inspiration from shadcn)
  * - Try out ZLinq, and see if it is a usable alternative, then maybe write an integration with Arenas, so one can materialize ZLinq queries without GC Allocation
+ * - Implement [UiFragment] and remove Components
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
@@ -22,9 +23,17 @@ using Flamui.Components;
  *     Idea: SourceGenerator that generates interceptors for functions with [UiFragment] on it, then we can generate a unique ID even for method calls
  *     State is preserved via ui.GetFloat(1), ui.GetInt(42), and you should be able to do components via ui.Get<DropDown>().Build(possibleValues, ref selectedValue)
  *     We would also generate an interceptor for .Build() method on a "component", but importantly there doesn't exist the concept of a component on a framework level.
+ *     Improved Idea: rather than annotate functions with an Attribute, we could just look for all functions that have Ui as an argument.
  * - ui.DrawLater((canvas) => {}) with callback that allows drawing onto the canvas after layout
  * - Idea for more efficient IDs, instead of using the CallerFileName/CallerLineNumber arguments which require a
  *   recompute of the String hash every time, we could use a source generator to generate interceptor methods, similar as the (existing) [UiFragment] source generator
+ * - Remove Varena library for Arena allocators with own implementation (we shouldn't need a library just to do basic arena allocation!)
+ * - create website with documentation about flamui
+ *      - Idea: We can have code samples on the website (for example to show how layouting works) and then want a screenshot on how this specific code sample
+ *        looks, we could actually just run this code fragment in a headless flamui instance and then take a "screenshot"
+ *        and automatically save it :). Will need to figure out how to use OpenGL without opening a window.
+ * - create a few tests that make use of the new UiTree abstraction, so we can see if it holds up
+ * - implement web support
  */
 
 
@@ -103,7 +112,7 @@ void Build(Ui ui)
 
         ui.StyledInput(ref input2);
 
-        if (ui.Button("Press me!"))
+        if (ui.Button("Create window"))
         {
             app.CreateWindow("Anita", Build);
         }

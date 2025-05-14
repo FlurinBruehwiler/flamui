@@ -16,7 +16,7 @@ public static class TestHelper
             syntaxTrees: new[] { syntaxTree }, [ MetadataReference.CreateFromFile(typeof(FlamuiApp).Assembly.Location) ]);
 
         // Create an instance of our EnumGenerator incremental source generator
-        var generator = new MethodGenerator();
+        var generator = new SourceGeneratorRoot();
 
         // The GeneratorDriver is used to run our generator against a compilation
         GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);

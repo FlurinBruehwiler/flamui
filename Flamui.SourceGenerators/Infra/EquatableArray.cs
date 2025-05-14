@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Flamui.SourceGenerators;
+namespace Flamui.SourceGenerators.Infra;
 
 // <copyright file="EquatableArray.cs" company="Datadog">
 // Unless explicitly stated otherwise all files in this repository are licensed under the Apache 2 License.

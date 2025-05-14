@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Flamui.SourceGenerators;
+namespace Flamui.SourceGenerators.Infra;
 
 public readonly record struct MethodSignature
 {
