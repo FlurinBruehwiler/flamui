@@ -7,11 +7,11 @@ namespace Flamui.Components;
  */
 public static partial class UiExtensions
 {
-    public static bool Button2(this Ui ui, string text, bool primary = false, bool focusable = true)
+    public static bool TestFunc(Ui ui)
     {
-        ui.ScopeHashStack.Push(123321); //callsite hash
-        var res = Button(ui, text, primary, focusable);
-        ui.ScopeHashStack.Pop();
+        var res = Button(ui, "hi");
+        var b = true;
+        Checkbox(ui, ref b);
         return res;
     }
 

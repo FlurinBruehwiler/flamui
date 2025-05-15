@@ -14,26 +14,40 @@ public static class CodeGeneration
             sb.AppendLine();
         }
 
-        sb.AppendLine("public static partial class UiExtensions");
+        sb.AppendLine(@"
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+file sealed class InterceptsLocationAttribute(string filePath, int line, int column) : Attribute;
+");
+        sb.AppendLine();
+
+
+        sb.AppendLine("public static partial class InterceptionMethods");
         sb.AppendLine("{");
         sb.AddIndent();
 
-        var returnType = method.ReturnTypeFullName ?? "void";
+        var returnType = method.MethodSymbol.ReturnType.ToDisplayString();
 
-        // sb.AppendLine("[]"); //todo inline aggressive
-         sb.AppendFormat("public static {0} {1}(this ", returnType, method.Name);
+        sb.AppendLine("[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendFormat("[InterceptsLocation(\"{0}\", {1}, {2})]", 1, 2, 3);
+        sb.AppendLine();
+        sb.AppendFormat("public static {0} {1}(", returnType, method.Name);
 
-        sb.AppendFormat("{0} receiverType", method.MethodSymbol.ReceiverType!.ToDisplayString());
+        bool isFirstParameter = true;
 
-        bool isFirst = true;
+        if (!method.MethodSymbol.IsStatic)
+        {
+            isFirstParameter = false;
+            sb.AppendFormat("this {0} receiverType", method.MethodSymbol.ReceiverType!.ToDisplayString());
+        }
+
         foreach (var parameter in method.Parameters)
         {
-            if (isFirst)
+            if (!isFirstParameter)
             {
                 sb.Append(", ");
-                isFirst = false;
             }
 
+            isFirstParameter = false;
             sb.AppendFormat("{0} {1}", parameter.FullTypename, parameter.Name);
         }
 
@@ -44,16 +58,31 @@ public static class CodeGeneration
 
         sb.AppendFormat("ui.ScopeHashStack.Push({0});", 123);
         sb.AppendLine();
-        sb.AppendFormat("var res = receiverType.{0}(", method.Name);
 
-        isFirst = true;
+        if (!method.MethodSymbol.ReturnsVoid)
+        {
+            sb.Append("var res = ");
+        }
+
+        if (method.MethodSymbol.IsStatic)
+        {
+            sb.AppendFormat("{0}", method.MethodSymbol.ReceiverType.ToDisplayString());
+        }
+        else
+        {
+            sb.Append("receiverType");
+        }
+
+        sb.AppendFormat(".{0}(", method.Name);
+
+        var isFirst = true;
         foreach (var parameter in method.Parameters)
         {
-            if (isFirst)
+            if (!isFirst)
             {
                 sb.Append(", ");
-                isFirst = false;
             }
+            isFirst = false;
 
             sb.AppendFormat("{0}", parameter.Name);
         }
@@ -61,7 +90,11 @@ public static class CodeGeneration
         sb.AppendLine(");");
 
         sb.AppendLine("ui.ScopeHashStack.Pop();");
-        sb.AppendLine("return res;");
+
+        if (!method.MethodSymbol.ReturnsVoid)
+        {
+            sb.AppendLine("return res;");
+        }
 
         sb.RemoveIndent();
         sb.AppendLine("}");

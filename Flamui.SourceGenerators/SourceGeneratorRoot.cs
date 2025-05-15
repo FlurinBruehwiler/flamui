@@ -13,6 +13,15 @@ public class SourceGeneratorRoot : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        context.RegisterPostInitializationOutput(x =>
+        {
+//             x.AddSource("InterceptsLocationAttribute.generated.cs", @"
+// [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+// file sealed class InterceptsLocationAttribute(string filePath, int line, int column) : Attribute;
+// ");
+
+        });
+
         var flamuiComponents = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: Filter, transform: Transform)
             .Where(static m => m is not null);
