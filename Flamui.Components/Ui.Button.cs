@@ -10,6 +10,12 @@ public static partial class UiExtensions
     public static bool TestFunc(Ui ui)
     {
         var res = Button(ui, "hi");
+        res = Button(ui, "hi");
+        res = Button(ui, "hi");
+        res = Button(ui, "hi");
+        res = Button(ui, "hi");
+        res = Button(ui, "hi");
+
         var b = true;
         Checkbox(ui, ref b);
         return res;

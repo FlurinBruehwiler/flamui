@@ -22,6 +22,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
 
         });
 
+
         var flamuiComponents = context.SyntaxProvider.CreateSyntaxProvider(
             predicate: Filter, transform: Transform)
             .Where(static m => m is not null);
@@ -37,7 +38,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
         context.RegisterSourceOutput(res, (ctx, component) =>
         {
             var result = CodeGeneration.Generate(component);
-            ctx.AddSource($"FlamuiSourceGenerators.{component.Name.ToFileName()}.g.cs",
+            ctx.AddSource($"FlamuiSourceGenerators.{component.Name.ToFileName()}_{Guid.NewGuid().ToString().Substring(0, 5)}.g.cs",
                 SourceText.From(result, Encoding.UTF8));
 
         });
@@ -45,6 +46,8 @@ public class SourceGeneratorRoot : IIncrementalGenerator
 
     private static MethodSignature MethodSymbolToSomething(IMethodSymbol component, GeneratorSyntaxContext syntaxContext)
     {
+
+
         // var attributeClass = syntaxContext.SemanticModel.Compilation.GetTypeByMetadataName("Flamui.ParameterAttribute");
 
         var parameters = new List<ParameterDefinition>();
@@ -70,6 +73,8 @@ public class SourceGeneratorRoot : IIncrementalGenerator
 
     private (IMethodSymbol, GeneratorSyntaxContext)? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
     {
+        //todo update .net sdk so that we can generate the data needed for the interceptor
+
         var invocationExpressionSyntax = (InvocationExpressionSyntax)syntaxContext.Node;
 
         var symbol = syntaxContext.SemanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol;

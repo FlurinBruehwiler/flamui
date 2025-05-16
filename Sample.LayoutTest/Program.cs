@@ -4,7 +4,7 @@ using Flamui.Components;
 /*
  * Things that need to be done for SwissSkills:
  * - Test Multiwindow - done
- *      - Implement easy to use Modals (with a similar system as Pangui)
+*  - Implement easy to use Modals (with a similar system as Pangui) - wip
  * - Implement some kind of Grid
  * - Get Flamui running on a VM (where normal OpenGL doesn't work, so we need some kind of Software renderer,
  *   either DirectX, which has a fallback software renderer, or we stick to OpenGL and use a library that implements
@@ -13,7 +13,7 @@ using Flamui.Components;
  *   the next hot reload, this should lead to much faster iteration, which is important for swiss skills
  * - Implement more prebuilt components for faster development (take inspiration from shadcn)
  * - Try out ZLinq, and see if it is a usable alternative, then maybe write an integration with Arenas, so one can materialize ZLinq queries without GC Allocation
- * - Implement [UiFragment] and remove Components
+ * - Implement [UiFragment] and remove Components - wip
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
@@ -32,8 +32,15 @@ using Flamui.Components;
  *      - Idea: We can have code samples on the website (for example to show how layouting works) and then want a screenshot on how this specific code sample
  *        looks, we could actually just run this code fragment in a headless flamui instance and then take a "screenshot"
  *        and automatically save it :). Will need to figure out how to use OpenGL without opening a window.
- * - create a few tests that make use of the new UiTree abstraction, so we can see if it holds up
+ * - create a few tests that make use of the new UiTree abstraction, so we can see if it holds up (For example a tests that tests the DropDown component)
  * - implement web support
+ */
+
+/*
+ * Modals and Snapshots
+ * I really like the Modal system that Pangui has, right now, I think we should be able to implement it with our current infrastructure.
+ * But Pangui has this interesting concept of a Snapshot, it may be worth looking into it and trying to understand it,
+ * so we can determine if we should also have a similar system.
  */
 
 
@@ -121,5 +128,20 @@ void Build(Ui ui)
 
         // var fps = (float)(1 / ui.Window.DeltaTime);
         // ui.Text($"{fps} fps");
+
+        var popup = GetPopup(ui);
+
+        using (popup.Enter())
+        {
+            ui.Text("My Popup Text"); //this text will be displayed within the popup :)
+        }
+    }
+}
+
+LayoutScope GetPopup(Ui ui)
+{
+    using (ui.Div().ZIndex(1000).Padding(10))
+    {
+        return ui.CreateLayoutScope();
     }
 }

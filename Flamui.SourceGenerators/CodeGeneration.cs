@@ -1,4 +1,5 @@
 using Flamui.SourceGenerators.Infra;
+using Microsoft.CodeAnalysis;
 
 namespace Flamui.SourceGenerators;
 
@@ -30,7 +31,7 @@ file sealed class InterceptsLocationAttribute(string filePath, int line, int col
         sb.AppendLine("[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendFormat("[InterceptsLocation(\"{0}\", {1}, {2})]", 1, 2, 3);
         sb.AppendLine();
-        sb.AppendFormat("public static {0} {1}(", returnType, method.Name);
+        sb.AppendFormat("public static {0} {1}(", returnType, method.Name + "_" + Guid.NewGuid().ToString().Substring(0, 5));
 
         bool isFirstParameter = true;
 
@@ -40,7 +41,8 @@ file sealed class InterceptsLocationAttribute(string filePath, int line, int col
             sb.AppendFormat("this {0} receiverType", method.MethodSymbol.ReceiverType!.ToDisplayString());
         }
 
-        foreach (var parameter in method.Parameters)
+
+        foreach (var parameter in method.MethodSymbol.Parameters)
         {
             if (!isFirstParameter)
             {
@@ -48,7 +50,8 @@ file sealed class InterceptsLocationAttribute(string filePath, int line, int col
             }
 
             isFirstParameter = false;
-            sb.AppendFormat("{0} {1}", parameter.FullTypename, parameter.Name);
+
+            sb.Append(parameter.ToDisplayString());
         }
 
         sb.AppendLine(")");
@@ -76,13 +79,24 @@ file sealed class InterceptsLocationAttribute(string filePath, int line, int col
         sb.AppendFormat(".{0}(", method.Name);
 
         var isFirst = true;
-        foreach (var parameter in method.Parameters)
+        foreach (var parameter in method.MethodSymbol.Parameters)
         {
             if (!isFirst)
             {
                 sb.Append(", ");
             }
             isFirst = false;
+
+            if (parameter.RefKind is RefKind.Ref or RefKind.In or RefKind.Out)
+            {
+                sb.AppendFormat("{0} ", parameter.RefKind switch
+                {
+                    RefKind.Ref => "ref",
+                    RefKind.Out => "out",
+                    RefKind.In => "in",
+                    _ => throw new ArgumentOutOfRangeException()
+                });
+            }
 
             sb.AppendFormat("{0}", parameter.Name);
         }

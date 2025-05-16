@@ -179,4 +179,26 @@ public partial class Ui
 
         OpenElementStack.Clear();
     }
+
+    public void EnterLayoutScope(LayoutScope layoutScope)
+    {
+        CascadingStack.Push(layoutScope.CascadingStuff);
+        OpenElementStack.Push(layoutScope.OpenElement);
+    }
+
+    public void ExitLayoutScope()
+    {
+        CascadingStack.Pop();
+        OpenElementStack.Pop();
+    }
+
+    public LayoutScope CreateLayoutScope()
+    {
+        return new LayoutScope
+        {
+            CascadingStuff = CascadingValues,
+            OpenElement = OpenElement,
+            Ui = this
+        };
+    }
 }
