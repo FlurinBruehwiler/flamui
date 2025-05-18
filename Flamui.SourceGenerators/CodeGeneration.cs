@@ -44,7 +44,22 @@ namespace System.Runtime.CompilerServices
 
         var invokeMethodName = $"Invoke_{guid}";
 
-        GeneratePrivateMethodAccessor(method, sb, invokeMethodName);
+        if (method.IsPrivate)
+        {
+            GeneratePrivateMethodAccessor(method, sb, invokeMethodName);
+        }
+        else
+        {
+            if (method.IsStatic || method.IsExtensionMethod)
+            {
+                invokeMethodName = $"{method.ContainingTypeFullName}.{method.Name}";
+            }
+            else
+            {
+                invokeMethodName = $"receiverType.{method.Name}";
+            }
+        }
+
         sb.AppendLine();
 
         var returnType = method.ReturnTypeFullyQualifiedName;
@@ -106,11 +121,12 @@ namespace System.Runtime.CompilerServices
         //     sb.AppendFormat("{0}", method.MethodSymbol.ReceiverType.ToDisplayString());
         // }
         // else
-        if (!method.IsStatic)
+        if (!method.IsStatic && method.IsPrivate)
         {
-            sb.Append("receiverType");
+            sb.Append(uiVariableName);
             isFirst = false;
         }
+
         //
         // sb.AppendFormat(".{0}(", method.Name);
 

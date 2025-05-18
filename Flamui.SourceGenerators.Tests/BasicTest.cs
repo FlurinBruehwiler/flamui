@@ -107,6 +107,34 @@ public static class Test
     }
 
     [Fact]
+    public Task ExtensionMethodTest2()
+    {
+        // The source code to test
+        var source = @"
+using Flamui;
+
+namespace Sample.ComponentGallery;
+
+public static class Test
+{
+    public static void Build(Ui ui)
+    {
+        var str = "";
+
+        StyledInput(ui, ref str, false);
+    }
+
+    public static FlexContainer StyledInput(this Ui ui, ref string text, bool multiline = false)
+    {
+        
+    }
+}";
+
+        // Pass the source code to our helper and snapshot test the output
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
     public Task TopLevelMethod()
     {
         // The source code to test

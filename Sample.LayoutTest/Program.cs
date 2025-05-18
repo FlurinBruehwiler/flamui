@@ -139,12 +139,12 @@ void Build(Ui ui)
         // var fps = (float)(1 / ui.Window.DeltaTime);
         // ui.Text($"{fps} fps");
 
-        var popup = GetPopup();
-
-        using (popup.Enter())
-        {
-            ui.Text("My Popup Text"); //this text will be displayed within the popup :)
-        }
+        // var popup = GetPopup();
+        //
+        // using (popup.Enter())
+        // {
+        //     ui.Text("My Popup Text"); //this text will be displayed within the popup :)
+        // }
     }
 }
 

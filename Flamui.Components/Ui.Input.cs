@@ -10,6 +10,11 @@ public enum InputType
 
 public static partial class UiExtensions
 {
+    public static UiText Anita2(this Ui ui)
+    {
+        return default;
+    }
+
     public static UiText Input(this Ui ui, ref string text, bool hasFocus = false, InputType inputType = InputType.Text)
     {
         using (var hitBox = ui.Div().ShrinkHeight().Color(C.Transparent))

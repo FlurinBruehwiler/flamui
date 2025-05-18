@@ -10,9 +10,12 @@ public record struct MethodSignature
     public EquatableArray<ParameterDefinition> Parameters;
     public string ReceiverTypeFullyQualifiedName;
     public string ReturnTypeFullyQualifiedName;
+    public string ContainingTypeFullName;
     public bool IsStatic;
+    public bool IsExtensionMethod;
     public bool ReceiverTypeIsUiType;
     public bool ReturnsVoid;
+    public bool IsPrivate;
 }
 
 public record struct ParameterDefinition

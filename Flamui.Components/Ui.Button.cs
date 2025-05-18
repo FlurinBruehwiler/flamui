@@ -8,15 +8,13 @@ public static partial class UiExtensions
     public static bool TestFunc(Ui ui)
     {
         var res = Button(ui, "hi");
-        res = Button(ui, "hi");
-        res = Button(ui, "hi");
-        res = Button(ui, "hi");
-        res = Button(ui, "hi");
-        res = Button(ui, "hi");
-
-        var b = true;
-        Checkbox(ui, ref b);
+        res = ui.Button("hi");
         return res;
+    }
+
+    public static void Anita(this Ui ui)
+    {
+
     }
 
     public static bool Button(this Ui ui, string text, bool primary = false, bool focusable = true)

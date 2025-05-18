@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 using Flamui.Layouting;
 using Flamui.UiElements;

@@ -63,10 +63,13 @@ public class SourceGeneratorRoot : IIncrementalGenerator
                 methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             Name = methodSymbol.Name,
             IsStatic = methodSymbol.IsStatic,
+            IsExtensionMethod = methodSymbol.IsExtensionMethod,
             ReceiverTypeIsUiType = methodSymbol.ReceiverType.GetFullName() is "Flamui.Flamui.Ui" or "Flamui.Ui",
             ReturnsVoid = methodSymbol.ReturnsVoid,
             InterceptableLocation = CSharpExtensions.GetInterceptableLocation(syntaxContext.SemanticModel, syntax),
-            Parameters = new EquatableArray<ParameterDefinition>(parameters.ToArray())
+            Parameters = new EquatableArray<ParameterDefinition>(parameters.ToArray()),
+            ContainingTypeFullName = methodSymbol.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            IsPrivate = methodSymbol.DeclaredAccessibility != Accessibility.Public || methodSymbol.ContainingType.DeclaredAccessibility != Accessibility.Public
         };
 
         return methodSignature;
@@ -89,12 +92,12 @@ public class SourceGeneratorRoot : IIncrementalGenerator
         if (symbol is not IMethodSymbol methodSymbol)
             return null;
 
-        if(!methodSymbol.IsStatic && methodSymbol.ReceiverType.GetFullName() is "Flamui.Flamui.Ui" or "Flamui.Ui")
+        if(!methodSymbol.IsStatic && methodSymbol.ReceiverType.Name == "Ui")
             return (methodSymbol, invocationExpressionSyntax, syntaxContext);
 
         foreach (var parameter in methodSymbol.Parameters)
         {
-            if (parameter.Type.GetFullName() is "Flamui.Flamui.Ui" or "Flamui.Ui")
+            if (parameter.Type.Name == "Ui")
                 return (methodSymbol, invocationExpressionSyntax, syntaxContext);
         }
 
