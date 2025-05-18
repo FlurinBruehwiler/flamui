@@ -13,6 +13,7 @@
         <RepositoryUrl>https://github.com/FlurinBruehwiler/flamui</RepositoryUrl>
         <Description>A default set of components</Description>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <InterceptorsNamespaces>$(InterceptorsNamespaces);InterceptorNamespace</InterceptorsNamespaces>
     </PropertyGroup>
 
     <ItemGroup>

@@ -77,4 +77,52 @@ public static class Test
         // Pass the source code to our helper and snapshot test the output
         return TestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task ExtensionMethodTest()
+    {
+        // The source code to test
+        var source = @"
+using Flamui;
+
+namespace Sample.ComponentGallery;
+
+public static class Test
+{
+    public static void Build(Ui ui)
+    {
+        var str = "";
+
+        ui.StyledInput(ref str, false);
+    }
+
+    public static FlexContainer StyledInput(this Ui ui, ref string text, bool multiline = false)
+    {
+        
+    }
+}";
+
+        // Pass the source code to our helper and snapshot test the output
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task TopLevelMethod()
+    {
+        // The source code to test
+        var source = @"
+using Flamui;
+using System;
+
+StyledInput(null);
+
+void StyledInput(Ui ui)
+{
+    
+}
+";
+
+        // Pass the source code to our helper and snapshot test the output
+        return TestHelper.Verify(source);
+    }
 }

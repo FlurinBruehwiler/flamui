@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Flamui.UiElements;
+﻿using Flamui.UiElements;
 
 namespace Flamui.Components;
 
@@ -11,9 +10,7 @@ public enum InputType
 
 public static partial class UiExtensions
 {
-    public static UiText Input(this Ui ui, ref string text, bool hasFocus = false, InputType inputType = InputType.Text, string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
+    public static UiText Input(this Ui ui, ref string text, bool hasFocus = false, InputType inputType = InputType.Text)
     {
         using (var hitBox = ui.Div().ShrinkHeight().Color(C.Transparent))
         {

@@ -9,49 +9,76 @@ public static class CodeGeneration
     {
         var sb = new SourceBuilder();
 
-        if (!method.MethodSymbol.ContainingNamespace.IsGlobalNamespace)
-        {
-            sb.AppendFormat("namespace {0};", method.MethodSymbol.ContainingNamespace.ToDisplayString()).AppendLine();
-            sb.AppendLine();
-        }
-
         sb.AppendLine(@"
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-file sealed class InterceptsLocationAttribute(string filePath, int line, int column) : Attribute;
-");
-        sb.AppendLine();
+using System;
+using System.Diagnostics;
 
+#nullable enable
+namespace System.Runtime.CompilerServices
+{
+    // this type is needed by the compiler to implement interceptors,
+    // it doesn't need to come from the runtime itself
+
+    [Conditional(""DEBUG"")] // not needed post-build, so can evaporate it
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    sealed file class InterceptsLocationAttribute : Attribute
+    {
+        public InterceptsLocationAttribute(int version, string data)
+        {
+            _ = version;
+            _ = data;
+        }
+    }
+}
+");
+
+        sb.AppendLine("namespace InterceptorNamespace");
+        sb.AppendLine("{");
+        sb.AddIndent();
 
         sb.AppendLine("public static partial class InterceptionMethods");
         sb.AppendLine("{");
         sb.AddIndent();
 
-        var returnType = method.MethodSymbol.ReturnType.ToDisplayString();
+        var guid = Guid.NewGuid().ToString().Substring(0, 5);
 
-        sb.AppendLine("[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
-        sb.AppendFormat("[InterceptsLocation(\"{0}\", {1}, {2})]", 1, 2, 3);
+        var invokeMethodName = $"Invoke_{guid}";
+
+        GeneratePrivateMethodAccessor(method, sb, invokeMethodName);
         sb.AppendLine();
-        sb.AppendFormat("public static {0} {1}(", returnType, method.Name + "_" + Guid.NewGuid().ToString().Substring(0, 5));
+
+        var returnType = method.ReturnTypeFullyQualifiedName;
+
+        sb.AppendFormat("//{0}", method.InterceptableLocation.GetDisplayLocation());
+        sb.AppendLine();
+        sb.AppendLine("[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
+        sb.AppendFormat("[System.Runtime.CompilerServices.InterceptsLocation({0}, \"{1}\")]", method.InterceptableLocation.Version, method.InterceptableLocation.Data);
+        sb.AppendLine();
+        sb.AppendFormat("public static {0} {1}(", returnType, $"{method.Name}_{guid}");
 
         bool isFirstParameter = true;
 
-        if (!method.MethodSymbol.IsStatic)
+        if (!method.IsStatic)
         {
             isFirstParameter = false;
-            sb.AppendFormat("this {0} receiverType", method.MethodSymbol.ReceiverType!.ToDisplayString());
+            sb.AppendFormat("this {0} receiverType", method.ReceiverTypeFullyQualifiedName);
         }
 
+        string uiVariableName = string.Empty;
 
-        foreach (var parameter in method.MethodSymbol.Parameters)
+        foreach (var parameter in method.Parameters)
         {
             if (!isFirstParameter)
             {
                 sb.Append(", ");
             }
 
+            if (parameter.IsUiType)
+                uiVariableName = parameter.Name;
+
             isFirstParameter = false;
 
-            sb.Append(parameter.ToDisplayString());
+            sb.Append(parameter.DisplayString);
         }
 
         sb.AppendLine(")");
@@ -59,27 +86,35 @@ file sealed class InterceptsLocationAttribute(string filePath, int line, int col
         sb.AppendLine("{");
         sb.AddIndent();
 
-        sb.AppendFormat("ui.ScopeHashStack.Push({0});", 123);
+        if (method.ReceiverTypeIsUiType)
+        {
+            uiVariableName = "receiverType";
+        }
+        sb.AppendFormat("{0}.ScopeHashStack.Push({1});", uiVariableName, method.InterceptableLocation.Data.GetHashCode());
         sb.AppendLine();
 
-        if (!method.MethodSymbol.ReturnsVoid)
+        if (!method.ReturnsVoid)
         {
             sb.Append("var res = ");
         }
 
-        if (method.MethodSymbol.IsStatic)
-        {
-            sb.AppendFormat("{0}", method.MethodSymbol.ReceiverType.ToDisplayString());
-        }
-        else
-        {
-            sb.Append("receiverType");
-        }
-
-        sb.AppendFormat(".{0}(", method.Name);
+        sb.Append($"{invokeMethodName}(");
 
         var isFirst = true;
-        foreach (var parameter in method.MethodSymbol.Parameters)
+
+        // {
+        //     sb.AppendFormat("{0}", method.MethodSymbol.ReceiverType.ToDisplayString());
+        // }
+        // else
+        if (!method.IsStatic)
+        {
+            sb.Append("receiverType");
+            isFirst = false;
+        }
+        //
+        // sb.AppendFormat(".{0}(", method.Name);
+
+        foreach (var parameter in method.Parameters)
         {
             if (!isFirst)
             {
@@ -103,9 +138,10 @@ file sealed class InterceptsLocationAttribute(string filePath, int line, int col
 
         sb.AppendLine(");");
 
-        sb.AppendLine("ui.ScopeHashStack.Pop();");
+        sb.AppendFormat("{0}.ScopeHashStack.Pop();", uiVariableName);
+        sb.AppendLine();
 
-        if (!method.MethodSymbol.ReturnsVoid)
+        if (!method.ReturnsVoid)
         {
             sb.AppendLine("return res;");
         }
@@ -116,6 +152,33 @@ file sealed class InterceptsLocationAttribute(string filePath, int line, int col
         sb.RemoveIndent();
         sb.AppendLine("}");
 
+        // if (!method.MethodSymbol.ContainingNamespace.IsGlobalNamespace)
+        {
+            sb.RemoveIndent();
+            sb.AppendLine("}");
+        }
+
         return sb.ToString();
+    }
+
+    public static void GeneratePrivateMethodAccessor(MethodSignature methodSignature, SourceBuilder sourceBuilder, string invokeMethodName)
+    {
+        // Parameters
+        var paramList = string.Join(", ", methodSignature.Parameters.Select(p => p.DisplayString));
+
+        // Static or instance
+        var accessorTarget = methodSignature.IsStatic
+            ? methodSignature.ReceiverTypeFullyQualifiedName
+            : $"{methodSignature.ReceiverTypeFullyQualifiedName} target";
+
+        sourceBuilder.AppendLine("[System.Runtime.CompilerServices.UnsafeAccessor(System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"" + methodSignature.Name + "\")]");
+        sourceBuilder.Append($"private static extern {methodSignature.ReturnTypeFullyQualifiedName} {invokeMethodName}(");
+        if (!methodSignature.IsStatic)
+        {
+            sourceBuilder.Append($"{accessorTarget}");
+            if (methodSignature.Parameters.Count > 0) sourceBuilder.Append(", ");
+        }
+        sourceBuilder.Append(paramList);
+        sourceBuilder.AppendLine(");");
     }
 }

@@ -13,7 +13,10 @@ public static class TestHelper
         // Create a Roslyn compilation for the syntax tree.
         var compilation = CSharpCompilation.Create(
             assemblyName: "Tests",
-            syntaxTrees: new[] { syntaxTree }, [ MetadataReference.CreateFromFile(typeof(FlamuiApp).Assembly.Location) ]);
+            syntaxTrees: new[] { syntaxTree }, [ MetadataReference.CreateFromFile(typeof(FlamuiApp).Assembly.Location) ],
+            options: new CSharpCompilationOptions(OutputKind.ConsoleApplication));
+
+        var diags = compilation.GetDiagnostics();
 
         // Create an instance of our EnumGenerator incremental source generator
         var generator = new SourceGeneratorRoot();

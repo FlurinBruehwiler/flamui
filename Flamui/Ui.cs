@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Flamui.Drawing;
 using Flamui.UiElements;
 
@@ -70,32 +69,28 @@ public partial class Ui
         return OpenElementStack.Pop();
     }
 
-    public T GetData<T>(UiID id, Func<Ui, UiID, T> factoryMethod) where T : class
+    public T GetData<T>(Func<Ui, UiID, T> factoryMethod) where T : class
     {
-        return GetData(id, factoryMethod, static (ui, uiId, f) => f(ui, uiId));
+        return GetData(factoryMethod, static (ui, uiId, f) => f(ui, uiId));
     }
 
-    public T GetData<T, TContext>(UiID id, TContext context, Func<Ui, UiID, TContext, T> factoryMethod) where T : class
+    public T GetData<T, TContext>(TContext context, Func<Ui, UiID, TContext, T> factoryMethod) where T : class
     {
-        var globalId = HashCode.Combine(CurrentScopeHash, id.GetHashCode());
+        var globalId = CurrentScopeHash;
         if (LastFrameDataStore.TryGetValue(globalId, out var data))
         {
             CurrentFrameDataStore.Add(globalId, data);
             return (T)data;
         }
 
-        var value = factoryMethod(this, id, context);
+        var value = factoryMethod(this, default, context);
         CurrentFrameDataStore.Add(globalId, value);
         return value;
     }
 
-    public FlexContainer Div(
-        string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
+    public FlexContainer Div()
     {
-        var id = new UiID(key, path, line, typeof(FlexContainer).GetHashCode());
-        var div = GetData(id, static (ui, id) => new FlexContainer
+        var div = GetData(static (ui, id) => new FlexContainer
         {
             Id = id,
             Tree = ui.Tree
@@ -110,13 +105,9 @@ public partial class Ui
         return div;
     }
 
-    public UiText Text(ArenaString content,
-        string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
+    public UiText Text(ArenaString content)
     {
-        var id = new UiID(key, path, line, typeof(UiText).GetHashCode());
-        var text = GetData(id, static (ui, id) => new UiText
+        var text = GetData(static (ui, id) => new UiText
         {
             Id = id,
             Tree = ui.Tree,
@@ -132,13 +123,9 @@ public partial class Ui
         return text;
     }
 
-    public UiSvg SvgImage(ArenaString src, ColorDefinition? colorDefinition = null,
-        string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
+    public UiSvg SvgImage(ArenaString src, ColorDefinition? colorDefinition = null)
     {
-        var id = new UiID(key, path, line, typeof(UiSvg).GetHashCode());
-        var svg = GetData(id, static (ui, id) => new UiSvg
+        var svg = GetData(static (ui, id) => new UiSvg
         {
             Id = id,
             Tree = ui.Tree
@@ -151,13 +138,9 @@ public partial class Ui
         return svg;
     }
 
-    public UiImage Image(string src,
-        string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
+    public UiImage Image(string src)
     {
-        var id = new UiID(key, path, line, typeof(UiImage).GetHashCode());
-        var image = GetData(id, static (ui, id) => new UiImage
+        var image = GetData(static (ui, id) => new UiImage
         {
             Id = id,
             Tree = ui.Tree,

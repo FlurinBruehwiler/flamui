@@ -97,6 +97,16 @@ void Build(Ui ui)
     //     }
     // }
 
+    // var res = UiExtensions.Button(ui, "hi");
+    // res = UiExtensions.Button(ui, "hi");
+    // res = UiExtensions.Button(ui, "hi");
+    // res = UiExtensions.Button(ui, "hi");
+    // res = UiExtensions.Button(ui, "hi");
+    // res = UiExtensions.Button(ui, "hi");
+
+    var b = true;
+    // UiExtensions.Checkbox(ui, ref b);
+
     using (ui.Div().Color(C.Red7).Padding(10).Rounded(10).Margin(10).Gap(10))
     {
         // for (int i = 0; i < 10; i++)
@@ -116,7 +126,7 @@ void Build(Ui ui)
         // dd.Component.Option("Div");
         // dd.Component.Option("Size");
         // dd.Build(out selectedOption);
-
+        //
         ui.StyledInput(ref input2);
 
         if (ui.Button("Create window"))
@@ -129,7 +139,7 @@ void Build(Ui ui)
         // var fps = (float)(1 / ui.Window.DeltaTime);
         // ui.Text($"{fps} fps");
 
-        var popup = GetPopup(ui);
+        var popup = GetPopup();
 
         using (popup.Enter())
         {
@@ -138,10 +148,11 @@ void Build(Ui ui)
     }
 }
 
-LayoutScope GetPopup(Ui ui)
+LayoutScope GetPopup()
 {
-    using (ui.Div().ZIndex(1000).Padding(10))
-    {
-        return ui.CreateLayoutScope();
-    }
+    // using (ui.Div().ZIndex(1000).Padding(10))
+    // {
+    //     return ui.CreateLayoutScope();
+    // }
+    return default;
 }

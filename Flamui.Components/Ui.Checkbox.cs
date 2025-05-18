@@ -1,15 +1,12 @@
-﻿using System.Runtime.CompilerServices;
-using Silk.NET.Input;
+﻿using Silk.NET.Input;
 
 namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static void Checkbox(this Ui ui, ref bool enabled, string key = "",
-        [CallerFilePath] string path = "",
-        [CallerLineNumber] int line = -1)
+    public static void Checkbox(this Ui ui, ref bool enabled)
     {
-        using (var div = ui.Div(key, path, line).Height(15).Focusable().Width(15).Color(ColorPalette.BackgroundColor)
+        using (var div = ui.Div().Height(15).Focusable().Width(15).Color(ColorPalette.BackgroundColor)
                    .BorderColor(ColorPalette.BorderColor).BorderWidth(1).Rounded(2))
         {
             if (div.IsClicked)

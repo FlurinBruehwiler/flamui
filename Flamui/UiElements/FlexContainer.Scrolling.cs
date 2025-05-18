@@ -63,7 +63,8 @@ public partial class FlexContainer
     {
         //TODO pls refactor this very ugly code!!!!!!!!!!!!!!!
 
-        var scrollbar = Tree.Ui.GetData(Id with { Key = dir == Dir.Horizontal ? "Horizontal" : "Vertical"}, (container: this, dir: dir), static (_, _, hi) =>
+        //todo id
+        var scrollbar = Tree.Ui.GetData((container: this, dir: dir), static (_, _, hi) =>
         {
             var settings = ScrollbarSettings.Default;
 

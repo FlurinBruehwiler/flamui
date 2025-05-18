@@ -31,7 +31,9 @@ internal struct HashCode
     private static uint GenerateGlobalSeed()
     {
         var buffer = new byte[sizeof(uint)];
+#pragma warning disable RS1035
         new Random().NextBytes(buffer);
+#pragma warning restore RS1035
         return BitConverter.ToUInt32(buffer, 0);
     }
 

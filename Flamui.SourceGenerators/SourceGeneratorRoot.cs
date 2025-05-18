@@ -3,6 +3,7 @@ using Flamui.SourceGenerators.Infra;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using CSharpExtensions = Microsoft.CodeAnalysis.CSharp.CSharpExtensions;
 
 namespace Flamui.SourceGenerators;
 
@@ -15,10 +16,6 @@ public class SourceGeneratorRoot : IIncrementalGenerator
     {
         context.RegisterPostInitializationOutput(x =>
         {
-//             x.AddSource("InterceptsLocationAttribute.generated.cs", @"
-// [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-// file sealed class InterceptsLocationAttribute(string filePath, int line, int column) : Attribute;
-// ");
 
         });
 
@@ -32,7 +29,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             if (tuple is null)
                 return default;
 
-            return MethodSymbolToSomething(tuple.Value.Item1, tuple.Value.Item2);
+            return MethodSymbolToSomething(tuple.Value.Item1, tuple.Value.Item2, tuple.Value.Item3);
         });
 
         context.RegisterSourceOutput(res, (ctx, component) =>
@@ -40,41 +37,51 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             var result = CodeGeneration.Generate(component);
             ctx.AddSource($"FlamuiSourceGenerators.{component.Name.ToFileName()}_{Guid.NewGuid().ToString().Substring(0, 5)}.g.cs",
                 SourceText.From(result, Encoding.UTF8));
-
         });
     }
 
-    private static MethodSignature MethodSymbolToSomething(IMethodSymbol component, GeneratorSyntaxContext syntaxContext)
+    private static MethodSignature MethodSymbolToSomething(IMethodSymbol methodSymbol, InvocationExpressionSyntax syntax, GeneratorSyntaxContext syntaxContext)
     {
-
-
-        // var attributeClass = syntaxContext.SemanticModel.Compilation.GetTypeByMetadataName("Flamui.ParameterAttribute");
-
-        var parameters = new List<ParameterDefinition>();
-
-        foreach (var parameter in component.Parameters)
+        var parameters = methodSymbol.Parameters.Select(x =>
         {
-            parameters.Add(new ParameterDefinition(parameter.Name, parameter.Type.ToDisplayString()));
-        }
+            var pd = new ParameterDefinition
+            {
+                DisplayString = x.ToDisplayString(),
+                IsUiType = x.Type.GetFullName() is "Flamui.Flamui.Ui" or "Flamui.Ui",
+                Name = x.Name,
+                RefKind = x.RefKind
+            };
 
-        return new MethodSignature(parameters, component, component.Name);
+            return pd;
+        });
+
+        var methodSignature = new MethodSignature
+        {
+            ReceiverTypeFullyQualifiedName =
+                methodSymbol.ReceiverType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            ReturnTypeFullyQualifiedName =
+                methodSymbol.ReturnType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            Name = methodSymbol.Name,
+            IsStatic = methodSymbol.IsStatic,
+            ReceiverTypeIsUiType = methodSymbol.ReceiverType.GetFullName() is "Flamui.Flamui.Ui" or "Flamui.Ui",
+            ReturnsVoid = methodSymbol.ReturnsVoid,
+            InterceptableLocation = CSharpExtensions.GetInterceptableLocation(syntaxContext.SemanticModel, syntax),
+            Parameters = new EquatableArray<ParameterDefinition>(parameters.ToArray())
+        };
+
+        return methodSignature;
     }
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
     {
-        if (syntaxNode is not InvocationExpressionSyntax invocationExpressionSyntax)
-            return false;
-
-        if (invocationExpressionSyntax.ArgumentList.Arguments.Count == 0)
+        if (syntaxNode is not InvocationExpressionSyntax)
             return false;
 
         return true;
     }
 
-    private (IMethodSymbol, GeneratorSyntaxContext)? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
+    private (IMethodSymbol, InvocationExpressionSyntax, GeneratorSyntaxContext)? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
     {
-        //todo update .net sdk so that we can generate the data needed for the interceptor
-
         var invocationExpressionSyntax = (InvocationExpressionSyntax)syntaxContext.Node;
 
         var symbol = syntaxContext.SemanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol;
@@ -82,10 +89,13 @@ public class SourceGeneratorRoot : IIncrementalGenerator
         if (symbol is not IMethodSymbol methodSymbol)
             return null;
 
+        if(!methodSymbol.IsStatic && methodSymbol.ReceiverType.GetFullName() is "Flamui.Flamui.Ui" or "Flamui.Ui")
+            return (methodSymbol, invocationExpressionSyntax, syntaxContext);
+
         foreach (var parameter in methodSymbol.Parameters)
         {
-            if (parameter.Type.GetFullName() == "Flamui.Flamui.Ui")
-                return (methodSymbol, syntaxContext);
+            if (parameter.Type.GetFullName() is "Flamui.Flamui.Ui" or "Flamui.Ui")
+                return (methodSymbol, invocationExpressionSyntax, syntaxContext);
         }
 
         return null;

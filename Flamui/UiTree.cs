@@ -7,6 +7,65 @@ using MouseButton = Silk.NET.Input.MouseButton;
 namespace Flamui;
 
 /*
+
+
+rxJs
+
+function Test(){
+    var [getState, setState] = useState(0);
+
+    var label = CreatLabel();
+    label.Text = getState().toString();
+
+    MyComponent();
+
+    var button = CreateButton();
+    button.OnClick += () => {
+
+         setState(1)
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ */
+
+/*
 What is a UiTree?
 
 The typical arrangement is:
