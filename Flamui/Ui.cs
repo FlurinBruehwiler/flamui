@@ -31,8 +31,7 @@ public struct CascadingStuff
  */
 
 /*
- * We still need some kind of host, that hosts the main event loop, although.....
- *
+ * We still need some kind of host, that hosts the main event loop, although .....
  */
 
 
@@ -43,6 +42,9 @@ public partial class Ui
 
     public Dictionary<int, IntPtr> UnmanagedLastFrameDataStore = [];
     public Dictionary<int, IntPtr> UnmanagedCurrentFrameDataStore = [];
+
+    public ChunkedList<object> LastFrameRefObjects = new(100);
+    public ChunkedList<object> CurrentFrameRefObjects = new(100);
 
     private Stack<int> ScopeHashStack = new();
     public int CurrentScopeHash => ScopeHashStack.Peek();
@@ -59,6 +61,7 @@ public partial class Ui
     [ThreadStatic]
     public static Arena Arena;
 
+    //used by source gen
     public void PushScope(int hash)
     {
         if (ScopeHashStack.TryPeek(out var res))
@@ -71,6 +74,7 @@ public partial class Ui
         }
     }
 
+    //used by source gen
     public void PopScope()
     {
         ScopeHashStack.Pop();
@@ -110,18 +114,21 @@ public partial class Ui
     //And we can't have two methods with the same signature, although the constraints should be tight enough.
     // -> C# is bad
 
-    //we would want to return this by ref. this could be done via a linked list of object arrays, that we index into.
-    //The index could be stored in the unmanaged data store, store the index as a nint.
     public ref T GetObj<T>(T initialValue) where T : class
     {
-        object[] o = new object[10];
+        var idx = CurrentFrameRefObjects.Count;
 
-        ref object x = ref o[0];
+        if (UnmanagedLastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastIdx))
+        {
+            var item = LastFrameRefObjects[(int)lastIdx];
+            CurrentFrameRefObjects.Add(item);
+        }
 
-        x = 1;
-
-        // return GetData(initialValue, (_, _, i) => i);
-        throw new NotImplementedException();
+        CurrentFrameRefObjects.Add(initialValue);
+        UnmanagedCurrentFrameDataStore.Add(CurrentScopeHash, idx);
+        ref object y = ref CurrentFrameRefObjects[idx];
+        _ = (T)y; //to make sure that x has the correct type
+        return ref Unsafe.As<object, T>(ref y);
     }
 
     public T GetData<T>(Func<Ui, UiID, T> factoryMethod) where T : class

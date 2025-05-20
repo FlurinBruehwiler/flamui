@@ -5,8 +5,6 @@ namespace Sample.LayoutTest;
 
 public class TestComponent
 {
-    public static string input = string.Empty;
-
     public static void Build(Ui ui)
     {
         ui.CascadingValues.TextColor = C.White;
@@ -53,6 +51,9 @@ public class TestComponent
             // dd.Component.Option("Size");
             // dd.Build(out selectedOption);
             //
+
+            ref string input = ref ui.GetObj("");
+
             ui.StyledInput(ref input);
 
             if (ui.Button("Create window"))

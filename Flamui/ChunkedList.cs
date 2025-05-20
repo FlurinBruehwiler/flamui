@@ -7,7 +7,7 @@
 /// To have constant time lookup, we don't use a linked list, but a list of Chunks instead,
 /// the item arrays themselves are still stable.
 /// </summary>
-public class ChunkedList<T>
+public class ChunkedList<T> where T : class
 {
     private readonly int _chunkSize;
 
@@ -48,7 +48,7 @@ public class ChunkedList<T>
         {
             for (var i = 0; i < chunk.Length; i++)
             {
-                chunk[i] = default;
+                chunk[i] = null!;
             }
         }
 

@@ -3,28 +3,7 @@ using Varena;
 
 namespace Flamui;
 
-
-public interface IAllocator
-{
-    public unsafe T* Allocate<T>(T value) where T : unmanaged;
-
-    public Slice<T> AllocateSlice<T>(int count) where T : unmanaged;
-}
-
-// public class GCAllocator : IAllocator
-// {
-//     public unsafe T* Allocate<T>(T value) where T : unmanaged
-//     {
-//
-//     }
-//
-//     public Slice<T> AllocateSlice<T>(int count) where T : unmanaged
-//     {
-//         throw new NotImplementedException();
-//     }
-// }
-
-public class Arena : IAllocator, IDisposable
+public class Arena : IDisposable
 {
     public VirtualBuffer VirtualBuffer;
 

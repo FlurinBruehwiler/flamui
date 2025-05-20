@@ -39,6 +39,8 @@ public class PhysicalWindow
 
     public CommandBuffer LastCommandBuffer;
     private readonly Renderer _renderer = new();
+    private Vector2 lastScreenMousePosition;
+    private int framecount;
 
     public static PhysicalWindow Create(IWindow window, UiTree uiTree)
     {
@@ -88,9 +90,6 @@ public class PhysicalWindow
         }
     }
 
-    private Vector2 lastScreenMousePosition;
-    private int framecount;
-
     private unsafe void OnUpdate(double obj)
     {
         framecount++;
@@ -110,9 +109,9 @@ public class PhysicalWindow
         GlfwApi.GetCursorPos((WindowHandle*)GlfwWindow.Handle, out var x, out var y);
         var screenMousePos = new Vector2((float)x, (float)y);
 
-        HandleZoomAndStuff(screenMousePos - lastScreenMousePosition);
+        HandleZoomAndStuff(screenMousePos - lastScreenMousePosition); //still not sure if this should be on the window, or if we can put it onto the UiTree
 
-        UiTree.MousePosition = screenMousePos;//ScreenToWorld();
+        UiTree.MousePosition = screenMousePos;
 
         UiTree.Update(GlfwWindow.Size.X / GetCompleteScaling().X, GlfwWindow.Size.Y / GetCompleteScaling().Y);
 

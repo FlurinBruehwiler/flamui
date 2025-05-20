@@ -5,7 +5,7 @@ public class ChunkedListTests
     [Fact]
     public void AddItemsAndGetIndex()
     {
-        var list = new ChunkedList<int>(5);
+        var list = new ChunkedList<object>(5);
 
         list.Add(0);
         list.Add(1);

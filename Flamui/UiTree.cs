@@ -186,9 +186,11 @@ public partial class UiTree
 
         (Ui.CurrentFrameDataStore, Ui.LastFrameDataStore) = (Ui.LastFrameDataStore, Ui.CurrentFrameDataStore);
         (Ui.UnmanagedCurrentFrameDataStore, Ui.UnmanagedLastFrameDataStore) = (Ui.UnmanagedLastFrameDataStore, Ui.UnmanagedCurrentFrameDataStore);
+        (Ui.CurrentFrameRefObjects, Ui.LastFrameRefObjects) = (Ui.LastFrameRefObjects, Ui.CurrentFrameRefObjects);
 
         Ui.CurrentFrameDataStore.Clear();
         Ui.UnmanagedCurrentFrameDataStore.Clear();
+        Ui.CurrentFrameRefObjects.Clear();
 
         _tabIndexManager.HandleTab(this);
 
