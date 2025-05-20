@@ -7,9 +7,10 @@ public static partial class UiExtensions
 {
     public static bool TestFunc(Ui ui)
     {
-        var res = Button(ui, "hi");
-        res = ui.Button("hi");
-        return res;
+        // var res = Button(ui, "hi");
+        // res = ui.Button("hi");
+        // return res;
+        return true;
     }
 
     public static void Anita(this Ui ui)

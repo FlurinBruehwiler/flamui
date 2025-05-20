@@ -40,7 +40,7 @@ public partial class Ui
     public Dictionary<int, object> LastFrameDataStore = [];
     public Dictionary<int, object> CurrentFrameDataStore = [];
 
-    public Stack<int> ScopeHashStack = new();
+    private Stack<int> ScopeHashStack = new();
     public int CurrentScopeHash => ScopeHashStack.Peek();
 
     private readonly Stack<UiElementContainer> OpenElementStack = new();
@@ -54,6 +54,23 @@ public partial class Ui
 
     [ThreadStatic]
     public static Arena Arena;
+
+    public void PushScope(int hash)
+    {
+        if (ScopeHashStack.TryPeek(out var res))
+        {
+            ScopeHashStack.Push(HashCode.Combine(hash, res));
+        }
+        else
+        {
+            ScopeHashStack.Push(hash);
+        }
+    }
+
+    public void PopScope()
+    {
+        ScopeHashStack.Pop();
+    }
 
     public void PushOpenElement(UiElementContainer container)
     {

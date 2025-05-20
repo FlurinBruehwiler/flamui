@@ -1,4 +1,4 @@
-﻿//HintName: FlamuiSourceGenerators.StyledInput_55288.g.cs
+﻿//HintName: FlamuiSourceGenerators.StyledInput_1605235258.g.cs
 
 using System;
 using System.Diagnostics;
@@ -6,9 +6,6 @@ using System.Diagnostics;
 #nullable enable
 namespace System.Runtime.CompilerServices
 {
-    // this type is needed by the compiler to implement interceptors,
-    // it doesn't need to come from the runtime itself
-
     [Conditional("DEBUG")] // not needed post-build, so can evaporate it
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     sealed file class InterceptsLocationAttribute : Attribute
@@ -25,16 +22,17 @@ namespace InterceptorNamespace
 {
     public static partial class InterceptionMethods
     {
+        [System.Runtime.CompilerServices.UnsafeAccessor(System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "StyledInput")]
+        private static extern void Invoke_1605235258(global::Program target, Flamui.Ui ui);
 
-        //(12,12)
+        //(5,1)
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        [System.Runtime.CompilerServices.InterceptsLocation(1, "8jt97AV577ddBFXYzYsTa5oAAAA=")]
-        public static FlexContainer StyledInput_0b94d(this global::Flamui.Ui receiverType, ref string text, bool multiline)
+        [System.Runtime.CompilerServices.InterceptsLocation(1, "JLYuF5NNI0b2Qor5HK3sQCAAAAA=")]
+        public static void StyledInput_1605235258(this global::Program receiverType, Flamui.Ui ui)
         {
-            receiverType.ScopeHashStack.Push(392633724);
-            var res = global::Sample.ComponentGallery.Test.StyledInput(ref text, multiline);
-            receiverType.ScopeHashStack.Pop();
-            return res;
+            ui.PushScope(1605235258);
+            Invoke_1605235258(ui);
+            ui.PopScope();
         }
     }
 }

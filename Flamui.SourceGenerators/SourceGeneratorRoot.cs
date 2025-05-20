@@ -16,7 +16,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
     {
         context.RegisterPostInitializationOutput(x =>
         {
-
+            // x.AddSource("anita.cs", "//max wynn");
         });
 
 
@@ -32,10 +32,10 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             return MethodSymbolToSomething(tuple.Value.Item1, tuple.Value.Item2, tuple.Value.Item3);
         });
 
-        context.RegisterSourceOutput(res, (ctx, component) =>
+        context.RegisterSourceOutput(res, (ctx, method) =>
         {
-            var result = CodeGeneration.Generate(component);
-            ctx.AddSource($"FlamuiSourceGenerators.{component.Name.ToFileName()}_{Guid.NewGuid().ToString().Substring(0, 5)}.g.cs",
+            var result = CodeGeneration.Generate(method);
+            ctx.AddSource($"FlamuiSourceGenerators.{method.Name.ToFileName()}_{method.Hash}.g.cs",
                 SourceText.From(result, Encoding.UTF8));
         });
     }
@@ -55,6 +55,8 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             return pd;
         });
 
+        var interceptLocation = CSharpExtensions.GetInterceptableLocation(syntaxContext.SemanticModel, syntax);
+
         var methodSignature = new MethodSignature
         {
             ReceiverTypeFullyQualifiedName =
@@ -66,14 +68,35 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             IsExtensionMethod = methodSymbol.IsExtensionMethod,
             ReceiverTypeIsUiType = methodSymbol.ReceiverType.GetFullName() is "Flamui.Flamui.Ui" or "Flamui.Ui",
             ReturnsVoid = methodSymbol.ReturnsVoid,
-            InterceptableLocation = CSharpExtensions.GetInterceptableLocation(syntaxContext.SemanticModel, syntax),
+            InterceptableLocation = interceptLocation,
             Parameters = new EquatableArray<ParameterDefinition>(parameters.ToArray()),
             ContainingTypeFullName = methodSymbol.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            IsPrivate = methodSymbol.DeclaredAccessibility != Accessibility.Public || methodSymbol.ContainingType.DeclaredAccessibility != Accessibility.Public
+            IsPrivate = methodSymbol.DeclaredAccessibility != Accessibility.Public || methodSymbol.ContainingType.DeclaredAccessibility != Accessibility.Public,
+            Hash = Math.Abs(GetDeterministicHashCode(interceptLocation.Data))
         };
 
         return methodSignature;
     }
+
+    private static int GetDeterministicHashCode(string str)
+    {
+        unchecked
+        {
+            int hash1 = (5381 << 16) + 5381;
+            int hash2 = hash1;
+
+            for (int i = 0; i < str.Length; i += 2)
+            {
+                hash1 = ((hash1 << 5) + hash1) ^ str[i];
+                if(i == str.Length - 1)
+                    break;
+                hash2 = ((hash2 << 5) + hash2) ^ str[i + 1];
+            }
+
+            return hash1 + (hash2 * 1566083941);
+        }
+    }
+
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
     {

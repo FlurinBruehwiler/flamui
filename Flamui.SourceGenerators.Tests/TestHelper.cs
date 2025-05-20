@@ -13,8 +13,7 @@ public static class TestHelper
         // Create a Roslyn compilation for the syntax tree.
         var compilation = CSharpCompilation.Create(
             assemblyName: "Tests",
-            syntaxTrees: new[] { syntaxTree }, [ MetadataReference.CreateFromFile(typeof(FlamuiApp).Assembly.Location) ],
-            options: new CSharpCompilationOptions(OutputKind.ConsoleApplication));
+            syntaxTrees: new[] { syntaxTree }, [ MetadataReference.CreateFromFile(typeof(FlamuiApp).Assembly.Location) ]);
 
         var diags = compilation.GetDiagnostics();
 

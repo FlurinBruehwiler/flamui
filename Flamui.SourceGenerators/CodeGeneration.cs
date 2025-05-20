@@ -16,9 +16,6 @@ using System.Diagnostics;
 #nullable enable
 namespace System.Runtime.CompilerServices
 {
-    // this type is needed by the compiler to implement interceptors,
-    // it doesn't need to come from the runtime itself
-
     [Conditional(""DEBUG"")] // not needed post-build, so can evaporate it
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     sealed file class InterceptsLocationAttribute : Attribute
@@ -40,72 +37,34 @@ namespace System.Runtime.CompilerServices
         sb.AppendLine("{");
         sb.AddIndent();
 
-        var guid = Guid.NewGuid().ToString().Substring(0, 5);
-
-        var invokeMethodName = $"Invoke_{guid}";
+        string? unsafeAccessorMethodName = null;
 
         if (method.IsPrivate)
         {
-            GeneratePrivateMethodAccessor(method, sb, invokeMethodName);
-        }
-        else
-        {
-            if (method.IsStatic || method.IsExtensionMethod)
-            {
-                invokeMethodName = $"{method.ContainingTypeFullName}.{method.Name}";
-            }
-            else
-            {
-                invokeMethodName = $"receiverType.{method.Name}";
-            }
+            unsafeAccessorMethodName = $"Invoke_{method.Hash}";
+            GeneratePrivateMethodAccessor(method, sb, unsafeAccessorMethodName);
         }
 
         sb.AppendLine();
-
-        var returnType = method.ReturnTypeFullyQualifiedName;
 
         sb.AppendFormat("//{0}", method.InterceptableLocation.GetDisplayLocation());
         sb.AppendLine();
         sb.AppendLine("[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendFormat("[System.Runtime.CompilerServices.InterceptsLocation({0}, \"{1}\")]", method.InterceptableLocation.Version, method.InterceptableLocation.Data);
         sb.AppendLine();
-        sb.AppendFormat("public static {0} {1}(", returnType, $"{method.Name}_{guid}");
 
-        bool isFirstParameter = true;
-
-        if (!method.IsStatic)
-        {
-            isFirstParameter = false;
-            sb.AppendFormat("this {0} receiverType", method.ReceiverTypeFullyQualifiedName);
-        }
-
-        string uiVariableName = string.Empty;
-
-        foreach (var parameter in method.Parameters)
-        {
-            if (!isFirstParameter)
-            {
-                sb.Append(", ");
-            }
-
-            if (parameter.IsUiType)
-                uiVariableName = parameter.Name;
-
-            isFirstParameter = false;
-
-            sb.Append(parameter.DisplayString);
-        }
-
-        sb.AppendLine(")");
+        GenerateInterceptorSignature(method, sb);
 
         sb.AppendLine("{");
         sb.AddIndent();
+
+        string? uiVariableName = method.Parameters.FirstOrDefault(x => x.IsUiType).Name;
 
         if (method.ReceiverTypeIsUiType)
         {
             uiVariableName = "receiverType";
         }
-        sb.AppendFormat("{0}.ScopeHashStack.Push({1});", uiVariableName, method.InterceptableLocation.Data.GetHashCode());
+        sb.AppendFormat("{0}.PushScope({1});", uiVariableName, method.Hash);
         sb.AppendLine();
 
         if (!method.ReturnsVoid)
@@ -113,22 +72,56 @@ namespace System.Runtime.CompilerServices
             sb.Append("var res = ");
         }
 
-        sb.Append($"{invokeMethodName}(");
+        GenerateMethodCall(method, sb, unsafeAccessorMethodName);
+
+        sb.AppendFormat("{0}.PopScope();", uiVariableName);
+        sb.AppendLine();
+
+        if (!method.ReturnsVoid)
+        {
+            sb.AppendLine("return res;");
+        }
+
+        sb.RemoveIndent();
+        sb.AppendLine("}");
+
+        sb.RemoveIndent();
+        sb.AppendLine("}");
+
+        sb.RemoveIndent();
+        sb.AppendLine("}");
+
+        return sb.ToString();
+    }
+
+    private static void GenerateMethodCall(MethodSignature method, SourceBuilder sb, string? unsafeAccessorMethodName)
+    {
+        if (unsafeAccessorMethodName != null)
+        {
+            sb.AppendFormat("{0}", unsafeAccessorMethodName);
+        }
+        else
+        {
+            if (method.IsStatic || method.IsExtensionMethod)
+            {
+                sb.AppendFormat("{0}.{1}", method.ContainingTypeFullName, method.Name);
+            }
+            else
+            {
+                sb.AppendFormat("receiverType.{0}", method.Name);
+            }
+        }
+
+        sb.Append("(");
+
 
         var isFirst = true;
 
-        // {
-        //     sb.AppendFormat("{0}", method.MethodSymbol.ReceiverType.ToDisplayString());
-        // }
-        // else
-        if (!method.IsStatic && method.IsPrivate)
+        if (method.IsExtensionMethod && !method.IsStatic)
         {
-            sb.Append(uiVariableName);
+            sb.Append("receiverType");
             isFirst = false;
         }
-
-        //
-        // sb.AppendFormat(".{0}(", method.Name);
 
         foreach (var parameter in method.Parameters)
         {
@@ -153,36 +146,40 @@ namespace System.Runtime.CompilerServices
         }
 
         sb.AppendLine(");");
-
-        sb.AppendFormat("{0}.ScopeHashStack.Pop();", uiVariableName);
-        sb.AppendLine();
-
-        if (!method.ReturnsVoid)
-        {
-            sb.AppendLine("return res;");
-        }
-
-        sb.RemoveIndent();
-        sb.AppendLine("}");
-
-        sb.RemoveIndent();
-        sb.AppendLine("}");
-
-        // if (!method.MethodSymbol.ContainingNamespace.IsGlobalNamespace)
-        {
-            sb.RemoveIndent();
-            sb.AppendLine("}");
-        }
-
-        return sb.ToString();
     }
 
-    public static void GeneratePrivateMethodAccessor(MethodSignature methodSignature, SourceBuilder sourceBuilder, string invokeMethodName)
+    private static void GenerateInterceptorSignature(MethodSignature method, SourceBuilder sb)
     {
-        // Parameters
+        sb.AppendFormat("public static {0} {1}(", method.ReturnTypeFullyQualifiedName, $"{method.Name}_{method.Hash}");
+
+        bool isFirstParameter = true;
+
+        if (!method.IsStatic)
+        {
+            isFirstParameter = false;
+            sb.AppendFormat("this {0} receiverType", method.ReceiverTypeFullyQualifiedName);
+        }
+
+        foreach (var parameter in method.Parameters)
+        {
+            if (!isFirstParameter)
+            {
+                sb.Append(", ");
+            }
+
+            isFirstParameter = false;
+
+            sb.Append(parameter.DisplayString);
+        }
+
+        sb.AppendLine(")");
+
+    }
+
+    private static void GeneratePrivateMethodAccessor(MethodSignature methodSignature, SourceBuilder sourceBuilder, string invokeMethodName)
+    {
         var paramList = string.Join(", ", methodSignature.Parameters.Select(p => p.DisplayString));
 
-        // Static or instance
         var accessorTarget = methodSignature.IsStatic
             ? methodSignature.ReceiverTypeFullyQualifiedName
             : $"{methodSignature.ReceiverTypeFullyQualifiedName} target";

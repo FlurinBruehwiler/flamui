@@ -83,7 +83,7 @@ public class PhysicalWindow
         //this is explicitly 10 here and not 16, don't change without knowing what your doing
         if (end.TotalMilliseconds < 10) //todo we should probably also detect the refresh rate of monitor, to know how long to sleep for (or we can try to get vsync working)s
         {
-            Console.WriteLine($"Sleeping for {end.TotalMilliseconds}ms");
+            // Console.WriteLine($"Sleeping for {16 - end.TotalMilliseconds}ms");
             Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
         }
     }

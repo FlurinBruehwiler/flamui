@@ -28,6 +28,29 @@ public class Test
     }
 
     [Fact]
+    public Task InstanceMethodOnUi()
+    {
+        // The source code to test
+        var source = @"
+using Flamui;
+
+namespace Sample.ComponentGallery;
+
+public class Test
+{
+    public static void Build(Ui ui)
+    {
+        using (ui.Div())
+        {
+
+        }  
+    }
+}";
+
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
     public Task InstanceMethodWithReturnType()
     {
         // The source code to test

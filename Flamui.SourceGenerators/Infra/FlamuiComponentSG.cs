@@ -16,6 +16,7 @@ public record struct MethodSignature
     public bool ReceiverTypeIsUiType;
     public bool ReturnsVoid;
     public bool IsPrivate;
+    public int Hash;
 }
 
 public record struct ParameterDefinition

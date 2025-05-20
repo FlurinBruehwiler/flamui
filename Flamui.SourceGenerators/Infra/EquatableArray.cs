@@ -2,11 +2,6 @@ using System.Collections;
 
 namespace Flamui.SourceGenerators.Infra;
 
-// <copyright file="EquatableArray.cs" company="Datadog">
-// Unless explicitly stated otherwise all files in this repository are licensed under the Apache 2 License.
-// This product includes software developed at Datadog (https://www.datadoghq.com/). Copyright 2017 Datadog, Inc.
-// </copyright>
-
 /// <summary>
 /// An immutable, equatable array. This is equivalent to <see cref="Array"/> but with value equality support.
 /// </summary>
