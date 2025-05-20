@@ -14,7 +14,8 @@ using Sample.LayoutTest;
  *   the next hot reload, this should lead to much faster iteration, which is important for swiss skills
  * - Implement more prebuilt components for faster development (take inspiration from shadcn)
  * - Try out ZLinq, and see if it is a usable alternative, then maybe write an integration with Arenas, so one can materialize ZLinq queries without GC Allocation
- * - Implement [UiFragment] and remove Components - wip
+ * - Implement [UiFragment] and remove Components - done
+ * - Implement Get<some>
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
@@ -35,6 +36,7 @@ using Sample.LayoutTest;
  *        and automatically save it :). Will need to figure out how to use OpenGL without opening a window.
  * - create a few tests that make use of the new UiTree abstraction, so we can see if it holds up (For example a tests that tests the DropDown component)
  * - implement web support
+ * - think about Hash collisions, currently we live in a happy word where they don't occur. Should we be able to handle HashCollisions?
  */
 
 /*

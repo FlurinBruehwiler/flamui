@@ -109,7 +109,7 @@ public static class ArenaStringExtensions
 [InterpolatedStringHandler]
 public struct ArenaString : IEquatable<ArenaString> //todo implement IEnumerable
 {
-    private ArenaStringBuilder _arenaStringBuilder;
+    private ArenaStringBuilder _arenaStringBuilder; // todo turn this into a union via [FieldOffset] to reduce struct size
     private Slice<char> _slice;
 
     public int Length => _slice.Length;
@@ -130,18 +130,18 @@ public struct ArenaString : IEquatable<ArenaString> //todo implement IEnumerable
         return _slice.Span;
     }
 
-    public ArenaString Substring(int start)
+    public ArenaString Slice(int start)
     {
         return new ArenaString(_slice.SubSlice(start));
     }
 
-    public ArenaString Substring(int start, int length)
+    public ArenaString Slice(int start, int length)
     {
         return new ArenaString(_slice.SubSlice(start, length));
     }
 
     public char this[int index] => _slice[index];
-    public ArenaString this[Range range] => Substring(range.Start.Value, range.End.Value - range.Start.Value);
+    public ArenaString this[Range range] => Slice(range.Start.Value, range.End.Value - range.Start.Value);
 
     public static ArenaString operator +(ArenaString a, ArenaString b)
     {

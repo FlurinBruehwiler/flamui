@@ -104,6 +104,12 @@ public partial class UiTree
     List<UiElement> hitElements = new();
     public IUiTreeHost UiTreeHost;
 
+    private static int incId;
+
+    public Arena Arena;
+    public Arena LastArena;
+
+
 
     public UiElement? ActiveDiv
     {
@@ -168,23 +174,21 @@ public partial class UiTree
             Tree = this
         };
         Ui.Tree = this;
-        currentArena = new Arena($"PerFrameArena1 {++incId}", 1_000_000);
-        lastArena = new Arena($"PerFramArena2 {++incId}", 1_000_000);
+        Arena = new Arena($"PerFrameArena1 {++incId}", 1_000_000);
+        LastArena = new Arena($"PerFramArena2 {++incId}", 1_000_000);
     }
-
-    private static int incId;
-
-    private Arena currentArena;
-    private Arena lastArena;
 
     public void Update(float width, float height)
     {
-        (currentArena, lastArena) = (lastArena, currentArena);
-        currentArena.Reset();
-        Ui.Arena = currentArena;
+        (Arena, LastArena) = (LastArena, Arena);
+        Arena.Reset();
+        Ui.Arena = Arena;
 
         (Ui.CurrentFrameDataStore, Ui.LastFrameDataStore) = (Ui.LastFrameDataStore, Ui.CurrentFrameDataStore);
+        (Ui.UnmanagedCurrentFrameDataStore, Ui.UnmanagedLastFrameDataStore) = (Ui.UnmanagedLastFrameDataStore, Ui.UnmanagedCurrentFrameDataStore);
+
         Ui.CurrentFrameDataStore.Clear();
+        Ui.UnmanagedCurrentFrameDataStore.Clear();
 
         _tabIndexManager.HandleTab(this);
 

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Flamui.Drawing;
 using Flamui.UiElements;
 
@@ -39,6 +40,9 @@ public partial class Ui
 {
     public Dictionary<int, object> LastFrameDataStore = [];
     public Dictionary<int, object> CurrentFrameDataStore = [];
+
+    public Dictionary<int, IntPtr> UnmanagedLastFrameDataStore = [];
+    public Dictionary<int, IntPtr> UnmanagedCurrentFrameDataStore = [];
 
     private Stack<int> ScopeHashStack = new();
     public int CurrentScopeHash => ScopeHashStack.Peek();
@@ -84,6 +88,40 @@ public partial class Ui
         CascadingValues = CascadingStack.Pop();
         ScopeHashStack.Pop();
         return OpenElementStack.Pop();
+    }
+
+    public unsafe ref T Get<T>(T initialValue) where T : unmanaged
+    {
+        var globalId = CurrentScopeHash;
+        if (UnmanagedLastFrameDataStore.TryGetValue(globalId, out var lastPtr))
+        {
+            var lastValue = *(T*)lastPtr;
+            var ptr = Tree.Arena.Allocate(lastValue);
+            UnmanagedCurrentFrameDataStore.Add(globalId, (nint)ptr);
+            return ref Unsafe.AsRef<T>(ptr);
+        }
+
+        var ptr2 = Tree.Arena.Allocate(initialValue);
+        UnmanagedCurrentFrameDataStore.Add(globalId, (nint)ptr2);
+        return ref Unsafe.AsRef<T>(ptr2);
+    }
+
+    //We can't combine these into a single method because xyz
+    //And we can't have two methods with the same signature, although the constraints should be tight enough.
+    // -> C# is bad
+
+    //we would want to return this by ref. this could be done via a linked list of object arrays, that we index into.
+    //The index could be stored in the unmanaged data store, store the index as a nint.
+    public ref T GetObj<T>(T initialValue) where T : class
+    {
+        object[] o = new object[10];
+
+        ref object x = ref o[0];
+
+        x = 1;
+
+        // return GetData(initialValue, (_, _, i) => i);
+        throw new NotImplementedException();
     }
 
     public T GetData<T>(Func<Ui, UiID, T> factoryMethod) where T : class
