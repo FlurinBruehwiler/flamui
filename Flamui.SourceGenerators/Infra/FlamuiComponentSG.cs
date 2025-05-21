@@ -18,7 +18,8 @@ public record struct MethodSignature
     public bool IsPrivate;
     public bool ReturnsByRef;
     public int Hash;
-    public EquatableArray<TypeParameterDefinition> TypeParameters;
+    public EquatableArray<TypeParameterDefinition> MethodTypeParameters;
+    public EquatableArray<TypeParameterDefinition> ClassTypeParameters;
 }
 
 public record struct TypeParameterDefinition
@@ -27,6 +28,7 @@ public record struct TypeParameterDefinition
     public bool HasReferenceTypeConstraint;
     public bool HasUnmanagedTypeConstraint;
     public bool HasValueTypeConstraint;
+    public bool IsOnMethod;
 }
 
 public record struct ParameterDefinition

@@ -11,7 +11,7 @@
         <Authors>Flurin Brühwiler</Authors>
         <PackageLicenseUrl>MIT</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/FlurinBruehwiler/flamui</RepositoryUrl>
-        <Description>A default set of components</Description>
+        <Description>A set of components</Description>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <InterceptorsNamespaces>$(InterceptorsNamespaces);InterceptorNamespace</InterceptorsNamespaces>
     </PropertyGroup>

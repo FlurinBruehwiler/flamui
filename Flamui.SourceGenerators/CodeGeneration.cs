@@ -129,7 +129,7 @@ namespace System.Runtime.CompilerServices
             }
         }
 
-        GenerateTypeParameters(method, sb);
+        GenerateTypeParametersForCall(method, sb);
 
         sb.Append("(");
 
@@ -167,14 +167,14 @@ namespace System.Runtime.CompilerServices
         sb.AppendLine(");");
     }
 
-    private static void GenerateTypeParameters(MethodSignature method, SourceBuilder sb)
+    private static void GenerateTypeParametersForCall(MethodSignature method, SourceBuilder sb)
     {
-        if (method.TypeParameters.Count != 0)
+        if (method.MethodTypeParameters.Count != 0)
         {
             sb.Append("<");
 
             var appendComma = false;
-            foreach (var parameter in method.TypeParameters)
+            foreach (var parameter in method.MethodTypeParameters)
             {
                 if (appendComma)
                 {
@@ -200,7 +200,35 @@ namespace System.Runtime.CompilerServices
 
         sb.AppendFormat("{0} {1}", method.ReturnTypeFullyQualifiedName, $"{method.Name}_{method.Hash}");
 
-        GenerateTypeParameters(method, sb);
+        if (method.MethodTypeParameters.Count != 0 || method.ClassTypeParameters.Count != 0)
+        {
+            sb.Append("<");
+
+            var appendComma = false;
+            foreach (var parameter in method.ClassTypeParameters)
+            {
+                if (appendComma)
+                {
+                    sb.Append(", ");
+                }
+
+                sb.Append(parameter.Name);
+                appendComma = true;
+            }
+
+            foreach (var parameter in method.MethodTypeParameters)
+            {
+                if (appendComma)
+                {
+                    sb.Append(", ");
+                }
+
+                sb.Append(parameter.Name);
+                appendComma = true;
+            }
+
+            sb.Append(">");
+        }
 
         sb.Append("(");
 
@@ -226,9 +254,9 @@ namespace System.Runtime.CompilerServices
 
         sb.Append(")");
 
-        if (method.TypeParameters.Count != 0)
+        if (method.MethodTypeParameters.Count != 0)
         {
-            foreach (var typeParameter in method.TypeParameters)
+            foreach (var typeParameter in method.MethodTypeParameters)
             {
                 bool isFirst = true;
 

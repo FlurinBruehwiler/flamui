@@ -48,7 +48,7 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings)
             }
         }
 
-        using (var track = ui.Div().Padding(settings.Padding))
+        using (var track = ui.Rect().Padding(settings.Padding))
         {
             if (scrollService.Dir == Dir.Vertical)
             {
@@ -61,7 +61,7 @@ public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings)
 
             track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (var thumb = ui.Div().Rounded(settings.ThumbRadius))
+            using (var thumb = ui.Rect().Rounded(settings.ThumbRadius))
             {
                 thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 

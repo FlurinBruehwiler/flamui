@@ -16,7 +16,19 @@ public class SourceGeneratorRoot : IIncrementalGenerator
     {
         context.RegisterPostInitializationOutput(x =>
         {
-            // x.AddSource("anita.cs", "//max wynn");
+//             x.AddSource("NoScopeGenerationAttribute.cs", @"
+// using System;
+// using System.Diagnostics;
+//
+// #nullable enable
+// namespace Flamui
+// {
+//     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+//     public class NoScopeGenerationAttribute : Attribute
+//     {
+//     }
+// }
+// ");
         });
 
 
@@ -57,15 +69,22 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             return pd;
         });
 
-        var typeParameters = methodSymbol.TypeParameters.Select(x =>
+        var classTypeParameters = methodSymbol.ContainingType.OriginalDefinition.TypeParameters.Select(x => new TypeParameterDefinition
         {
-            return new TypeParameterDefinition
-            {
-                Name = x.Name,
-                HasReferenceTypeConstraint = x.HasReferenceTypeConstraint,
-                HasUnmanagedTypeConstraint = x.HasUnmanagedTypeConstraint,
-                HasValueTypeConstraint = x.HasValueTypeConstraint
-            };
+            Name = x.Name,
+            HasReferenceTypeConstraint = x.HasReferenceTypeConstraint,
+            HasUnmanagedTypeConstraint = x.HasUnmanagedTypeConstraint,
+            HasValueTypeConstraint = x.HasValueTypeConstraint,
+            IsOnMethod = false
+        });
+
+        var methodTypeParameters = methodSymbol.TypeParameters.Select(x => new TypeParameterDefinition
+        {
+            Name = x.Name,
+            HasReferenceTypeConstraint = x.HasReferenceTypeConstraint,
+            HasUnmanagedTypeConstraint = x.HasUnmanagedTypeConstraint,
+            HasValueTypeConstraint = x.HasValueTypeConstraint,
+            IsOnMethod = true
         });
 
         var interceptLocation = CSharpExtensions.GetInterceptableLocation(syntaxContext.SemanticModel, syntax);
@@ -87,7 +106,8 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             IsPrivate = methodSymbol.DeclaredAccessibility != Accessibility.Public || methodSymbol.ContainingType.DeclaredAccessibility != Accessibility.Public,
             ReturnsByRef = methodSymbol.ReturnsByRef,
             Hash = Math.Abs(GetDeterministicHashCode(interceptLocation.Data)),
-            TypeParameters = new EquatableArray<TypeParameterDefinition>(typeParameters.ToArray()),
+            MethodTypeParameters = new EquatableArray<TypeParameterDefinition>(methodTypeParameters.ToArray()),
+            ClassTypeParameters = new EquatableArray<TypeParameterDefinition>(classTypeParameters.ToArray()),
         };
 
         return methodSignature;
@@ -129,7 +149,10 @@ public class SourceGeneratorRoot : IIncrementalGenerator
         if (symbol is not IMethodSymbol methodSymbol)
             return null;
 
-        if(!methodSymbol.IsStatic && methodSymbol.ReceiverType.Name == "Ui")
+        if (methodSymbol.GetAttributes().Any(x => x.AttributeClass?.Name == "NoScopeGenerationAttribute"))
+            return null;
+
+        if(!methodSymbol.IsStatic && methodSymbol.ReceiverType?.Name == "Ui")
             return (methodSymbol, invocationExpressionSyntax, syntaxContext);
 
         foreach (var parameter in methodSymbol.Parameters)

@@ -91,7 +91,7 @@ public class DebugWindow()
     {
         foreach (var propertyInfo in flexContainer.GetType().GetProperties())
         {
-            using (ui.Div().Height(20))
+            using (ui.Rect().Height(20))
             {
                 ui.Text($"{propertyInfo.Name}: {propertyInfo.GetValue(flexContainer)}").Color(ColorPalette.TextColor);
             }

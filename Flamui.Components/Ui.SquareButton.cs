@@ -4,7 +4,7 @@ public static partial class UiExtensions
 {
     public static bool SquareButton(this Ui ui, string icon)
     {
-        using (var btn = ui.Div().Height(30).Width(30).Rounded(2).Focusable().Color(C.Transparent))
+        using (var btn = ui.Rect().Height(30).Width(30).Rounded(2).Focusable().Color(C.Transparent))
         {
             if (btn.HasFocusWithin)
             {

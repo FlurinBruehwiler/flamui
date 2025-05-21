@@ -198,4 +198,71 @@ public static class Test
         // Pass the source code to our helper and snapshot test the output
         return TestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task PublicInstanceMethodInGenericType()
+    {
+        // The source code to test
+        var source = @"
+using Flamui;
+
+namespace Sample.ComponentGallery;
+
+public static class Test
+{
+    public static void Build(Ui ui)
+    {
+        var a = new GenericType<string>();
+        a.Build(ui);
+    }
+}
+
+public class GenericType<T>
+{
+    public void Build(Ui ui)
+    {
+
+    }
+}
+";
+
+        // Pass the source code to our helper and snapshot test the output
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task PrivateInstanceMethodInGenericType()
+    {
+        // The source code to test
+        var source = @"
+using Flamui;
+
+namespace Sample.ComponentGallery;
+
+public static class Test
+{
+    public static void Build(Ui ui)
+    {
+        var a = new GenericType<string>();
+        a.OuterBuild(ui);
+    }
+}
+
+public class GenericType<T>
+{
+    public void OuterBuild(Ui ui)
+    {
+        Build(ui);
+    }
+
+    private void Build(Ui ui)
+    {
+
+    }
+}
+";
+
+        // Pass the source code to our helper and snapshot test the output
+        return TestHelper.Verify(source);
+    }
 }

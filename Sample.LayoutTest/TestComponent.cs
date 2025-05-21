@@ -3,7 +3,7 @@ using Flamui.Components;
 
 namespace Sample.LayoutTest;
 
-public class TestComponent
+public static class TestComponent
 {
     public static void Build(Ui ui)
     {
@@ -31,28 +31,13 @@ public class TestComponent
         var b = true;
         // UiExtensions.Checkbox(ui, ref b);
 
-        using (ui.Div().Color(C.Gray6).Padding(10).Rounded(10).Margin(10).Gap(10))
+        using (ui.Rect().Color(C.Gray6).Padding(10).Rounded(10).Margin(10).Gap(10))
         {
-            // for (int i = 0; i < 10; i++)
-            // {
-            //     using (var div = ui.Div(i.ToString()).Height(50).Color(C.Black))
-            //     {
-            //         if (div.IsHovered)
-            //         {
-            //             div.Color(C.Red8);
-            //         }
-            //     }
-            // }
+            ref string selectedOption = ref ui.GetString("John");
 
-            // var dd = ui.CreateDropDown(selectedOption);
-            // dd.Component.Option("John");
-            // dd.Component.Option("Albert");
-            // dd.Component.Option("Div");
-            // dd.Component.Option("Size");
-            // dd.Build(out selectedOption);
-            //
+            ui.DropDown(["John", "Albert", "Div", "Size"], ref selectedOption);
 
-            ref string input = ref ui.GetObj("");
+            ref string input = ref ui.GetString("");
 
             ui.StyledInput(ref input);
 

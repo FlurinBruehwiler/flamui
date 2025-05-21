@@ -11,6 +11,16 @@ public struct CascadingStuff
     public float TextSize;
 }
 
+public struct IdScopeDisposable : IDisposable
+{
+    public Ui ui;
+
+    public void Dispose()
+    {
+        ui.PopScope();
+    }
+}
+
 public partial class Ui
 {
     public Dictionary<int, object> LastFrameDataStore = [];
@@ -38,6 +48,7 @@ public partial class Ui
     public static Arena Arena;
 
     //used by source gen
+    [NoScopeGeneration]
     public void PushScope(int hash)
     {
         if (ScopeHashStack.TryPeek(out var res))
@@ -51,9 +62,20 @@ public partial class Ui
     }
 
     //used by source gen
+    [NoScopeGeneration]
     public void PopScope()
     {
         ScopeHashStack.Pop();
+    }
+
+    [NoScopeGeneration]
+    public IdScopeDisposable CreateIdScope(int hash)
+    {
+        PushScope(hash);
+        return new IdScopeDisposable
+        {
+            ui = this
+        };
     }
 
     public void PushOpenElement(UiElementContainer container)
@@ -72,25 +94,32 @@ public partial class Ui
 
     public unsafe ref T Get<T>(T initialValue) where T : unmanaged
     {
-        var globalId = CurrentScopeHash;
-        if (UnmanagedLastFrameDataStore.TryGetValue(globalId, out var lastPtr))
+        if (UnmanagedLastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastPtr))
         {
             var lastValue = *(T*)lastPtr;
             var ptr = Tree.Arena.Allocate(lastValue);
-            UnmanagedCurrentFrameDataStore.Add(globalId, (nint)ptr);
+            UnmanagedCurrentFrameDataStore.Add(CurrentScopeHash, (nint)ptr);
             return ref Unsafe.AsRef<T>(ptr);
         }
 
         var ptr2 = Tree.Arena.Allocate(initialValue);
-        UnmanagedCurrentFrameDataStore.Add(globalId, (nint)ptr2);
+        UnmanagedCurrentFrameDataStore.Add(CurrentScopeHash, (nint)ptr2);
         return ref Unsafe.AsRef<T>(ptr2);
     }
 
-    //We can't combine these into a single method because (todo)
-    //And we can't have two methods with the same signature, although the constraints should be tight enough.
-    // -> C# is bad
+    public T GetObj<T>(T initialValue) where T : class
+    {
+        if (LastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastValue))
+        {
+            CurrentFrameDataStore.Add(CurrentScopeHash, lastValue);
+            return (T)lastValue;
+        }
 
-    public ref T GetObj<T>(T initialValue) where T : class
+        CurrentFrameDataStore.Add(CurrentScopeHash, initialValue);
+        return initialValue;
+    }
+
+    public ref T GetObjRef<T>(T initialValue) where T : class
     {
         var idx = CurrentFrameRefObjects.Count;
 
@@ -105,6 +134,11 @@ public partial class Ui
         ref object y = ref CurrentFrameRefObjects[idx];
         _ = (T)y; //to make sure that x has the correct type
         return ref Unsafe.As<object, T>(ref y);
+    }
+
+    public ref string GetString(string initialValue)
+    {
+        return ref GetObjRef(initialValue);
     }
 
     public T GetData<T>(Func<Ui, UiID, T> factoryMethod) where T : class
@@ -126,7 +160,7 @@ public partial class Ui
         return value;
     }
 
-    public FlexContainer Div()
+    public FlexContainer Rect()
     {
         var div = GetData(static (ui, id) => new FlexContainer
         {

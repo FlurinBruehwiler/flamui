@@ -30,7 +30,7 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div())
+        using (ui.Rect())
         {
 
         }
@@ -48,14 +48,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div())
+        using (ui.Rect())
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
 
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -76,14 +76,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
 
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -104,14 +104,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().Width(40))
+            using (ui.Rect().Width(40))
             {
 
             }
 
-            using (ui.Div().Width(30))
+            using (ui.Rect().Width(30))
             {
 
             }
@@ -132,14 +132,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal).Gap(10))
+        using (ui.Rect().Direction(Dir.Horizontal).Gap(10))
         {
-            using (ui.Div().Width(40))
+            using (ui.Rect().Width(40))
             {
 
             }
 
-            using (ui.Div().Width(30))
+            using (ui.Rect().Width(30))
             {
 
             }
@@ -160,9 +160,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal).Padding(10))
+        using (ui.Rect().Direction(Dir.Horizontal).Padding(10))
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -182,14 +182,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().WidthFraction(50))
+            using (ui.Rect().WidthFraction(50))
             {
 
             }
 
-            using (ui.Div().Width(30))
+            using (ui.Rect().Width(30))
             {
 
             }
@@ -210,14 +210,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal).MainAlign(MAlign.SpaceBetween))
+        using (ui.Rect().Direction(Dir.Horizontal).MainAlign(MAlign.SpaceBetween))
         {
-            using (ui.Div().Width(10))
+            using (ui.Rect().Width(10))
             {
 
             }
 
-            using (ui.Div().Width(10))
+            using (ui.Rect().Width(10))
             {
 
             }
@@ -238,14 +238,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal).MainAlign(MAlign.Center))
+        using (ui.Rect().Direction(Dir.Horizontal).MainAlign(MAlign.Center))
         {
-            using (ui.Div().Width(10))
+            using (ui.Rect().Width(10))
             {
 
             }
 
-            using (ui.Div().Width(10))
+            using (ui.Rect().Width(10))
             {
 
             }
@@ -266,14 +266,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal).MainAlign(MAlign.End))
+        using (ui.Rect().Direction(Dir.Horizontal).MainAlign(MAlign.End))
         {
-            using (ui.Div().Width(10))
+            using (ui.Rect().Width(10))
             {
 
             }
 
-            using (ui.Div().Width(10))
+            using (ui.Rect().Width(10))
             {
 
             }
@@ -294,9 +294,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().Margin(10).Width(10))
+            using (ui.Rect().Margin(10).Width(10))
             {
 
             }
@@ -316,9 +316,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().MarginLeft(10).Width(10))
+            using (ui.Rect().MarginLeft(10).Width(10))
             {
 
             }
@@ -338,9 +338,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().MarginRight(10).Width(10))
+            using (ui.Rect().MarginRight(10).Width(10))
             {
 
             }
@@ -360,9 +360,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().MarginTop(10).Width(10))
+            using (ui.Rect().MarginTop(10).Width(10))
             {
 
             }
@@ -382,9 +382,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().Width(10).HeightFraction(50))
+            using (ui.Rect().Width(10).HeightFraction(50))
             {
 
             }
@@ -404,9 +404,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().MarginTop(10).Width(10))
+            using (ui.Rect().MarginTop(10).Width(10))
             {
 
             }
@@ -427,9 +427,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal).Padding(10))
+        using (ui.Rect().Direction(Dir.Horizontal).Padding(10))
         {
-            using (ui.Div().Margin(10).Width(10))
+            using (ui.Rect().Margin(10).Width(10))
             {
 
             }
@@ -449,9 +449,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().Margin(10))
+            using (ui.Rect().Margin(10))
             {
 
             }
@@ -471,14 +471,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().CrossAlign(XAlign.Center))
+        using (ui.Rect().CrossAlign(XAlign.Center))
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
 
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
@@ -499,14 +499,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().CrossAlign(XAlign.End))
+        using (ui.Rect().CrossAlign(XAlign.End))
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
 
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
@@ -527,14 +527,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Center().Direction(Dir.Horizontal))
+        using (ui.Rect().Center().Direction(Dir.Horizontal))
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
 
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
@@ -555,14 +555,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Center().Direction(Dir.Vertical))
+        using (ui.Rect().Center().Direction(Dir.Vertical))
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
 
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
@@ -583,14 +583,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Center().Direction(Dir.Horizontal).Gap(10))
+        using (ui.Rect().Center().Direction(Dir.Horizontal).Gap(10))
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
 
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
@@ -611,9 +611,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Padding(10))
+        using (ui.Rect().Padding(10))
         {
-            using (ui.Div().HeightFraction(50))
+            using (ui.Rect().HeightFraction(50))
             {
 
             }
@@ -633,9 +633,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().PaddingLeft(10))
+        using (ui.Rect().PaddingLeft(10))
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -655,9 +655,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().PaddingRight(10))
+        using (ui.Rect().PaddingRight(10))
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -677,9 +677,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().PaddingTop(10))
+        using (ui.Rect().PaddingTop(10))
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -699,9 +699,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().PaddingBottom(10))
+        using (ui.Rect().PaddingBottom(10))
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -721,9 +721,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Shrink())
+        using (ui.Rect().Shrink())
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
@@ -743,9 +743,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Shrink().Padding(10))
+        using (ui.Rect().Shrink().Padding(10))
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
@@ -765,9 +765,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Shrink())
+        using (ui.Rect().Shrink())
         {
-            using (ui.Div().Width(10).Height(10).Margin(10))
+            using (ui.Rect().Width(10).Height(10).Margin(10))
             {
 
             }
@@ -787,14 +787,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().ShrinkWidth().Gap(10).Direction(Dir.Horizontal))
+        using (ui.Rect().ShrinkWidth().Gap(10).Direction(Dir.Horizontal))
         {
-            using (ui.Div().Width(10))
+            using (ui.Rect().Width(10))
             {
 
             }
 
-            using (ui.Div().Width(10))
+            using (ui.Rect().Width(10))
             {
 
             }
@@ -815,9 +815,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().ShrinkHeight().Gap(10).Direction(Dir.Horizontal))
+        using (ui.Rect().ShrinkHeight().Gap(10).Direction(Dir.Horizontal))
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -833,9 +833,9 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Shrink(minWidth: 50, minHeight: 50))
+        using (ui.Rect().Shrink(minWidth: 50, minHeight: 50))
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
 
             }
@@ -855,17 +855,17 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().ShrinkWidth())
+            using (ui.Rect().ShrinkWidth())
             {
-                using (ui.Div().Width(10))
+                using (ui.Rect().Width(10))
                 {
 
                 }
             }
 
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
@@ -887,11 +887,11 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Shrink())
+        using (ui.Rect().Shrink())
         {
-            using (ui.Div().Shrink())
+            using (ui.Rect().Shrink())
             {
-                using (ui.Div().Width(10).Height(10))
+                using (ui.Rect().Width(10).Height(10))
                 {
 
                 }
@@ -913,11 +913,11 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Shrink())
+        using (ui.Rect().Shrink())
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
-                using (ui.Div().Width(10).Height(10))
+                using (ui.Rect().Width(10).Height(10))
                 {
 
                 }
@@ -934,17 +934,17 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
-            using (ui.Div().ShrinkWidth())
+            using (ui.Rect().ShrinkWidth())
             {
-                using (ui.Div().Width(10))
+                using (ui.Rect().Width(10))
                 {
 
                 }
             }
 
-            using (ui.Div().WidthFraction(50))
+            using (ui.Rect().WidthFraction(50))
             {
 
             }
@@ -966,14 +966,14 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div())
+        using (ui.Rect())
         {
-            using (ui.Div())
+            using (ui.Rect())
             {
 
             }
 
-            using (ui.Div().Absolute().Width(88).Height(78))
+            using (ui.Rect().Absolute().Width(88).Height(78))
             {
 
             }
@@ -994,11 +994,11 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Center())
+        using (ui.Rect().Center())
         {
-            using (ui.Div().Width(50).Height(50).Center())
+            using (ui.Rect().Width(50).Height(50).Center())
             {
-                using (ui.Div().Width(10).Height(10))
+                using (ui.Rect().Width(10).Height(10))
                 {
 
                 }
@@ -1020,11 +1020,11 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Center())
+        using (ui.Rect().Center())
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
-                using (ui.Div().AbsolutePosition(top: -10, left: -10))
+                using (ui.Rect().AbsolutePosition(top: -10, left: -10))
                 {
 
                 }
@@ -1046,11 +1046,11 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Center())
+        using (ui.Rect().Center())
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
-                using (ui.Div().AbsolutePosition(bottom: 10, right: 10))
+                using (ui.Rect().AbsolutePosition(bottom: 10, right: 10))
                 {
 
                 }
@@ -1072,11 +1072,11 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Center())
+        using (ui.Rect().Center())
         {
-            using (ui.Div().Width(10).Height(10))
+            using (ui.Rect().Width(10).Height(10))
             {
-                using (ui.Div().AbsoluteSize(widthOffsetParent: 0, heightOffsetParent: 0))
+                using (ui.Rect().AbsoluteSize(widthOffsetParent: 0, heightOffsetParent: 0))
                 {
 
                 }
@@ -1098,7 +1098,7 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
             ui.Text(loremIpsum + "\n" + loremIpsum).Multiline().Color(188, 190, 196);
         }
@@ -1119,7 +1119,7 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Horizontal))
+        using (ui.Rect().Direction(Dir.Horizontal))
         {
             ui.Text(loremIpsum).Multiline().Color(188, 190, 196);
         }
@@ -1140,7 +1140,7 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Div().Direction(Dir.Vertical))
+        using (ui.Rect().Direction(Dir.Vertical))
         {
             ui.Text(loremIpsum).Multiline().Size(20);
             ui.Text(loremIpsum).Multiline().Size(40);

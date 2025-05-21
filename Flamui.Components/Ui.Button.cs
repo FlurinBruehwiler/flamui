@@ -20,7 +20,7 @@ public static partial class UiExtensions
 
     public static bool Button(this Ui ui, string text, bool primary = false, bool focusable = true)
     {
-        using (var btn = ui.Div().Height(23).Rounded(2).Focusable(focusable).ShrinkWidth().Direction(Dir.Horizontal).PaddingHorizontal(10).CrossAlign(XAlign.Center))
+        using (var btn = ui.Rect().Height(23).Rounded(2).Focusable(focusable).ShrinkWidth().Direction(Dir.Horizontal).PaddingHorizontal(10).CrossAlign(XAlign.Center))
         {
             if (primary)
             {

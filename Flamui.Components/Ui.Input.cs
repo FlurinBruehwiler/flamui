@@ -17,7 +17,7 @@ public static partial class UiExtensions
 
     public static UiText Input(this Ui ui, ref string text, bool hasFocus = false, InputType inputType = InputType.Text)
     {
-        using (var hitBox = ui.Div().ShrinkHeight().Color(C.Transparent))
+        using (var hitBox = ui.Rect().ShrinkHeight().Color(C.Transparent))
         {
             var t = ui.Text(text);
 

@@ -15,7 +15,7 @@ using Sample.LayoutTest;
  * - Implement more prebuilt components for faster development (take inspiration from shadcn)
  * - Try out ZLinq, and see if it is a usable alternative, then maybe write an integration with Arenas, so one can materialize ZLinq queries without GC Allocation
  * - Implement [UiFragment] and remove Components - done
- * - Implement Get<some>
+ * - Implement Get<some> -- done
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
