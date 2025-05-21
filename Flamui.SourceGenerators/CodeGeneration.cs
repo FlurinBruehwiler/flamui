@@ -69,6 +69,11 @@ namespace System.Runtime.CompilerServices
 
         if (!method.ReturnsVoid)
         {
+            if (method.ReturnsByRef)
+            {
+                sb.Append("ref ");
+            }
+
             sb.Append("var res = ");
         }
 
@@ -79,7 +84,14 @@ namespace System.Runtime.CompilerServices
 
         if (!method.ReturnsVoid)
         {
-            sb.AppendLine("return res;");
+            sb.Append("return ");
+
+            if (method.ReturnsByRef)
+            {
+                sb.Append("ref ");
+            }
+
+            sb.AppendLine("res;");
         }
 
         sb.RemoveIndent();
@@ -96,6 +108,11 @@ namespace System.Runtime.CompilerServices
 
     private static void GenerateMethodCall(MethodSignature method, SourceBuilder sb, string? unsafeAccessorMethodName)
     {
+        if (method.ReturnsByRef)
+        {
+            sb.Append("ref ");
+        }
+
         if (unsafeAccessorMethodName != null)
         {
             sb.AppendFormat("{0}", unsafeAccessorMethodName);
@@ -111,6 +128,8 @@ namespace System.Runtime.CompilerServices
                 sb.AppendFormat("receiverType.{0}", method.Name);
             }
         }
+
+        GenerateTypeParameters(method, sb);
 
         sb.Append("(");
 
@@ -148,9 +167,42 @@ namespace System.Runtime.CompilerServices
         sb.AppendLine(");");
     }
 
+    private static void GenerateTypeParameters(MethodSignature method, SourceBuilder sb)
+    {
+        if (method.TypeParameters.Count != 0)
+        {
+            sb.Append("<");
+
+            var appendComma = false;
+            foreach (var parameter in method.TypeParameters)
+            {
+                if (appendComma)
+                {
+                    sb.Append(", ");
+                }
+
+                sb.Append(parameter.Name);
+                appendComma = true;
+            }
+
+            sb.Append(">");
+        }
+    }
+
     private static void GenerateInterceptorSignature(MethodSignature method, SourceBuilder sb)
     {
-        sb.AppendFormat("public static {0} {1}(", method.ReturnTypeFullyQualifiedName, $"{method.Name}_{method.Hash}");
+        sb.Append("public static ");
+
+        if (method.ReturnsByRef)
+        {
+            sb.Append("ref ");
+        }
+
+        sb.AppendFormat("{0} {1}", method.ReturnTypeFullyQualifiedName, $"{method.Name}_{method.Hash}");
+
+        GenerateTypeParameters(method, sb);
+
+        sb.Append("(");
 
         bool isFirstParameter = true;
 
@@ -172,8 +224,47 @@ namespace System.Runtime.CompilerServices
             sb.Append(parameter.DisplayString);
         }
 
-        sb.AppendLine(")");
+        sb.Append(")");
 
+        if (method.TypeParameters.Count != 0)
+        {
+            foreach (var typeParameter in method.TypeParameters)
+            {
+                bool isFirst = true;
+
+                if (typeParameter.HasReferenceTypeConstraint)
+                {
+                    AddWhere(isFirst, typeParameter);
+                    sb.AppendFormat(" class", typeParameter.Name);
+                }
+
+                if (typeParameter.HasUnmanagedTypeConstraint)
+                {
+                    AddWhere(isFirst, typeParameter);
+                    sb.AppendFormat(" unmanaged", typeParameter.Name);
+                }
+
+                if (typeParameter.HasValueTypeConstraint)
+                {
+                    AddWhere(isFirst, typeParameter);
+                    sb.AppendFormat(" struct", typeParameter.Name);
+                }
+            }
+        }
+
+        sb.AppendLine();
+
+        void AddWhere(bool isFirst, TypeParameterDefinition typeParameter)
+        {
+            if (isFirst)
+            {
+                sb.AppendFormat(" where {0} :", typeParameter.Name);
+            }
+            else
+            {
+                sb.Append(", ");
+            }
+        }
     }
 
     private static void GeneratePrivateMethodAccessor(MethodSignature methodSignature, SourceBuilder sourceBuilder, string invokeMethodName)

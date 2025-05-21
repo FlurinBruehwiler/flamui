@@ -14,11 +14,11 @@ public class FlamuiWindowOptions
 
 public record SizeConstraint(int Width, int Height);
 
-public class FlamuiApp
+public class FlamuiWindowHost
 {
     private List<PhysicalWindow> _windows;
 
-    public FlamuiApp()
+    public FlamuiWindowHost()
     {
         _windows = [];
     }

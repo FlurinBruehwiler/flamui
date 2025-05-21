@@ -176,4 +176,26 @@ void StyledInput(Ui ui)
         // Pass the source code to our helper and snapshot test the output
         return TestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task GenericInstanceMethod()
+    {
+        // The source code to test
+        var source = @"
+using Flamui;
+
+namespace Sample.ComponentGallery;
+
+public static class Test
+{
+    public static void Build(Ui ui)
+    {
+        ref float x = ref ui.Get<float>(0);
+    }
+}
+";
+
+        // Pass the source code to our helper and snapshot test the output
+        return TestHelper.Verify(source);
+    }
 }

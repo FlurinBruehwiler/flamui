@@ -11,30 +11,6 @@ public struct CascadingStuff
     public float TextSize;
 }
 
-//should there be a difference between Ui and UiTree? -> yes there should be,
-
-
-// how should the connection between the window and the uiTree be handled? Should the uiTree know about the window? No, I don't think so.
-// Should the window know about the uiTee? Yes, probably. But it would also be clean to have another separate piece that connects the whole thing, but that might over abstract the entire thing, so we really shouldn't do that.
-
-
-//
-
-/*
- * var window = Window.Create();
- * window.uiTree.OnUpdate((ui) => {
- *      using(ui.Div())
-*       {
- *
-*       }
- * })
- */
-
-/*
- * We still need some kind of host, that hosts the main event loop, although .....
- */
-
-
 public partial class Ui
 {
     public Dictionary<int, object> LastFrameDataStore = [];
@@ -110,7 +86,7 @@ public partial class Ui
         return ref Unsafe.AsRef<T>(ptr2);
     }
 
-    //We can't combine these into a single method because xyz
+    //We can't combine these into a single method because (todo)
     //And we can't have two methods with the same signature, although the constraints should be tight enough.
     // -> C# is bad
 

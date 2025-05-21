@@ -42,6 +42,8 @@ public class SourceGeneratorRoot : IIncrementalGenerator
 
     private static MethodSignature MethodSymbolToSomething(IMethodSymbol methodSymbol, InvocationExpressionSyntax syntax, GeneratorSyntaxContext syntaxContext)
     {
+        methodSymbol = methodSymbol.OriginalDefinition;
+
         var parameters = methodSymbol.Parameters.Select(x =>
         {
             var pd = new ParameterDefinition
@@ -53,6 +55,17 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             };
 
             return pd;
+        });
+
+        var typeParameters = methodSymbol.TypeParameters.Select(x =>
+        {
+            return new TypeParameterDefinition
+            {
+                Name = x.Name,
+                HasReferenceTypeConstraint = x.HasReferenceTypeConstraint,
+                HasUnmanagedTypeConstraint = x.HasUnmanagedTypeConstraint,
+                HasValueTypeConstraint = x.HasValueTypeConstraint
+            };
         });
 
         var interceptLocation = CSharpExtensions.GetInterceptableLocation(syntaxContext.SemanticModel, syntax);
@@ -72,7 +85,9 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             Parameters = new EquatableArray<ParameterDefinition>(parameters.ToArray()),
             ContainingTypeFullName = methodSymbol.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             IsPrivate = methodSymbol.DeclaredAccessibility != Accessibility.Public || methodSymbol.ContainingType.DeclaredAccessibility != Accessibility.Public,
-            Hash = Math.Abs(GetDeterministicHashCode(interceptLocation.Data))
+            ReturnsByRef = methodSymbol.ReturnsByRef,
+            Hash = Math.Abs(GetDeterministicHashCode(interceptLocation.Data)),
+            TypeParameters = new EquatableArray<TypeParameterDefinition>(typeParameters.ToArray()),
         };
 
         return methodSignature;
@@ -96,7 +111,6 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             return hash1 + (hash2 * 1566083941);
         }
     }
-
 
     private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
     {

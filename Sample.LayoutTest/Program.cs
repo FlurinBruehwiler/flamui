@@ -74,7 +74,7 @@ string[] icons =
     "unarchive.tvg",
 ];
 
-var app = new FlamuiApp();
+var app = new FlamuiWindowHost();
 
 app.CreateWindow("Sample.LayoutTest", TestComponent.Build);
 
