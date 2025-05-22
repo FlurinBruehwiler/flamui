@@ -141,12 +141,12 @@ public partial class Ui
         return ref GetObjRef(initialValue);
     }
 
-    public T GetData<T>(Func<Ui, UiID, T> factoryMethod) where T : class
+    public T GetData<T>(Func<Ui, int, T> factoryMethod) where T : class
     {
         return GetData(factoryMethod, static (ui, uiId, f) => f(ui, uiId));
     }
 
-    public T GetData<T, TContext>(TContext context, Func<Ui, UiID, TContext, T> factoryMethod) where T : class
+    public T GetData<T, TContext>(TContext context, Func<Ui, int, TContext, T> factoryMethod) where T : class
     {
         var globalId = CurrentScopeHash;
         if (LastFrameDataStore.TryGetValue(globalId, out var data))

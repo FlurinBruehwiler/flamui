@@ -262,19 +262,19 @@ namespace System.Runtime.CompilerServices
 
                 if (typeParameter.HasReferenceTypeConstraint)
                 {
-                    AddWhere(isFirst, typeParameter);
+                    AddWhere(ref isFirst, typeParameter);
                     sb.AppendFormat(" class", typeParameter.Name);
                 }
 
                 if (typeParameter.HasUnmanagedTypeConstraint)
                 {
-                    AddWhere(isFirst, typeParameter);
+                    AddWhere(ref isFirst, typeParameter);
                     sb.AppendFormat(" unmanaged", typeParameter.Name);
                 }
 
-                if (typeParameter.HasValueTypeConstraint)
+                if (typeParameter.HasValueTypeConstraint && !typeParameter.HasUnmanagedTypeConstraint)
                 {
-                    AddWhere(isFirst, typeParameter);
+                    AddWhere(ref isFirst, typeParameter);
                     sb.AppendFormat(" struct", typeParameter.Name);
                 }
             }
@@ -282,10 +282,11 @@ namespace System.Runtime.CompilerServices
 
         sb.AppendLine();
 
-        void AddWhere(bool isFirst, TypeParameterDefinition typeParameter)
+        void AddWhere(ref bool isFirst, TypeParameterDefinition typeParameter)
         {
             if (isFirst)
             {
+                isFirst = false;
                 sb.AppendFormat(" where {0} :", typeParameter.Name);
             }
             else

@@ -1217,7 +1217,7 @@ public class LayoutingTests : IDisposable
 
         var rootContainer = new FlexContainer
         {
-            Id = new UiID("RootElement", "", 0, 0),
+            Id = 0,
             Tree = tree
         };
         tree.Ui.Tree = tree;

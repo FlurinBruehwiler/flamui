@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
+using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -77,7 +78,7 @@ public record struct Bounds
     }
 }
 
-public enum CommandType : byte
+public enum CommandType : int
 {
     Rect,
     ClipRect,
@@ -92,47 +93,74 @@ public enum CommandType : byte
 //make a more compact growable arena buffer,
 //that can hold different sized structs, this then wouldn't support indexing, but we don't need that anyway
 
-//idea: create a source generator that generates discriminated unions for structs using InlineArrays
-public struct Command : IEquatable<Command>
+public struct RectCommand
 {
-    public CommandType Type;
-    public GlPath Path;
-    public ManagedRef<UiElement> UiElement;
-    public ArenaString String;
-    public Bounds Bounds;
-    public float Radius;
-    public ManagedRef<Font> Font;
-    public float FontSize;
-    public ColorDefinition Color;
-    public Matrix4X4<float> Matrix;
-    public Bitmap Bitmap;
-    public int VGId;
-    public Slice<byte> VGData;
-    public ClipMode ClipMode;
+    public required Bounds Bounds;
+    public required float Radius;
+    public required ColorDefinition Color;
 
-    public bool Equals(Command other)
-    {
-        return Type == other.Type && UiElement.Equals(other.UiElement) && String.Equals(other.String) && Bounds.Equals(other.Bounds) && Radius.Equals(other.Radius) && Font.Equals(other.Font) && FontSize.Equals(other.FontSize) && Color.Equals(other.Color) && Matrix.Equals(other.Matrix);
-    }
+}
 
-    public override bool Equals(object? obj)
-    {
-        return obj is Command other && Equals(other);
-    }
+public struct ClipRectCommand
+{
+    public required Bounds Bounds;
+    public required float Radius;
+    public required ClipMode ClipMode;
 
-    public override int GetHashCode()
+}
+
+public struct TextCommand
+{
+    public required Bounds Bounds;
+    public required ArenaString String;
+    public required ColorDefinition Color;
+    public required ManagedRef<Font> Font;
+    public required float FontSize;
+}
+
+public struct MatrixCommand
+{
+    public required Matrix4X4<float> Matrix;
+
+}
+
+public struct TinyVGCommand
+{
+    public required Bounds Bounds;
+    public required int VGId;
+    public required Slice<byte> VGData;
+}
+
+public struct ClearClipCommand;
+
+[StructLayout(LayoutKind.Explicit)]
+public struct Command
+{
+    [FieldOffset(0)]
+    public required CommandType Type;
+
+    [FieldOffset(4)]
+    public required int UiElementId;
+
+    [FieldOffset(8)]
+    public RectCommand RectCommand;
+    [FieldOffset(8)]
+    public ClipRectCommand ClipRectCommand;
+    [FieldOffset(8)]
+    public MatrixCommand MatrixCommand;
+    [FieldOffset(8)]
+    public TinyVGCommand TinyVGCommand;
+    [FieldOffset(8)]
+    public ClearClipCommand ClearClipCommand;
+    [FieldOffset(8)]
+    public TextCommand TextCommand;
+
+    public UiElement? GetAssociatedUiElement(Ui ui)
     {
-        var hashCode = new HashCode();
-        hashCode.Add((int)Type);
-        hashCode.Add(UiElement);
-        hashCode.Add(String);
-        hashCode.Add(Bounds);
-        hashCode.Add(Radius);
-        hashCode.Add(Font);
-        hashCode.Add(FontSize);
-        hashCode.Add(Color);
-        hashCode.Add(Matrix);
-        return hashCode.ToHashCode();
+        if (UiElementId == 0)
+            return null;
+
+        return (UiElement)ui.CurrentFrameDataStore[UiElementId];
     }
 }
 

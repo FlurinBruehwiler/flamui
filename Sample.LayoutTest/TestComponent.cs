@@ -41,6 +41,15 @@ public static class TestComponent
 
             ui.StyledInput(ref input);
 
+            ref bool checkboxValue = ref ui.Get(false);
+
+            ui.Checkbox(ref checkboxValue);
+
+            using (ui.Rect().Width(100).Height(100))
+            {
+                ui.SvgImage("Icons/TVG/check.tvg");
+            }
+
             if (ui.Button("Create window"))
             {
                 // app.CreateWindow("Anita", Build);

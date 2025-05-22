@@ -40,67 +40,70 @@ public class RenderContext
 
     public void AddRect(Bounds bounds, UiElement? uiElement, ColorDefinition color, float radius = 0)
     {
-        var cmd = new Command();
-        cmd.UiElement = uiElement != null ? Ui.Arena.AddReference(uiElement) : default;
-        cmd.Bounds = bounds;
-        cmd.Radius = radius;
-        cmd.Type = CommandType.Rect;
-        cmd.Color = color;
-
-        Add(cmd);
-    }
-
-    public void AddPath(GlPath path, ColorDefinition color)
-    {
-        var cmd = new Command();
-        cmd.Path = path;
-        cmd.Color = color;
+        var cmd = new Command
+        {
+            Type = CommandType.Rect,
+            UiElementId = uiElement?.Id ?? 0,
+            RectCommand = new RectCommand
+            {
+                Bounds = bounds,
+                Radius = radius,
+                Color = color
+            }
+        };
 
         Add(cmd);
     }
 
     public void AddText(UiElement uiElement, Bounds bounds, ArenaString text, ColorDefinition color, ScaledFont scaledFont)
     {
-        var cmd = new Command();
-        cmd.Bounds = bounds;
-        cmd.Type = CommandType.Text;
-        cmd.String = text;
-        cmd.Color = color;
-        cmd.UiElement = Ui.Arena.AddReference(uiElement);
-        cmd.Font = Ui.Arena.AddReference(scaledFont.Font);
-        cmd.FontSize = scaledFont.PixelSize;
-
-        Add(cmd);
-    }
-
-    public void AddBitmap(Bitmap bitmap, Bounds bounds)
-    {
-        var cmd = new Command();
-        cmd.Bounds = bounds;
-        cmd.Type = CommandType.Picture;
-        cmd.Bitmap = bitmap;
+        var cmd = new Command
+        {
+            UiElementId = uiElement.Id,
+            Type = CommandType.Text,
+            TextCommand = new TextCommand
+            {
+                Bounds = bounds,
+                String = text,
+                Color = color,
+                Font = Ui.Arena.AddReference(scaledFont.Font),
+                FontSize = scaledFont.PixelSize,
+            }
+        };
 
         Add(cmd);
     }
 
     public void AddVectorGraphics(int vgId, Slice<byte> vgData, Bounds bounds)
     {
-        var cmd = new Command();
-        cmd.Type = CommandType.TinyVG;
-        cmd.Bounds = bounds;
-        cmd.VGId = vgId;
-        cmd.VGData = vgData;
+        var cmd = new Command
+        {
+            Type = CommandType.TinyVG,
+            TinyVGCommand = new TinyVGCommand
+            {
+                Bounds = bounds,
+                VGId = vgId,
+                VGData = vgData
+            },
+            UiElementId = 0
+        };
 
         Add(cmd);
     }
 
     public void PushClip(Bounds bounds, ClipMode clipMode, float radius = 0)
     {
-        var cmd = new Command();
-        cmd.Bounds = bounds;
-        cmd.Radius = radius;
-        cmd.Type = CommandType.ClipRect;
-        cmd.ClipMode = clipMode;
+        var cmd = new Command
+        {
+            Type = CommandType.ClipRect,
+            ClipRectCommand = new ClipRectCommand
+            {
+                Bounds = bounds,
+                Radius = radius,
+                ClipMode = clipMode
+            },
+            UiElementId = 0
+        };
 
         ClipStack.Push(cmd);
 
@@ -117,8 +120,12 @@ public class RenderContext
         }
         else
         {
-            cmd = new Command();
-            cmd.Type = CommandType.ClearClip;
+            cmd = new Command
+            {
+                Type = CommandType.ClearClip,
+                ClearClipCommand = new ClearClipCommand(),
+                UiElementId = 0
+            };
             Add(cmd);
         }
     }
@@ -139,9 +146,15 @@ public class RenderContext
 
         MatrixStack.Push(finalMat);
 
-        var cmd = new Command();
-        cmd.Matrix = finalMat;
-        cmd.Type = CommandType.Matrix;
+        var cmd = new Command
+        {
+            Type = CommandType.Matrix,
+            MatrixCommand = new MatrixCommand
+            {
+                Matrix = matrix,
+            },
+            UiElementId = 0
+        };
 
         Add(cmd);
     }
@@ -159,9 +172,15 @@ public class RenderContext
             mat = x;
         }
 
-        var cmd = new Command();
-        cmd.Matrix = mat;
-        cmd.Type = CommandType.Matrix;
+        var cmd = new Command
+        {
+            Type = CommandType.Matrix,
+            MatrixCommand = new MatrixCommand
+            {
+                Matrix = mat
+            },
+            UiElementId = 0
+        };
 
         Add(cmd);
     }
@@ -214,16 +233,16 @@ public class RenderContext
                 switch (command.Type)
                 {
                     case CommandType.Rect:
-                        Console.WriteLine($"Rect: {command.Bounds}, Line: {command.UiElement.Get().Id.Line}");
+                        Console.WriteLine($"Rect: {command.RectCommand.Bounds}, Line: TODO (can we extract the Code Location from the ID?");
                         break;
                     case CommandType.ClipRect:
-                        Console.WriteLine($"ClipRect: {command.Bounds}");
+                        Console.WriteLine($"ClipRect: {command.ClipRectCommand.Bounds}");
                         break;
                     case CommandType.Text:
-                        Console.WriteLine($"Text: {command.String}, {command.Bounds}");
+                        Console.WriteLine($"Text: {command.TextCommand.String}, {command.TextCommand.Bounds}");
                         break;
                     case CommandType.Matrix:
-                        Console.WriteLine($"Matrix: {command.Matrix}");
+                        Console.WriteLine($"Matrix: {command.MatrixCommand.Matrix}");
                         break;
                     case CommandType.TinyVG:
                         Console.WriteLine("VG:");

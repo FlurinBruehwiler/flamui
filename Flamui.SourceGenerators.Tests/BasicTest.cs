@@ -5,7 +5,7 @@ public class BasicTest
     [Fact]
     public Task InstanceMethod()
     {
-         // The source code to test
+        // The source code to test
         var source = @"
 using Flamui;
 
@@ -263,6 +263,28 @@ public class GenericType<T>
 ";
 
         // Pass the source code to our helper and snapshot test the output
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task GenericInstanceMethodWithUnmanagedConstraint()
+    {
+        var source = @"
+using Flamui;
+
+namespace Sample.ComponentGallery;
+
+public static class Test
+{
+    public static void Build(Ui ui)
+    {
+        ref bool checkboxValue = ref ui.Get<bool>(false);
+
+        ui.Checkbox(ref checkboxValue);
+    }
+}
+";
+
         return TestHelper.Verify(source);
     }
 }

@@ -7,7 +7,7 @@ namespace Flamui.UiElements;
 public abstract class UiElement
 {
     //----- Data ------
-    public required UiID Id { get; init; }
+    public required int Id { get; init; }
     public UiElementContainer Parent { get; set; }
     public required UiTree Tree { get; init; }
     public bool IsActive;
@@ -62,18 +62,5 @@ public abstract class UiElement
         }
 
         return null;
-    }
-}
-
-public record struct UiID(string Key, string Path, int Line, int TypeHash)
-{
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Key, Path, Line, TypeHash);
-    }
-
-    public override string ToString()
-    {
-        return $"Key: {Key}, Path: {Path}, Line: {Line}, Type: {TypeHash}";
     }
 }

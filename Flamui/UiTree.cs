@@ -170,7 +170,7 @@ public partial class UiTree
 
         RootContainer = new FlexContainer
         {
-            Id = new UiID("anita", "", 0, 0),
+            Id = -4177,
             Tree = this
         };
         Ui.Tree = this;
@@ -236,21 +236,21 @@ public partial class UiTree
             {
                 if (command.Type == CommandType.Matrix)
                 {
-                    transformedPoint = originalPoint.Multiply(command.Matrix.Invert());
+                    transformedPoint = originalPoint.Multiply(command.MatrixCommand.Matrix.Invert());
                 }
                 else if (command.Type == CommandType.Rect)
                 {
-                    command.UiElement.Get().FinalOnScreenSize = command.Bounds;
-                    if (command.Bounds.ContainsPoint(transformedPoint))
+                    command.GetAssociatedUiElement(Ui).FinalOnScreenSize = command.RectCommand.Bounds;
+                    if (command.RectCommand.Bounds.ContainsPoint(transformedPoint))
                     {
-                        hitElements.Add(command.UiElement.Get());
+                        hitElements.Add(command.GetAssociatedUiElement(Ui));
                     }
                 }else if (command.Type == CommandType.Text)
                 {
-                    command.UiElement.Get().FinalOnScreenSize = command.Bounds;
-                    if (command.Bounds.ContainsPoint(transformedPoint))
+                    command.GetAssociatedUiElement(Ui).FinalOnScreenSize = command.TextCommand.Bounds;
+                    if (command.TextCommand.Bounds.ContainsPoint(transformedPoint))
                     {
-                        hitElements.Add(command.UiElement.Get());
+                        hitElements.Add(command.GetAssociatedUiElement(Ui));
                     }
                 }
             }

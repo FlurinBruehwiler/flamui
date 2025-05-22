@@ -29,31 +29,31 @@ public static class StaticFunctions
                 switch (command.Type)
                 {
                     case CommandType.Rect:
-                        canvas.Paint.Color = command.Color;
-                        if(command.Radius == 0)
-                            canvas.DrawRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H);
+                        canvas.Paint.Color = command.RectCommand.Color;
+                        if(command.RectCommand.Radius == 0)
+                            canvas.DrawRect(command.RectCommand.Bounds.X, command.RectCommand.Bounds.Y, command.RectCommand.Bounds.W, command.RectCommand.Bounds.H);
                         else
-                            canvas.DrawRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius);
+                            canvas.DrawRoundedRect(command.RectCommand.Bounds.X, command.RectCommand.Bounds.Y, command.RectCommand.Bounds.W, command.RectCommand.Bounds.H, command.RectCommand.Radius);
                         break;
                     case CommandType.ClipRect:
-                        if(command.Radius == 0)
-                            canvas.ClipRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.ClipMode);
+                        if(command.ClipRectCommand.Radius == 0)
+                            canvas.ClipRect(command.ClipRectCommand.Bounds.X, command.ClipRectCommand.Bounds.Y, command.ClipRectCommand.Bounds.W, command.ClipRectCommand.Bounds.H, command.ClipRectCommand.ClipMode);
                         else
-                            canvas.ClipRoundedRect(command.Bounds.X, command.Bounds.Y, command.Bounds.W, command.Bounds.H, command.Radius, command.ClipMode);
+                            canvas.ClipRoundedRect(command.ClipRectCommand.Bounds.X, command.ClipRectCommand.Bounds.Y, command.ClipRectCommand.Bounds.W, command.ClipRectCommand.Bounds.H, command.ClipRectCommand.Radius, command.ClipRectCommand.ClipMode);
                         break;
                     case CommandType.Text:
-                        canvas.Paint.Font = new ScaledFont(command.Font.Get(), command.FontSize);
-                        canvas.Paint.Color = command.Color;
-                        canvas.DrawText(command.String.AsSpan(), command.Bounds.X, command.Bounds.Y);
+                        canvas.Paint.Font = new ScaledFont(command.TextCommand.Font.Get(), command.TextCommand.FontSize);
+                        canvas.Paint.Color = command.TextCommand.Color;
+                        canvas.DrawText(command.TextCommand.String.AsSpan(), command.TextCommand.Bounds.X, command.TextCommand.Bounds.Y);
                         break;
                     case CommandType.Matrix:
-                        canvas.SetMatrix(command.Matrix);
+                        canvas.SetMatrix(command.MatrixCommand.Matrix);
                         break;
                     case CommandType.Picture:
-                        canvas.DrawBitmap(command.Bitmap, command.Bounds);
+                        // canvas.DrawBitmap(command.Bitmap, command.Bounds);
                         break;
                     case CommandType.TinyVG:
-                        canvas.DrawTinyVG(command.VGId, command.VGData, command.Bounds);
+                        canvas.DrawTinyVG(command.TinyVGCommand.VGId, command.TinyVGCommand.VGData, command.TinyVGCommand.Bounds);
                         break;
                     case CommandType.ClearClip:
                         canvas.ClearClip();
