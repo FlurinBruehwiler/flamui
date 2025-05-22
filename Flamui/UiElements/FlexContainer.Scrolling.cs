@@ -64,7 +64,7 @@ public partial class FlexContainer
         //TODO pls refactor this very ugly code!!!!!!!!!!!!!!!
 
         //todo id
-        var scrollbar = Tree.Ui.GetData((container: this, dir: dir), static (_, _, hi) =>
+        var scrollbar = Tree.Ui.GetData((container: this, dir: dir), static (_, hi) =>
         {
             var settings = ScrollbarSettings.Default;
 

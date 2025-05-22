@@ -29,6 +29,7 @@ public record struct TypeParameterDefinition
     public bool HasUnmanagedTypeConstraint;
     public bool HasValueTypeConstraint;
     public bool IsOnMethod;
+    public bool HasConstructorConstraint;
 }
 
 public record struct ParameterDefinition

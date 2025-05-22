@@ -277,6 +277,12 @@ namespace System.Runtime.CompilerServices
                     AddWhere(ref isFirst, typeParameter);
                     sb.AppendFormat(" struct", typeParameter.Name);
                 }
+
+                if (typeParameter.HasConstructorConstraint)
+                {
+                    AddWhere(ref isFirst, typeParameter);
+                    sb.AppendFormat(" new()", typeParameter.Name);
+                }
             }
         }
 

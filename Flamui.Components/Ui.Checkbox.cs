@@ -29,7 +29,7 @@ public static partial class UiExtensions
             {
                 div.Color(ColorPalette.AccentColor);
                 div.BorderWidth(0);
-                ui.SvgImage("Icons/TVG/check.tvg");
+                ui.SvgImage("Icons/TVG/arrow_left_alt.tvg");
             }
         }
     }

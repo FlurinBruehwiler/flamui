@@ -45,10 +45,10 @@ public static class TestComponent
 
             ui.Checkbox(ref checkboxValue);
 
-            using (ui.Rect().Width(100).Height(100))
-            {
-                ui.SvgImage("Icons/TVG/check.tvg");
-            }
+            // using (ui.Rect().Width(50).Height(50))
+            // {
+            //     ui.SvgImage("Icons/TVG/expand_more.tvg");
+            // }
 
             if (ui.Button("Create window"))
             {

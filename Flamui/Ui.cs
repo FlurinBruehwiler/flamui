@@ -107,7 +107,7 @@ public partial class Ui
         return ref Unsafe.AsRef<T>(ptr2);
     }
 
-    public T GetObj<T>(T initialValue) where T : class
+    public T GetObj<T>() where T : class, new()
     {
         if (LastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastValue))
         {
@@ -115,6 +115,7 @@ public partial class Ui
             return (T)lastValue;
         }
 
+        var initialValue = new T();
         CurrentFrameDataStore.Add(CurrentScopeHash, initialValue);
         return initialValue;
     }
@@ -141,12 +142,12 @@ public partial class Ui
         return ref GetObjRef(initialValue);
     }
 
-    public T GetData<T>(Func<Ui, int, T> factoryMethod) where T : class
+    public T GetData<T>(Func<Ui, T> factoryMethod) where T : class
     {
-        return GetData(factoryMethod, static (ui, uiId, f) => f(ui, uiId));
+        return GetData(factoryMethod, static (ui, f) => f(ui));
     }
 
-    public T GetData<T, TContext>(TContext context, Func<Ui, int, TContext, T> factoryMethod) where T : class
+    public T GetData<T, TContext>(TContext context, Func<Ui, TContext, T> factoryMethod) where T : class
     {
         var globalId = CurrentScopeHash;
         if (LastFrameDataStore.TryGetValue(globalId, out var data))
@@ -155,16 +156,16 @@ public partial class Ui
             return (T)data;
         }
 
-        var value = factoryMethod(this, default, context);
+        var value = factoryMethod(this, context);
         CurrentFrameDataStore.Add(globalId, value);
         return value;
     }
 
     public FlexContainer Rect()
     {
-        var div = GetData(static (ui, id) => new FlexContainer
+        var div = GetData(static (ui) => new FlexContainer
         {
-            Id = id,
+            Id = ui.CurrentScopeHash,
             Tree = ui.Tree
         });
 
@@ -179,9 +180,9 @@ public partial class Ui
 
     public UiText Text(ArenaString content)
     {
-        var text = GetData(static (ui, id) => new UiText
+        var text = GetData(static ui => new UiText
         {
-            Id = id,
+            Id = ui.CurrentScopeHash,
             Tree = ui.Tree,
         });
 
@@ -197,9 +198,9 @@ public partial class Ui
 
     public UiSvg SvgImage(ArenaString src, ColorDefinition? colorDefinition = null)
     {
-        var svg = GetData(static (ui, id) => new UiSvg
+        var svg = GetData(static (ui) => new UiSvg
         {
-            Id = id,
+            Id = ui.CurrentScopeHash,
             Tree = ui.Tree
         });
 
@@ -212,9 +213,9 @@ public partial class Ui
 
     public UiImage Image(string src)
     {
-        var image = GetData(static (ui, id) => new UiImage
+        var image = GetData(static (ui) => new UiImage
         {
-            Id = id,
+            Id = ui.CurrentScopeHash,
             Tree = ui.Tree,
         });
 

@@ -75,6 +75,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             HasReferenceTypeConstraint = x.HasReferenceTypeConstraint,
             HasUnmanagedTypeConstraint = x.HasUnmanagedTypeConstraint,
             HasValueTypeConstraint = x.HasValueTypeConstraint,
+            HasConstructorConstraint = x.HasConstructorConstraint,
             IsOnMethod = false
         });
 
@@ -84,6 +85,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             HasReferenceTypeConstraint = x.HasReferenceTypeConstraint,
             HasUnmanagedTypeConstraint = x.HasUnmanagedTypeConstraint,
             HasValueTypeConstraint = x.HasValueTypeConstraint,
+            HasConstructorConstraint = x.HasConstructorConstraint,
             IsOnMethod = true
         });
 

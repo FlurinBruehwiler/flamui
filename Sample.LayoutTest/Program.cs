@@ -70,7 +70,6 @@ string[] icons =
     "archive.tvg",
     "arrow_left_alt.tvg",
     "arrow_right_alt.tvg",
-    "check.tvg",
     "chevron_right.tvg",
     "delete.tvg",
     "description.tvg",

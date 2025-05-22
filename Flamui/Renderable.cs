@@ -160,7 +160,7 @@ public struct Command
         if (UiElementId == 0)
             return null;
 
-        return (UiElement)ui.CurrentFrameDataStore[UiElementId];
+        return (UiElement)ui.LastFrameDataStore[UiElementId];
     }
 }
 

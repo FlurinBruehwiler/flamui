@@ -198,6 +198,8 @@ public class RenderContext
 
     public bool RequiresRerender(RenderContext lastRenderContext)
     {
+        //todo readd
+
         //maybe go first through everything and check if the sizes match up, and only then go ahead and compare the actual contents
         foreach (var (key, currentRenderSection) in CommandBuffers)
         {
@@ -223,6 +225,7 @@ public class RenderContext
 
     public void PrintCommands()
     {
+        return;
         Console.WriteLine("---------------------------------------");
         var sections = CommandBuffers.OrderBy(x => x.Key).ToList();
         foreach (var (_, value) in sections)
@@ -245,7 +248,7 @@ public class RenderContext
                         Console.WriteLine($"Matrix: {command.MatrixCommand.Matrix}");
                         break;
                     case CommandType.TinyVG:
-                        Console.WriteLine("VG:");
+                        Console.WriteLine($"VG: {command.TinyVGCommand.VGId}");
                         break;
                     case CommandType.Picture:
                         Console.WriteLine("Picture:");

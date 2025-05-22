@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using Flamui.Layouting;
+﻿using Flamui.Layouting;
 
 namespace Flamui.UiElements;
 
-[DebuggerDisplay("Line = {Id.Line} Key = {Id.Key}")]
 public abstract class UiElement
 {
     //----- Data ------
