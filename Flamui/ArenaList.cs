@@ -3,8 +3,6 @@ using System.Diagnostics;
 
 namespace Flamui;
 
-//todo, implement IEnumerable
-
 /// <summary>
 /// Basic dynamic array on the arena
 /// </summary>

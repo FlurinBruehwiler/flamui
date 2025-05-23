@@ -206,9 +206,6 @@ public unsafe class ArenaChunkedList<T> : IEnumerable<T> where T : unmanaged
             if (chunkA == null || chunkB == null)
                 return false;
 
-            //todo we really want to do byte wise comparision, then it would be much faster probably, but because these
-            //fucking GCHandles are unique per arena it doesn't work currently (for Commands), we should probably use an index or
-            //something instead of these raw GCHandles!!!!
             if (!chunkA->Items.Span.SequenceEqual(chunkB->Items.Span))
                 return false;
 

@@ -87,16 +87,6 @@ public class Font
     {
         return UnscaledAscent * scale - UnscaledDescent * scale;
     }
-
-    // public float GetCharWidth(char c, float scale)
-    // {
-    //     if (FontGlyphInfos.TryGetValue(c, out var info))
-    //     {
-    //         return info.UnscaledAdvanceWidth * scale;
-    //     }
-    //
-    //     return 0;
-    // }
 }
 
 public record struct GlyphCacheHash
@@ -147,29 +137,16 @@ public class FontAtlas
         int xOff = ix0;
         int yOff = iy0;
 
-        // var bitmapSpan = new Span<byte>((void*)GlyphTempMemory, 100 * 100);
-
-        // Console.WriteLine($"glyph cache miss: {c}:{resolutionMultiplier}, inserting into slot {entry.SlotNumber}");
-
-        // for (var i = 0; i < bitmapSpan.Length; i++) //correct upwards for clearer text, not sure why we need to do it...
-        // {
-        //     ref var b = ref bitmapSpan[i];
-        //
-        //     var f = (double)b;
-        //     f = 255 * Math.Pow(f / 255, 0.5f);
-        //     b = (byte)f;
-        // }
-
         GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
         GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-        GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, (uint)100, (uint)100, PixelFormat.Red, PixelType.UnsignedByte, (void*)GlyphTempMemory);
+        GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, 100, 100, PixelFormat.Red, PixelType.UnsignedByte, (void*)GlyphTempMemory);
 
         var info = new AtlasGlyphInfo
         {
-            Height = (float)height / resolutionMultiplier,
-            Width = (float)width / resolutionMultiplier,
-            XOff = (float)xOff / resolutionMultiplier,
-            YOff = (float)yOff / resolutionMultiplier,
+            Height = height / resolutionMultiplier,
+            Width = width / resolutionMultiplier,
+            XOff = xOff / resolutionMultiplier,
+            YOff = yOff / resolutionMultiplier,
             AtlasX = entry.AtlasX,
             AtlasY = entry.AtlasY,
             SlotNumber = entry.SlotNumber,
