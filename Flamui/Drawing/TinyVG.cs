@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
+using Microsoft.DotNet.PlatformAbstractions;
 
 namespace Flamui.Drawing;
-
 
 public enum TinyvgError : int
 {
@@ -38,28 +38,62 @@ public struct TinyvgBitmap
     public IntPtr Pixels;
 }
 
-
 public static class TinyVG
 {
-    [DllImport("tinyvg.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe TinyvgError tinyvg_render_svg(
+    public static unsafe TinyvgError tinyvg_render_svg(
         byte[] tvgData,
         nint tvgLength,
         ref TinyvgOutStream target
-    );
+    )
+    {
+        if (OperatingSystem.IsLinux())
+        {
+            return LinuxNative.tinyvg_render_svg(tvgData, tvgLength, ref target);
+        }
+        else if (OperatingSystem.IsWindows())
+        {
+            return WindowsNative.tinyvg_render_svg(tvgData, tvgLength, ref target);
+        }
+        else
+        {
+            throw new NotImplementedException("Open an Issue on the github and we may fix it (sometime next century)");
+        }
+    }
 
-    [DllImport("tinyvg.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe TinyvgError tinyvg_render_bitmap(
+    public static unsafe TinyvgError tinyvg_render_bitmap(
         byte* tvgData,
         nint tvgLength,
         TinyvgAntiAlias antiAlias,
         uint width,
         uint height,
         ref TinyvgBitmap bitmap
-    );
+    )
+    {
+        if (OperatingSystem.IsLinux())
+        {
+            return LinuxNative.tinyvg_render_bitmap(tvgData, tvgLength, antiAlias, width, height, ref bitmap);
+        }
+        else if (OperatingSystem.IsWindows())
+        {
+            return WindowsNative.tinyvg_render_bitmap(tvgData, tvgLength, antiAlias, width, height, ref bitmap);
+        }
+        else
+        {
+            throw new NotImplementedException("Open an Issue on the github and we may fix it (sometime next century)");
+        }
+    }
 
-    [DllImport("tinyvg.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void tinyvg_free_bitmap(ref TinyvgBitmap bitmap);
+    public static void tinyvg_free_bitmap(ref TinyvgBitmap bitmap)
+    {
+        if (OperatingSystem.IsLinux())
+        {
+            LinuxNative.tinyvg_free_bitmap(ref bitmap);
+        }
+        else if (OperatingSystem.IsWindows())
+        {
+            WindowsNative.tinyvg_free_bitmap(ref bitmap);
+        }
+    }
 
     //https://tinyvg.tech/download/specification.pdf
     public static (float width, float height) ParseHeader(Span<byte> vgFile)
