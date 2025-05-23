@@ -8,6 +8,7 @@
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
         <RootNamespace>Flamui.Test</RootNamespace>
+        <InterceptorsNamespaces>$(InterceptorsNamespaces);InterceptorNamespace</InterceptorsNamespaces>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,6 +26,9 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Flamui\Flamui.csproj" />
+      <ProjectReference Include="..\Flamui.SourceGenerators\Flamui.SourceGenerators.csproj"
+                        OutputItemType="Analyzer"
+                        ReferenceOutputAssembly="false" />
     </ItemGroup>
 
 </Project>

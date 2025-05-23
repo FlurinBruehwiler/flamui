@@ -1159,6 +1159,7 @@ public class LayoutingTests : IDisposable
         AssertUi(ui, 400, 400, expected);
     }
 
+    [NoScopeGeneration]
     private void AssertUi(Ui ui, int width, int height, string expected)
     {
         var root = ui.PopElement();
