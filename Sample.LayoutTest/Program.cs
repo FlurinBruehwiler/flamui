@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using Flamui;
-using InterceptorNamespace;
+﻿using Flamui;
 using Sample.LayoutTest;
 
 /*
@@ -60,15 +58,6 @@ using Sample.LayoutTest;
 
 var windowHost = new FlamuiWindowHost();
 
-
-windowHost.CreateWindow("Sample.LayoutTest", (ui) =>
-{
-  
-});
-
-
-windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
-windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
 windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
 
 windowHost.Run();

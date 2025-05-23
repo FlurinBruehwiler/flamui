@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using Flamui.Drawing;
 
 namespace Flamui;
 
@@ -26,15 +27,56 @@ public static unsafe class WindowsNative
         IntPtr hProcess,
         UIntPtr dwMinimumWorkingSetSize,
         UIntPtr dwMaximumWorkingSetSize);
+
+
+    [DllImport("tinyvg.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe TinyvgError tinyvg_render_svg(
+        byte[] tvgData,
+        nint tvgLength,
+        ref TinyvgOutStream target
+    );
+
+    [DllImport("tinyvg.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe TinyvgError tinyvg_render_bitmap(
+        byte* tvgData,
+        nint tvgLength,
+        TinyvgAntiAlias antiAlias,
+        uint width,
+        uint height,
+        ref TinyvgBitmap bitmap
+    );
+
+    [DllImport("tinyvg.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void tinyvg_free_bitmap(ref TinyvgBitmap bitmap);
 }
 
 public static unsafe class LinuxNative
 {
-    [DllImport("glfw3.so", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("libglfw.so.3", CallingConvention = CallingConvention.Cdecl)]
     [SupportedOSPlatform("linux")]
     public static extern void glfwSetWindowContentScaleCallback(IntPtr window, WindowsNative.CallbackDelegate callback);
 
-    [DllImport("glfw3.so", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("libglfw.so.3", CallingConvention = CallingConvention.Cdecl)]
     [SupportedOSPlatform("linux")]
     public static extern void glfwGetWindowContentScale(IntPtr window, float* xScale, float* yScale);
+
+    [DllImport("libtinyvg.so", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe TinyvgError tinyvg_render_svg(
+        byte[] tvgData,
+        nint tvgLength,
+        ref TinyvgOutStream target
+    );
+
+    [DllImport("libtinyvg.so", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe TinyvgError tinyvg_render_bitmap(
+        byte* tvgData,
+        nint tvgLength,
+        TinyvgAntiAlias antiAlias,
+        uint width,
+        uint height,
+        ref TinyvgBitmap bitmap
+    );
+
+    [DllImport("libtinyvg.so", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void tinyvg_free_bitmap(ref TinyvgBitmap bitmap);
 }
