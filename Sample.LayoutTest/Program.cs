@@ -1,4 +1,6 @@
-﻿using Flamui;
+﻿using System.ComponentModel;
+using Flamui;
+using InterceptorNamespace;
 using Sample.LayoutTest;
 
 /*
@@ -56,48 +58,17 @@ using Sample.LayoutTest;
  * so we can determine if we should also have a similar system.
  */
 
+var windowHost = new FlamuiWindowHost();
 
-const string loremIpsum =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
 
-string input2 = "anita max wynn";
-string selectedOption = "John";
-
-string[] icons =
-[
-    "account_tree.tvg",
-    "add.tvg",
-    "archive.tvg",
-    "arrow_left_alt.tvg",
-    "arrow_right_alt.tvg",
-    "chevron_right.tvg",
-    "delete.tvg",
-    "description.tvg",
-    "expand_more.tvg",
-    "folder.tvg",
-    "forum.tvg",
-    "history.tvg",
-    "info.tvg",
-    "refresh.tvg",
-    "shelves.tvg",
-    "unarchive.tvg",
-];
-
-var app = new FlamuiWindowHost();
-
-app.CreateWindow("Sample.LayoutTest", TestComponent.Build);
-
-app.Run();
-
-ColorDefinition cc = new(43, 45, 48);
-ColorDefinition c2 = new(30, 31, 34);
-ColorDefinition c3 = new(75, 76, 79);
-
-LayoutScope GetPopup()
+windowHost.CreateWindow("Sample.LayoutTest", (ui) =>
 {
-    // using (ui.Div().ZIndex(1000).Padding(10))
-    // {
-    //     return ui.CreateLayoutScope();
-    // }
-    return default;
-}
+  
+});
+
+
+windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
+windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
+windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
+
+windowHost.Run();

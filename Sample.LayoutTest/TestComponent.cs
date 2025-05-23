@@ -5,28 +5,9 @@ namespace Sample.LayoutTest;
 
 public static class TestComponent
 {
-    public static void Build(Ui ui)
+    public static void Build(Ui ui, FlamuiWindowHost app)
     {
         ui.CascadingValues.TextColor = C.White;
-
-        // using (ui.Div().Margin(10).Color(C.Gray6).ScrollVertical().Clip().Padding(10).Rounded(10))
-        // {
-        //     foreach (var icon in icons)
-        //     {
-        //         ui.Text(icon, icon).Size(20);
-        //         using (ui.Div(icon).Width(100).Height(100))
-        //         {
-        //             ui.SvgImage($"Icons/TVG/{icon}");
-        //         }
-        //     }
-        // }
-
-        // var res = UiExtensions.Button(ui, "hi");
-        // res = UiExtensions.Button(ui, "hi");
-        // res = UiExtensions.Button(ui, "hi");
-        // res = UiExtensions.Button(ui, "hi");
-        // res = UiExtensions.Button(ui, "hi");
-        // res = UiExtensions.Button(ui, "hi");
 
         var b = true;
         // UiExtensions.Checkbox(ui, ref b);
@@ -52,7 +33,7 @@ public static class TestComponent
 
             if (ui.Button("Create window"))
             {
-                // app.CreateWindow("Anita", Build);
+                app.CreateWindow("Anita", (ui2) => Build(ui2, app));
             }
 
             ui.Button("Press me!", primary: true);

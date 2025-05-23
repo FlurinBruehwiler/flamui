@@ -51,6 +51,7 @@ namespace System.Runtime.CompilerServices
         sb.AppendLine();
         sb.AppendLine("[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendFormat("[System.Runtime.CompilerServices.InterceptsLocation({0}, \"{1}\")]", method.InterceptableLocation.Version, method.InterceptableLocation.Data);
+        sb.AppendLine("[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
         sb.AppendLine();
 
         GenerateInterceptorSignature(method, sb);
@@ -198,7 +199,7 @@ namespace System.Runtime.CompilerServices
             sb.Append("ref ");
         }
 
-        sb.AppendFormat("{0} {1}", method.ReturnTypeFullyQualifiedName, $"{method.Name}_{method.Hash}");
+        sb.AppendFormat("{0} {1}", method.ReturnTypeFullyQualifiedName, $"ジ_{method.Hash}");
 
         if (method.MethodTypeParameters.Count != 0 || method.ClassTypeParameters.Count != 0)
         {

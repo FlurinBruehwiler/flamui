@@ -56,8 +56,8 @@ public class VgAtlas
         tempBitmap = new Bitmap
         {
             Data = new Slice<byte>((byte*)Marshal.AllocHGlobal(byteCount), byteCount),
-            Height = 100,
-            Width = 100,
+            Height = 1000,
+            Width = 1000,
             BitmapFormat = BitmapFormat.RGBA
         };
     }
