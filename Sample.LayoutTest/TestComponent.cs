@@ -36,28 +36,53 @@ public static class TestComponent
                 app.CreateWindow("Anita", (ui2) => Build(ui2, app));
             }
 
-            ui.Button("Press me!", primary: true);
-
-            // var fps = (float)(1 / ui.Window.DeltaTime);
-            // ui.Text($"{fps} fps");
-
             var popup = GetPopup(ui);
 
-            using (popup.Enter())
+            if (popup.Visible)
             {
-                using (ui.Rect().Rounded(10).Color(C.Blue3).Margin(50))
+                using (popup.Body.Enter())
                 {
-                    ui.Text("My Popup Text"); //this text will be displayed within the popup :)
+                    using (ui.Rect().Rounded(10).Color(C.Blue3).Margin(50).BlockHit())
+                    {
+                        ui.Text("My Popup Text"); //this text will be displayed within the popup :)
+                    }
                 }
+            }
+
+            //with the current architecture, we need to call this after popup.Body.Enter(), this is unfortunate, I'm not sure what the best way to solve this is, I'm also not sure how pangui does it.
+            if (ui.Button("Open Popup", primary: true))
+            {
+                popup.Visible = true;
             }
         }
     }
 
-    public static LayoutScope GetPopup(Ui ui)
+    public static Popup GetPopup(Ui ui)
     {
-        using (ui.Rect().SetParent(ui.Root).AbsoluteSize(0, 0).Center())
+        var popup = new Popup
         {
-            return ui.CreateLayoutScope();
+            Visible = ref ui.Get(false) //when setting this, we would only want it to take effect in the next frame....., this avoids all the problems with the order...
+        };
+
+        if (!popup.Visible)
+            return popup;
+
+        using (var backgorund = ui.Rect().SetParent(ui.Root).AbsoluteSize(0, 0).Center().BlockHit())
+        {
+            if (backgorund.IsClicked)
+            {
+                popup.Visible = false;
+            }
+
+            popup.Body = ui.CreateLayoutScope();
+
+            return popup;
         }
     }
+}
+
+public ref struct Popup
+{
+    public ref bool Visible;
+    public LayoutScope Body;
 }

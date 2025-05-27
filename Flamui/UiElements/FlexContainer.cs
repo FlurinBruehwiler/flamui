@@ -20,6 +20,8 @@ public partial class FlexContainer : UiElementContainer
     {
         get
         {
+            Info.Interactable = true;
+
             if (Tree is null)
                 throw new Exception();
 
@@ -39,6 +41,8 @@ public partial class FlexContainer : UiElementContainer
     {
         get
         {
+            Info.Interactable = true;
+
             return true;
         }
     }
@@ -49,6 +53,8 @@ public partial class FlexContainer : UiElementContainer
     {
         get
         {
+            Info.Interactable = true;
+
             if (Tree is null)
                 throw new Exception();
 

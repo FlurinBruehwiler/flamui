@@ -50,6 +50,7 @@ public struct FlexContainerInfo
     public float ShadowSigma;
     public bool Hidden;
     public bool BlockHit;
+    public bool Interactable;
     public bool IsClipped;
     public float WidthValue;
     public SizeKind WidthKind;

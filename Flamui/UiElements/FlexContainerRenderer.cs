@@ -90,6 +90,10 @@ public static class FlexContainerRenderer
             // }
 
             renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius);
+        }else if (flexContainer.Info.Interactable)
+        {
+            //hack, pls fix
+            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, C.Transparent, 0);
         }
 
 

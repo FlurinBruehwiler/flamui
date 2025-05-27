@@ -8,6 +8,13 @@ public partial class FlexContainer
     public FlexContainer BlockHit(bool blockHit = true)
     {
         Info.BlockHit = blockHit;
+        Info.Interactable = true;
+        return this;
+    }
+
+    public FlexContainer Interactable()
+    {
+        Info.Interactable = true;
         return this;
     }
 
