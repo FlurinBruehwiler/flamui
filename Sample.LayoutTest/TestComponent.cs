@@ -41,12 +41,23 @@ public static class TestComponent
             // var fps = (float)(1 / ui.Window.DeltaTime);
             // ui.Text($"{fps} fps");
 
-            // var popup = GetPopup();
-            //
-            // using (popup.Enter())
-            // {
-            //     ui.Text("My Popup Text"); //this text will be displayed within the popup :)
-            // }
+            var popup = GetPopup(ui);
+
+            using (popup.Enter())
+            {
+                using (ui.Rect().Rounded(10).Color(C.Blue3).Margin(50))
+                {
+                    ui.Text("My Popup Text"); //this text will be displayed within the popup :)
+                }
+            }
+        }
+    }
+
+    public static LayoutScope GetPopup(Ui ui)
+    {
+        using (ui.Rect().SetParent(ui.Root).AbsoluteSize(0, 0).Center())
+        {
+            return ui.CreateLayoutScope();
         }
     }
 }

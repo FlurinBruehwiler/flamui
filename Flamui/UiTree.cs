@@ -280,6 +280,7 @@ public partial class UiTree
         Ui.PushOpenElement(RootContainer);
 
         RootContainer.OpenElement();
+        Ui.Root = RootContainer;
 
         _buildAction(Ui);
 

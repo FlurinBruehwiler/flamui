@@ -449,11 +449,74 @@ public class LayoutingTests : IDisposable
     {
         var ui = GetUi();
 
-        using (ui.Rect().Direction(Dir.Horizontal))
+        using (ui.Rect())
         {
             using (ui.Rect().Margin(10))
             {
 
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:10, Y:10, W:80, H:80
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void MarginWithMainAlignCenter()
+    {
+        var ui = GetUi();
+
+        using (ui.Rect().MainAlign(MAlign.Center))
+        {
+            using (ui.Rect().Margin(10))
+            {
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:10, Y:10, W:80, H:80
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void MarginWithMainAlignEnd()
+    {
+        var ui = GetUi();
+
+        using (ui.Rect().MainAlign(MAlign.End))
+        {
+            using (ui.Rect().Margin(10))
+            {
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:10, Y:10, W:80, H:80
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
+    public void MarginWithMainAlignSpaceBetween()
+    {
+        var ui = GetUi();
+
+        using (ui.Rect().MainAlign(MAlign.SpaceBetween))
+        {
+            using (ui.Rect().Margin(10))
+            {
             }
         }
 
@@ -1224,6 +1287,7 @@ public class LayoutingTests : IDisposable
         tree.Ui.Tree = tree;
         tree.Ui.FontManager = new FontManager();
         Ui.Arena = new Arena("test_arena", 10_000);
+        tree.Ui.Root = rootContainer;
 
         tree.Ui.ResetStuff();
 

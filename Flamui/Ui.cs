@@ -43,6 +43,7 @@ public partial class Ui
 
     private Stack<CascadingStuff> CascadingStack = [];
     public CascadingStuff CascadingValues;
+    public UiElementContainer Root;
 
     [ThreadStatic]
     public static Arena Arena;

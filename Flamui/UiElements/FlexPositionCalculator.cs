@@ -101,9 +101,9 @@ public static class FlexPositionCalculator
         if (relevantChildCount == 0)
             return new BoxSize();
 
-        //ignore the margin at the start and end (todo should ignore absolute elements)
-        totalSize -= children.First().UiElementInfo.Margin.StartOfDirection(info.Direction) +
-                     children.Last().UiElementInfo.Margin.EndOfDirection(info.Direction);
+        //i commented this out, because of a bug, I'm not sure why I added this initially...
+        // totalSize -= children.First().UiElementInfo.Margin.StartOfDirection(info.Direction) +
+        //              children.Last().UiElementInfo.Margin.EndOfDirection(info.Direction);
 
         totalSize += FlexSizeCalculator.TotalGapSize(relevantChildCount, info);
 

@@ -85,15 +85,11 @@ public static class Extensions
     ///
     /// </summary>
     /// <param name="uiElement"></param>
-    /// <param name="anchor">If the anchor is not specified, it is the direct parent</param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T Absolute<T>(this T uiElement, FlexContainer? anchor = null) where T : UiElement
+    public static T Absolute<T>(this T uiElement) where T : UiElement
     {
-        uiElement.UiElementInfo.AbsoluteInfo = (uiElement.UiElementInfo.AbsoluteInfo ?? new AbsoluteInfo()) with
-        {
-            Anchor = anchor,
-        };
+        uiElement.UiElementInfo.AbsoluteInfo = (uiElement.UiElementInfo.AbsoluteInfo ?? new AbsoluteInfo());
         return uiElement;
     }
 
@@ -169,6 +165,17 @@ public static class Extensions
     }
 
     #endregion
+
+    public static T SetParent<T>(this T uiElement, UiElementContainer parent) where T : UiElement
+    {
+        uiElement.Parent.Children.Remove(uiElement);
+
+        //not using AddChild() method, because we don't want to reset the UiElement
+        parent.Children.Add(uiElement);
+        uiElement.Parent = parent;
+
+        return uiElement;
+    }
 
     public static bool IsFlexible(this UiElement uiElement, out FlexibleChildConfig config)
     {

@@ -8,7 +8,6 @@ public struct UiElementInfo
 
 public struct AbsoluteInfo
 {
-    public FlexContainer? Anchor;
     public AbsolutePosition Position;
     public RelativeSize Size;
 }
