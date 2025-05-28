@@ -9,16 +9,13 @@ public static class CodeGeneration
     {
         var sb = new SourceBuilder();
 
-        sb.AppendLine(@"
-using System;
-using System.Diagnostics;
+        sb.AppendLine(@"#nullable disable
 
-#nullable enable
 namespace System.Runtime.CompilerServices
 {
-    [Conditional(""DEBUG"")] // not needed post-build, so can evaporate it
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    sealed file class InterceptsLocationAttribute : Attribute
+    [System.Diagnostics.Conditional(""DEBUG"")] // not needed post-build, so can evaporate it
+    [System.AttributeUsage(System.AttributeTargets.Method, AllowMultiple = true)]
+    sealed file class InterceptsLocationAttribute : System.Attribute
     {
         public InterceptsLocationAttribute(int version, string data)
         {
@@ -45,14 +42,12 @@ namespace System.Runtime.CompilerServices
             GeneratePrivateMethodAccessor(method, sb, unsafeAccessorMethodName);
         }
 
-        sb.AppendLine();
-
         sb.AppendFormat("//{0}", method.InterceptableLocation.GetDisplayLocation());
         sb.AppendLine();
         sb.AppendLine("[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]");
         sb.AppendFormat("[System.Runtime.CompilerServices.InterceptsLocation({0}, \"{1}\")]", method.InterceptableLocation.Version, method.InterceptableLocation.Data);
-        sb.AppendLine("[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
         sb.AppendLine();
+        sb.AppendLine("[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]");
 
         GenerateInterceptorSignature(method, sb);
 

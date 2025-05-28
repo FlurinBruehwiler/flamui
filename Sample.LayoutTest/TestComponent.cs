@@ -46,15 +46,13 @@ public static class TestComponent
             var popup = ui.GetPopup();
 
 
+
             if (popup.Visible)
             {
                 using (popup.Body.Enter())
                 {
                     using (
-
-                        ui.Rect().Rounded(10)
-                               .Color(C.Blue3).Margin(50)
-                               .BlockHit())
+                        ui.Rect().Rounded(10).Color(C.Blue3).Margin(51).BlockHit())
                     {
                         ui.Text("My Popup Text"); //this text will be displayed within the popup :)
                     }
