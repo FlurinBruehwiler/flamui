@@ -4,7 +4,7 @@ using Sample.LayoutTest;
 /*
  * Things that need to be done for SwissSkills:
  * - Test Multiwindow - done
-*  - Implement easy to use Modals (with a similar system as Pangui) - wip
+*  - Implement easy to use Modals (with a similar system as Pangui) - done
  * - Implement some kind of Grid
  * - Get Flamui running on a VM (where normal OpenGL doesn't work, so we need some kind of Software renderer,
  *   either DirectX, which has a fallback software renderer, or we stick to OpenGL and use a library that implements
@@ -26,7 +26,8 @@ using Sample.LayoutTest;
  * - Try out ZLinq, and see if it is a usable alternative, then maybe write an integration with Arenas, so one can materialize ZLinq queries without GC Allocation
  * - Implement [UiFragment] and remove Components - done
  * - Implement Get<some> - done
- * - Implement ChangeParent/SetParent
+ * - Implement ChangeParent/SetParent -- done
+ * - Make Scroll work again
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales

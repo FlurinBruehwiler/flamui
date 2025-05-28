@@ -23,6 +23,7 @@
         <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0" />
         <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
         <PackageReference Include="Varena" Version="1.2.0" />
+        <PackageReference Include="ZLinq" Version="1.4.9" />
     </ItemGroup>
 
     <ItemGroup>

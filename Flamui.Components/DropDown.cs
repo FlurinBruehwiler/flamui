@@ -1,5 +1,6 @@
 ﻿using Flamui.UiElements;
 using Silk.NET.Input;
+using ZLinq;
 
 namespace Flamui.Components;
 
@@ -186,7 +187,7 @@ public class DropDown<T>
 
     public void UpdateFilteredOptions(Span<T> options)
     {
-        _filteredOptions = options.ToArray().Where(x => x.ToString().Contains(_filterText, StringComparison.OrdinalIgnoreCase)).ToArray();
+        _filteredOptions = options.AsValueEnumerable().Where(x => x.ToString().Contains(_filterText, StringComparison.OrdinalIgnoreCase)).ToArray();
         if (_filteredOptions.Any())
         {
             _hoveredOption = 0;

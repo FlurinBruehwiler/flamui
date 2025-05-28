@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using Flamui.SourceGenerators.Infra;
 using Microsoft.CodeAnalysis;
@@ -17,34 +18,48 @@ public class SourceGeneratorRoot : IIncrementalGenerator
         context.RegisterPostInitializationOutput(x =>
         {
 //             x.AddSource("NoScopeGenerationAttribute.cs", @"
-// using System;
-// using System.Diagnostics;
-//
-// #nullable enable
-// namespace Flamui
-// {
-//     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-//     public class NoScopeGenerationAttribute : Attribute
-//     {
-//     }
-// }
+// //Test File
 // ");
         });
 
 
         var flamuiComponents = context.SyntaxProvider.CreateSyntaxProvider(
-            predicate: Filter, transform: Transform)
-            .Where(static m => m is not null);
+                predicate: (node, _) => node is InvocationExpressionSyntax,
+                transform: (syntaxContext, _) => syntaxContext)
+            .Select((syntaxContext, _) =>
+            {
+                var invocationExpressionSyntax = (InvocationExpressionSyntax)syntaxContext.Node;
 
-        var res = flamuiComponents.Select(static (tuple, _) =>
-        {
-            if (tuple is null)
-                return default;
+                var symbol = syntaxContext.SemanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol;
 
-            return MethodSymbolToSomething(tuple.Value.Item1, tuple.Value.Item2, tuple.Value.Item3);
-        });
+                if (symbol is not IMethodSymbol methodSymbol)
+                    return null;
 
-        context.RegisterSourceOutput(res, (ctx, method) =>
+                foreach (var attributeData in methodSymbol.GetAttributes())
+                {
+                    if (attributeData.AttributeClass?.Name == "NoScopeGenerationAttribute")
+                        return null;
+                }
+
+                if (!methodSymbol.IsStatic && methodSymbol.ReceiverType?.Name == "Ui")
+                {
+                    return new TransformResult(methodSymbol, invocationExpressionSyntax, syntaxContext);
+                }
+
+                foreach (var parameter in methodSymbol.Parameters)
+                {
+                    if (parameter.Type.Name == "Ui")
+                    {
+                        return new TransformResult(methodSymbol, invocationExpressionSyntax, syntaxContext);
+                    }
+                }
+
+                return null;
+            })
+            .Where(x => x != null)
+            .Select((result, _) => MethodSymbolToSomething(result.MethodSymbol, result.InvocationExpressionSyntax, result.GeneratorSyntaxContext));
+
+        context.RegisterSourceOutput(flamuiComponents, (ctx, method) =>
         {
             var result = CodeGeneration.Generate(method);
             ctx.AddSource($"FlamuiSourceGenerators.{method.Name.ToFileName()}_{method.Hash}.g.cs",
@@ -52,7 +67,9 @@ public class SourceGeneratorRoot : IIncrementalGenerator
         });
     }
 
-    private static MethodSignature MethodSymbolToSomething(IMethodSymbol methodSymbol, InvocationExpressionSyntax syntax, GeneratorSyntaxContext syntaxContext)
+
+    private static MethodSignature MethodSymbolToSomething(IMethodSymbol methodSymbol,
+        InvocationExpressionSyntax syntax, GeneratorSyntaxContext syntaxContext)
     {
         methodSymbol = methodSymbol.OriginalDefinition;
 
@@ -69,15 +86,16 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             return pd;
         });
 
-        var classTypeParameters = methodSymbol.ContainingType.OriginalDefinition.TypeParameters.Select(x => new TypeParameterDefinition
-        {
-            Name = x.Name,
-            HasReferenceTypeConstraint = x.HasReferenceTypeConstraint,
-            HasUnmanagedTypeConstraint = x.HasUnmanagedTypeConstraint,
-            HasValueTypeConstraint = x.HasValueTypeConstraint,
-            HasConstructorConstraint = x.HasConstructorConstraint,
-            IsOnMethod = false
-        });
+        var classTypeParameters = methodSymbol.ContainingType.OriginalDefinition.TypeParameters.Select(x =>
+            new TypeParameterDefinition
+            {
+                Name = x.Name,
+                HasReferenceTypeConstraint = x.HasReferenceTypeConstraint,
+                HasUnmanagedTypeConstraint = x.HasUnmanagedTypeConstraint,
+                HasValueTypeConstraint = x.HasValueTypeConstraint,
+                HasConstructorConstraint = x.HasConstructorConstraint,
+                IsOnMethod = false
+            });
 
         var methodTypeParameters = methodSymbol.TypeParameters.Select(x => new TypeParameterDefinition
         {
@@ -104,8 +122,10 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             ReturnsVoid = methodSymbol.ReturnsVoid,
             InterceptableLocation = interceptLocation,
             Parameters = new EquatableArray<ParameterDefinition>(parameters.ToArray()),
-            ContainingTypeFullName = methodSymbol.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            IsPrivate = methodSymbol.DeclaredAccessibility != Accessibility.Public || methodSymbol.ContainingType.DeclaredAccessibility != Accessibility.Public,
+            ContainingTypeFullName =
+                methodSymbol.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            IsPrivate = methodSymbol.DeclaredAccessibility != Accessibility.Public ||
+                        methodSymbol.ContainingType.DeclaredAccessibility != Accessibility.Public,
             ReturnsByRef = methodSymbol.ReturnsByRef,
             Hash = Math.Abs(GetDeterministicHashCode(interceptLocation.Data)),
             MethodTypeParameters = new EquatableArray<TypeParameterDefinition>(methodTypeParameters.ToArray()),
@@ -125,7 +145,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             for (int i = 0; i < str.Length; i += 2)
             {
                 hash1 = ((hash1 << 5) + hash1) ^ str[i];
-                if(i == str.Length - 1)
+                if (i == str.Length - 1)
                     break;
                 hash2 = ((hash2 << 5) + hash2) ^ str[i + 1];
             }
@@ -134,35 +154,26 @@ public class SourceGeneratorRoot : IIncrementalGenerator
         }
     }
 
-    private bool Filter(SyntaxNode syntaxNode, CancellationToken token)
+    // private static void Log(string info)
+    // {
+    //     typeof(BinaryReader).Assembly.GetExportedTypes().First(x => x.Name == "File")
+    //         .GetMethods(BindingFlags.Public | BindingFlags.Static)
+    //         .First(x => x.Name == "WriteAllText" && x.GetParameters().Length == 2)!
+    //         .Invoke(null, [$"C:\\CMI-GitHub\\flamui\\SGLogs\\{Guid.NewGuid()}.txt", info]);
+    // }
+}
+
+public class TransformResult
+{
+    public IMethodSymbol MethodSymbol;
+    public InvocationExpressionSyntax InvocationExpressionSyntax;
+    public GeneratorSyntaxContext GeneratorSyntaxContext;
+
+    public TransformResult(IMethodSymbol methodSymbol, InvocationExpressionSyntax invocationExpressionSyntax,
+        GeneratorSyntaxContext generatorSyntaxContext)
     {
-        if (syntaxNode is not InvocationExpressionSyntax)
-            return false;
-
-        return true;
-    }
-
-    private (IMethodSymbol, InvocationExpressionSyntax, GeneratorSyntaxContext)? Transform(GeneratorSyntaxContext syntaxContext, CancellationToken token)
-    {
-        var invocationExpressionSyntax = (InvocationExpressionSyntax)syntaxContext.Node;
-
-        var symbol = syntaxContext.SemanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol;
-
-        if (symbol is not IMethodSymbol methodSymbol)
-            return null;
-
-        if (methodSymbol.GetAttributes().Any(x => x.AttributeClass?.Name == "NoScopeGenerationAttribute"))
-            return null;
-
-        if(!methodSymbol.IsStatic && methodSymbol.ReceiverType?.Name == "Ui")
-            return (methodSymbol, invocationExpressionSyntax, syntaxContext);
-
-        foreach (var parameter in methodSymbol.Parameters)
-        {
-            if (parameter.Type.Name == "Ui")
-                return (methodSymbol, invocationExpressionSyntax, syntaxContext);
-        }
-
-        return null;
+        MethodSymbol = methodSymbol;
+        InvocationExpressionSyntax = invocationExpressionSyntax;
+        GeneratorSyntaxContext = generatorSyntaxContext;
     }
 }

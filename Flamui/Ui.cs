@@ -104,7 +104,10 @@ public partial class Ui
         }
 
         var ptr2 = Tree.Arena.Allocate(initialValue);
-        UnmanagedCurrentFrameDataStore.Add(CurrentScopeHash, (nint)ptr2);
+        if (!UnmanagedCurrentFrameDataStore.TryAdd(CurrentScopeHash, (nint)ptr2))
+        {
+
+        }
         return ref Unsafe.AsRef<T>(ptr2);
     }
 
@@ -132,7 +135,10 @@ public partial class Ui
         }
 
         CurrentFrameRefObjects.Add(initialValue);
-        UnmanagedCurrentFrameDataStore.Add(CurrentScopeHash, idx);
+        if (!UnmanagedCurrentFrameDataStore.TryAdd(CurrentScopeHash, idx))
+        {
+
+        }
         ref object y = ref CurrentFrameRefObjects[idx];
         _ = (T)y; //to make sure that x has the correct type
         return ref Unsafe.As<object, T>(ref y);
