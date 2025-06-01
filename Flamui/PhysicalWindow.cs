@@ -109,9 +109,9 @@ public class PhysicalWindow
         GlfwApi.GetCursorPos((WindowHandle*)GlfwWindow.Handle, out var x, out var y);
         var screenMousePos = new Vector2((float)x, (float)y);
 
-        HandleZoomAndStuff(screenMousePos - lastScreenMousePosition); //still not sure if this should be on the window, or if we can put it onto the UiTree
+        HandleZoomAndStuff(screenMousePos - lastScreenMousePosition, screenMousePos); //still not sure if this should be on the window, or if we can put it onto the UiTree
 
-        UiTree.MousePosition = screenMousePos;
+        UiTree.MousePosition = ScreenToWorld(screenMousePos);
 
         UiTree.Update(GlfwWindow.Size.X / GetCompleteScaling().X, GlfwWindow.Size.Y / GetCompleteScaling().Y);
 
@@ -157,12 +157,12 @@ public class PhysicalWindow
         _renderer.Initialize(GlfwWindow);
     }
 
-    public Vector2 Zoom = new(1, 1);
+    public float Zoom = 1f;
     public Vector2 ZoomOffset = new(0, 0);
     public Vector2 ZoomTarget;
 
     //not yet sure if this is the correct place for this....
-    private unsafe void HandleZoomAndStuff(Vector2 mouseDelta)
+    private unsafe void HandleZoomAndStuff(Vector2 mouseDelta, Vector2 mouseScreenPos)
     {
         if (UiTree.IsKeyPressed(Key.Escape))
         {
@@ -171,7 +171,7 @@ public class PhysicalWindow
 
         if (UiTree.IsMouseButtonDown(Silk.NET.Input.MouseButton.Right))
         {
-            ZoomTarget += mouseDelta * -1 / Zoom;
+            ZoomTarget += mouseDelta * (-1f / Zoom);
         }
 
         if (UiTree.IsKeyDown(Key.ControlLeft) && UiTree.ScrollDelta.Y != 0)
@@ -181,22 +181,23 @@ public class PhysicalWindow
             UserScaling = new Vector2(Math.Clamp(UserScaling.X, 0.1f, 10f), Math.Clamp(UserScaling.Y, 0.1f, 10f));
         }
 
+        var mouseWorldPos = ScreenToWorld(mouseScreenPos);
+
+        Console.WriteLine($"ScreenPos: {mouseScreenPos}, WorldPos: {mouseWorldPos}");
+
         if (UiTree.IsKeyDown(Key.AltLeft) && UiTree.ScrollDelta.Y != 0)
         {
-            GlfwApi.GetCursorPos((WindowHandle*)GlfwWindow.Handle, out var x, out var y);
-
-            var factor = (float)Math.Pow(1.1, UiTree.ScrollDelta.Y);
-            var mouseWorldPos = UiTree.MousePosition;
-            ZoomOffset = new Vector2((float)x, (float)y);
+            ZoomOffset = mouseScreenPos;
             ZoomTarget = mouseWorldPos;
-            Zoom *= new Vector2(factor, factor);
-            Zoom = new Vector2(Math.Clamp(Zoom.X, 0.01f, 100f), Math.Clamp(Zoom.Y, 0.01f, 100f));
+
+            var scale = 0.2f * UiTree.ScrollDelta.Y;
+            Zoom = Math.Clamp(MathF.Exp(MathF.Log(Zoom) + scale), 0.125f, 64f);
         }
 
         if (UiTree.IsKeyPressed(Key.R))
         {
             UserScaling = new Vector2(1.5f, 1.5f);
-            Zoom = new Vector2(1, 1);
+            Zoom = 1;
             ZoomOffset = new Vector2();
             ZoomTarget = new Vector2();
         }
@@ -215,7 +216,7 @@ public class PhysicalWindow
     public Matrix4X4<float> GetWorldToScreenMatrix()
     {
         var origin = Matrix4X4.CreateTranslation(-ZoomTarget.X, -ZoomTarget.Y, 0);
-        var scale = Matrix4X4.CreateScale(GetCompleteScaling().X * Zoom.X);
+        var scale = Matrix4X4.CreateScale(GetCompleteScaling().X * Zoom);
 
         var translate = Matrix4X4.CreateTranslation(ZoomOffset.X, ZoomOffset.Y, 0);
 

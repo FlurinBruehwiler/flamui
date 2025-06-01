@@ -28,6 +28,8 @@ using Sample.LayoutTest;
  * - Implement Get<some> - done
  * - Implement ChangeParent/SetParent -- done
  * - Make Scroll work again
+ * - Make Debug Zoom work properly
+ * - Fix InputBox hit testing
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
