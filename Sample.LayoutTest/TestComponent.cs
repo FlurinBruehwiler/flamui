@@ -50,6 +50,7 @@ public static class TestComponent
                 app.CreateWindow("Anita", (ui2) => Build(ui2, app));
             }
 
+            // --------------- custom popup -----------------
             var popup = ui.GetPopup();
 
             if (popup.Visible)
@@ -69,6 +70,7 @@ public static class TestComponent
                 popup.Visible = true;
             }
 
+            // ---------------- confirmation popup --------------------
             var confirmPopup = ui.GetConfirmationPopup("Confirm Exit", "Are you sure you want to exit?");
 
             if (ui.Button("Show Confirmation Popup"))
@@ -84,8 +86,13 @@ public static class TestComponent
             {
                 Console.WriteLine("Cancel");
             }
+
+
+            // --------------- radio button group ------------------
+            ref int selectedRadioButton = ref ui.Get(0);
+            ui.RadioButton(ref selectedRadioButton, 0);
+            ui.RadioButton(ref selectedRadioButton, 1);
+            ui.RadioButton(ref selectedRadioButton, 2);
         }
     }
-
-
 }

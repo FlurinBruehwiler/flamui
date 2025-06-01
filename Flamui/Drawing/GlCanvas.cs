@@ -259,6 +259,7 @@ public class GlCanvas
         _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset());
     }
 
+
     public void DrawRoundedRect(float x, float y, float width, float height, float radius)
     {
         DrawRect(x + radius, y, width - 2 * radius, radius);
@@ -271,10 +272,12 @@ public class GlCanvas
         DrawTriangle(new Vector2(x + width, y + height - radius), new Vector2(x + width - radius, y + height), new Vector2(x + width - radius, y + height - radius));
         DrawTriangle(new Vector2(x, y + height - radius), new Vector2(x + radius, y + height - radius), new Vector2(x + radius, y + height));
 
-        DrawFilledBezier( new Vector2(x, y + radius), new Vector2(x, y), new Vector2(x + radius, y));
-        DrawFilledBezier(new Vector2(x + width - radius, y), new Vector2(x + width, y),new Vector2(x + width, y + radius));
-        DrawFilledBezier(new Vector2(x + width, y + height - radius), new Vector2(x + width, y + height), new Vector2(x + width - radius, y + height));
-        DrawFilledBezier(new Vector2(x + radius, y + height), new Vector2(x, y + height), new Vector2(x, y + height - radius));
+
+        var bezierCurveApproximation = radius * 0.1f;
+        DrawFilledBezier(new Vector2(x, y + radius), new Vector2(x + bezierCurveApproximation, y + bezierCurveApproximation), new Vector2(x + radius, y));
+        DrawFilledBezier(new Vector2(x + width - radius, y), new Vector2(x + width - bezierCurveApproximation, y + bezierCurveApproximation),new Vector2(x + width, y + radius));
+        DrawFilledBezier(new Vector2(x + width, y + height - radius), new Vector2(x + width - bezierCurveApproximation, y + height - bezierCurveApproximation), new Vector2(x + width - radius, y + height));
+        DrawFilledBezier(new Vector2(x + radius, y + height), new Vector2(x + bezierCurveApproximation, y + height - bezierCurveApproximation), new Vector2(x, y + height - radius));
     }
 
     public void DrawTriangle(Vector2 p1, Vector2 p2, Vector2 p3)

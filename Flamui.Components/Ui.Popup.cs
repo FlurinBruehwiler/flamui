@@ -13,7 +13,7 @@ public static partial class UiExtensions
             return popup;
 
         using (var backgorund = ui.Rect().SetParent(ui.Root).AbsoluteSize(0, 0)
-                   .Center().BlockHit().Color(C.Black / 4))
+                   .Center().BlockHit().Color(C.Black / 4).Rounded(4))
         {
             if (backgorund.IsClicked && allowDismissing)
             {
