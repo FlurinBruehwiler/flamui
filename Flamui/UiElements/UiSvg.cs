@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Point = Flamui.Layouting.Point;
@@ -52,7 +53,7 @@ public class UiSvg : UiElement
     {
         if (!SSvgCache.TryGetValue(Src.GetHashCode(), out var entry))
         {
-            var bytes = File.ReadAllBytes(Src.ToString());
+            var bytes = File.ReadAllBytes(Path.Combine(Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName, Src.ToString()));
 
             var (width, height) = TinyVG.ParseHeader(bytes);
 

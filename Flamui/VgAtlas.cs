@@ -56,8 +56,8 @@ public class VgAtlas
         tempBitmap = new Bitmap
         {
             Data = new Slice<byte>((byte*)Marshal.AllocHGlobal(byteCount), byteCount),
-            Height = 1000,
-            Width = 1000,
+            Height = 100, //if you change this number, you also need to pay attention, when copying the thing to the gpu buffer
+            Width = 100,
             BitmapFormat = BitmapFormat.RGBA
         };
     }

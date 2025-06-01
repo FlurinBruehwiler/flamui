@@ -1,5 +1,6 @@
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Flamui;
 
@@ -27,6 +28,7 @@ public struct ArenaStringBuilder
             string s => s,
             float f => f.ToArenaString(),
             double d => d.ToArenaString(),
+            ArenaString a => a,
             _ => throw new Exception($"{typeof(T)} is currently not supported :(")
         };
         Add(arenaString);
@@ -34,7 +36,7 @@ public struct ArenaStringBuilder
 
     public ArenaString Build()
     {
-        return new ArenaString();
+        return new ArenaString(_backingList.AsSlice());
     }
 }
 
@@ -107,9 +109,13 @@ public static class ArenaStringExtensions
 /// Many primitive types have a .ToArenaString() methods, to convert them to an arena string.
 /// </summary>
 [InterpolatedStringHandler]
+[StructLayout(LayoutKind.Explicit)]
 public struct ArenaString : IEquatable<ArenaString> //todo implement IEnumerable
 {
-    private ArenaStringBuilder _arenaStringBuilder; // todo turn this into a union via [FieldOffset] to reduce struct size
+    [FieldOffset(0)]
+    private ArenaStringBuilder _arenaStringBuilder; //to reduce the size of the arena string, we could have a pointer to an ArenaStringBuilder here....
+
+    [FieldOffset(0)]
     private Slice<char> _slice;
 
     public int Length => _slice.Length;

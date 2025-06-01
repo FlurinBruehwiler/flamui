@@ -225,7 +225,6 @@ public partial class UiTree
     {
         var transformedPoint = originalPoint;
 
-
         hitElements.Clear();
         HoveredElements.Clear();
 

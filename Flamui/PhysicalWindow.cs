@@ -86,7 +86,7 @@ public class PhysicalWindow
         if (end.TotalMilliseconds < 10) //todo we should probably also detect the refresh rate of monitor, to know how long to sleep for (or we can try to get vsync working)s
         {
             // Console.WriteLine($"Sleeping for {16 - end.TotalMilliseconds}ms");
-            Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
+            // Thread.Sleep(TimeSpan.FromMilliseconds(16 - end.TotalMilliseconds));
         }
     }
 
@@ -111,7 +111,7 @@ public class PhysicalWindow
 
         HandleZoomAndStuff(screenMousePos - lastScreenMousePosition, screenMousePos); //still not sure if this should be on the window, or if we can put it onto the UiTree
 
-        UiTree.MousePosition = ScreenToWorld(screenMousePos);
+        UiTree.MousePosition = screenMousePos; // todo, we don't do ScreenToWorld here, because we would do it twice because of the matrix mult in the HitTest
 
         UiTree.Update(GlfwWindow.Size.X / GetCompleteScaling().X, GlfwWindow.Size.Y / GetCompleteScaling().Y);
 
@@ -183,7 +183,7 @@ public class PhysicalWindow
 
         var mouseWorldPos = ScreenToWorld(mouseScreenPos);
 
-        Console.WriteLine($"ScreenPos: {mouseScreenPos}, WorldPos: {mouseWorldPos}");
+        // Console.WriteLine($"ScreenPos: {mouseScreenPos}, WorldPos: {mouseWorldPos}");
 
         if (UiTree.IsKeyDown(Key.AltLeft) && UiTree.ScrollDelta.Y != 0)
         {

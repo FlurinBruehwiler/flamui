@@ -4,32 +4,35 @@ using Sample.LayoutTest;
 /*
  * Things that need to be done for SwissSkills:
  * - Test Multiwindow - done
-*  - Implement easy to use Modals (with a similar system as Pangui) - done
+ * - Implement easy to use Modals (with a similar system as Pangui) - done
+ * - Try out ZLinq, and see if it is a usable alternative, then maybe write an integration with Arenas, so one can materialize ZLinq queries without GC Allocation
+ *    - I added a reference to it, but I don't think we should integrate it more tightly atm, because materializing ZLinq queries onto an Arena, obviously only works for unmanaged types, which will be uncommon in usercode
+ * - Implement [UiFragment] and remove Components - done
+ * - Implement Get<some> - done
+ * - Implement ChangeParent/SetParent -- done
+ *
+ *
+ * - Make Scroll work again
+ * - Make Debug Zoom work properly   -- wip
+ * - Fix InputBox hit testing
  * - Implement some kind of Grid
+ * - Implement more prebuilt components for faster development (take inspiration from shadcn)
+ *     - DropDown - done
+ *     - Checkbox / Toggle
+ *     - Singleline Input
+ *     - Multiline Input
+ *     - Button
+ *     - Confirmation Window (Modal)
+ *     - Tab System
+ *     - Slider
+ *     - Tree
+ *     - Radio Button (Group)
  * - Get Flamui running on a VM (where normal OpenGL doesn't work, so we need some kind of Software renderer,
  *   either DirectX, which has a fallback software renderer, or we stick to OpenGL and use a library that implements
  *   OpenGL on the CPU (Mesa, for example github.com/mmozeiko/build-mesa/releases), or use a library like TinySkia or full on Skia
  * - implement error boundaries, so that when something in Build or Layout crashes, the program keeps on running until
  *   the next hot reload, this should lead to much faster iteration, which is important for swiss skills
- * - Implement more prebuilt components for faster development (take inspiration from shadcn)
- *      - DropDown - done
- *      - Checkbox / Toggle
- *      - Singleline Input
- *      - Multiline Input
- *      - Button
- *      - Confirmation Window (Modal)
- *      - Tab System
- *      - Slider
- *      - Tree
- *      - Radio Button (Group)
- *
- * - Try out ZLinq, and see if it is a usable alternative, then maybe write an integration with Arenas, so one can materialize ZLinq queries without GC Allocation
- * - Implement [UiFragment] and remove Components - done
- * - Implement Get<some> - done
- * - Implement ChangeParent/SetParent -- done
- * - Make Scroll work again
- * - Make Debug Zoom work properly
- * - Fix InputBox hit testing
+
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
