@@ -6,8 +6,7 @@ public static partial class UiExtensions
 {
     public static void RadioButton<T>(this Ui ui, ref T selectedValue, T thisValue)
     {
-        using (var div = ui.Rect().Height(16).Focusable().Width(16).Color(ColorPalette.BackgroundColor)
-                   .BorderColor(ColorPalette.BorderColor).BorderWidth(1).Rounded(8))
+        using (var div = ui.Rect().Circle(8).Focusable().Color(ColorPalette.BackgroundColor).Border(1, ColorPalette.BorderColor))
         {
             if (div.IsClicked)
             {

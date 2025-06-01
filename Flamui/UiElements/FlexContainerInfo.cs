@@ -35,7 +35,7 @@ public struct FlexContainerInfo
     public Quadrant Padding;
     public float Rotation;
     public int Gap;
-    public int Radius;
+    public float Radius;
     public RotationPivot RotationPivot;
     public int BorderWidth;
     public ScrollConfig ScrollConfigX;

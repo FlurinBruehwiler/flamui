@@ -50,6 +50,7 @@ public partial class Ui
 
     //used by source gen
     [NoScopeGeneration]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void PushScope(int hash)
     {
         if (ScopeHashStack.TryPeek(out var res))
@@ -64,12 +65,14 @@ public partial class Ui
 
     //used by source gen
     [NoScopeGeneration]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void PopScope()
     {
         ScopeHashStack.Pop();
     }
 
     [NoScopeGeneration]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IdScopeDisposable CreateIdScope(int hash)
     {
         PushScope(hash);
@@ -79,6 +82,8 @@ public partial class Ui
         };
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void PushOpenElement(UiElementContainer container)
     {
         CascadingStack.Push(CascadingValues);
@@ -86,6 +91,7 @@ public partial class Ui
         ScopeHashStack.Push(container.Id.GetHashCode());
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UiElementContainer PopElement()
     {
         CascadingValues = CascadingStack.Pop();
@@ -93,6 +99,8 @@ public partial class Ui
         return OpenElementStack.Pop();
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe ref T Get<T>(T initialValue) where T : unmanaged
     {
         if (UnmanagedLastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastPtr))
@@ -111,6 +119,8 @@ public partial class Ui
         return ref Unsafe.AsRef<T>(ptr2);
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetObj<T>() where T : class, new()
     {
         if (LastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastValue))
@@ -124,6 +134,8 @@ public partial class Ui
         return initialValue;
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T GetObjRef<T>(T initialValue) where T : class
     {
         var idx = CurrentFrameRefObjects.Count;
@@ -144,16 +156,22 @@ public partial class Ui
         return ref Unsafe.As<object, T>(ref y);
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref string GetString(string initialValue)
     {
         return ref GetObjRef(initialValue);
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetData<T>(Func<Ui, T> factoryMethod) where T : class
     {
         return GetData(factoryMethod, static (ui, f) => f(ui));
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetData<T, TContext>(TContext context, Func<Ui, TContext, T> factoryMethod) where T : class
     {
         var globalId = CurrentScopeHash;
@@ -168,6 +186,7 @@ public partial class Ui
         return value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FlexContainer Rect()
     {
         var div = GetData(static (ui) => new FlexContainer
@@ -185,6 +204,8 @@ public partial class Ui
         return div;
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UiText Text(ArenaString content)
     {
         var text = GetData(static ui => new UiText
@@ -203,6 +224,8 @@ public partial class Ui
         return text;
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UiSvg SvgImage(ArenaString src, ColorDefinition? colorDefinition = null)
     {
         var svg = GetData(static (ui) => new UiSvg
@@ -218,6 +241,8 @@ public partial class Ui
         return svg;
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UiImage Image(string src)
     {
         var image = GetData(static (ui) => new UiImage
@@ -232,6 +257,8 @@ public partial class Ui
         return image;
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ResetStuff()
     {
         CascadingStack.Clear();
@@ -243,18 +270,24 @@ public partial class Ui
         OpenElementStack.Clear();
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void EnterLayoutScope(LayoutScope layoutScope)
     {
         CascadingStack.Push(layoutScope.CascadingStuff);
         OpenElementStack.Push(layoutScope.OpenElement);
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ExitLayoutScope()
     {
         CascadingStack.Pop();
         OpenElementStack.Pop();
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public LayoutScope CreateLayoutScope()
     {
         return new LayoutScope
