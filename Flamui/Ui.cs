@@ -106,7 +106,7 @@ public partial class Ui
         var ptr2 = Tree.Arena.Allocate(initialValue);
         if (!UnmanagedCurrentFrameDataStore.TryAdd(CurrentScopeHash, (nint)ptr2))
         {
-
+            throw new Exception("aahhhhh");
         }
         return ref Unsafe.AsRef<T>(ptr2);
     }
@@ -137,7 +137,7 @@ public partial class Ui
         CurrentFrameRefObjects.Add(initialValue);
         if (!UnmanagedCurrentFrameDataStore.TryAdd(CurrentScopeHash, idx))
         {
-
+            throw new Exception("aahhhhh");
         }
         ref object y = ref CurrentFrameRefObjects[idx];
         _ = (T)y; //to make sure that x has the correct type

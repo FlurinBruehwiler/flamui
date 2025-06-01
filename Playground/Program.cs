@@ -2,8 +2,21 @@
 {
     public static class Program
     {
+        static void Print()
+        {
+            Console.WriteLine("Hi23");
+        }
+
         public static unsafe void Main()
         {
+            while (true)
+            {
+                Thread.Sleep(500);
+                Print();
+            }
+
+            return;
+
             var error = FT.FT_Init_FreeType(out var library);
             if (error != Error.Ok)
             {

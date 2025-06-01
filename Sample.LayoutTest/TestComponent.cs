@@ -56,8 +56,7 @@ public static class TestComponent
             {
                 using (popup.Body.Enter())
                 {
-                    using (
-                        ui.Rect().Rounded(10).Color(C.Blue3).Margin(51).BlockHit())
+                    using (ui.Rect().Rounded(10).Color(C.Blue3).Margin(51).BlockHit())
                     {
                         ui.Text("My Popup Text"); //this text will be displayed within the popup :)
                     }
@@ -68,6 +67,22 @@ public static class TestComponent
             if (ui.Button("Open Popup", primary: true))
             {
                 popup.Visible = true;
+            }
+
+            var confirmPopup = ui.GetConfirmationPopup("Confirm Exit", "Are you sure you want to exit?");
+
+            if (ui.Button("Show Confirmation Popup"))
+            {
+                confirmPopup.Show();
+            }
+
+            if (confirmPopup.Result == ConfirmationPopupResult.Ok)
+            {
+                Console.WriteLine("Ok");
+            }
+            else if (confirmPopup.Result == ConfirmationPopupResult.Cancel)
+            {
+                Console.WriteLine("Cancel");
             }
         }
     }

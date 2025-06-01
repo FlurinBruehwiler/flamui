@@ -2,7 +2,7 @@
 
 public static partial class UiExtensions
 {
-    public static Popup GetPopup(this Ui ui)
+    public static Popup GetPopup(this Ui ui, bool allowDismissing = true)
     {
         var popup = new Popup
         {
@@ -12,11 +12,13 @@ public static partial class UiExtensions
         if (!popup.Visible)
             return popup;
 
-        using (var backgorund = ui.Rect().SetParent(ui.Root).AbsoluteSize(0, 0).Center().BlockHit())
+        using (var backgorund = ui.Rect().SetParent(ui.Root).AbsoluteSize(0, 0)
+                   .Center().BlockHit().Color(C.Black / 4))
         {
-            if (backgorund.IsClicked)
+            if (backgorund.IsClicked && allowDismissing)
             {
                 popup.Visible = false;
+                popup.WasDismissed = true;
             }
 
             popup.Body = ui.CreateLayoutScope();
@@ -30,4 +32,5 @@ public ref struct Popup
 {
     public ref bool Visible;
     public LayoutScope Body;
+    public bool WasDismissed;
 }
