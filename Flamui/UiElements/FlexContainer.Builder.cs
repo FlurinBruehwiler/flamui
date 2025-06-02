@@ -108,8 +108,8 @@ public partial class FlexContainer
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FlexContainer Circle(float radius)
     {
-        Width(radius / 2);
-        Height(radius / 2);
+        Width(radius * 2);
+        Height(radius * 2);
         Rounded(radius);
         return this;
     }
