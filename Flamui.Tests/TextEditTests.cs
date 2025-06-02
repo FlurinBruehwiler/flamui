@@ -2,7 +2,7 @@
 using Flamui.UiElements;
 using Silk.NET.Input;
 
-namespace Flamui.Test;
+namespace Flamui.Tests;
 
 public class TextEditTests
 {

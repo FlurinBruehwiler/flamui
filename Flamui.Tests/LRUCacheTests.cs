@@ -1,4 +1,4 @@
-﻿namespace Flamui.Test;
+﻿namespace Flamui.Tests;
 
 public class LRUCacheTests
 {

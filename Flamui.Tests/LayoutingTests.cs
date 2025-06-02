@@ -1,10 +1,9 @@
-using System.Runtime.CompilerServices;
 using System.Text;
 using Flamui.Layouting;
 using Flamui.UiElements;
 using Xunit.Abstractions;
 
-namespace Flamui.Test;
+namespace Flamui.Tests;
 
 public class LayoutingTests : IDisposable
 {

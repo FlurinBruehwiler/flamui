@@ -7,7 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <RootNamespace>Flamui.Test</RootNamespace>
+        <RootNamespace>Flamui.Tests</RootNamespace>
         <InterceptorsNamespaces>$(InterceptorsNamespaces);InterceptorNamespace</InterceptorsNamespaces>
     </PropertyGroup>
 
