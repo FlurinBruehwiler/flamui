@@ -9,8 +9,47 @@ public class FontAtlasTests
         var region = atlas.ReserveRegion(new Vector2Int(128, 128));
 
         Assert.NotNull(region);
-        Assert.True(region.Value.P1.X > region.Value.P0.X);
-        Assert.True(region.Value.P1.Y > region.Value.P0.Y);
+        Assert.True(region.Value.P0 == new Vector2Int(0, 0));
+        Assert.True(region.Value.P1 == new Vector2Int(128, 128));
+    }
+
+    [Fact]
+    public void ReserveMultipleRegions()
+    {
+        var atlas = new FontAtlas();
+        var region1 = atlas.ReserveRegion(new Vector2Int(128, 128));
+        var region2 = atlas.ReserveRegion(new Vector2Int(128, 128));
+
+        Assert.NotNull(region1);
+        Assert.Equal(new Vector2Int(0, 0), region1.Value.P0);
+        Assert.Equal(new Vector2Int(128, 128), region1.Value.P1);
+
+
+        Assert.NotNull(region2);
+        Assert.Equal(new Vector2Int(128, 0), region2.Value.P0);
+        Assert.Equal(new Vector2Int(256, 128), region2.Value.P1);
+    }
+
+    [Fact]
+    public void ReserveMultipleRegion2()
+    {
+        var atlas = new FontAtlas();
+        var region1 = atlas.ReserveRegion(new Vector2Int(128, 128));
+        var region2 = atlas.ReserveRegion(new Vector2Int(128, 128));
+        var region3 = atlas.ReserveRegion(new Vector2Int(256, 256));
+
+        Assert.NotNull(region1);
+        Assert.Equal(new Vector2Int(0, 0), region1.Value.P0);
+        Assert.Equal(new Vector2Int(128, 128), region1.Value.P1);
+
+
+        Assert.NotNull(region2);
+        Assert.Equal(new Vector2Int(128, 0), region2.Value.P0);
+        Assert.Equal(new Vector2Int(256, 128), region2.Value.P1);
+
+        Assert.NotNull(region3);
+        Assert.Equal(new Vector2Int(256, 0), region3.Value.P0);
+        Assert.Equal(new Vector2Int(512, 256), region3.Value.P1);
     }
 
     [Fact]

@@ -1,4 +1,6 @@
-﻿namespace Flamui;
+﻿using System.Numerics;
+
+namespace Flamui;
 
 /*
  * This FontAtlas is inspired by the atlas from raddebugger (https://github.com/EpicGamesExt/raddebugger/blob/master/src/font_cache/font_cache.c)
@@ -32,24 +34,39 @@ public class FontAtlas
         }
     }
 
-    private void PropagateFreeSize(AtlasRegionNode node)
+    private void PropagateFreeSize(AtlasRegionNode? node)
     {
         while (node != null)
         {
-            var newFree = node.Size;
-            if (node.Children != null)
+            var maxFreeSize = new Vector2Int(0, 0);
+            if (node.Children.All(x => x == null))
+            {
+                if (!node.IsTaken)
+                {
+                    maxFreeSize = node.Size;
+                }
+            }
+            else
             {
                 foreach (var child in node.Children)
                 {
-                    if (child != null && child.IsTaken)
+                    Vector2Int childSize;
+
+                    if (child != null)
                     {
-                        newFree = new Vector2Int(0, 0); // Node is not fully free
-                        break;
+                        childSize = child.MaxFreeSize;
                     }
+                    else
+                    {
+                        childSize = node.GetChildSize();
+                    }
+
+                    maxFreeSize = new Vector2Int(Math.Max(maxFreeSize.X, childSize.X),
+                        Math.Max(maxFreeSize.Y, childSize.Y));
                 }
             }
 
-            node.MaxFreeSize = newFree;
+            node.MaxFreeSize = maxFreeSize;
             node = node.Parent;
         }
     }
@@ -139,7 +156,7 @@ public struct Region
     public override string ToString() => $"P0: {P0}, P1: {P1}";
 }
 
-public struct Vector2Int
+public struct Vector2Int : IEquatable<Vector2Int>
 {
     public Vector2Int(int x, int y)
     {
@@ -150,10 +167,29 @@ public struct Vector2Int
     public int X;
     public int Y;
 
+    public static bool operator ==(Vector2Int left, Vector2Int right) => left.X == right.X && left.Y == right.Y;
+    public static bool operator !=(Vector2Int left, Vector2Int right) => left.X != right.X || left.Y != right.Y;
+
+
     public bool CanContain(Vector2Int sizeNeeded)
     {
         return X >= sizeNeeded.X && Y >= sizeNeeded.Y;
     }
 
     public override string ToString() => $"({X}, {Y})";
+
+    public bool Equals(Vector2Int other)
+    {
+        return X == other.X && Y == other.Y;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Vector2Int other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
+    }
 }
