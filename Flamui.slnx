@@ -13,5 +13,6 @@
   <Project Path="Flamui.SourceGenerators/Flamui.SourceGenerators.csproj" />
   <Project Path="Flamui.Tests/Flamui.Tests.csproj" />
   <Project Path="Flamui/Flamui.csproj" />
+  <Project Path="ILWeavingTest\ILWeavingTest.csproj" Type="Classic C#" />
   <Project Path="Playground/Playground.csproj" />
 </Solution>
