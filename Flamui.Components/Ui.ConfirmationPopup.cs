@@ -14,7 +14,8 @@ public static partial class UiExtensions
         {
             using (popup.Body.Enter())
             {
-                using (ui.Rect().Width(200).Height(100).Color(ColorPalette.BackgroundColor).Border(2, ColorPalette.BackgroundColor).BlockHit())
+                using (ui.Rect().Width(200).Height(100).Color(ColorPalette.BackgroundColor).Border(2, ColorPalette.BackgroundColor).BlockHit()
+                           .Padding(10))
                 {
                     ui.Text(title);
                     ui.Text(subTitle);

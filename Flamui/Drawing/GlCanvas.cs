@@ -85,7 +85,7 @@ public struct GlPath
     }
 }
 
-public class GlCanvas
+public sealed class GlCanvas
 {
     public MeshBuilder MeshBuilder;
 

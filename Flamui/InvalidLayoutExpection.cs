@@ -7,7 +7,7 @@ public enum InvalidLayoutType
     FractionWithinShrink
 }
 
-public class InvalidLayoutException : Exception
+public sealed class InvalidLayoutException : Exception
 {
     public required InvalidLayoutType InvalidLayoutType;
     public required UiElement UiElement;

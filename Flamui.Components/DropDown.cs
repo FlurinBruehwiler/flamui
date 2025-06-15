@@ -4,7 +4,7 @@ using ZLinq;
 
 namespace Flamui.Components;
 
-public class DropDown<T>
+public sealed class DropDown<T>
 {
     public StartingState _startingState = StartingState.None;
     public int _hoveredOption;

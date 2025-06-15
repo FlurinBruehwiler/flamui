@@ -1,6 +1,6 @@
 ﻿namespace Flamui.Tests;
 
-public class ChunkedListTests
+public sealed class ChunkedListTests
 {
     [Fact]
     public void AddItemsAndGetIndex()

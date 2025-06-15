@@ -9,23 +9,6 @@ public static class CodeGeneration
     {
         var sb = new SourceBuilder();
 
-        sb.AppendLine(@"#nullable disable
-
-namespace System.Runtime.CompilerServices
-{
-    [System.Diagnostics.Conditional(""DEBUG"")] // not needed post-build, so can evaporate it
-    [System.AttributeUsage(System.AttributeTargets.Method, AllowMultiple = true)]
-    sealed file class InterceptsLocationAttribute : System.Attribute
-    {
-        public InterceptsLocationAttribute(int version, string data)
-        {
-            _ = version;
-            _ = data;
-        }
-    }
-}
-");
-
         sb.AppendLine("namespace InterceptorNamespace");
         sb.AppendLine("{");
         sb.AddIndent();

@@ -10,7 +10,7 @@ public interface IUiTreeHost
     void SetClipboardText(string text);
 }
 
-public class NativeUiTreeHost : IUiTreeHost
+public sealed class NativeUiTreeHost : IUiTreeHost
 {
     private readonly Glfw _glfw;
     private readonly IWindow _window;

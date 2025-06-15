@@ -46,7 +46,7 @@
 //     string NodeIdB,
 //     string ConnectionFieldIdB);
 //
-// public class NodeGraph : FlamuiComponent
+// public sealed class NodeGraph : FlamuiComponent
 // {
 //     private readonly IntPtr _dragCursor = SDL.SDL_CreateSystemCursor(SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL);
 //     private readonly IntPtr _normalCursor = SDL.SDL_CreateSystemCursor(SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW);

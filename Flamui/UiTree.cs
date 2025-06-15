@@ -92,7 +92,7 @@ The thing is, we want input isolation, input data is accessible throughout a UiT
 I'm not yet 100% sure about this.
 
  */
-public partial class UiTree
+public sealed partial class UiTree
 {
     private Action<Ui> _buildAction;
     public RenderContext _renderContext = new RenderContext();

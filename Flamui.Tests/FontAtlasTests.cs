@@ -1,6 +1,6 @@
 ﻿namespace Flamui.Tests;
 
-public class FontAtlasTests
+public sealed class FontAtlasTests
 {
     [Fact]
     public void ReserveRegion_ShouldReturnValidRegion_WhenSpaceAvailable()

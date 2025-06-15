@@ -2,7 +2,7 @@ using Flamui.UiElements;
 
 namespace Flamui.Components.DebugTools;
 
-public class DebugWindow()
+public sealed class DebugWindow()
 {
     public void Build(Ui ui)
     {

@@ -3,7 +3,7 @@ using Silk.NET.Input;
 
 namespace Flamui.UiElements;
 
-public partial class FlexContainer : UiElementContainer
+public sealed partial class FlexContainer : UiElementContainer
 {
     public bool FocusIn { get; } //todo
     public bool FocusOut { get; } //todo

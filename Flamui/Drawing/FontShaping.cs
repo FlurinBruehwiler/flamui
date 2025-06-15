@@ -2,7 +2,7 @@ using Flamui.UiElements;
 
 namespace Flamui.Drawing;
 
-public static class FontShaping
+public sealed class FontShaping
 {
     public static (float start, float end) GetPositionOfChar(ScaledFont scaledFont, ReadOnlySpan<char> singleLine, int index)
     {

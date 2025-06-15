@@ -4,7 +4,7 @@
 //
 // namespace Flamui.Components.Graph;
 //
-// public class NodeComponent : FlamuiComponent
+// public sealed class NodeComponent : FlamuiComponent
 // {
 //     private bool _dragHasHappened;
 //     private UiContainer _nodeDiv;

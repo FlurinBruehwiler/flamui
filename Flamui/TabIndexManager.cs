@@ -3,7 +3,7 @@ using Silk.NET.Input;
 
 namespace Flamui;
 
-public class TabIndexManager
+public sealed class TabIndexManager
 {
     public void HandleTab(UiTree tree)
     {

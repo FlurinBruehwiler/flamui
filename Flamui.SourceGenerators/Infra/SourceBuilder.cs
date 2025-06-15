@@ -2,7 +2,7 @@ using System.Text;
 
 namespace Flamui.SourceGenerators.Infra;
 
-public class SourceBuilder
+public sealed class SourceBuilder
 {
     private readonly StringBuilder _sb = new();
     private int _indentLevel = 0;

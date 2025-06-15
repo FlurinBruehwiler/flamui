@@ -4,7 +4,7 @@
 //
 // namespace Flamui.Components.Graph;
 //
-// public class DotGrid : UiElement
+// public sealed class DotGrid : UiElement
 // {
 //     private static readonly SKPaint DotPaint = new()
 //     {

@@ -4,7 +4,7 @@ using Silk.NET.Input;
 
 namespace Flamui.Tests;
 
-public class TextEditTests
+public sealed class TextEditTests
 {
     // |      the cursor
     // </>    the start of the selected text

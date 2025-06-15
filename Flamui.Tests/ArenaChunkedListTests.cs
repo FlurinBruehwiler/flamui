@@ -1,6 +1,6 @@
 ﻿namespace Flamui.Tests;
 
-public class ArenaChunkedListTests
+public sealed class ArenaChunkedListTests
 {
     [Fact]
     public void AddItemsAndIterate()

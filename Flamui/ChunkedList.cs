@@ -7,7 +7,7 @@
 /// To have constant time lookup, we don't use a linked list, but a list of Chunks instead,
 /// the item arrays themselves are still stable.
 /// </summary>
-public class ChunkedList<T> where T : class
+public sealed class ChunkedList<T> where T : class
 {
     private readonly int _chunkSize;
 

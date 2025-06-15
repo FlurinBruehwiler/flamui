@@ -92,7 +92,7 @@ public static class TestComponent
             ref int selectedRadioButton = ref ui.Get(0);
             ui.RadioButton(ref selectedRadioButton, 0);
             ui.RadioButton(ref selectedRadioButton, 1);
-            ui.RadioButton(ref selectedRadioButton, 2);
+            // ui.RadioButton(ref selectedRadioButton, 2);
         }
     }
 }

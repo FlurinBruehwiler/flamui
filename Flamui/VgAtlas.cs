@@ -15,7 +15,7 @@ public struct AtlasEntry
 
 public record struct AtlasEntryKey(int SvgHash, uint Width, uint Height);
 
-public class VgAtlas
+public sealed class VgAtlas
 {
     public LRUCache<AtlasEntryKey, AtlasEntry> Table;
     public GpuTexture GpuTexture;

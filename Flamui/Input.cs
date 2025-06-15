@@ -9,15 +9,15 @@ namespace Flamui;
 
 /*
 
-The question is, what is this class????
+The question is, what is this sealed class????
 
 Should it be the global abstraction over input or the per UiTree abstraction, I'm inclined to say the latter.
 
 From an architectural standpoint we get global input callbacks form GLFW,
 we then need to decide to what UiTrees we want to send this input.
 
-Ok, so lets say, that this class here just is here for distributing glfw events to UiTrees.
-For testing, we have a testing driver, that sends events to a UiTree, i.e. this class will not be used for testing.
+Ok, so lets say, that this sealed class here just is here for distributing glfw events to UiTrees.
+For testing, we have a testing driver, that sends events to a UiTree, i.e. this sealed class will not be used for testing.
 
 How do we decide where to send the keyboard input event? Is there some kind of focus system, like if one UiTree is focus,
 the KeyBoard events only get send to that one (this is how html does it)
@@ -132,7 +132,7 @@ public static class Input
     }
 }
 
-public class MouseButtonState
+public sealed class MouseButtonState
 {
     /// <summary>
     /// Check if a mouse button has been pressed once

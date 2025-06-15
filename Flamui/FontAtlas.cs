@@ -9,7 +9,7 @@ namespace Flamui;
  * You have to ability to reserve a region of a certain size, and then can later release it again.
  */
 
-public class FontAtlas
+public sealed class FontAtlas
 {
     public AtlasRegionNode Root = new()
     {
@@ -133,7 +133,7 @@ public class FontAtlas
     }
 }
 
-public class AtlasRegionNode
+public sealed class AtlasRegionNode
 {
     public AtlasRegionNode? Parent;
     public AtlasRegionNode?[] Children = new AtlasRegionNode?[4];

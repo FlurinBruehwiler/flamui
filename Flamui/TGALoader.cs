@@ -72,7 +72,7 @@ public struct Bitmap
     }
 }
 
-public class TGALoader
+public sealed class TGALoader
 {
     public static unsafe Bitmap TgaToBitmap(Span<byte> tgaFile)
     {

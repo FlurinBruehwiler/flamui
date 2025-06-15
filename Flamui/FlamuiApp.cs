@@ -4,7 +4,7 @@ using  Silk.NET.Windowing;
 
 namespace Flamui;
 
-public class FlamuiWindowOptions
+public sealed class FlamuiWindowOptions
 {
     public int Width { get; set; } = 900;
     public int Height { get; set; } = 500;
@@ -14,7 +14,7 @@ public class FlamuiWindowOptions
 
 public record SizeConstraint(int Width, int Height);
 
-public class FlamuiWindowHost
+public sealed class FlamuiWindowHost
 {
     private List<PhysicalWindow> _windows;
 

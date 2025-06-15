@@ -47,7 +47,7 @@ public struct ScaledFont
     }
 }
 
-public class Font
+public sealed class Font
 {
     public required string Name;
     public Slice<byte> Data;
@@ -95,7 +95,7 @@ public record struct GlyphCacheHash
     public float ResolutionMultiplier;
 }
 
-public class FontAtlas
+public sealed class FontAtlas
 {
     public required ScaledFont Font;
     public required uint AtlasWidth;
@@ -190,7 +190,7 @@ public struct AtlasGlyphInfo
     // public required GlyphBoundingBox GlyphBoundingBox;
 }
 
-public class FontLoader
+public sealed class FontLoader
 {
     public static unsafe Font LoadFont(string name)
     {

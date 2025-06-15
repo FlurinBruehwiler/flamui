@@ -1,6 +1,6 @@
 namespace Flamui.SourceGenerators.Tests;
 
-public class BasicTest
+public sealed class BasicTest
 {
     [Fact]
     public Task InstanceMethod()
@@ -11,7 +11,7 @@ using Flamui;
 
 namespace Sample.ComponentGallery;
 
-public class Test
+public sealed class Test
 {
     public static void Build(Ui ui)
     {
@@ -36,7 +36,7 @@ using Flamui;
 
 namespace Sample.ComponentGallery;
 
-public class Test
+public sealed class Test
 {
     public static void Build(Ui ui)
     {
@@ -59,7 +59,7 @@ using Flamui;
 
 namespace Sample.ComponentGallery;
 
-public class Test
+public sealed class Test
 {
     public static void Build(Ui ui)
     {
@@ -217,7 +217,7 @@ public static class Test
     }
 }
 
-public class GenericType<T>
+public sealed class GenericType<T>
 {
     public void Build(Ui ui)
     {
@@ -248,7 +248,7 @@ public static class Test
     }
 }
 
-public class GenericType<T>
+public sealed class GenericType<T>
 {
     public void OuterBuild(Ui ui)
     {

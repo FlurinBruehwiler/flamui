@@ -12,7 +12,7 @@ namespace Flamui;
 
 //this represents the actual physical window....
 
-public class PhysicalWindow
+public sealed class PhysicalWindow
 {
     private PhysicalWindow() { }
 

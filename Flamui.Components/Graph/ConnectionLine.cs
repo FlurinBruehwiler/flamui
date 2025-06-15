@@ -6,7 +6,7 @@
 //
 // public record struct PortPosition(Vector2 Pos, PortDirection Direction);
 //
-// public class ConnectionLine : UiElement
+// public sealed class ConnectionLine : UiElement
 // {
 //     private Vector2? _end;
 //     private ConnectionTarget _a;

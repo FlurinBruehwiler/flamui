@@ -11,15 +11,29 @@ namespace Flamui.SourceGenerators;
 // https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md
 
 [Generator]
-public class SourceGeneratorRoot : IIncrementalGenerator
+public sealed class SourceGeneratorRoot : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(x =>
         {
-//             x.AddSource("NoScopeGenerationAttribute.cs", @"
-// //Test File
-// ");
+            x.AddSource("InterceptsLocationAttribute.generated.cs", @"
+#nullable disable
+
+namespace System.Runtime.CompilerServices
+{
+    [System.Diagnostics.Conditional(""DEBUG"")] // not needed post-build, so can evaporate it
+    [System.AttributeUsage(System.AttributeTargets.Method, AllowMultiple = true)]
+    internal sealed class InterceptsLocationAttribute : System.Attribute
+    {
+        public InterceptsLocationAttribute(int version, string data)
+        {
+            _ = version;
+            _ = data;
+        }
+    }
+}
+");
         });
 
 
@@ -130,7 +144,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
             Hash = Math.Abs(GetDeterministicHashCode(interceptLocation.Data)),
             MethodTypeParameters = new EquatableArray<TypeParameterDefinition>(methodTypeParameters.ToArray()),
             ClassTypeParameters = new EquatableArray<TypeParameterDefinition>(classTypeParameters.ToArray()),
-        };
+         };
 
         return methodSignature;
     }
@@ -163,7 +177,7 @@ public class SourceGeneratorRoot : IIncrementalGenerator
     // }
 }
 
-public class TransformResult
+public sealed class TransformResult
 {
     public IMethodSymbol MethodSymbol;
     public InvocationExpressionSyntax InvocationExpressionSyntax;

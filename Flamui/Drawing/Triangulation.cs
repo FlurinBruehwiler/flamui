@@ -2,7 +2,7 @@
 
 namespace Flamui.Drawing;
 
-public class Triangulation
+public sealed class Triangulation
 {
     // public static bool Triangulate(Span<Segment> segments, out Slice<int> triangles, out string errorMessage)
     // {

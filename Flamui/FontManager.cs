@@ -5,7 +5,7 @@ namespace Flamui;
 //font, a ttf file i guess
 //a font atlas, which is basically a font + size
 
-public class FontManager
+public sealed class FontManager
 {
     public Dictionary<string, Font> fontCache = [];
 

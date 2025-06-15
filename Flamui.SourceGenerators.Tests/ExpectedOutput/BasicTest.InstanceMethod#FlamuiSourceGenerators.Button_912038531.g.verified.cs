@@ -8,7 +8,7 @@ namespace System.Runtime.CompilerServices
 {
     [Conditional("DEBUG")] // not needed post-build, so can evaporate it
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    sealed file class InterceptsLocationAttribute : Attribute
+    sealed file sealed class InterceptsLocationAttribute : Attribute
     {
         public InterceptsLocationAttribute(int version, string data)
         {

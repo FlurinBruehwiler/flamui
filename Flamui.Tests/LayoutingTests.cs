@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Flamui.Tests;
 
-public class LayoutingTests : IDisposable
+public sealed class LayoutingTests : IDisposable
 {
     private readonly ITestOutputHelper _console;
 

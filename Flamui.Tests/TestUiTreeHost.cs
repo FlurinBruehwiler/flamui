@@ -1,6 +1,6 @@
 ﻿namespace Flamui.Tests;
 
-public class TestUiTreeHost : IUiTreeHost
+public sealed class TestUiTreeHost : IUiTreeHost
 {
     private string _clipboardText;
 

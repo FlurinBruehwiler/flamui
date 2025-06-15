@@ -1,6 +1,6 @@
 ﻿namespace Flamui.Components.Graph;
 
-public class NodeGraphOptions
+public sealed class NodeGraphOptions
 {
     
 }

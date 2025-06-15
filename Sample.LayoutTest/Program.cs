@@ -39,7 +39,7 @@ using Sample.LayoutTest;
  * - Switch to different font Rasterizer!! Currently, text looks awful at small scales
  * - Implement the Idea of a LayoutBreak which is really important for slightly more complex layouts
  * - Finish Text Box editing (text selection, working multiline)
- * - Rethink Components (do we really want class based components, or do we go into the direction that pangui goes??
+ * - Rethink Components (do we really want sealed class based components, or do we go into the direction that pangui goes??
  *     Idea: SourceGenerator that generates interceptors for functions with [UiFragment] on it, then we can generate a unique ID even for method calls
  *     State is preserved via ui.GetFloat(1), ui.GetInt(42), and you should be able to do components via ui.Get<DropDown>().Build(possibleValues, ref selectedValue)
  *     We would also generate an interceptor for .Build() method on a "component", but importantly there doesn't exist the concept of a component on a framework level.
@@ -65,6 +65,7 @@ using Sample.LayoutTest;
  */
 
 var windowHost = new FlamuiWindowHost();
+
 
 windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
 

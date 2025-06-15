@@ -3,7 +3,7 @@ using Varena;
 
 namespace Flamui;
 
-public class Arena : IDisposable
+public sealed class Arena : IDisposable
 {
     public VirtualBuffer VirtualBuffer;
 

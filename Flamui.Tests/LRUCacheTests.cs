@@ -1,6 +1,6 @@
 ﻿namespace Flamui.Tests;
 
-public class LRUCacheTests
+public sealed class LRUCacheTests
 {
     [Fact]
     public void BasicTest()

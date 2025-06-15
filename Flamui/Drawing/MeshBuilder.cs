@@ -114,7 +114,7 @@ public static class Extensions
     }
 }
 
-public class MeshBuilder
+public sealed class MeshBuilder
 {
     private ArenaChunkedList<Vertex> _vertices;
     private ArenaChunkedList<uint> _indices;

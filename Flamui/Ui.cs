@@ -21,7 +21,7 @@ public struct IdScopeDisposable : IDisposable
     }
 }
 
-public partial class Ui
+public sealed partial class Ui
 {
     public Dictionary<int, object> LastFrameDataStore = [];
     public Dictionary<int, object> CurrentFrameDataStore = [];

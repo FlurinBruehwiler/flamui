@@ -8,7 +8,7 @@ namespace Flamui;
 /// Linked list of chunks of size "chunkSize" allocated on an arena
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public unsafe class ArenaChunkedList<T> : IEnumerable<T> where T : unmanaged
+public unsafe sealed class ArenaChunkedList<T> : IEnumerable<T> where T : unmanaged
 {
     private readonly Arena _arena;
     private readonly int _chunkSize;

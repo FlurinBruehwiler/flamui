@@ -24,7 +24,7 @@
 // };
 //
 //
-// public class Camera : UiElementContainer
+// public sealed class Camera : UiElementContainer
 // {
 //     public Camera Info(CameraInfo cameraInfo)
 //     {

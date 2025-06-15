@@ -4,7 +4,7 @@ using EnumMAlign = Flamui.MAlign;
 
 namespace Flamui.UiElements;
 
-public partial class FlexContainer
+public sealed partial class FlexContainer
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FlexContainer BlockHit(bool blockHit = true)

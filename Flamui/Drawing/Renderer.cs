@@ -22,13 +22,13 @@ public enum Shader
     main_vertex,
 }
 
-public class GpuTexture
+public sealed class GpuTexture
 {
     public required GL Gl;
     public required uint TextureId;
 }
 
-public class Renderer
+public sealed class Renderer
 {
     public GL Gl;
     public IWindow Window;

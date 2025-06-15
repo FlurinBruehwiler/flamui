@@ -38,7 +38,7 @@ public struct ScrollInputInfo
     }
 }
 
-public partial class FlexContainer
+public sealed partial class FlexContainer
 {
 
     public float ScrollPosY;

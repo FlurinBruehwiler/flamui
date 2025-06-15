@@ -19,7 +19,7 @@ Think again what exactly a RenderContext is....
 
  */
 
-public class RenderContext
+public sealed class RenderContext
 {
     public Stack<int> ZIndexes = new();
 

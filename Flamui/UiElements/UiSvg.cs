@@ -7,7 +7,7 @@ using Point = Flamui.Layouting.Point;
 namespace Flamui.UiElements;
 
 //Todo, we should probably offload svg loading onto a separate thread, or do them async etc., or maybe preload them
-public class UiSvg : UiElement
+public sealed class UiSvg : UiElement
 {
     public ArenaString Src { get; set; } = default;
     public ColorDefinition? ColorDefinition { get; set; }

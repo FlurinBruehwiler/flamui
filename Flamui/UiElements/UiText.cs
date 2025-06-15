@@ -32,7 +32,7 @@ public struct TextPosition
     public int Character;
 }
 
-public class UiText : UiElement
+public sealed class UiText : UiElement
 {
     public UiTextInfo UiTextInfo;
     public TextLayoutInfo TextLayoutInfo;

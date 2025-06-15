@@ -1,7 +1,7 @@
 ﻿using Flamui.Layouting;
 namespace Flamui.UiElements;
 
-public class UiImage : UiElement
+public sealed class UiImage : UiElement
 {
     public string Src { get; set; } = null!;
 

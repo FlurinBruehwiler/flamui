@@ -3,7 +3,7 @@
 /*
  * We could create one giant dictionary, with ID => UiElement, but the ID wouldn't just consist of the location in the source code, but also combined with the parent ID.
  */
-public static partial class UiExtensions
+public static partial  class UiExtensions
 {
     public static bool TestFunc(Ui ui)
     {

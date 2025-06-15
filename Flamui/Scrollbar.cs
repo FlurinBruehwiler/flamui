@@ -2,7 +2,7 @@ using Silk.NET.Input;
 
 namespace Flamui;
 
-public class ScrollbarSettings
+public sealed class ScrollbarSettings
 {
     public static ScrollbarSettings Default = new()
     {
@@ -25,7 +25,7 @@ public class ScrollbarSettings
     public int Padding;
 }
 
-public class Scrollbar(ScrollService scrollService, ScrollbarSettings settings)
+public sealed class Scrollbar(ScrollService scrollService, ScrollbarSettings settings)
 {
     private bool _isDragging;
 

@@ -6,7 +6,7 @@ namespace Flamui;
 
 //This is kind of the input abstraction on a per uiTree basis
 
-public partial class UiTree
+public sealed partial class UiTree
 {
     private void CleanupInputAfterFrame()
     {

@@ -2,8 +2,8 @@
 
 namespace Flamui;
 
-public class LRUCache<TKey, TValue> where TKey : notnull {
-    public class LRUCacheEntry
+public sealed class LRUCache<TKey, TValue> where TKey : notnull {
+    public sealed class LRUCacheEntry
     {
         public TKey Key;
         public TValue Value;
