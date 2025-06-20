@@ -85,8 +85,6 @@ namespace ILWeavingTest.Fody
                 return;
             }
 
-            int uniqueNumbers = 0;
-
             foreach (var type in ModuleDefinition.Types)
             {
                 foreach (var method in type.Methods)
