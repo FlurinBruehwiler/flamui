@@ -8,9 +8,12 @@ namespace Sample.LayoutTest
 {
     internal sealed class Test
     {
-        public static void Foo()
+        public void Foo(int i, int j)
         {
-
+            var x = new Test();
+            int a = 1;
+            int b = 2;
+            x.Foo(b, a);
         }
     }
 }

@@ -13,6 +13,8 @@ namespace ILWeavingTest.Fody
     {
         public override void Execute()
         {
+            File.WriteAllText($"C:\\Users\\bruhw\\Desktop\\{new Random().Next()}.txt", "content");
+
             WriteMessage($"Fody, {ModuleDefinition.Name}:", MessageImportance.High);
 
             WriteMessage("Found the following Ui methods:", MessageImportance.High);
@@ -75,16 +77,13 @@ namespace ILWeavingTest.Fody
 
             WriteMessage($"Found {uiMethods.Count} UiMethods", MessageImportance.High);
 
-            var pushScopeMethod = uiType?.Methods.FirstOrDefault(x => x.Name == "PushScope");
-            var popScopeMethod = uiType?.Methods.FirstOrDefault(x => x.Name == "PopScope");
+            var pushScopeMethod = ModuleDefinition.ImportReference(uiType?.Methods.FirstOrDefault(x => x.Name == "PushScope"));
+            var popScopeMethod = ModuleDefinition.ImportReference(uiType?.Methods.FirstOrDefault(x => x.Name == "PopScope"));
             if (pushScopeMethod == null || popScopeMethod == null)
             {
                 WriteError("Can't find PushScope or PopScope");
                 return;
             }
-
-            ModuleDefinition.ImportReference(pushScopeMethod);
-            ModuleDefinition.ImportReference(popScopeMethod);
 
             int uniqueNumbers = 0;
 
@@ -95,23 +94,24 @@ namespace ILWeavingTest.Fody
                     if (!method.HasBody)
                         continue;
 
-                    List<Instruction> callSitesToPatch = null;
+                    List<(Instruction, MethodDefinition)> callSitesToPatch = null;
 
                     for (var i = 0; i < method.Body.Instructions.Count; i++)
                     {
                         var targetCall = method.Body.Instructions[i];
 
-                        if (targetCall.OpCode == OpCodes.Call || targetCall.OpCode == OpCodes.Callvirt)
+                        if ((targetCall.OpCode == OpCodes.Call || targetCall.OpCode == OpCodes.Callvirt)
+                            && targetCall.Operand is MethodReference calledMethod)
                         {
-                            if (targetCall.Operand is MethodReference calledMethod
-                                && uiMethods.Contains(calledMethod.Resolve()))
+                            var targetMethod = calledMethod.Resolve();
+                            if (uiMethods.Contains(targetMethod))
                             {
                                 WriteMessage($"Found callsite! (Targeting method: {calledMethod.Name}", MessageImportance.High);
 
                                 if (callSitesToPatch == null)
-                                    callSitesToPatch = new List<Instruction>();
+                                    callSitesToPatch = new List<(Instruction, MethodDefinition)>();
 
-                                callSitesToPatch.Add(targetCall);
+                                callSitesToPatch.Add((targetCall, targetMethod));
                             }
                         }
                     }
@@ -120,74 +120,71 @@ namespace ILWeavingTest.Fody
                     {
                         var il = method.Body.GetILProcessor();
 
-                        foreach (var targetCall in callSitesToPatch)
+                        foreach (var (targetCall, targetMethod) in callSitesToPatch)
                         {
-                             VariableDefinition uiVariableDefinition = null;
-                                VariableDefinition[] tempLocalVariables =
-                                    new VariableDefinition[method.IsStatic ? method.Parameters
-                                        .Count : method.Parameters.Count + 1]; //todo, can we get rid of this array alloc?
+                            VariableDefinition uiVariableDefinition = null;
+                            List<VariableDefinition> tempLocalVariables = new List<VariableDefinition>(targetMethod.IsStatic ? targetMethod.Parameters.Count : targetMethod.Parameters.Count + 1);
 
-                                //Store the original arguments as temp variables
-                                for (var p = 0; p < method.Parameters.Count; p++)
+                            // WriteMessage($"Has {method.Parameters.Count} params", MessageImportance.High);
+
+                            //Store the original arguments as temp variables
+                            for (var p = targetMethod.Parameters.Count - 1; p >= 0; p--)
+                            {
+                                var parameter = targetMethod.Parameters[p];
+                                var tempLocal = new VariableDefinition(ModuleDefinition.ImportReference(parameter.ParameterType));
+                                method.Body.Variables.Add(tempLocal);
+                                tempLocalVariables.Add(tempLocal);
+                                il.InsertBefore(targetCall, il.Create(OpCodes.Stloc, tempLocal));
+
+                                if (parameter.ParameterType.Name == "Ui")
                                 {
-                                    var parameter = method.Parameters[p];
-                                    var tempLocal =
-                                        new VariableDefinition(parameter
-                                            .ParameterType); //todo can we get rid of this allocation?
-                                    method.Body.Variables.Add(tempLocal);
-                                    tempLocalVariables[p] = tempLocal;
-                                    il.InsertBefore(targetCall, il.Create(OpCodes.Stloc, tempLocal));
-
-                                    if (parameter.ParameterType.Name == "Ui")
-                                    {
-                                        uiVariableDefinition = tempLocal;
-                                    }
+                                    uiVariableDefinition = tempLocal;
                                 }
+                            }
 
-                                if (!method.IsStatic)
+                            if (!targetMethod.IsStatic)
+                            {
+                                var tempLocal = new VariableDefinition(ModuleDefinition.ImportReference(targetMethod.DeclaringType));
+                                method.Body.Variables.Add(tempLocal);
+                                tempLocalVariables.Add(tempLocal);
+                                il.InsertBefore(targetCall, il.Create(OpCodes.Stloc, tempLocal));
+
+                                if (targetMethod.DeclaringType.Name == "Ui")
                                 {
-                                    var tempLocal = new VariableDefinition(method.DeclaringType);
-                                    method.Body.Variables.Add(tempLocal);
-                                    tempLocalVariables[tempLocalVariables.Length - 1] = tempLocal;
-                                    il.InsertBefore(targetCall, il.Create(OpCodes.Stloc, tempLocal));
-
-                                    if (method.DeclaringType.Name == "Ui")
-                                    {
-                                        uiVariableDefinition = tempLocal;
-                                    }
+                                    uiVariableDefinition = tempLocal;
                                 }
+                            }
 
-                                if (uiVariableDefinition == null)
-                                {
-                                    WriteError("Cound not find ui parameter");
-                                    return;
-                                }
+                            if (uiVariableDefinition == null)
+                            {
+                                WriteError("Cound not find ui parameter");
+                                return;
+                            }
 
-                                //Load the ui variable onto the stack
-                                il.InsertBefore(targetCall, il.Create(OpCodes.Ldloc, uiVariableDefinition));
+                            //Load the ui variable onto the stack
+                            il.InsertBefore(targetCall, il.Create(OpCodes.Ldloc, uiVariableDefinition));
 
-                                //Load the hash onto the stack
-                                il.InsertBefore(targetCall, il.Create(OpCodes.Ldc_I4, ++uniqueNumbers));
+                            //Load the hash onto the stack
+                            il.InsertBefore(targetCall, il.Create(OpCodes.Ldc_I4, targetCall.GetHashCode()));
 
-                                //call the PushScope function
-                                il.InsertBefore(targetCall, il.Create(OpCodes.Callvirt, pushScopeMethod));
+                            //call the PushScope function
+                            il.InsertBefore(targetCall, il.Create(OpCodes.Callvirt, pushScopeMethod));
 
-                                //Restore the original arguments from temp variables
-                                for (var p = 0; p < tempLocalVariables.Length; p++)
-                                {
-                                    var tempVariable = tempLocalVariables[p];
-                                    il.InsertBefore(targetCall, il.Create(OpCodes.Ldloc, tempVariable));
-                                }
+                            //Restore the original arguments from temp variables
+                            for (var i = tempLocalVariables.Count - 1; i >= 0; i--)
+                            {
+                                var tempVariable = tempLocalVariables[i];
+                                il.InsertBefore(targetCall, il.Create(OpCodes.Ldloc, tempVariable));
+                            }
 
-                                //call the actual method
+                            //call the actual method
 
-                                //Load the ui variable onto the stack
-                                var loadIns = il.Create(OpCodes.Ldarg_0);
-                                il.InsertAfter(targetCall,
-                                    loadIns); //assuming the ui variable is the first parameter of the function
+                            //Load the ui variable onto the stack
+                            var loadIns = il.Create(OpCodes.Ldloc, uiVariableDefinition);
+                            il.InsertAfter(targetCall, loadIns);
 
-                                //call the PopScope function
-                                il.InsertAfter(loadIns, il.Create(OpCodes.Callvirt, popScopeMethod));
+                            //call the PopScope function
+                            il.InsertAfter(loadIns, il.Create(OpCodes.Callvirt, popScopeMethod));
                         }
                     }
                 }
