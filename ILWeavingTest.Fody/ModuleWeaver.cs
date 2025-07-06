@@ -13,7 +13,7 @@ namespace ILWeavingTest.Fody
     {
         public override void Execute()
         {
-            File.WriteAllText($"C:\\Users\\bruhw\\Desktop\\{new Random().Next()}.txt", "content");
+            // File.WriteAllText($"C:\\Users\\bruhw\\Desktop\\{new Random().Next()}.txt", "content");
 
             WriteMessage($"Fody, {ModuleDefinition.Name}:", MessageImportance.High);
 

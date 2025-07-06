@@ -8,7 +8,6 @@
   <Folder Name="/Samples/">
     <Project Path="Sample.LayoutTest/Sample.LayoutTest.csproj" />
   </Folder>
-  <Project Path="CustomHotReload\CustomHotReload.csproj" Type="Classic C#" />
   <Project Path="Flamui.Components/Flamui.Components.csproj" />
   <Project Path="Flamui.SourceGenerators.Tests/Flamui.SourceGenerators.Tests.csproj" />
   <Project Path="Flamui.SourceGenerators/Flamui.SourceGenerators.csproj" />
