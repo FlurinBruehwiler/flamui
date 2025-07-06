@@ -3,22 +3,47 @@ using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using Flamui;
 using HarmonyLib;
-[assembly: System.Reflection.Metadata.MetadataUpdateHandler(typeof(HotReloadManager))]
+[assembly: MetadataUpdateHandler(typeof(HotReloadManager))]
 
 namespace Flamui;
 
 public static class HotReloadManager
 {
+    private static bool IsFirstTime = true;
+
+    //called second
     public static void UpdateApplication(Type[]? updatedTypes)
     {
         Console.WriteLine("ClearCache");
     }
 
+    //called first
     public static void ClearCache(Type[]? updatedTypes)
     {
+        if (IsFirstTime)
+        {
+            //On startup we need to scan all Types for UiMethods
+            IsFirstTime = false;
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.FullName?.Contains("Flamui") ?? false)
+                {
+                    foreach (var type in assembly.GetTypes())
+                    {
+                        ScanTypeForUiMethod(type);
+                    }
+                }
+            }
+        }
+
         Console.WriteLine("UpdateApplication");
         if (updatedTypes == null)
             return;
+
+        foreach (var updatedType in updatedTypes)
+        {
+            ClearMethodsFromType(updatedType); //remove old methods, in case they will be removed...
+        }
 
         Console.WriteLine($"Updated {updatedTypes.Length} Types");
 
@@ -27,27 +52,98 @@ public static class HotReloadManager
 
     public static void Patch(Type[] updatedTypes)
     {
-        var harmony = new Harmony("flamui");
-        foreach (var updatedType in updatedTypes)
+        Console.WriteLine("Started patch");
+
+        try
         {
-            foreach (var methodInfo in updatedType.GetMethods(BindingFlags.Public |
-                                                              BindingFlags.NonPublic |
-                                                              BindingFlags.Instance |
-                                                              BindingFlags.Static |
-                                                              BindingFlags.DeclaredOnly))
+            foreach (var updatedType in updatedTypes)
             {
-                Console.WriteLine($"Patching Method {methodInfo.Name}");
-                harmony.Patch(methodInfo, transpiler: new HarmonyMethod(Transpiler));
+                ScanTypeForUiMethod(updatedType);
             }
+
+            var harmony = new Harmony("flamui");
+            foreach (var updatedType in updatedTypes)
+            {
+                foreach (var methodInfo in updatedType.GetMethods(BindingFlags.Public |
+                                                                  BindingFlags.NonPublic |
+                                                                  BindingFlags.Instance |
+                                                                  BindingFlags.Static |
+                                                                  BindingFlags.DeclaredOnly))
+                {
+                    Console.WriteLine($"Patching Method: {methodInfo.Name}");
+                    harmony.Unpatch(methodInfo, HarmonyPatchType.All, "flamui");
+                    harmony.Patch(methodInfo, transpiler: new HarmonyMethod(Transpiler));
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        Console.WriteLine("Reaching end of Patch");
+    }
+
+    public static HashSet<MethodInfo> UiMethods = [];
+
+    private static void ClearMethodsFromType(Type type)
+    {
+        List<MethodInfo> methodsToRemove = [];
+
+        foreach (var methodInfo in UiMethods)
+        {
+            if (methodInfo.DeclaringType.FullName == type.FullName)
+            {
+                methodsToRemove.Add(methodInfo);
+            }
+        }
+
+        foreach (var methodInfo in methodsToRemove)
+        {
+            UiMethods.Remove(methodInfo);
         }
     }
 
-    //todo we need to globally keep track of all ui methods
-    public static HashSet<MethodInfo> UiMethods = [];
+    private static void ScanTypeForUiMethod(Type type)
+    {
+        foreach (var methodInfo in type.GetMethods(BindingFlags.Public |
+                                                   BindingFlags.NonPublic |
+                                                   BindingFlags.Instance |
+                                                   BindingFlags.Static |
+                                                   BindingFlags.DeclaredOnly))
+        {
+            if (type.Name == "Ui")
+            {
+                CheckMethod(methodInfo);
+                continue;
+            }
+
+            foreach (var parameter in methodInfo.GetParameters())
+            {
+                if (parameter.ParameterType.Name == "Ui")
+                {
+                    CheckMethod(methodInfo);
+                    break;
+                }
+            }
+        }
+
+        void CheckMethod(MethodInfo method)
+        {
+            if (method.CustomAttributes.Any())
+                return;
+            Console.WriteLine(method.Name);
+            UiMethods.Add(method);
+        }
+    }
 
     private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> originalInstructions,
         ILGenerator generator, MethodBase original)
     {
+
+        Console.WriteLine("Transpiler running");
+        return originalInstructions;
+
         var instructionList = originalInstructions.ToList();
 
         var newInstructions = new List<CodeInstruction>(instructionList.Count);

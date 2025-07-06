@@ -45,54 +45,54 @@ public static class TestComponent
             ui.Text($"{((int)fps).ToArenaString()}fps");
             lastFrameTimeStamp = Stopwatch.GetTimestamp();
 
-            if (ui.Button("Create window"))
+            if (ui.Button("Create window 7"))
             {
                 app.CreateWindow("Anita", (ui2) => Build(ui2, app));
             }
 
             // --------------- custom popup -----------------
-            var popup = ui.GetPopup();
-
-            if (popup.Visible)
-            {
-                using (popup.Body.Enter())
-                {
-                    using (ui.Rect().Rounded(10).Color(C.Blue3).Margin(51).BlockHit())
-                    {
-                        ui.Text("My Popup Text"); //this text will be displayed within the popup :)
-                    }
-                }
-            }
+            // var popup = ui.GetPopup();
+            //
+            // if (popup.Visible)
+            // {
+            //     using (popup.Body.Enter())
+            //     {
+            //         using (ui.Rect().Rounded(10).Color(C.Blue3).Margin(51).BlockHit())
+            //         {
+            //             ui.Text("My Popup Text"); //this text will be displayed within the popup :)
+            //         }
+            //     }
+            // }
 
              // with the current architecture, we need to call this after popup.Body.Enter(), this is unfortunate, see comment below for the proper solution
-             if (ui.Button("Open Popup", primary: true))
-             {
-                 popup.Visible = true;
-             }
-
-             // ---------------- confirmation popup --------------------
-             var confirmPopup = ui.GetConfirmationPopup("Confirm Exit", "Are you sure you want to exit?");
-
-             if (ui.Button("Show Confirmation Popup"))
-             {
-                 confirmPopup.Show();
-             }
-
-             if (confirmPopup.Result == ConfirmationPopupResult.Ok)
-             {
-                 Console.WriteLine("Ok");
-             }
-             else if (confirmPopup.Result == ConfirmationPopupResult.Cancel)
-             {
-                 Console.WriteLine("Cancel");
-             }
-
-
-             //--------------- radio button group ------------------
-             ref int selectedRadioButton = ref ui.Get(0);
-             ui.RadioButton(ref selectedRadioButton, 0);
-             ui.RadioButton(ref selectedRadioButton, 1);
-             ui.RadioButton(ref selectedRadioButton, 2);
+             // if (ui.Button("Open Popup", primary: true))
+             // {
+             //     popup.Visible = true;
+             // }
+             //
+             // // ---------------- confirmation popup --------------------
+             // var confirmPopup = ui.GetConfirmationPopup("Confirm Exit", "Are you sure you want to exit?");
+             //
+             // if (ui.Button("Show Confirmation Popup"))
+             // {
+             //     confirmPopup.Show();
+             // }
+             //
+             // if (confirmPopup.Result == ConfirmationPopupResult.Ok)
+             // {
+             //     Console.WriteLine("Ok");
+             // }
+             // else if (confirmPopup.Result == ConfirmationPopupResult.Cancel)
+             // {
+             //     Console.WriteLine("Cancel");
+             // }
+             //
+             //
+             // //--------------- radio button group ------------------
+             // ref int selectedRadioButton = ref ui.Get(0);
+             // ui.RadioButton(ref selectedRadioButton, 0);
+             // ui.RadioButton(ref selectedRadioButton, 1);
+             // ui.RadioButton(ref selectedRadioButton, 2);
         }
     }
 }
