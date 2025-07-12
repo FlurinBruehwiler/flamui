@@ -231,7 +231,7 @@ public sealed partial class FlexContainer
         Info.ScrollConfigY = new ScrollConfig
         {
             CanScroll = true,
-            OverlayScrollbar = overlay
+            OverlayScrollbar = overlay,
         };
         return this;
     }
@@ -242,7 +242,7 @@ public sealed partial class FlexContainer
         Info.ScrollConfigX = new ScrollConfig
         {
             CanScroll = true,
-            OverlayScrollbar = overlay
+            OverlayScrollbar = overlay,
         };
         return this;
     }

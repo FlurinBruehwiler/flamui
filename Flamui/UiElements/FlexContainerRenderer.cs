@@ -121,9 +121,8 @@ public static class FlexContainerRenderer
         {
             renderContext.PopMatrix();
 
-            //todo re-add scrolling
-            // flexContainer._scrollBarContainerX.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerX.UiElement.ParentData.Position));
-            // flexContainer._scrollBarContainerY.UiElement?.Render(renderContext, offset.Add(flexContainer._scrollBarContainerY.UiElement.ParentData.Position));
+            flexContainer.ScrollXElement?.Render(renderContext, offset.Add(flexContainer.ScrollXElement.ParentData.Position));
+            flexContainer.ScrollYElement?.Render(renderContext, offset.Add(flexContainer.ScrollYElement.ParentData.Position));
         }
 
         if (NeedsClip(flexContainer.Info))

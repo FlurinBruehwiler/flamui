@@ -26,7 +26,27 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                ui.Text("Tab 2");
+                using (ui.Rect().Padding(10).ScrollVertical())
+                {
+                    for (int i = 0; i < 50; i++)
+                    {
+                        using var _ = ui.CreateIdScope(i);
+
+                        using (var rect = ui.Rect().ShrinkHeight().PaddingHorizontal(5))
+                        {
+                            if (i % 2 == 0)
+                            {
+                                rect.Color(ColorPalette.AccentColor);
+                            }
+                            else
+                            {
+                                rect.Color(ColorPalette.BorderColor);
+                            }
+
+                            ui.Text("Tab 2");
+                        }
+                    }
+                }
             }
         }
     }

@@ -76,7 +76,7 @@ public struct FlexContainerInfo
         var padding = Padding.SumInDirection(Direction.Other());
         if (ScrollConfigFromDirection(Direction.Other()).TakesUpSpace())
         {
-            padding += ScrollbarSettings.Default.Width;
+            padding += ScrollbarSettings.Default.Width; //todo don't hardcode default settings
         }
 
         return padding;

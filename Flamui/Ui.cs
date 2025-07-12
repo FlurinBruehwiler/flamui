@@ -235,7 +235,7 @@ public sealed partial class Ui
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FlexContainer Rect([CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
-        var scope = CreateIdScope(file, lineNumber);
+        CreateIdScope(file, lineNumber);
 
         var div = GetData(static (ui) => new FlexContainer
         {

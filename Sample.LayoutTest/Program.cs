@@ -14,7 +14,7 @@ using Sample.LayoutTest;
  *
  * - Make Scroll work again
  * - Make Debug Zoom work properly   -- wip
- * - Fix InputBox hit testing
+ * - Fix InputBox hit testing -- done
  * - Implement some kind of Grid
  * - Implement more prebuilt components for faster development (take inspiration from shadcn)
  *     - Design Inspo: https://www.figma.com/design/YH6PqUnUPjbUcM9On5gfjz/Int-UI-Kit--Community-?node-id=6222-73687&p=f&t=u6cSRJMlVN6fukUu-0
@@ -24,8 +24,8 @@ using Sample.LayoutTest;
  *     - Multiline Input
  *     - Button -- done
  *     - Confirmation Window (Modal) -- done
- *     - Tab System
- *     - Slider
+ *     - Tab System -- wip
+ *     - Slider -- done
  *     - Tree
  *     - Radio Button (Group) -- done
  * - Get Flamui running on a VM (where normal OpenGL doesn't work, so we need some kind of Software renderer,

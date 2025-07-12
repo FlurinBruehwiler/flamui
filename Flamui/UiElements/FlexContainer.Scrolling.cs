@@ -1,3 +1,5 @@
+using Flamui.Layouting;
+
 namespace Flamui.UiElements;
 
 public struct ScrollInputInfo
@@ -38,6 +40,20 @@ public struct ScrollInputInfo
     }
 }
 
+public class OffTreeContainer : UiElementContainer
+{
+    public UiElement? GetElement() => Children.FirstOrDefault();
+
+    public override BoxSize Layout(BoxConstraint constraint)
+    {
+        return default;
+    }
+
+    public override void Render(RenderContext renderContext, Point offset)
+    {
+    }
+}
+
 public sealed partial class FlexContainer
 {
 
@@ -45,9 +61,8 @@ public sealed partial class FlexContainer
     public float ScrollPosX;
     public ScrollInputInfo ScrollInputInfoX;
     public ScrollInputInfo ScrollInputInfoY;
-
-    // public readonly EmptyStack _scrollBarContainerY = new();
-    // public readonly EmptyStack _scrollBarContainerX = new();
+    public OffTreeContainer? ScrollXElement;
+    public OffTreeContainer? ScrollYElement;
 
     public float GetScrollPosInDir(Dir dir)
     {
@@ -59,58 +74,42 @@ public sealed partial class FlexContainer
         };
     }
 
-    private float LayoutScrollbar(Dir dir)
+    private void LayoutScrollbar(Dir dir)
     {
-        //TODO pls refactor this very ugly code!!!!!!!!!!!!!!!
+        using var _ = Tree.Ui.CreateIdScope(dir.GetHashCode());
 
-        //todo id
-        var scrollbar = Tree.Ui.GetData((container: this, dir: dir), static (_, hi) =>
+        ScrollYElement = new OffTreeContainer
         {
-            var settings = ScrollbarSettings.Default;
+            Id = Tree.Ui.GetHash(),
+            Tree = Tree
+        };
+        ScrollXElement = null;
 
-            if (!hi.container.Info.ScrollConfigY.OverlayScrollbar)
-            {
-                settings.TrackColor = settings.TrackHoverColor;
-            }
+        Tree.Ui.PushOpenElement(ScrollYElement);
+        Scrollbar.Build(Tree.Ui, new ScrollService(this, dir), ScrollbarSettings.Default);
+        Tree.Ui.PopElement();
 
-            return new Scrollbar(new ScrollService(hi.container, hi.dir), settings);
-        });
+        var scrollbarElement = ScrollYElement.GetElement();
 
-        //todo re-add scrolling
-/*
-        var scrollBarContainer = dir == Dir.Horizontal ? _scrollBarContainerX : _scrollBarContainerY;
+        if (scrollbarElement == null)
+            return;
 
-        scrollBarContainer.UiElement = null;
-        scrollBarContainer.DataStore.Reset();
-
-        // Tree.Ui.OpenElementStack.Push(scrollBarContainer);
-        scrollbar.Build(Tree.Ui);
-        // Tree.Ui.OpenElementStack.Pop();
-
-        if (scrollBarContainer.UiElement is null)
-            return 0;
-
-        var size = scrollBarContainer.UiElement.Layout(new BoxConstraint(0, Rect.Width, 0, Rect.Height));
+        var size = scrollbarElement.Layout(new BoxConstraint(0, Rect.Width, 0, Rect.Height));
         if (dir == Dir.Vertical)
         {
-            scrollBarContainer.UiElement.ParentData = new ParentData
+            scrollbarElement.ParentData = new ParentData
             {
                 Position = new Point(Rect.Width - size.Width, 0)
             };
         }
         else
         {
-            scrollBarContainer.UiElement.ParentData = new ParentData
+            scrollbarElement.ParentData = new ParentData
             {
                 Position = new Point(0, Rect.Height - size.Height)
             };
         }
-
-        return scrollBarContainer.UiElement.Rect.Width;
-        */
-        return 0;
     }
-
 
     private void CalculateScrollPos(ref float scrollPos, Dir dir, float wheelDelta)
     {

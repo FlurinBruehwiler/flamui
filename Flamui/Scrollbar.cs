@@ -25,18 +25,32 @@ public sealed class ScrollbarSettings
     public int Padding;
 }
 
-public sealed class Scrollbar(ScrollService scrollService, ScrollbarSettings settings)
+public static class Scrollbar
 {
-    private bool _isDragging;
+    public static LayoutScope ScrollVertical(this Ui ui)
+    {
+        LayoutScope scope;
 
-    public void Build(Ui ui)
+        using (ui.Rect().Direction(Dir.Horizontal))
+        {
+               
+
+            scope = ui.CreateLayoutScope();
+        }
+
+        return scope;
+    }
+
+    public static void Build(Ui ui, ScrollService scrollService, ScrollbarSettings settings)
     {
         scrollService.MinBarSize = settings.MinTrackSize;
 
         if (!scrollService.IsScrolling)
             return;
 
-        if (_isDragging)
+        ref var isDragging = ref ui.Get(false);
+
+        if (isDragging)
         {
             if (scrollService.Dir == Dir.Vertical)
             {
@@ -59,11 +73,11 @@ public sealed class Scrollbar(ScrollService scrollService, ScrollbarSettings set
                 track.Height(settings.Width);
             }
 
-            track.Color(track.IsHovered || _isDragging ? settings.TrackHoverColor : settings.TrackColor);
+            track.Color(track.IsHovered || isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
             using (var thumb = ui.Rect().Rounded(settings.ThumbRadius))
             {
-                thumb.Color(thumb.IsHovered || _isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
+                thumb.Color(thumb.IsHovered || isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 
                 if (scrollService.Dir == Dir.Vertical)
                 {
@@ -80,13 +94,13 @@ public sealed class Scrollbar(ScrollService scrollService, ScrollbarSettings set
 
                 if (thumb.IsClicked)
                 {
-                    _isDragging = true;
+                    isDragging = true;
                     // SDL_CaptureMouse(SDL_bool.SDL_TRUE); //TODO
                 }
 
-                if(_isDragging && ui.Tree.IsMouseButtonReleased(MouseButton.Left))
+                if(isDragging && ui.Tree.IsMouseButtonReleased(MouseButton.Left))
                 {
-                    _isDragging = false;
+                    isDragging = false;
                     // SDL_CaptureMouse(SDL_bool.SDL_FALSE); //TODO
                 }
             }
