@@ -19,15 +19,15 @@ using Sample.LayoutTest;
  * - Implement more prebuilt components for faster development (take inspiration from shadcn)
  *     - Design Inspo: https://www.figma.com/design/YH6PqUnUPjbUcM9On5gfjz/Int-UI-Kit--Community-?node-id=6222-73687&p=f&t=u6cSRJMlVN6fukUu-0
  *     - DropDown - done
- *     - Checkbox / Toggle
+ *     - Checkbox / Toggle -- done
  *     - Singleline Input
  *     - Multiline Input
- *     - Button
- *     - Confirmation Window (Modal)
+ *     - Button -- done
+ *     - Confirmation Window (Modal) -- done
  *     - Tab System
  *     - Slider
  *     - Tree
- *     - Radio Button (Group)
+ *     - Radio Button (Group) -- done
  * - Get Flamui running on a VM (where normal OpenGL doesn't work, so we need some kind of Software renderer,
  *   either DirectX, which has a fallback software renderer, or we stick to OpenGL and use a library that implements
  *   OpenGL on the CPU (Mesa, for example github.com/mmozeiko/build-mesa/releases), or use a library like TinySkia or full on Skia

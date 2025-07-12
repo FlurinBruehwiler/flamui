@@ -1,11 +1,14 @@
-﻿using Silk.NET.Input;
+﻿using System.Runtime.CompilerServices;
+using Silk.NET.Input;
 
 namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static void RadioButton<T>(this Ui ui, ref T selectedValue, T thisValue)
+    public static void RadioButton<T>(this Ui ui, ref T selectedValue, T thisValue, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
+        using var _ = ui.CreateIdScope(file, lineNumber);
+
         using (var div = ui.Rect().Circle(8).Focusable().Color(ColorPalette.BackgroundColor).Border(1, ColorPalette.BorderColor))
         {
             if (div.IsClicked)

@@ -1,8 +1,10 @@
-﻿namespace Flamui.Components;
+﻿using System.Runtime.CompilerServices;
+
+namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static Popup GetPopup(this Ui ui, bool allowDismissing = true)
+    public static Popup GetPopup(this Ui ui, bool allowDismissing = true, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
         var popup = new Popup
         {
@@ -12,7 +14,7 @@ public static partial class UiExtensions
         if (!popup.Visible)
             return popup;
 
-        using var _ = ui.CreateIdScope();
+        using var _ = ui.CreateIdScope(file, lineNumber);
         using (var backgorund = ui.Rect().SetParent(ui.Root).AbsoluteSize(0, 0)
                    .Center().BlockHit().Color(C.Black / 4).Rounded(4))
         {

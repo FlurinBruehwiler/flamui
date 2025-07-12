@@ -137,12 +137,14 @@ public sealed partial class Ui
     {
         CascadingValues = CascadingStack.Pop();
         ScopeHashStack.Pop();
+        PopScope();
         return OpenElementStack.Pop();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public unsafe ref T Get<T>(T initialValue) where T : unmanaged
+    public unsafe ref T Get<T>(T initialValue, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0) where T : unmanaged
     {
+        using var _ = CreateIdScope(file, lineNumber);
         var hash = IncreaseAndGetHash();
         if (UnmanagedLastFrameDataStore.TryGetValue(hash, out var lastPtr))
         {
@@ -201,8 +203,9 @@ public sealed partial class Ui
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref string GetString(string initialValue)
+    public ref string GetString(string initialValue, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
+        using var _ = CreateIdScope(file, lineNumber);
         return ref GetObjRef(initialValue);
     }
 
@@ -230,8 +233,10 @@ public sealed partial class Ui
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public FlexContainer Rect()
+    public FlexContainer Rect([CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
+        var scope = CreateIdScope(file, lineNumber);
+
         var div = GetData(static (ui) => new FlexContainer
         {
             Id = ui.GetHash(),
@@ -249,8 +254,9 @@ public sealed partial class Ui
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public UiText Text(ArenaString content)
+    public UiText Text(ArenaString content, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
+        using var _ = CreateIdScope(file, lineNumber);
         var text = GetData(static ui => new UiText
         {
             Id = ui.GetHash(),
@@ -269,8 +275,9 @@ public sealed partial class Ui
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public UiSvg SvgImage(ArenaString src, ColorDefinition? colorDefinition = null)
+    public UiSvg SvgImage(ArenaString src, ColorDefinition? colorDefinition = null, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
+        using var _ = CreateIdScope(file, lineNumber);
         var svg = GetData(static (ui) => new UiSvg
         {
             Id = ui.GetHash(),

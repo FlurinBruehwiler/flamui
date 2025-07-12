@@ -1,4 +1,6 @@
-﻿namespace Flamui.Components;
+﻿using System.Runtime.CompilerServices;
+
+namespace Flamui.Components;
 
 /*
  * We could create one giant dictionary, with ID => UiElement, but the ID wouldn't just consist of the location in the source code, but also combined with the parent ID.
@@ -18,8 +20,10 @@ public static partial  class UiExtensions
 
     }
 
-    public static bool Button(this Ui ui, string text, bool primary = false, bool focusable = true)
+    public static bool Button(this Ui ui, string text, bool primary = false, bool focusable = true, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
+        using var _ = ui.CreateIdScope(file, lineNumber);
+
         using (var btn = ui.Rect().Height(23).Rounded(2).Focusable(focusable).ShrinkWidth().Direction(Dir.Horizontal).PaddingHorizontal(10).CrossAlign(XAlign.Center))
         {
             if (primary)

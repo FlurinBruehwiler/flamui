@@ -1,9 +1,13 @@
-﻿namespace Flamui.Components;
+﻿using System.Runtime.CompilerServices;
+
+namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static ConfirmPopup GetConfirmationPopup(this Ui ui, ArenaString title, ArenaString subTitle)
+    public static ConfirmPopup GetConfirmationPopup(this Ui ui, ArenaString title, ArenaString subTitle, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
+        using var _1 = ui.CreateIdScope(file, lineNumber);
+
         var popup = ui.GetPopup(false);
 
         var confirmPopup = new ConfirmPopup();

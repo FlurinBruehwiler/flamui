@@ -29,9 +29,9 @@ public static class TestComponent
 
             ref string selectedOption = ref ui.GetString("John");
 
-            // Span<string> items = ["John", "Albert", "Div", "Size"];
-            //
-            // ui.DropDown(items, ref selectedOption);
+            Span<string> items = ["John", "Albert", "Div", "Size"];
+
+            ui.DropDown(items, ref selectedOption);
             //
             ref string input = ref ui.GetString("");
 
@@ -55,8 +55,6 @@ public static class TestComponent
 
             if (popup.Visible)
             {
-                using var _ = ui.CreateIdScope();
-
                 using (popup.Body.Enter())
                 {
                     using (ui.Rect().Rounded(10).Color(ColorPalette.BackgroundColor).Margin(51).BlockHit().Padding(10))
