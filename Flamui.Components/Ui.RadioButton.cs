@@ -9,7 +9,7 @@ public static partial class UiExtensions
     {
         using var _ = ui.CreateIdScope(file, lineNumber);
 
-        using (var div = ui.Rect().Circle(8).Focusable().Color(ColorPalette.BackgroundColor).Border(1, ColorPalette.BorderColor))
+        using (var div = ui.Rect().Circle(8).Focusable().Color(ColorPalette.BackgroundColor).Border(1, ColorPalette.BorderColor).Center())
         {
             if (div.IsClicked)
             {
@@ -31,6 +31,11 @@ public static partial class UiExtensions
             {
                 div.Color(ColorPalette.AccentColor);
                 div.BorderWidth(0);
+
+                using (ui.Rect().Circle(3).Color(C.White))
+                {
+
+                }
             }
         }
     }

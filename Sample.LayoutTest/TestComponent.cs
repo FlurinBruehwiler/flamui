@@ -12,6 +12,27 @@ public static class TestComponent
     {
         ui.CascadingValues.TextColor = C.White;
 
+        var tabBar = ui.GetTabBar();
+
+        if (tabBar.TabItem("Tab 1"))
+        {
+            using (tabBar.Body.Enter())
+            {
+                Tab1(ui, app);
+            }
+        }
+
+        if (tabBar.TabItem("Tab 2"))
+        {
+            using (tabBar.Body.Enter())
+            {
+                ui.Text("Tab 2");
+            }
+        }
+    }
+
+    private static void Tab1(Ui ui, FlamuiWindowHost app)
+    {
         using (ui.Rect().Color(C.Gray6).Padding(10).Rounded(10).Margin(10).Gap(10))
         {
             ref float sliderValue = ref ui.Get(0f);
