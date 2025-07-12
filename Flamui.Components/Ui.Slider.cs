@@ -16,7 +16,7 @@ public static partial class UiExtensions
             using (var track = ui.Rect().Height(5).Color(ColorPalette.BorderColor).Rounded(2))
             {
                 //head positioner
-                using (ui.Rect().Color(ColorPalette.AccentColor).WidthFraction(MapRange(currentValue == 0 ? 0.0001f : currentValue, min, max, 0, 100)).CrossAlign(XAlign.End).Rounded(2))
+                using (ui.Rect().Color(ColorPalette.AccentColor).WidthFraction(MapRange(currentValue == 0 ? 0.0001f /* not sure why we need this hack, there seems to be a bug */ : currentValue, min, max, 0, 100)).CrossAlign(XAlign.End).Rounded(2))
                 {
                     //head
                     using (ui.Rect().Width(20).Height(20))

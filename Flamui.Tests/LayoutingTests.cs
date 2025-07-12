@@ -233,6 +233,28 @@ public sealed class LayoutingTests : IDisposable
     }
 
     [Fact]
+    public void WidthFraction_0_Percent()
+    {
+        var ui = GetUi();
+
+        using (ui.Rect())
+        {
+            using (ui.Rect().WidthFraction(0))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:0, W:0, H:100
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
     public void MainAlign_SpaceBetween_2()
     {
         var ui = GetUi();
@@ -1324,6 +1346,7 @@ public sealed class LayoutingTests : IDisposable
 
         tree.Ui.ResetStuff();
 
+        tree.Ui.PushScope(-4711);
         tree.Ui.PushOpenElement(rootContainer);
         rootContainer.OpenElement();
 
