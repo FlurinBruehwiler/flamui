@@ -12,6 +12,8 @@ public static partial class UiExtensions
 
         if (popup.Visible)
         {
+            using var _ = ui.CreateIdScope();
+
             using (popup.Body.Enter())
             {
                 using (ui.Rect().Width(200).Height(100).Color(ColorPalette.BackgroundColor).Border(2, ColorPalette.BackgroundColor).BlockHit()

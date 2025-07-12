@@ -12,6 +12,7 @@ public static partial class UiExtensions
         if (!popup.Visible)
             return popup;
 
+        using var _ = ui.CreateIdScope();
         using (var backgorund = ui.Rect().SetParent(ui.Root).AbsoluteSize(0, 0)
                    .Center().BlockHit().Color(C.Black / 4).Rounded(4))
         {

@@ -25,12 +25,6 @@
         <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
         <PackageReference Include="Varena" Version="1.2.0" />
         <PackageReference Include="ZLinq" Version="1.4.9" />
-
-        <PackageReference Include="Fody" Version="6.9.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <WeaverFiles Include="$(SolutionDir)ILWeavingTest.Fody\bin\$(Configuration)\netstandard2.0\ILWeavingTest.Fody.dll" />
     </ItemGroup>
 
     <ItemGroup>

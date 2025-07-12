@@ -21,6 +21,17 @@ public struct IdScopeDisposable : IDisposable
     }
 }
 
+struct DataScope
+{
+    public int ScopeHash;
+    public int IncrementalNumber;
+
+    public int GetCompleteHash()
+    {
+        return HashCode.Combine(ScopeHash, IncrementalNumber);
+    }
+}
+
 public sealed partial class Ui
 {
     public Dictionary<int, object> LastFrameDataStore = [];
@@ -32,8 +43,8 @@ public sealed partial class Ui
     public ChunkedList<object> LastFrameRefObjects = new(100);
     public ChunkedList<object> CurrentFrameRefObjects = new(100);
 
-    private Stack<int> ScopeHashStack = new();
-    public int CurrentScopeHash => ScopeHashStack.Peek();
+    private FlamuiStack<DataScope> ScopeHashStack = new();
+    // public int CurrentScopeScopeHash => ScopeHashStack.Peek().GetCompleteHash();
 
     private readonly Stack<UiElementContainer> OpenElementStack = new();
     private UiElementContainer OpenElement => OpenElementStack.Peek();
@@ -48,6 +59,18 @@ public sealed partial class Ui
     [ThreadStatic]
     public static Arena Arena;
 
+    public int GetHash()
+    {
+        return ScopeHashStack.Peek().GetCompleteHash();
+    }
+
+    public int IncreaseAndGetHash()
+    {
+        ref var scope = ref ScopeHashStack.PeekRef();
+        scope.IncrementalNumber++;
+        return scope.GetCompleteHash();
+    }
+
     //used by source gen
     [NoScopeGeneration]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,11 +78,19 @@ public sealed partial class Ui
     {
         if (ScopeHashStack.TryPeek(out var res))
         {
-            ScopeHashStack.Push(HashCode.Combine(hash, res));
+            ScopeHashStack.Push(new DataScope
+            {
+                ScopeHash = HashCode.Combine(hash, res.ScopeHash),
+                IncrementalNumber = 0
+            });
         }
         else
         {
-            ScopeHashStack.Push(hash);
+            ScopeHashStack.Push(new DataScope
+            {
+                ScopeHash = hash,
+                IncrementalNumber = 0
+            });
         }
     }
 
@@ -82,13 +113,23 @@ public sealed partial class Ui
         };
     }
 
+    [NoScopeGeneration]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IdScopeDisposable CreateIdScope([CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
+    {
+        return CreateIdScope(HashCode.Combine(file.GetHashCode(), lineNumber.GetHashCode()));
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void PushOpenElement(UiElementContainer container)
     {
         CascadingStack.Push(CascadingValues);
         OpenElementStack.Push(container);
-        ScopeHashStack.Push(container.Id.GetHashCode());
+        ScopeHashStack.Push(new DataScope
+        {
+            ScopeHash = container.Id.GetHashCode(),
+            IncrementalNumber = 0
+        });
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -99,20 +140,20 @@ public sealed partial class Ui
         return OpenElementStack.Pop();
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe ref T Get<T>(T initialValue) where T : unmanaged
     {
-        if (UnmanagedLastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastPtr))
+        var hash = IncreaseAndGetHash();
+        if (UnmanagedLastFrameDataStore.TryGetValue(hash, out var lastPtr))
         {
             var lastValue = *(T*)lastPtr;
             var ptr = Tree.Arena.Allocate(lastValue);
-            UnmanagedCurrentFrameDataStore.Add(CurrentScopeHash, (nint)ptr);
+            UnmanagedCurrentFrameDataStore.Add(hash, (nint)ptr);
             return ref Unsafe.AsRef<T>(ptr);
         }
 
         var ptr2 = Tree.Arena.Allocate(initialValue);
-        if (!UnmanagedCurrentFrameDataStore.TryAdd(CurrentScopeHash, (nint)ptr2))
+        if (!UnmanagedCurrentFrameDataStore.TryAdd(hash, (nint)ptr2))
         {
             throw new Exception("aahhhhh");
         }
@@ -123,14 +164,15 @@ public sealed partial class Ui
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetObj<T>() where T : class, new()
     {
-        if (LastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastValue))
+        var hash = IncreaseAndGetHash();
+        if (LastFrameDataStore.TryGetValue(hash, out var lastValue))
         {
-            CurrentFrameDataStore.Add(CurrentScopeHash, lastValue);
+            CurrentFrameDataStore.Add(hash, lastValue);
             return (T)lastValue;
         }
 
         var initialValue = new T();
-        CurrentFrameDataStore.Add(CurrentScopeHash, initialValue);
+        CurrentFrameDataStore.Add(hash, initialValue);
         return initialValue;
     }
 
@@ -140,14 +182,15 @@ public sealed partial class Ui
     {
         var idx = CurrentFrameRefObjects.Count;
 
-        if (UnmanagedLastFrameDataStore.TryGetValue(CurrentScopeHash, out var lastIdx))
+        var hash = IncreaseAndGetHash();
+        if (UnmanagedLastFrameDataStore.TryGetValue(hash, out var lastIdx))
         {
             var item = LastFrameRefObjects[(int)lastIdx];
             CurrentFrameRefObjects.Add(item);
         }
 
         CurrentFrameRefObjects.Add(initialValue);
-        if (!UnmanagedCurrentFrameDataStore.TryAdd(CurrentScopeHash, idx))
+        if (!UnmanagedCurrentFrameDataStore.TryAdd(hash, idx))
         {
             throw new Exception("aahhhhh");
         }
@@ -174,7 +217,7 @@ public sealed partial class Ui
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetData<T, TContext>(TContext context, Func<Ui, TContext, T> factoryMethod) where T : class
     {
-        var globalId = CurrentScopeHash;
+        var globalId = IncreaseAndGetHash();
         if (LastFrameDataStore.TryGetValue(globalId, out var data))
         {
             CurrentFrameDataStore.Add(globalId, data);
@@ -191,7 +234,7 @@ public sealed partial class Ui
     {
         var div = GetData(static (ui) => new FlexContainer
         {
-            Id = ui.CurrentScopeHash,
+            Id = ui.GetHash(),
             Tree = ui.Tree
         });
 
@@ -210,7 +253,7 @@ public sealed partial class Ui
     {
         var text = GetData(static ui => new UiText
         {
-            Id = ui.CurrentScopeHash,
+            Id = ui.GetHash(),
             Tree = ui.Tree,
         });
 
@@ -230,7 +273,7 @@ public sealed partial class Ui
     {
         var svg = GetData(static (ui) => new UiSvg
         {
-            Id = ui.CurrentScopeHash,
+            Id = ui.GetHash(),
             Tree = ui.Tree
         });
 
@@ -247,7 +290,7 @@ public sealed partial class Ui
     {
         var image = GetData(static (ui) => new UiImage
         {
-            Id = ui.CurrentScopeHash,
+            Id = ui.GetHash(),
             Tree = ui.Tree,
         });
 

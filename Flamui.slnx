@@ -17,4 +17,5 @@
   </Project>
   <Project Path="ILWeavingTest.Fody\ILWeavingTest.Fody.csproj" Type="Classic C#" />
   <Project Path="Playground/Playground.csproj" />
+  <Project Path="TestProgram\TestProgram.csproj" Type="Classic C#" />
 </Solution>
