@@ -228,6 +228,8 @@ public sealed partial class UiTree
         hitElements.Clear();
         HoveredElements.Clear();
 
+        bool isFirstMatrix = true;
+
         //from back to front
         foreach (var (_, value) in _renderContext.CommandBuffers.OrderBy(x => x.Key))
         {
@@ -235,7 +237,12 @@ public sealed partial class UiTree
             {
                 if (command.Type == CommandType.Matrix)
                 {
-                    transformedPoint = originalPoint.Multiply(command.MatrixCommand.Matrix.Invert());
+                    if (!isFirstMatrix) //very very bad hack, to because the original point is already transformed to the userscaling, so we can't transform it twice :(
+                    {
+                        transformedPoint = originalPoint.Multiply(command.MatrixCommand.Matrix.Invert());
+                    }
+
+                    isFirstMatrix = false;
                 }
                 else if (command.Type == CommandType.Rect)
                 {

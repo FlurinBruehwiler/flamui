@@ -28,7 +28,7 @@ public sealed class PhysicalWindow
     /// <summary>
     /// The User can zoom in, to make stuff bigger
     /// </summary>
-    public Vector2 UserScaling = new(1.5f, 1.5f);
+    public Vector2 UserScaling = new(1f, 1f);
 
     /// <summary>
     /// the complete scaling
@@ -111,7 +111,7 @@ public sealed class PhysicalWindow
 
         HandleZoomAndStuff(screenMousePos - lastScreenMousePosition, screenMousePos); //still not sure if this should be on the window, or if we can put it onto the UiTree
 
-        UiTree.MousePosition = screenMousePos; // todo, we don't do ScreenToWorld here, because we would do it twice because of the matrix mult in the HitTest
+        UiTree.MousePosition = ScreenToWorld(screenMousePos); // todo, we don't do ScreenToWorld here, because we would do it twice because of the matrix mult in the HitTest
 
         UiTree.Update(GlfwWindow.Size.X / GetCompleteScaling().X, GlfwWindow.Size.Y / GetCompleteScaling().Y);
 
@@ -196,7 +196,7 @@ public sealed class PhysicalWindow
 
         if (UiTree.IsKeyPressed(Key.R))
         {
-            UserScaling = new Vector2(1.5f, 1.5f);
+            UserScaling = new Vector2(1f, 1f);
             Zoom = 1;
             ZoomOffset = new Vector2();
             ZoomTarget = new Vector2();

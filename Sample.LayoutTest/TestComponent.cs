@@ -14,6 +14,9 @@ public static class TestComponent
 
         using (ui.Rect().Color(C.Gray6).Padding(10).Rounded(10).Margin(10).Gap(10))
         {
+            ref float sliderValue = ref ui.Get(0f);
+            ui.Slider(0, 1, ref sliderValue);
+
             // for (int i = 0; i < 10; i++)
             // {
             //     using (var r = ui.Rect().Height(20).Color(C.Gray4))
