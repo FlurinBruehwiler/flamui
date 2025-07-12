@@ -59,14 +59,13 @@ public static class TestComponent
 
                 using (popup.Body.Enter())
                 {
-                    using (ui.Rect().Rounded(10).Color(C.Blue3).Margin(51).BlockHit())
+                    using (ui.Rect().Rounded(10).Color(ColorPalette.BackgroundColor).Margin(51).BlockHit().Padding(10))
                     {
                         ui.Text("My Popup Text"); //this text will be displayed within the popup :)
                     }
                 }
             }
 
-            Console.WriteLine($"Open Popup: {ui.GetHash()}");
              // with the current architecture, we need to call this after popup.Body.Enter(), this is unfortunate, see comment below for the proper solution
              if (ui.Button("Open Popup 99", primary: true))
              {

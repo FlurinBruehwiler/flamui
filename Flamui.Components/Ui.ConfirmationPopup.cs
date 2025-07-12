@@ -17,12 +17,15 @@ public static partial class UiExtensions
             using (popup.Body.Enter())
             {
                 using (ui.Rect().Width(200).Height(100).Color(ColorPalette.BackgroundColor).Border(2, ColorPalette.BackgroundColor).BlockHit()
-                           .Padding(10))
+                           .Padding(10).MainAlign(MAlign.SpaceBetween).Rounded(10).Border(1, ColorPalette.BorderColor))
                 {
-                    ui.Text(title);
-                    ui.Text(subTitle);
+                    using (ui.Rect())
+                    {
+                        ui.Text(title);
+                        ui.Text(subTitle);
+                    }
 
-                    using (ui.Rect().Direction(Dir.Horizontal))
+                    using (ui.Rect().Direction(Dir.Horizontal).Gap(10).ShrinkHeight().MainAlign(MAlign.End))
                     {
                         if (ui.Button("Cancel"))
                         {

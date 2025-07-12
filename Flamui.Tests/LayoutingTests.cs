@@ -233,6 +233,40 @@ public sealed class LayoutingTests : IDisposable
     }
 
     [Fact]
+    public void MainAlign_SpaceBetween_2()
+    {
+        var ui = GetUi();
+
+        using (ui.Rect().MainAlign(MAlign.SpaceBetween))
+        {
+            using (ui.Rect().Height(10))
+            {
+
+            }
+
+            using (ui.Rect().Height(10))
+            {
+
+            }
+
+            using (ui.Rect().Height(10))
+            {
+
+            }
+        }
+
+        var expected =
+            """
+            FlexContainer = X:0, Y:0, W:100, H:100
+                FlexContainer = X:0, Y:0, W:100, H:10
+                FlexContainer = X:0, Y:45, W:100, H:10
+                FlexContainer = X:0, Y:90, W:100, H:10
+            """;
+
+        AssertUi(ui, 100, 100, expected);
+    }
+
+    [Fact]
     public void MainAlign_Center()
     {
         var ui = GetUi();
