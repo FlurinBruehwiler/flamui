@@ -19,9 +19,9 @@ public static partial class UiExtensions
                 using (ui.Rect().Color(ColorPalette.AccentColor).WidthFraction(MapRange(currentValue == 0 ? 0.0001f /* not sure why we need this hack, there seems to be a bug */ : currentValue, min, max, 0, 100)).CrossAlign(XAlign.End).Rounded(2))
                 {
                     //head
-                    using (ui.Rect().Width(20).Height(20))
+                    using (ui.Rect().Width(16).Height(16))
                     {
-                        using (ui.Rect().Circle(10).Color(C.Blue5).AbsolutePosition(left: 10, top: -6.5f))
+                        using (ui.Rect().Circle(8).Color(C.Blue5).AbsolutePosition(left: 8, top: -5f))
                         {
                             if (ui.Tree.IsMouseButtonDown(MouseButton.Left) && boundingBox.HasFocusWithin)
                             {
