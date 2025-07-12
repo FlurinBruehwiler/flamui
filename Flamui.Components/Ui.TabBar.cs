@@ -4,11 +4,11 @@ namespace Flamui.Components;
 
 public static partial class UiExtensions
 {
-    public static TabBar GetTabBar(this Ui ui)
+    public static TabBar GetTabBar(this Ui ui, int initialTab = 0)
     {
         var tabBar = new TabBar
         {
-            ActiveTab = ref ui.Get(0),
+            ActiveTab = ref ui.Get(initialTab),
             IdForNextDeclaredTab = ref ui.Get(0),
             Ui = ui
         };

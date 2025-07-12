@@ -151,7 +151,7 @@ public sealed class RenderContext
             Type = CommandType.Matrix,
             MatrixCommand = new MatrixCommand
             {
-                Matrix = matrix,
+                Matrix = finalMat,
             },
             UiElementId = 0
         };

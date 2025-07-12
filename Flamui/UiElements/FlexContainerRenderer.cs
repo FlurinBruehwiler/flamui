@@ -121,8 +121,8 @@ public static class FlexContainerRenderer
         {
             renderContext.PopMatrix();
 
-            flexContainer.ScrollXElement?.Render(renderContext, offset.Add(flexContainer.ScrollXElement.ParentData.Position));
-            flexContainer.ScrollYElement?.Render(renderContext, offset.Add(flexContainer.ScrollYElement.ParentData.Position));
+            flexContainer.ScrollXElement?.GetElement()?.Render(renderContext, offset.Add(flexContainer.ScrollXElement.GetElement()!.ParentData.Position));
+            flexContainer.ScrollYElement?.GetElement()?.Render(renderContext, offset.Add(flexContainer.ScrollYElement.GetElement()!.ParentData.Position));
         }
 
         if (NeedsClip(flexContainer.Info))

@@ -28,7 +28,9 @@ public sealed class PhysicalWindow
     /// <summary>
     /// The User can zoom in, to make stuff bigger
     /// </summary>
-    public Vector2 UserScaling = new(1.5f, 1.5f);
+    public Vector2 UserScaling = DefaultScaling;
+
+    public static readonly Vector2 DefaultScaling = new(1.5f, 1.5f);
 
     /// <summary>
     /// the complete scaling
@@ -196,7 +198,7 @@ public sealed class PhysicalWindow
 
         if (UiTree.IsKeyPressed(Key.R))
         {
-            UserScaling = new Vector2(1.5f, 1.5f);
+            UserScaling = DefaultScaling;
             Zoom = 1;
             ZoomOffset = new Vector2();
             ZoomTarget = new Vector2();

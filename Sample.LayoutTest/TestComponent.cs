@@ -12,7 +12,7 @@ public static class TestComponent
     {
         ui.CascadingValues.TextColor = C.White;
 
-        var tabBar = ui.GetTabBar();
+        var tabBar = ui.GetTabBar(initialTab: 1);
 
         if (tabBar.TabItem("Tab 1"))
         {
