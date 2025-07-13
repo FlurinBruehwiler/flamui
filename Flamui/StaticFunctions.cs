@@ -15,7 +15,7 @@ public static class StaticFunctions
         renderContext.PushMatrix(mat);
         uiTree.RootContainer.Render(renderContext, new Point());
 
-        renderContext.PrintCommands();
+        renderContext.PrintCommands(uiTree.Ui);
 
         return uiTree._renderContext.GetRenderInstructions();
     }

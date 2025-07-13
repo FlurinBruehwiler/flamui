@@ -123,18 +123,25 @@ public sealed partial class FlexContainer : UiElementContainer
                 CalculateScrollPos(ref ScrollPosY, Dir.Vertical, -Tree.ScrollDelta.Y);
             }
 
-            LayoutScrollbar(Dir.Vertical);
-            LayoutScrollbar(Dir.Horizontal);
+            ScrollYElement = LayoutScrollbar(Dir.Vertical);
+            ScrollXElement = LayoutScrollbar(Dir.Horizontal);
         }
         else if (Info.ScrollConfigY.CanScroll)
         {
             CalculateScrollPos(ref ScrollPosY, Dir.Vertical, -Tree.ScrollDelta.Y);
-            LayoutScrollbar(Dir.Vertical);
+            ScrollYElement = LayoutScrollbar(Dir.Vertical);
+            ScrollXElement = null;
         }
         else if (Info.ScrollConfigX.CanScroll)
         {
             CalculateScrollPos(ref ScrollPosX, Dir.Horizontal, -Tree.ScrollDelta.X);
-            LayoutScrollbar(Dir.Horizontal);
+            ScrollYElement = null;
+            ScrollXElement = LayoutScrollbar(Dir.Horizontal);
+        }
+        else
+        {
+            ScrollYElement = null;
+            ScrollXElement = null;
         }
 
         AbsoluteLayouter.LayoutAbsoluteChildren(Children, Rect);

@@ -137,7 +137,7 @@ public sealed partial class Ui
     {
         CascadingValues = CascadingStack.Pop();
         ScopeHashStack.Pop();
-        PopScope();
+        // PopScope();
         return OpenElementStack.Pop();
     }
 

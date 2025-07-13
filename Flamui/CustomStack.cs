@@ -281,7 +281,7 @@ namespace Flamui
         private void ThrowForEmptyStack()
         {
             Debug.Assert(_size == 0);
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Can't pop off empty stack");
         }
 
         public struct Enumerator : IEnumerator<T>, System.Collections.IEnumerator

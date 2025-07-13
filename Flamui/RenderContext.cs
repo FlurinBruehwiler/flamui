@@ -30,7 +30,7 @@ public sealed class RenderContext
 
     public Dictionary<int, ArenaChunkedList<Command>> CommandBuffers = [];
     private Stack<Matrix4X4<float>> MatrixStack = [];
-    private Stack<Command> ClipStack = [];
+    private Stack<(Matrix4X4<float>, Command)> ClipStack = [];
 
     public void Reset()
     {
@@ -105,7 +105,7 @@ public sealed class RenderContext
             UiElementId = 0
         };
 
-        ClipStack.Push(cmd);
+        ClipStack.Push((GetCurrentMatrix(), cmd));
 
         Add(cmd);
     }
@@ -116,17 +116,19 @@ public sealed class RenderContext
 
         if (ClipStack.TryPeek(out var cmd))
         {
-            Add(cmd);
+            PushMatrix(cmd.Item1, multiply: false);
+            Add(cmd.Item2);
+            PopMatrix();
         }
         else
         {
-            cmd = new Command
+            var c = new Command
             {
                 Type = CommandType.ClearClip,
                 ClearClipCommand = new ClearClipCommand(),
                 UiElementId = 0
             };
-            Add(cmd);
+            Add(c);
         }
     }
 
@@ -134,7 +136,8 @@ public sealed class RenderContext
     /// Multiplies the current matrix with the new matrix
     /// </summary>
     /// <param name="matrix"></param>
-    public void PushMatrix(Matrix4X4<float> matrix)
+    /// <param name="multiply"></param>
+    public void PushMatrix(Matrix4X4<float> matrix, bool multiply = true)
     {
         var prevMat = Matrix4X4<float>.Identity;
         if (MatrixStack.TryPeek(out var x))
@@ -142,7 +145,7 @@ public sealed class RenderContext
             prevMat = x;
         }
 
-        var finalMat = Matrix4X4.Multiply(prevMat, matrix);
+        var finalMat = multiply ? Matrix4X4.Multiply(prevMat, matrix) : matrix;
 
         MatrixStack.Push(finalMat);
 
@@ -185,6 +188,17 @@ public sealed class RenderContext
         Add(cmd);
     }
 
+    private Matrix4X4<float> GetCurrentMatrix()
+    {
+        var mat = Matrix4X4<float>.Identity;
+        if (MatrixStack.TryPeek(out var x))
+        {
+            mat = x;
+        }
+
+        return mat;
+    }
+
     public void Add(Command command)
     {
         if (!CommandBuffers.TryGetValue(ZIndexes.Peek(), out var commandBuffer))
@@ -223,7 +237,7 @@ public sealed class RenderContext
 
     private static int rerenderCount;
 
-    public void PrintCommands()
+    public void PrintCommands(Ui ui)
     {
         return;
         Console.WriteLine("---------------------------------------");
@@ -233,10 +247,13 @@ public sealed class RenderContext
             Console.WriteLine("Section:");
             foreach (var command in value)
             {
+                Console.Write($"ID: {command.UiElementId}, ");
+                // if(command.GetAssociatedUiElement(ui)?.UiElementInfo.DebugTag != null)
+                //     Console.Write($"Tag: {command.GetAssociatedUiElement(ui)?.UiElementInfo.DebugTag}, ");
                 switch (command.Type)
                 {
                     case CommandType.Rect:
-                        Console.WriteLine($"Rect: {command.RectCommand.Bounds}, Line: TODO (can we extract the Code Location from the ID?");
+                        Console.WriteLine($"Rect: {command.RectCommand.Bounds}");
                         break;
                     case CommandType.ClipRect:
                         Console.WriteLine($"ClipRect: {command.ClipRectCommand.Bounds}");

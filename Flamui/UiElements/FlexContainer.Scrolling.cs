@@ -74,25 +74,52 @@ public sealed partial class FlexContainer
         };
     }
 
-    private void LayoutScrollbar(Dir dir)
+    private OffTreeContainer LayoutScrollbar(Dir dir)
     {
         using var _ = Tree.Ui.CreateIdScope(dir.GetHashCode());
 
-        ScrollYElement ??= new OffTreeContainer
+        OffTreeContainer containerElement;
+        if (dir == Dir.Vertical)
         {
-            Id = Tree.Ui.GetHash(),
-            Tree = Tree
-        };
-        ScrollXElement = null;
+            if (ScrollYElement == null)
+            {
+                containerElement = new OffTreeContainer
+                {
+                    Id = Tree.Ui.GetHash(),
+                    Tree = Tree
+                };
+            }
+            else
+            {
+                containerElement = ScrollYElement;
+            }
+            containerElement.Children.Clear();
+        }
+        else
+        {
+            if (ScrollXElement == null)
+            {
+                containerElement = new OffTreeContainer
+                {
+                    Id = Tree.Ui.GetHash(),
+                    Tree = Tree
+                };
+            }
+            else
+            {
+                containerElement = ScrollXElement;
+            }
+            containerElement.Children.Clear();
+        }
 
-        Tree.Ui.PushOpenElement(ScrollYElement);
+        Tree.Ui.PushOpenElement(containerElement);
         Scrollbar.Build(Tree.Ui, new ScrollService(this, dir), ScrollbarSettings.Default);
         Tree.Ui.PopElement();
 
-        var scrollbarElement = ScrollYElement.GetElement();
+        var scrollbarElement = containerElement.GetElement();
 
         if (scrollbarElement == null)
-            return;
+            return containerElement;
 
         var size = scrollbarElement.Layout(new BoxConstraint(0, Rect.Width, 0, Rect.Height));
         if (dir == Dir.Vertical)
@@ -109,6 +136,8 @@ public sealed partial class FlexContainer
                 Position = new Point(0, Rect.Height - size.Height)
             };
         }
+
+        return containerElement;
     }
 
     private void CalculateScrollPos(ref float scrollPos, Dir dir, float wheelDelta)

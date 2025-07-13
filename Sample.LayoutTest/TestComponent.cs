@@ -26,7 +26,7 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                using (ui.Rect().Padding(10).ScrollVertical())
+                using (ui.Rect().Padding(10).ScrollVertical(overlay: true).Clip())
                 {
                     for (int i = 0; i < 50; i++)
                     {
@@ -53,7 +53,7 @@ public static class TestComponent
 
     private static void Tab1(Ui ui, FlamuiWindowHost app)
     {
-        using (ui.Rect().Color(C.Gray6).Padding(10).Rounded(10).Margin(10).Gap(10))
+        using (ui.Rect().Color(C.Gray6).Padding(10).Rounded(5).Margin(10).Gap(10).ScrollVertical())
         {
             ref float sliderValue = ref ui.Get(0f);
             ui.Slider(0, 1, ref sliderValue);
@@ -138,6 +138,7 @@ public static class TestComponent
              ui.RadioButton(ref selectedRadioButton, 0);
              ui.RadioButton(ref selectedRadioButton, 1);
              ui.RadioButton(ref selectedRadioButton, 2);
+
         }
     }
 }

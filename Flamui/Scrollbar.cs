@@ -13,7 +13,7 @@ public sealed class ScrollbarSettings
         Padding = 2, //ToDo padding doesn't work
         ThumbHoverColor = new ColorDefinition(92, 92, 92),
         TrackHoverColor = C.Transparent,
-        ThumbRadius = 5
+        ThumbRadius = 3
     };
 
     public float Width;
@@ -51,7 +51,7 @@ public static class Scrollbar
             }
         }
 
-        using (var track = ui.Rect().Padding(settings.Padding))
+        using (var track = ui.Rect().Tag("Track"))
         {
             if (scrollService.Dir == Dir.Vertical)
             {
@@ -64,21 +64,15 @@ public static class Scrollbar
 
             track.Color(track.IsHovered || isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (var thumb = ui.Rect().Rounded(settings.ThumbRadius).Tag("Thumb"))
+            using (var thumb = ui.Rect().Rounded(3).Tag("Thumb"))
             {
-                if (IsFirst)
-                {
-                    Console.WriteLine(thumb.Id);
-                    IsFirst = false;
-                }
-
                 thumb.Color(thumb.IsHovered || isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 
                 if (scrollService.Dir == Dir.Vertical)
                 {
-                    thumb.AbsoluteSize(widthOffsetParent: 0);
-                    thumb.AbsolutePosition(top: scrollService.BarStart);
-                    thumb.Height(scrollService.BarSize);
+                    thumb.AbsoluteSize(widthOffsetParent: - settings.Padding * 2); //this is a hacky way to do padding, should rework the absolute system, so we can just apply padding to the parent
+                    thumb.AbsolutePosition(top: scrollService.BarStart + settings.Padding, left: settings.Padding);
+                    thumb.Height(scrollService.BarSize - settings.Padding * 2);
                 }
                 else
                 {

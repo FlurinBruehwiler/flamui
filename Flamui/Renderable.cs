@@ -160,7 +160,12 @@ public struct Command
         if (UiElementId == 0)
             return null;
 
-        return (UiElement)ui.LastFrameDataStore[UiElementId];
+        if (ui.LastFrameDataStore.TryGetValue(UiElementId, out var value))
+        {
+            return (UiElement)value;
+        }
+
+        throw new Exception($"Element with ID {UiElementId} doesn't exist");
     }
 }
 

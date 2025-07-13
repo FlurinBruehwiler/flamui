@@ -181,6 +181,7 @@ public sealed partial class UiTree
 
     public void Update(float width, float height)
     {
+        // Console.WriteLine("------------- New Frame -------------------");
         (Arena, LastArena) = (LastArena, Arena);
         Arena.Reset();
         Ui.Arena = Arena;
@@ -224,7 +225,12 @@ public sealed partial class UiTree
     
     private void HitTest(Vector2 originalPoint)
     {
-        Console.WriteLine(originalPoint);
+        // Console.WriteLine($"LastFrameDataStore:");
+        // foreach (var keyValuePair in Ui.LastFrameDataStore)
+        // {
+        //     Console.WriteLine($"{keyValuePair.Key}, {keyValuePair.Value}");
+        // }
+
         DebugHelper.BreakIfKeyHit(Ui, Key.J);
 
         var transformedPoint = originalPoint;
@@ -243,18 +249,17 @@ public sealed partial class UiTree
                 }
                 else if (command.Type == CommandType.Rect)
                 {
-                    command.GetAssociatedUiElement(Ui).FinalOnScreenSize = command.RectCommand.Bounds;
-
-                    if (command.GetAssociatedUiElement(Ui).UiElementInfo.DebugTag == "Thumb")
+                    var element = command.GetAssociatedUiElement(Ui);
+                    if (element != null)
                     {
-                        Console.WriteLine(command.RectCommand.Bounds);
+                        element.FinalOnScreenSize = command.RectCommand.Bounds;
+                        if (command.RectCommand.Bounds.ContainsPoint(transformedPoint))
+                        {
+                            hitElements.Add(element);
+                        }
                     }
-
-                    if (command.RectCommand.Bounds.ContainsPoint(transformedPoint))
-                    {
-                        hitElements.Add(command.GetAssociatedUiElement(Ui));
-                    }
-                }else if (command.Type == CommandType.Text)
+                }
+                else if (command.Type == CommandType.Text)
                 {
                     command.GetAssociatedUiElement(Ui).FinalOnScreenSize = command.TextCommand.Bounds;
                     if (command.TextCommand.Bounds.ContainsPoint(transformedPoint))
