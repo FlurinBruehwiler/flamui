@@ -2,6 +2,7 @@
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
+using Silk.NET.Input;
 using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
@@ -203,7 +204,7 @@ public sealed partial class UiTree
 
     public void HandleHitTest()
     {
-        HitTest(MousePosition);
+        HitTest(MouseScreenPosition);
 
         if (IsMouseButtonPressed(MouseButton.Left))
         {
@@ -223,12 +224,13 @@ public sealed partial class UiTree
     
     private void HitTest(Vector2 originalPoint)
     {
+        Console.WriteLine(originalPoint);
+        DebugHelper.BreakIfKeyHit(Ui, Key.J);
+
         var transformedPoint = originalPoint;
 
         hitElements.Clear();
         HoveredElements.Clear();
-
-        bool isFirstMatrix = true;
 
         //from back to front
         foreach (var (_, value) in _renderContext.CommandBuffers.OrderBy(x => x.Key))
@@ -237,16 +239,17 @@ public sealed partial class UiTree
             {
                 if (command.Type == CommandType.Matrix)
                 {
-                    if (!isFirstMatrix) //very very bad hack, to because the original point is already transformed to the userscaling, so we can't transform it twice :(
-                    {
-                        transformedPoint = originalPoint.Multiply(command.MatrixCommand.Matrix.Invert());
-                    }
-
-                    isFirstMatrix = false;
+                    transformedPoint = originalPoint.Multiply(command.MatrixCommand.Matrix.Invert());
                 }
                 else if (command.Type == CommandType.Rect)
                 {
                     command.GetAssociatedUiElement(Ui).FinalOnScreenSize = command.RectCommand.Bounds;
+
+                    if (command.GetAssociatedUiElement(Ui).UiElementInfo.DebugTag == "Thumb")
+                    {
+                        Console.WriteLine(command.RectCommand.Bounds);
+                    }
+
                     if (command.RectCommand.Bounds.ContainsPoint(transformedPoint))
                     {
                         hitElements.Add(command.GetAssociatedUiElement(Ui));
@@ -261,6 +264,7 @@ public sealed partial class UiTree
                 }
             }
         }
+
 
         //from front to back
         for (var i = hitElements.Count - 1; i >= 0; i--)

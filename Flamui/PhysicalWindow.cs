@@ -30,6 +30,7 @@ public sealed class PhysicalWindow
     /// </summary>
     public Vector2 UserScaling = DefaultScaling;
 
+    // public static readonly Vector2 DefaultScaling = new(1f, 1f);
     public static readonly Vector2 DefaultScaling = new(1.5f, 1.5f);
 
     /// <summary>
@@ -114,6 +115,7 @@ public sealed class PhysicalWindow
         HandleZoomAndStuff(screenMousePos - lastScreenMousePosition, screenMousePos); //still not sure if this should be on the window, or if we can put it onto the UiTree
 
         UiTree.MousePosition = ScreenToWorld(screenMousePos); // todo, we don't do ScreenToWorld here, because we would do it twice because of the matrix mult in the HitTest
+        UiTree.MouseScreenPosition = screenMousePos;
 
         UiTree.Update(GlfwWindow.Size.X / GetCompleteScaling().X, GlfwWindow.Size.Y / GetCompleteScaling().Y);
 

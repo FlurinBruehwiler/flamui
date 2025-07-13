@@ -4,6 +4,7 @@ public struct UiElementInfo
 {
     public Quadrant Margin;
     public AbsoluteInfo? AbsoluteInfo;
+    public string DebugTag;
 }
 
 public struct AbsoluteInfo

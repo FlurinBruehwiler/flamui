@@ -99,6 +99,13 @@ public sealed partial class FlexContainer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public FlexContainer Tag(string debugTag)
+    {
+        UiElementInfo.DebugTag = debugTag;
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FlexContainer Focusable(bool focusable = true)
     {
         Info.Focusable = focusable;

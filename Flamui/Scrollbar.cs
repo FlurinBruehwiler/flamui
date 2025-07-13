@@ -10,9 +10,10 @@ public sealed class ScrollbarSettings
         MinTrackSize = 50,
         ThumbColor = new ColorDefinition(92, 92, 92),
         TrackColor = C.Transparent,
-        Padding = 5, //ToDo padding doesn't work
+        Padding = 2, //ToDo padding doesn't work
         ThumbHoverColor = new ColorDefinition(92, 92, 92),
-        TrackHoverColor = new ColorDefinition(52, 53, 56, 100)
+        TrackHoverColor = C.Transparent,
+        ThumbRadius = 5
     };
 
     public float Width;
@@ -27,19 +28,7 @@ public sealed class ScrollbarSettings
 
 public static class Scrollbar
 {
-    public static LayoutScope ScrollVertical(this Ui ui)
-    {
-        LayoutScope scope;
-
-        using (ui.Rect().Direction(Dir.Horizontal))
-        {
-               
-
-            scope = ui.CreateLayoutScope();
-        }
-
-        return scope;
-    }
+    public static bool IsFirst = true;
 
     public static void Build(Ui ui, ScrollService scrollService, ScrollbarSettings settings)
     {
@@ -75,8 +64,14 @@ public static class Scrollbar
 
             track.Color(track.IsHovered || isDragging ? settings.TrackHoverColor : settings.TrackColor);
 
-            using (var thumb = ui.Rect().Rounded(settings.ThumbRadius))
+            using (var thumb = ui.Rect().Rounded(settings.ThumbRadius).Tag("Thumb"))
             {
+                if (IsFirst)
+                {
+                    Console.WriteLine(thumb.Id);
+                    IsFirst = false;
+                }
+
                 thumb.Color(thumb.IsHovered || isDragging ? settings.ThumbHoverColor : settings.ThumbColor);
 
                 if (scrollService.Dir == Dir.Vertical)

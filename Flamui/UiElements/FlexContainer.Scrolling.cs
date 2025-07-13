@@ -78,7 +78,7 @@ public sealed partial class FlexContainer
     {
         using var _ = Tree.Ui.CreateIdScope(dir.GetHashCode());
 
-        ScrollYElement = new OffTreeContainer
+        ScrollYElement ??= new OffTreeContainer
         {
             Id = Tree.Ui.GetHash(),
             Tree = Tree
