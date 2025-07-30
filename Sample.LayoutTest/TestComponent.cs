@@ -12,7 +12,7 @@ public static class TestComponent
     {
         ui.CascadingValues.TextColor = C.White;
 
-        var tabBar = ui.GetTabBar(initialTab: 1);
+        var tabBar = ui.GetTabBar(initialTab: 2);
 
         if (tabBar.TabItem("Tab 1"))
         {
@@ -26,26 +26,60 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                using (ui.Rect().Padding(10).ScrollVertical(overlay: true).Clip())
+                Tab2(ui);
+            }
+        }
+
+        if (tabBar.TabItem("Tab 3"))
+        {
+            using (tabBar.Body.Enter())
+            {
+                using (var grid = ui.Grid())
                 {
-                    for (int i = 0; i < 50; i++)
+                    for (int i = 0; i < 3; i++)
                     {
-                        using var _ = ui.CreateIdScope(i);
+                        grid.DefineColumn(width: 10);
+                    }
 
-                        using (var rect = ui.Rect().ShrinkHeight().PaddingHorizontal(5))
+                    //10 rows
+                    for (int i = 0; i < 10; i++)
+                    {
+                        //3 columns
+                        for (int j = 0; j < 3; j++)
                         {
-                            if (i % 2 == 0)
+                            using (ui.Rect())
                             {
-                                rect.Color(ColorPalette.AccentColor);
-                            }
-                            else
-                            {
-                                rect.Color(ColorPalette.BorderColor);
+
                             }
 
-                            ui.Text("Tab 2");
+                            //you now want it so that the column has the same width across the rows, you also want an easy way to declare a border
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private static void Tab2(Ui ui)
+    {
+        using (ui.Rect().Padding(10).ScrollVertical(overlay: true).Clip())
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                using var _ = ui.CreateIdScope(i);
+
+                using (var rect = ui.Rect().ShrinkHeight().PaddingHorizontal(5))
+                {
+                    if (i % 2 == 0)
+                    {
+                        rect.Color(ColorPalette.AccentColor);
+                    }
+                    else
+                    {
+                        rect.Color(ColorPalette.BorderColor);
+                    }
+
+                    ui.Text(i.ToArenaString());
                 }
             }
         }

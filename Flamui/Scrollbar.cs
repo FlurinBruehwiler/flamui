@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Silk.NET.Input;
 
 namespace Flamui;
@@ -32,6 +33,8 @@ public static class Scrollbar
 
     public static void Build(Ui ui, ScrollService scrollService, ScrollbarSettings settings)
     {
+        Console.WriteLine(JsonSerializer.Serialize(scrollService));
+
         scrollService.MinBarSize = settings.MinTrackSize;
 
         if (!scrollService.IsScrolling)
@@ -50,7 +53,6 @@ public static class Scrollbar
                 scrollService.ApplyBarDelta(ui.Tree.MouseDelta.X);
             }
         }
-
         using (var track = ui.Rect().Tag("Track"))
         {
             if (scrollService.Dir == Dir.Vertical)

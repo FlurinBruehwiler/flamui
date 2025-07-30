@@ -30,8 +30,8 @@ public sealed class PhysicalWindow
     /// </summary>
     public Vector2 UserScaling = DefaultScaling;
 
-    // public static readonly Vector2 DefaultScaling = new(1f, 1f);
-    public static readonly Vector2 DefaultScaling = new(1.5f, 1.5f);
+    public static readonly Vector2 DefaultScaling = new(2f, 2f);
+    // public static readonly Vector2 DefaultScaling = new(1.5f, 1.5f);
 
     /// <summary>
     /// the complete scaling
