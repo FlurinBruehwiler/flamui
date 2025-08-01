@@ -1277,6 +1277,142 @@ public sealed class LayoutingTests : IDisposable
         AssertUi(ui, 400, 400, expected);
     }
 
+    [Fact]
+    public void Grid_Single_Column()
+    {
+        var ui = GetUi();
+
+        using (var grid = ui.Grid())
+        {
+            grid.DefineColumn(width: 100, fractional: true);
+
+            for (int i = 0; i < 1; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    using (ui.Rect().Height(10))
+                    {
+
+                    }
+                }
+            }
+        }
+
+        var expected =
+            """
+            Grid = X:0, Y:0, W:0, H:0
+                FlexContainer = X:0, Y:0, W:400, H:10
+                FlexContainer = X:0, Y:10, W:400, H:10
+                FlexContainer = X:0, Y:20, W:400, H:10
+            """;
+
+        AssertUi(ui, 400, 400, expected);
+    }
+
+    [Fact]
+    public void Grid_Multiple_Column()
+    {
+        var ui = GetUi();
+
+        using (var grid = ui.Grid())
+        {
+            grid.DefineColumn(width: 100, fractional: true);
+            grid.DefineColumn(width: 100, fractional: true);
+            grid.DefineColumn(width: 100, fractional: true);
+
+            for (int i = 0; i < 1; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    using (ui.Rect().Height(10))
+                    {
+
+                    }
+                }
+            }
+        }
+
+        var expected =
+            """
+            Grid = X:0, Y:0, W:0, H:0
+                FlexContainer = X:0, Y:0, W:133.33334, H:10
+                FlexContainer = X:133.33334, Y:0, W:133.33334, H:10
+                FlexContainer = X:266.6667, Y:0, W:133.33334, H:10
+            """;
+
+        AssertUi(ui, 400, 400, expected);
+    }
+
+    [Fact]
+    public void Grid_Multiple_Row()
+    {
+        var ui = GetUi();
+
+        using (var grid = ui.Grid())
+        {
+            grid.DefineColumn(width: 100, fractional: true);
+            grid.DefineColumn(width: 100, fractional: true);
+            grid.DefineColumn(width: 100, fractional: true);
+
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    using (ui.Rect().Height(10))
+                    {
+
+                    }
+                }
+            }
+        }
+
+        var expected =
+            """
+            Grid = X:0, Y:0, W:0, H:0
+                FlexContainer = X:0, Y:0, W:133.33334, H:10
+                FlexContainer = X:133.33334, Y:0, W:133.33334, H:10
+                FlexContainer = X:266.6667, Y:0, W:133.33334, H:10
+                FlexContainer = X:0, Y:10, W:133.33334, H:10
+            """;
+
+        AssertUi(ui, 400, 400, expected);
+    }
+
+    [Fact]
+    public void Grid_Margin()
+    {
+        var ui = GetUi();
+
+        using (var grid = ui.Grid())
+        {
+            grid.DefineColumn(width: 100, fractional: true);
+            grid.DefineColumn(width: 100, fractional: true);
+            grid.DefineColumn(width: 100, fractional: true);
+
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    using (ui.Rect().Height(10).Margin(2))
+                    {
+
+                    }
+                }
+            }
+        }
+
+        var expected =
+            """
+            Grid = X:0, Y:0, W:0, H:0
+                FlexContainer = X:2, Y:2, W:129.33334, H:10
+                FlexContainer = X:135.33334, Y:2, W:129.33334, H:10
+                FlexContainer = X:268.6667, Y:2, W:129.33334, H:10
+                FlexContainer = X:2, Y:16, W:129.33334, H:10
+            """;
+
+        AssertUi(ui, 400, 400, expected);
+    }
+
     [NoScopeGeneration]
     private void AssertUi(Ui ui, int width, int height, string expected)
     {

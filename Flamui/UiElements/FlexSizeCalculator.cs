@@ -96,7 +96,7 @@ public static class FlexSizeCalculator
         return BoxSize.FromDirection(info.Direction, totalFixedSize, maxCrossSize + info.PaddingSizeCross());
     }
 
-    private static float GetSizePerPercentage(float totalPercentage, float availableSize)
+    public static float GetSizePerPercentage(float totalPercentage, float availableSize)
     {
         float sizePerPercent;
 

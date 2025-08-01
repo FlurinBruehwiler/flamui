@@ -36,18 +36,17 @@ public static class TestComponent
             {
                 using (var grid = ui.Grid())
                 {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        grid.DefineColumn(width: 30);
-                    }
+                    grid.DefineColumn(width: 100, fractional: true);
+                    grid.DefineColumn(width: 100, fractional: true);
+                    grid.DefineColumn(width: 100, fractional: true);
 
                     //10 rows
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 5; i++)
                     {
                         //3 columns
                         for (int j = 0; j < 3; j++)
                         {
-                            using (ui.Rect().Color(ColorDefinition.Random(ui.Tree)).Height(20))
+                            using (ui.Rect().Color(ColorDefinition.Random(ui.Tree)).Height(ui.Tree.PerFrameDebugRandomness.Next(10, 30)).Margin(1))
                             {
 
                             }

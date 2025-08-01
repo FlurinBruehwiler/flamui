@@ -8,6 +8,7 @@ public struct Column
     public float Width;
     public bool Fractional;
     public float XOffset;
+    public float PixelWidth;
 }
 
 public class Grid : UiElementContainer
@@ -20,7 +21,7 @@ public class Grid : UiElementContainer
         base.Reset();
     }
 
-    public void DefineColumn(float width, bool fractional = true)
+    public void DefineColumn(float width, bool fractional = false)
     {
         Columns.Add(new Column
         {
@@ -32,21 +33,40 @@ public class Grid : UiElementContainer
     public override BoxSize Layout(BoxConstraint constraint)
     {
         {
+            float totalFixedSize = 0f;
+            float totalPercentage = 0f;
+            foreach (var column in Columns)
+            {
+                if (column.Fractional)
+                {
+                    totalPercentage += column.Width;
+                }
+                else
+                {
+                    totalFixedSize += column.Width;
+                }
+            }
+
+            var availableSize = constraint.MaxWidth - totalFixedSize;
+            var sizePerPercentage = FlexSizeCalculator.GetSizePerPercentage(totalPercentage, availableSize);
+
             float currentX = 0f;
             for (var i = 0; i < Columns.Count; i++)
             {
                 var column = Columns[i];
                 column.XOffset = currentX;
-                currentX += column.Width;
+
+                if (column.Fractional)
+                {
+                    column.PixelWidth = sizePerPercentage * column.Width;
+                }
+                else
+                {
+                    column.PixelWidth = column.Width;
+                }
+                currentX += column.PixelWidth;
+
                 Columns[i] = column;
-            }
-        }
-
-        {
-
-            foreach (var uiElement in Children)
-            {
-                uiElement.PrepareLayout(Dir.Horizontal);
             }
         }
 
@@ -62,21 +82,33 @@ public class Grid : UiElementContainer
                 if (!Children.TryGet(currentChildIndex, out var currentChild))
                 {
                     var lastColumn = Columns.LastOrDefault();
-                    return new BoxSize(lastColumn.XOffset + lastColumn.Width, currentY);
+                    return new BoxSize(lastColumn.XOffset + lastColumn.PixelWidth, currentY);
                 }
 
-                var childSize = currentChild.Layout(new BoxConstraint(column.Width, column.Width, constraint.MinHeight,
+                currentChild.PrepareLayout(Dir.Horizontal);
+
+                var horizontalMargin = currentChild.UiElementInfo.Margin.SumInDirection(Dir.Horizontal);
+                var childSize = currentChild.Layout(new BoxConstraint(0, column.PixelWidth - horizontalMargin, 0,
                     constraint.MaxHeight - currentY));
 
-                rowHeight = Math.Max(rowHeight, childSize.Height);
+                rowHeight = Math.Max(rowHeight, childSize.Height + currentChild.UiElementInfo.Margin.SumInDirection(Dir.Vertical));
 
-                currentChild.ParentData = new ParentData { Position = new Point(column.XOffset, currentY) };
+                currentChild.ParentData = new ParentData { Position = new Point(column.XOffset + currentChild.UiElementInfo.Margin.Left, currentY + currentChild.UiElementInfo.Margin.Top) };
 
                 currentChildIndex++;
             }
 
             currentY += rowHeight;
         }
+    }
+
+    public override void PrepareLayout(Dir dir)
+    {
+        FlexibleChildConfig = new FlexibleChildConfig
+        {
+            Percentage = 100,
+        };
+        base.PrepareLayout(dir);
     }
 
     public override void Render(RenderContext renderContext, Point offset)
