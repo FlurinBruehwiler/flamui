@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using Flamui;
 using Flamui.Components;
+using Flamui.UiElements;
+using Silk.NET.GLFW;
 
 namespace Sample.LayoutTest;
 
@@ -34,27 +36,43 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                using (var grid = ui.Grid())
+                using (ui.Rect().Color(20, 20, 20).Padding(10))
                 {
-                    grid.DefineColumn(width: 100, fractional: true);
-                    grid.DefineColumn(width: 100, fractional: true);
-                    grid.DefineColumn(width: 100, fractional: true);
-
-                    //10 rows
-                    for (int i = 0; i < 5; i++)
+                    using (var grid = ui.Grid().Border(2, new ColorDefinition(47, 47, 47)))
                     {
-                        //3 columns
-                        for (int j = 0; j < 3; j++)
+                        if (grid.HoveredColumnIndex != -1)
                         {
-                            using (ui.Rect().Color(ColorDefinition.Random(ui.Tree)).Height(ui.Tree.PerFrameDebugRandomness.Next(10, 30)).Margin(1))
+                            ui.Tree.UiTreeHost.SetCursorStyle(CursorShape.HResize);
+                        }
+                        else
+                        {
+                            ui.Tree.UiTreeHost.SetCursorStyle(CursorShape.Arrow);
+                        }
+
+                        grid.DefineColumn(width: 100, fractional: true);
+                        grid.DefineColumn(width: 50);
+                        grid.DefineColumn(width: 50, fractional: true);
+
+                        //5 rows
+                        for (int i = 0; i < 5; i++)
+                        {
+                            //3 columns
+                            for (int j = 0; j < 3; j++)
                             {
+                                using (var cell = ui.Rect().Height(20).Padding(2))
+                                {
+                                    if (i % 2 == 0)
+                                    {
+                                        cell.Color(26, 26, 26);
+                                    }
 
+                                    ui.Text($"R: {i}, C: {j}").VerticalAlign(TextAlign.Center);
+                                }
                             }
-
-                            //you now want it so that the column has the same width across the rows, you also want an easy way to declare a border
                         }
                     }
                 }
+
             }
         }
     }

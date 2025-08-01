@@ -8,12 +8,15 @@ public interface IUiTreeHost
 {
     string GetClipboardText();
     void SetClipboardText(string text);
+    void SetCursorStyle(CursorShape cursorShape);
 }
 
 public sealed class NativeUiTreeHost : IUiTreeHost
 {
     private readonly Glfw _glfw;
     private readonly IWindow _window;
+    private Dictionary<CursorShape, IntPtr> CursorCache = [];
+    private CursorShape currentCursor = CursorShape.Arrow;
 
     public NativeUiTreeHost(IWindow window, Glfw glfw)
     {
@@ -29,5 +32,25 @@ public sealed class NativeUiTreeHost : IUiTreeHost
     public unsafe void SetClipboardText(string text)
     {
         _glfw.SetClipboardString((WindowHandle*)_window.Handle, text);
+    }
+
+    public unsafe void SetCursorStyle(CursorShape cursorShape)
+    {
+        if (cursorShape == currentCursor)
+            return;
+
+        Cursor* cursor;
+
+        if (CursorCache.TryGetValue(cursorShape, out var cachedCursor))
+        {
+            cursor = (Cursor*)cachedCursor;
+        }
+        else
+        {
+            cursor = _glfw.CreateStandardCursor(cursorShape);
+        }
+
+        currentCursor = cursorShape;
+        _glfw.SetCursor((WindowHandle*)_window.Handle, cursor);
     }
 }

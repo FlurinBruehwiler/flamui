@@ -1,4 +1,6 @@
-﻿namespace Flamui.Tests;
+﻿using Silk.NET.GLFW;
+
+namespace Flamui.Tests;
 
 public sealed class TestUiTreeHost : IUiTreeHost
 {
@@ -17,5 +19,10 @@ public sealed class TestUiTreeHost : IUiTreeHost
     public void SetClipboardText(string text)
     {
         _clipboardText = text;
+    }
+
+    public void SetCursorStyle(CursorShape cursorShape)
+    {
+
     }
 }
