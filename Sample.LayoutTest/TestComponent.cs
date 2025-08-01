@@ -3,6 +3,7 @@ using Flamui;
 using Flamui.Components;
 using Flamui.UiElements;
 using Silk.NET.GLFW;
+using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Sample.LayoutTest;
 
@@ -40,18 +41,37 @@ public static class TestComponent
                 {
                     using (var grid = ui.Grid().Border(2, new ColorDefinition(47, 47, 47)))
                     {
+                        var columns = ui.GetObj<List<float>>(() => [100, 100, 100]);
+
                         if (grid.HoveredColumnIndex != -1)
                         {
                             ui.Tree.UiTreeHost.SetCursorStyle(CursorShape.HResize);
+
+                            if (ui.Tree.IsMouseButtonDown(MouseButton.Left))
+                            {
+                                var left = grid.LastColumns[grid.HoveredColumnIndex];
+                                var right = grid.LastColumns[grid.HoveredColumnIndex + 1];
+
+                                var mouseDelta = ui.Tree.MouseDelta.X;
+                                var newLeftPixelSize = left.PixelWidth + mouseDelta;
+                                var newRightPixelSize = right.PixelWidth - mouseDelta;
+
+                                var newLeftFraction = left.Width / left.PixelWidth * newLeftPixelSize;
+                                var newRightFraction = right.Width / right.PixelWidth * newRightPixelSize;
+
+                                columns[grid.HoveredColumnIndex] = newLeftFraction;
+                                columns[grid.HoveredColumnIndex + 1] = newRightFraction;
+                            }
                         }
                         else
                         {
                             ui.Tree.UiTreeHost.SetCursorStyle(CursorShape.Arrow);
                         }
 
-                        grid.DefineColumn(width: 100, fractional: true);
-                        grid.DefineColumn(width: 50);
-                        grid.DefineColumn(width: 50, fractional: true);
+                        foreach (var column in columns)
+                        {
+                            grid.DefineColumn(column, fractional: true);
+                        }
 
                         //5 rows
                         for (int i = 0; i < 5; i++)
@@ -59,14 +79,17 @@ public static class TestComponent
                             //3 columns
                             for (int j = 0; j < 3; j++)
                             {
-                                using (var cell = ui.Rect().Height(20).Padding(2))
+                                using (var cell = ui.Rect().Height(20).Padding(2).Focusable().Color(C.Transparent))
                                 {
                                     if (i % 2 == 0)
                                     {
                                         cell.Color(26, 26, 26);
                                     }
 
-                                    ui.Text($"R: {i}, C: {j}").VerticalAlign(TextAlign.Center);
+                                    ref string t = ref ui.GetString("Hi");
+                                    ui.Input(ref t, cell.HasFocusWithin);
+
+                                    // ui.Text($"R: {i}, C: {j}").VerticalAlign(TextAlign.Center);
                                 }
                             }
                         }

@@ -36,7 +36,7 @@ public static partial class UiExtensions
         }
     }
 
-    private static float MapRange(float value, float inMin, float inMax, float outMin, float outMax)
+    public static float MapRange(float value, float inMin, float inMax, float outMin, float outMax)
     {
         if (inMax == inMin)
             throw new ArgumentException("Input range cannot be zero.");

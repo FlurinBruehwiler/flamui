@@ -18,6 +18,7 @@ public struct UiTextInfo
     public TextAlign VerticalAlignment = TextAlign.Center;
     public bool Multiline;
     public ArenaString Content = default;
+    public bool DisableAutomaticEllipsis;
 }
 
 public struct TextPosition
@@ -113,7 +114,7 @@ public sealed class UiText : UiElement
     public override BoxSize Layout(BoxConstraint constraint)
     {
         TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
-            constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Ui.Arena);
+            constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Ui.Arena, !UiTextInfo.DisableAutomaticEllipsis);
 
         Rect = new BoxSize(TextLayoutInfo.Width, TextLayoutInfo.Height);
         return Rect;

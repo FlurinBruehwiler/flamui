@@ -2,6 +2,7 @@
 using System.Numerics;
 using Flamui.Drawing;
 using Flamui.Layouting;
+using Silk.NET.GLFW;
 using Point = Flamui.Layouting.Point;
 
 namespace Flamui.UiElements;
@@ -23,6 +24,7 @@ public struct GridInfo
 public class Grid : UiElementContainer
 {
     public List<Column> Columns = [];
+    public List<Column> LastColumns = [];
     public GridInfo Info;
     private List<float> RowXOffsets = [];
 
@@ -35,6 +37,7 @@ public class Grid : UiElementContainer
 
     public override void Reset()
     {
+        (Columns, LastColumns) = (LastColumns, Columns);
         Columns.Clear();
         RowXOffsets.Clear();
         Info = default;
@@ -155,7 +158,7 @@ public class Grid : UiElementContainer
 
                     if (Math.Abs(column.XOffset - (Info.BorderWidth / 2f) - relativePos.X) <= Info.BorderWidth / 2f + 2f)
                     {
-                        HoveredColumnIndex = i;
+                        HoveredColumnIndex = i - 1;
                         goto end;
                     }
                 }

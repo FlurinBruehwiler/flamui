@@ -178,6 +178,21 @@ public sealed partial class Ui
         return initialValue;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T GetObj<T>(Func<T> factory) where T : class
+    {
+        var hash = IncreaseAndGetHash();
+        if (LastFrameDataStore.TryGetValue(hash, out var lastValue))
+        {
+            CurrentFrameDataStore.Add(hash, lastValue);
+            return (T)lastValue;
+        }
+
+        var initialValue = factory();
+        CurrentFrameDataStore.Add(hash, initialValue);
+        return initialValue;
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T GetObjRef<T>(T initialValue) where T : class

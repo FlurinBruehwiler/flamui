@@ -2,6 +2,7 @@ using Flamui.UiElements;
 
 namespace Flamui.Drawing;
 
+//todo, we should not do font shaping ourselves, it is way to complicated, we should use https://github.com/JimmyLefevre/kb/blob/main/kb_text_shape.h
 public sealed class FontShaping
 {
     public static (float start, float end) GetPositionOfChar(ScaledFont scaledFont, ReadOnlySpan<char> singleLine, int index)
@@ -48,7 +49,7 @@ public sealed class FontShaping
     //rule: preferably only ever the start of a new word can go onto the next line,
     //so we make a new line, as soon as the next word + following whitespace doesn't fit on the current line
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
-    public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed, Arena arena)
+    public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed, Arena arena, bool addEllipsisOnSingleLineIfNeeded)
     {
         ArenaList<Line> lines = new ArenaList<Line>(Ui.Arena, 1);
         float widthOfLongestLine = 0;
@@ -87,23 +88,28 @@ public sealed class FontShaping
             currentLineWidth += charWidth;
             currentBlockWidth += charWidth;
 
-
             if (currentLineWidth > maxWidth && multilineAllowed)
             {
-                if (currentLineStart == currentBlockStart) //not even a single word fits onto the line
+                if (multilineAllowed)
                 {
-                    AddLine(i, text);
-                    currentLineStart = i;
-                    currentBlockStart = i;
-                    currentLineWidth = charWidth;
-                    currentBlockWidth = charWidth;
-                }
-                else
+                    if (currentLineStart == currentBlockStart) //not even a single word fits onto the line
+                    {
+                        AddLine(i, text);
+                        currentLineStart = i;
+                        currentBlockStart = i;
+                        currentLineWidth = charWidth;
+                        currentBlockWidth = charWidth;
+                    }
+                    else
+                    {
+                        //add new line
+                        AddLine(currentBlockStart, text);
+                        currentLineWidth = currentBlockWidth;
+                        currentLineStart = currentBlockStart;
+                    }
+                }else if (addEllipsisOnSingleLineIfNeeded)
                 {
-                    //add new line
-                    AddLine(currentBlockStart, text);
-                    currentLineWidth = currentBlockWidth;
-                    currentLineStart = currentBlockStart;
+                    //todo, now we need to walk back and insert an ellipsis somehow...
                 }
             }
         }
