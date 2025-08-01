@@ -109,8 +109,8 @@ public sealed class PhysicalWindow
             }
         }
 
-        GlfwApi.GetCursorPos((WindowHandle*)GlfwWindow.Handle, out var x, out var y);
-        var screenMousePos = new Vector2((float)x, (float)y);
+        // GlfwApi.GetCursorPos((WindowHandle*)GlfwWindow.Handle, out var x, out var y);
+        // var screenMousePos = new Vector2((float)x, (float)y);
 
         HandleZoomAndStuff(screenMousePos - lastScreenMousePosition, screenMousePos); //still not sure if this should be on the window, or if we can put it onto the UiTree
 
@@ -121,6 +121,8 @@ public sealed class PhysicalWindow
 
         lastScreenMousePosition = screenMousePos;
     }
+
+    private Vector2 screenMousePos;
 
     private unsafe void OnLoad()
     {
@@ -155,6 +157,11 @@ public sealed class PhysicalWindow
         {
             LinuxNative.glfwGetWindowContentScale(GlfwWindow.Handle, &xScale, &yScale);
         }
+
+        GlfwApi.SetCursorPosCallback((WindowHandle*)GlfwWindow.Handle, (_, x, y) =>
+        {
+            screenMousePos = new Vector2((float)x, (float)y);
+        });
 
         DpiScaling = new Vector2(xScale, yScale);
 

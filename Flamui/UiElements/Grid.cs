@@ -184,11 +184,6 @@ public class Grid : UiElementContainer
     {
         renderContext.AddRect(new Bounds(new Vector2(offset.X, offset.Y), new Vector2(Rect.Width, Rect.Height)), this, C.Transparent);
 
-        foreach (var uiElement in Children)
-        {
-            uiElement.Render(renderContext, offset.Add(uiElement.ParentData.Position));
-        }
-
         if (Info.BorderWidth != 0)
         {
             float lastColumnLeft = 0;
@@ -225,6 +220,11 @@ public class Grid : UiElementContainer
                     new Bounds(offset.X, offset.Y + rowYOffset - Info.BorderWidth, Rect.Width,
                         Info.BorderWidth), null, Info.BorderColor);
             }
+        }
+
+        foreach (var uiElement in Children)
+        {
+            uiElement.Render(renderContext, offset.Add(uiElement.ParentData.Position));
         }
     }
 }

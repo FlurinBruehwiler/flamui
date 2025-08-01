@@ -8,6 +8,8 @@ public interface IUiTreeHost
 {
     string GetClipboardText();
     void SetClipboardText(string text);
+
+    //sets the cursor style across once, remains across frames
     void SetCursorStyle(CursorShape cursorShape);
 }
 
@@ -52,5 +54,6 @@ public sealed class NativeUiTreeHost : IUiTreeHost
 
         currentCursor = cursorShape;
         _glfw.SetCursor((WindowHandle*)_window.Handle, cursor);
+        Console.WriteLine($"Setting cursor to {cursorShape}");
     }
 }

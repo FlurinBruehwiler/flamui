@@ -43,7 +43,7 @@ public static class FlexContainerRenderer
 
         if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is {} borderColor)
         {
-            float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
+            float borderRadius = flexContainer.Info.Radius == 0 ? 0 : flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
 
             var needsClip = flexContainer.Info.Color == null || flexContainer.Info.Color.Value.Alpha != 255;
 

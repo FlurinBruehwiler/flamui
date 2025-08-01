@@ -5,6 +5,7 @@ namespace Flamui.Tests;
 public sealed class TestUiTreeHost : IUiTreeHost
 {
     private string _clipboardText;
+    private CursorShape _cursorShape;
 
     public TestUiTreeHost(string clipboardText)
     {
@@ -23,6 +24,6 @@ public sealed class TestUiTreeHost : IUiTreeHost
 
     public void SetCursorStyle(CursorShape cursorShape)
     {
-
+        _cursorShape = cursorShape;
     }
 }

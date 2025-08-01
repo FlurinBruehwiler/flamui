@@ -2,6 +2,7 @@
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
 using MouseButton = Silk.NET.Input.MouseButton;
 
@@ -98,7 +99,9 @@ public sealed partial class UiTree
     private Action<Ui> _buildAction;
     public RenderContext _renderContext = new RenderContext();
     private UiElement? _activeContainer;
+
     public UiElementContainer RootContainer;
+
     // public Input Input;
     private readonly TabIndexManager _tabIndexManager = new();
     public readonly Ui Ui = new();
@@ -133,9 +136,26 @@ public sealed partial class UiTree
         }
     }
 
+    private int _cursorPriority = 0;
+    private CursorShape _cursorShape = CursorShape.Arrow;
+
+    /// <summary>
+    /// Sets a cursor for the current frame, needs to be called each frame the custom cursor should be shown.
+    /// If the function is never called, the default Arrow cursor will be displayed.
+    /// If the function is called multiple times, the one with the highest priorty winns
+    /// (when two calls have the same priority, the last call will win)
+    /// </summary>
+    public void UseCursor(CursorShape cursorShape, int priority = 0)
+    {
+        if (priority >= _cursorPriority)
+        {
+            _cursorShape = cursorShape;
+            _cursorPriority = priority;
+        }
+    }
+
     private static void SetHasFocusWithinOfParentsAndSelf(UiElement element, bool value)
     {
-
         if (element is UiElementContainer c)
         {
             c.HasFocusWithin = value;
@@ -202,6 +222,10 @@ public sealed partial class UiTree
         BuildUi(width, height);
 
         CleanupInputAfterFrame();
+
+        UiTreeHost.SetCursorStyle(_cursorShape);
+        _cursorShape = CursorShape.Arrow;
+        _cursorPriority = 0;
     }
 
     public void HandleHitTest()
@@ -212,7 +236,7 @@ public sealed partial class UiTree
         {
             foreach (var windowHoveredDiv in HoveredElements)
             {
-                if (windowHoveredDiv is FlexContainer { Info.Focusable:true} uiContainer)
+                if (windowHoveredDiv is FlexContainer { Info.Focusable: true } uiContainer)
                 {
                     ActiveDiv = uiContainer;
 
@@ -223,7 +247,7 @@ public sealed partial class UiTree
             ActiveDiv = null;
         }
     }
-    
+
     private void HitTest(Vector2 originalPoint)
     {
         // Console.WriteLine($"LastFrameDataStore:");

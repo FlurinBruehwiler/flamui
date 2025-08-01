@@ -1,4 +1,5 @@
 ﻿using Flamui.UiElements;
+using Silk.NET.GLFW;
 
 namespace Flamui.Components;
 
@@ -20,6 +21,11 @@ public static partial class UiExtensions
         using (var hitBox = ui.Rect().ShrinkHeight().Color(C.Transparent))
         {
             var t = ui.Text(text);
+
+            if (hitBox.IsHovered)
+            {
+                ui.Tree.UseCursor(CursorShape.IBeam);
+            }
 
             if (hitBox.IsClicked)
             {
