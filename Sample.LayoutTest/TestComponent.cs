@@ -38,7 +38,7 @@ public static class TestComponent
                 {
                     for (int i = 0; i < 3; i++)
                     {
-                        grid.DefineColumn(width: 10);
+                        grid.DefineColumn(width: 30);
                     }
 
                     //10 rows
@@ -47,7 +47,7 @@ public static class TestComponent
                         //3 columns
                         for (int j = 0; j < 3; j++)
                         {
-                            using (ui.Rect())
+                            using (ui.Rect().Color(ColorDefinition.Random(ui.Tree)).Height(20))
                             {
 
                             }
@@ -67,7 +67,6 @@ public static class TestComponent
             for (int i = 0; i < 50; i++)
             {
                 using var _ = ui.CreateIdScope(i);
-
                 using (var rect = ui.Rect().ShrinkHeight().PaddingHorizontal(5))
                 {
                     if (i % 2 == 0)

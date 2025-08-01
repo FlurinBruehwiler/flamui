@@ -252,6 +252,26 @@ public sealed partial class Ui
         return div;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Grid Grid([CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
+    {
+        CreateIdScope(file, lineNumber);
+
+        var div = GetData(static (ui) => new Grid()
+        {
+            Id = ui.GetHash(),
+            Tree = ui.Tree
+        });
+
+        OpenElement.AddChild(div);
+
+        PushOpenElement(div);
+
+        div.OpenElement();
+
+        return div;
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UiText Text(ArenaString content, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)

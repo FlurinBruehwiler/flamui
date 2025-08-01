@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Silk.NET.Maths;
 
@@ -70,6 +71,18 @@ public static class Extensions
     public static VerticesEnumerator EnumeratePoints(this Span<Segment> segments)
     {
         return new VerticesEnumerator(segments);
+    }
+
+    public static bool TryGet<T>(this IList<T> collection, int idx, [NotNullWhen(true)] out T? value)
+    {
+        if (collection.Count <= idx)
+        {
+            value = default;
+            return false;
+        }
+
+        value = collection[idx];
+        return true;
     }
 
     public static T GetAt<T>(this IList<T> list, int index)

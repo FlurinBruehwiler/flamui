@@ -109,8 +109,7 @@ public sealed partial class UiTree
 
     public Arena Arena;
     public Arena LastArena;
-
-
+    public Random PerFrameDebugRandomness = new();
 
     public UiElement? ActiveDiv
     {
@@ -181,6 +180,8 @@ public sealed partial class UiTree
 
     public void Update(float width, float height)
     {
+        PerFrameDebugRandomness = new Random(-4711);
+
         // Console.WriteLine("------------- New Frame -------------------");
         (Arena, LastArena) = (LastArena, Arena);
         Arena.Reset();

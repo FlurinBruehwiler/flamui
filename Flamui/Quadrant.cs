@@ -242,6 +242,13 @@ public record struct ColorDefinition
         return new ColorDefinition() { Red = color.R, Green = color.G, Blue = color.B, Alpha = color.A };
     }
 
+    public static ColorDefinition Random(UiTree uiTree)
+    {
+        return new ColorDefinition((byte)uiTree.PerFrameDebugRandomness.Next(0, 255),
+            (byte)uiTree.PerFrameDebugRandomness.Next(0, 255),
+            (byte)uiTree.PerFrameDebugRandomness.Next(0, 255));
+    }
+
     public static ColorDefinition operator /(ColorDefinition original, byte opacity)
     {
         return original with
