@@ -15,6 +15,7 @@ using Sample.LayoutTest;
  * - Make Scroll work again
  * - Make Debug Zoom work properly   -- wip
  * - Fix InputBox hit testing -- done
+ * - Check SVG workflow
  * - Implement some kind of Grid -- wip (still need to add scrolling)
  * - Implement more prebuilt components for faster development (take inspiration from shadcn)
  *     - Design Inspo: https://www.figma.com/design/YH6PqUnUPjbUcM9On5gfjz/Int-UI-Kit--Community-?node-id=6222-73687&p=f&t=u6cSRJMlVN6fukUu-0

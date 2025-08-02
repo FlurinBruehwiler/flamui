@@ -221,6 +221,12 @@ public sealed partial class UiTree
 
         BuildUi(width, height);
 
+        foreach (var uiAfterFrameCallback in Ui.AfterFrameCallbacks)
+        {
+            uiAfterFrameCallback();
+        }
+        Ui.AfterFrameCallbacks.Clear();
+
         CleanupInputAfterFrame();
 
         UiTreeHost.SetCursorStyle(_cursorShape);

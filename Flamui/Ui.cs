@@ -32,7 +32,7 @@ struct DataScope
     }
 }
 
-public sealed partial class Ui
+public sealed class Ui
 {
     public Dictionary<int, object> LastFrameDataStore = [];
     public Dictionary<int, object> CurrentFrameDataStore = [];
@@ -48,6 +48,7 @@ public sealed partial class Ui
 
     private readonly Stack<UiElementContainer> OpenElementStack = new();
     private UiElementContainer OpenElement => OpenElementStack.Peek();
+    public List<Action> AfterFrameCallbacks = [];
 
     public UiTree Tree = null!;
     public FontManager FontManager = new();
@@ -205,8 +206,11 @@ public sealed partial class Ui
             var item = LastFrameRefObjects[(int)lastIdx];
             CurrentFrameRefObjects.Add(item);
         }
+        else
+        {
+            CurrentFrameRefObjects.Add(initialValue);
+        }
 
-        CurrentFrameRefObjects.Add(initialValue);
         if (!UnmanagedCurrentFrameDataStore.TryAdd(hash, idx))
         {
             throw new Exception("aahhhhh");
@@ -216,14 +220,12 @@ public sealed partial class Ui
         return ref Unsafe.As<object, T>(ref y);
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref string GetString(string initialValue, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
         using var _ = CreateIdScope(file, lineNumber);
         return ref GetObjRef(initialValue);
     }
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetData<T>(Func<Ui, T> factoryMethod) where T : class
@@ -381,5 +383,10 @@ public sealed partial class Ui
             OpenElement = OpenElement,
             Ui = this
         };
+    }
+
+    public void RunAfterFrame(Action callback)
+    {
+        AfterFrameCallbacks.Add(callback);
     }
 }

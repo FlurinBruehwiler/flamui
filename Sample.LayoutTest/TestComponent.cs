@@ -111,7 +111,7 @@ public static class TestComponent
                                 cell.Color(26, 26, 26);
                             }
 
-                            ref string t = ref ui.GetString("Anita max wynn");
+                            ref string t = ref ui.GetString($"{i} Anita max wynn");
                             ui.Input(ref t, cell.HasFocusWithin);
                         }
                     }
@@ -150,19 +150,6 @@ public static class TestComponent
         {
             ref float sliderValue = ref ui.Get(0f);
             ui.Slider(0, 1, ref sliderValue);
-
-            // for (int i = 0; i < 10; i++)
-            // {
-            //     using (var r = ui.Rect().Height(20).Color(C.Gray4))
-            //     {
-            //         ui.CreateIdScope(i);
-            //
-            //         if (r.IsHovered)
-            //         {
-            //             r.Color(C.Red5);
-            //         }
-            //     }
-            // }
 
             ref string selectedOption = ref ui.GetString("John");
 

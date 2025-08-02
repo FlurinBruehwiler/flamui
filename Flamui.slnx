@@ -7,6 +7,7 @@
   </Folder>
   <Folder Name="/Samples/">
     <Project Path="Sample.LayoutTest/Sample.LayoutTest.csproj" />
+    <Project Path="SwissSkillsTraining1\SwissSkillsTraining1.csproj" Type="Classic C#" />
   </Folder>
   <Project Path="Flamui.Components/Flamui.Components.csproj" />
   <Project Path="Flamui.SourceGenerators.Tests/Flamui.SourceGenerators.Tests.csproj" />
