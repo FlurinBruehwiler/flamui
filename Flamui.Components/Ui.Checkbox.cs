@@ -11,7 +11,7 @@ public static partial class UiExtensions
         using (var div = ui.Rect().Height(15).Focusable().Width(15).Color(ColorPalette.BackgroundColor)
                    .BorderColor(ColorPalette.BorderColor).BorderWidth(1).Rounded(2))
         {
-            if (div.IsClicked)
+            if (div.IsClicked())
             {
                 enabled = !enabled;
             }

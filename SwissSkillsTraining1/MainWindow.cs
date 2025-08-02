@@ -63,7 +63,7 @@ public static class MainWindow
 
                     using (var rect = ui.Rect().Color(C.Transparent))
                     {
-                        if (rect.IsClicked)
+                        if (rect.IsClicked())
                         {
                             ui.RunAfterFrame(() => store.DeleteProduct(storeProduct));
                         }
@@ -84,7 +84,7 @@ public static class MainWindow
 
                     using (var rect = ui.Rect().Color(C.Transparent))
                     {
-                        if (rect.IsClicked)
+                        if (rect.IsClicked())
                         {
                             windowHost.CreateWindow($"Edit Criterion {criterion.Name}", (ui2) => { ui2.GetObj<EditCriterion>().Build(ui2, criterion, store); });
                         }
@@ -94,7 +94,7 @@ public static class MainWindow
 
                     using (var rect = ui.Rect().Color(C.Transparent))
                     {
-                        if (rect.IsClicked)
+                        if (rect.IsClicked())
                         {
                             ui.RunAfterFrame(() => store.DeleteCriteria(criterion));
                         }

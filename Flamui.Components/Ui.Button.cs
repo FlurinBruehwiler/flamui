@@ -42,7 +42,7 @@ public static partial  class UiExtensions
 
             ui.Text(text).Color(ColorPalette.TextColor);
 
-            return btn.IsClicked;
+            return btn.IsClicked();
         }
     }
 }

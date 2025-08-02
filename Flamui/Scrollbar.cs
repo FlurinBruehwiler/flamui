@@ -81,7 +81,7 @@ public static class Scrollbar
                     thumb.Width(scrollService.BarSize);
                 }
 
-                if (thumb.IsClicked)
+                if (thumb.IsClicked())
                 {
                     isDragging = true;
                     // SDL_CaptureMouse(SDL_bool.SDL_TRUE); //TODO

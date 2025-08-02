@@ -47,7 +47,7 @@ public ref struct TabBar
         {
             using (var tabItem = Ui.Rect().Color(C.Transparent).Height(30).ShrinkWidth().PaddingHorizontal(10).Center())
             {
-                if (tabItem.IsClicked)
+                if (tabItem.IsClicked())
                 {
                     ActiveTab = IdForNextDeclaredTab;
                 }

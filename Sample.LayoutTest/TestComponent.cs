@@ -52,6 +52,8 @@ public static class TestComponent
 
                 if (grid.HoveredColumnIndex != -1 && draggingColumn == -1)
                 {
+                    //todo, we need to put hitboxes there instead, and then they should block the hit, but only if they are dragging. kinda complicated
+
                     ui.Tree.UseCursor(CursorShape.HResize, 10);
 
                     if (ui.Tree.IsMouseButtonPressed(MouseButton.Left))

@@ -11,7 +11,7 @@ public static partial class UiExtensions
 
         using (var div = ui.Rect().Circle(8).Focusable().Color(ColorPalette.BackgroundColor).Border(1, ColorPalette.BorderColor).Center())
         {
-            if (div.IsClicked)
+            if (div.IsClicked())
             {
                 selectedValue = thisValue;
             }

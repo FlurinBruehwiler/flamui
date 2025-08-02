@@ -53,6 +53,7 @@ public static partial class UiExtensions
             throw new Exception("text cannot be null");
 
         ref bool lastClickWasDoubleClick = ref ui.Get(false);
+        ref bool isDragging = ref ui.Get(false);
 
         using (var hitBox = ui.Rect().ShrinkHeight().Color(C.Transparent))
         {
@@ -73,16 +74,7 @@ public static partial class UiExtensions
                 if (ui.Tree.IsMouseButtonPressed(MouseButton.Left))
                 {
                     t.SelectionStart = t.CursorPosition = GetCharacterUnderMouse(ui, t, text);
-                }
-
-                if (ui.Tree.IsMouseButtonDown(MouseButton.Left) && !lastClickWasDoubleClick)
-                {
-                    t.CursorPosition = GetCharacterUnderMouse(ui, t, text);
-                }
-
-                if (ui.Tree.IsMouseButtonReleased(MouseButton.Left))
-                {
-                    lastClickWasDoubleClick = false;
+                    isDragging = true;
                 }
 
                 if (hitBox.IsDoubleClicked())
@@ -92,6 +84,17 @@ public static partial class UiExtensions
 
                     (t.SelectionStart, t.CursorPosition) = GetWordUnderCursor(text, c);
                 }
+            }
+
+            if (isDragging && !lastClickWasDoubleClick)
+            {
+                t.CursorPosition = GetCharacterUnderMouse(ui, t, text);
+            }
+
+            if (isDragging && ui.Tree.IsMouseButtonReleased(MouseButton.Left))
+            {
+                lastClickWasDoubleClick = false;
+                isDragging = false;
             }
 
             t.ShowCursor = hasFocus;

@@ -72,7 +72,7 @@ public sealed class DropDown<T>
 
                         using (var optionDiv = ui.Rect().Height(25).Color(C.Transparent).Padding(5).Rounded(3))
                         {
-                            if (optionDiv.IsClicked)
+                            if (optionDiv.IsClicked())
                             {
                                 selectedOption = option;
                                 CloseMenu();
@@ -151,7 +151,7 @@ public sealed class DropDown<T>
                 return;
             }
 
-            if (dropDownDiv.IsClicked)
+            if (dropDownDiv.IsClicked())
             {
                 if(_isExpanded)
                     CloseMenu();

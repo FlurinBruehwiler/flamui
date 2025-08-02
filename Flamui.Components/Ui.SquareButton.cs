@@ -13,7 +13,7 @@ public static partial class UiExtensions
 
             ui.SvgImage(icon, ColorPalette.TextColor);
 
-            return btn.IsClicked;
+            return btn.IsClicked();
 
         }
     }

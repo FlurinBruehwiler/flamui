@@ -18,30 +18,27 @@ public sealed partial class FlexContainer : UiElementContainer
         base.Reset();
     }
 
-    public bool IsClicked
+    public bool IsClicked()
     {
-        get
-        {
-            Info.Interactable = true;
+        Info.Interactable = true;
 
-            if (Tree is null)
-                throw new Exception();
+        if (Tree is null)
+            throw new Exception();
 
-            if (!Tree.IsMouseButtonPressed(MouseButton.Left))
-                return false;
-
-            if (Tree.HoveredElements.Contains(this))
-            {
-                return true;
-            }
-
+        if (!Tree.IsMouseButtonPressed(MouseButton.Left))
             return false;
+
+        if (Tree.HoveredElements.Contains(this))
+        {
+            return true;
         }
+
+        return false;
     }
 
     public bool IsDoubleClicked()
     {
-        if (IsClicked)
+        if (IsClicked())
         {
             if (lastClickTime != 0 && Stopwatch.GetElapsedTime(lastClickTime).TotalMilliseconds < 300)
             {
