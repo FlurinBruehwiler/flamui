@@ -16,6 +16,20 @@ public class EditCriterion
 
     public void Build(Ui ui, Criterion criterion, Store store)
     {
+        ui.CascadingValues.TextColor = C.White;
+
+        if (_name is null)
+        {
+            _name = criterion.Name;
+            _selectedType = criterion.Type;
+            _weight = criterion.Weight.ToString();
+            OrdinalOptions = criterion.OrdinalOptions.Select(x => new EditOrdinalOption()
+            {
+                Points = x.Points.ToString(),
+                Name = x.Name
+            }).ToList();
+        }
+
         using (ui.Rect().Padding(10).Color(ColorPalette.BackgroundColor))
         {
             //header
@@ -25,83 +39,83 @@ public class EditCriterion
             }
 
             //main content
-            using (ui.Rect())
+            using (ui.Rect().Gap(10))
             {
-                using (ui.Rect().Height(60).Direction(Dir.Horizontal))
+                using (var grid = ui.Grid().Gap(10))
                 {
+                    grid.DefineColumn(100, true);
+                    grid.DefineColumn(100, true);
+
+                    //name
                     ui.Text("Criterion Name");
                     ui.StyledInput(ref _name);
-                }
 
-                using (ui.Rect().Height(60).Direction(Dir.Horizontal))
-                {
-                    ui.Text("Weight (in Percentage)");
-                    var eff = criterion.GetEffectiveWeight(store);
-                    ui.Text($"Effective Weight: {eff}%");
+                    //weight
+                    using (ui.Rect().Direction(Dir.Horizontal).ShrinkHeight())
+                    {
+                        ui.Text("Weight (in Percentage)");
+                        var eff = criterion.GetEffectiveWeight(store);
+                        ui.Text($"Effective Weight: {eff}%");
+                    }
                     ui.StyledInput(ref _weight, inputType: InputType.Numeric);
-                }
 
-                using (ui.Rect().Height(60).Direction(Dir.Horizontal))
-                {
+                    //type
                     ui.Text("Type");
                     ui.DropDown([CriterionType.Numerical, CriterionType.Ordinal], ref _selectedType);
-                }
 
-                if (_selectedType == CriterionType.Numerical)
-                {
-                    using (ui.Rect().Direction(Dir.Horizontal))
+                    if (_selectedType == CriterionType.Numerical)
                     {
                         ui.Text("Min");
                         ui.StyledInput(ref _min, inputType: InputType.Numeric);
-                    }
 
-                    using (ui.Rect().Direction(Dir.Horizontal))
-                    {
                         ui.Text("Max");
                         ui.StyledInput(ref _max, inputType: InputType.Numeric);
                     }
-                }
 
-                if (_selectedType == CriterionType.Ordinal)
-                {
-                    using (ui.Rect().Height(30))
+                    if (_selectedType == CriterionType.Ordinal)
                     {
-                        ui.Text("Ordinal Options:");
-                    }
-
-                    for (var i = 0; i < OrdinalOptions.Count; i++)
-                    {
-                        using var _ = ui.CreateIdScope(i);
-                        using (ui.Rect().Height(30).Direction(Dir.Horizontal))
+                        using (ui.Rect().Height(30))
                         {
-                            using (ui.Rect().Direction(Dir.Horizontal))
+                            ui.Text("Ordinal Options:");
+                        }
+
+                        using (ui.Rect())
+                        {
+                            for (var i = 0; i < OrdinalOptions.Count; i++)
                             {
-                                ui.Text("Name");
-                                ui.StyledInput(ref OrdinalOptions[i].Name);
+                                using var _ = ui.CreateIdScope(i);
+                                using (ui.Rect().Height(30).Direction(Dir.Horizontal))
+                                {
+                                    using (ui.Rect().Direction(Dir.Horizontal))
+                                    {
+                                        ui.Text("Name");
+                                        ui.StyledInput(ref OrdinalOptions[i].Name);
+                                    }
+
+                                    using (ui.Rect().Direction(Dir.Horizontal))
+                                    {
+                                        ui.Text("Value");
+                                        ui.StyledInput(ref OrdinalOptions[i].Points, inputType: InputType.Numeric);
+                                    }
+                                }
                             }
 
-                            using (ui.Rect().Direction(Dir.Horizontal))
+                            if (ui.Button("Add Option"))
                             {
-                                ui.Text("Value");
-                                ui.StyledInput(ref OrdinalOptions[i].Points, inputType: InputType.Numeric);
+                                OrdinalOptions.Add(new EditOrdinalOption());
+                            }
+
+                            if (OrdinalOptions.Count < 2)
+                            {
+                                ui.Text("Please specify at least two Options");
                             }
                         }
-                    }
-
-                    if (ui.Button("Add Option"))
-                    {
-                        OrdinalOptions.Add(new EditOrdinalOption());
-                    }
-
-                    if (OrdinalOptions.Count < 2)
-                    {
-                        ui.Text("Please specify at least two Options");
                     }
                 }
             }
 
             //footer
-            using (ui.Rect().Height(50).MainAlign(MAlign.SpaceBetween).Direction(Dir.Horizontal).Gap(10))
+            using (ui.Rect().ShrinkHeight().MainAlign(MAlign.SpaceBetween).Direction(Dir.Horizontal).Gap(10))
             {
                 if (ui.Button("Cancel"))
                 {

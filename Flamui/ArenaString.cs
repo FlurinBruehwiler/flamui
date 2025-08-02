@@ -44,6 +44,9 @@ public static class ArenaStringExtensions
 {
     public static unsafe ArenaString AsArenaString(this string str)
     {
+        if (str == null)
+            return new ArenaString();
+
         _ = Ui.Arena.AddReference(str);
 
         fixed (char* c = str.AsSpan())

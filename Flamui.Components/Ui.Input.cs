@@ -49,6 +49,9 @@ public static partial class UiExtensions
 
     public static UiText Input(this Ui ui, ref string text, bool hasFocus = false, InputType inputType = InputType.Text)
     {
+        if (text == null)
+            throw new Exception("text cannot be null");
+
         ref bool lastClickWasDoubleClick = ref ui.Get(false);
 
         using (var hitBox = ui.Rect().ShrinkHeight().Color(C.Transparent))

@@ -19,6 +19,8 @@ public struct GridInfo
 {
     public float BorderWidth;
     public ColorDefinition BorderColor;
+    public float RowHeightIfFlexible; //todo remove or replace with better system...
+    public float Gap;
 }
 
 public class Grid : UiElementContainer
@@ -44,6 +46,12 @@ public class Grid : UiElementContainer
         base.Reset();
     }
 
+    public Grid Gap(float gap)
+    {
+        Info.Gap = gap;
+        return this;
+    }
+
     public Grid DefineColumn(float width, bool fractional = false)
     {
         Columns.Add(new Column
@@ -62,9 +70,19 @@ public class Grid : UiElementContainer
         return this;
     }
 
+    public Grid RowHeightIfFlexible(float rowHeightIfFlexible)
+    {
+        Info.RowHeightIfFlexible = rowHeightIfFlexible;
+        return this;
+    }
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
+        Info.Gap = Math.Max(Info.BorderWidth, Info.Gap); //gap has to be at least as large as BorderWidth
+
+        float spacing = Math.Max(Info.BorderWidth, Info.Gap);
+        float edgeSpacing = Info.BorderWidth + (Info.Gap - Info.BorderWidth) / 2;
+
         {
             float totalFixedSize = 0f;
             float totalPercentage = 0f;
@@ -80,7 +98,7 @@ public class Grid : UiElementContainer
                 }
             }
 
-            totalFixedSize += (Columns.Count + 1) * Info.BorderWidth;
+            totalFixedSize += 2 * edgeSpacing + (Columns.Count - 1) * spacing;
 
             var availableSize = constraint.MaxWidth - totalFixedSize;
             var sizePerPercentage = FlexSizeCalculator.GetSizePerPercentage(totalPercentage, availableSize);
@@ -100,14 +118,14 @@ public class Grid : UiElementContainer
                     column.PixelWidth = column.Width;
                 }
 
-                currentX += column.PixelWidth + Info.BorderWidth;
+                currentX += column.PixelWidth + spacing;
 
                 Columns[i] = column;
             }
         }
 
         int currentChildIndex = 0;
-        float currentY = Info.BorderWidth;
+        float currentY = edgeSpacing;
 
         while (true) //rows
         {
@@ -118,15 +136,16 @@ public class Grid : UiElementContainer
                 if (!Children.TryGet(currentChildIndex, out var currentChild))
                 {
                     var lastColumn = Columns.LastOrDefault();
-                    Rect = new BoxSize(lastColumn.XOffset + lastColumn.PixelWidth, currentY);
+                    Rect = new BoxSize(lastColumn.XOffset + lastColumn.PixelWidth + edgeSpacing / 2, currentY);
                     goto columnHitDetection;
                 }
 
                 currentChild.PrepareLayout(Dir.Horizontal);
 
+                var maxHeight = currentChild.FlexibleChildConfig.HasValue && Info.RowHeightIfFlexible != 0 ? Info.RowHeightIfFlexible : constraint.MaxHeight - currentY;
+
                 var horizontalMargin = currentChild.UiElementInfo.Margin.SumInDirection(Dir.Horizontal);
-                var childSize = currentChild.Layout(new BoxConstraint(0, column.PixelWidth - horizontalMargin, 0,
-                    constraint.MaxHeight - currentY));
+                var childSize = currentChild.Layout(new BoxConstraint(0, column.PixelWidth - horizontalMargin, 0, maxHeight));
 
                 rowHeight = Math.Max(rowHeight,
                     childSize.Height + currentChild.UiElementInfo.Margin.SumInDirection(Dir.Vertical));
@@ -140,7 +159,7 @@ public class Grid : UiElementContainer
                 currentChildIndex++;
             }
 
-            currentY += rowHeight + Info.BorderWidth;
+            currentY += rowHeight + spacing;
 
             RowXOffsets.Add(currentY);
         }
@@ -156,7 +175,7 @@ public class Grid : UiElementContainer
                 {
                     var column = Columns[i];
 
-                    if (Math.Abs(column.XOffset - (Info.BorderWidth / 2f) - relativePos.X) <= Info.BorderWidth / 2f + 2f)
+                    if (Math.Abs(column.XOffset - (spacing / 2f) - relativePos.X) <= spacing / 2f + 2f)
                     {
                         HoveredColumnIndex = i - 1;
                         goto end;
@@ -186,18 +205,20 @@ public class Grid : UiElementContainer
 
         if (Info.BorderWidth != 0)
         {
+            float edgeSpacing = Info.BorderWidth + (Info.Gap - Info.BorderWidth) / 2;
+
             float lastColumnLeft = 0;
 
             for (var index = 0; index < Columns.Count; index++)
             {
                 var column = Columns[index];
 
-                var xPosition = offset.X + column.XOffset - Info.BorderWidth;
+                var xPosition = offset.X + column.XOffset - edgeSpacing;
 
                 renderContext.AddRect(
                     new Bounds(xPosition, offset.Y, Info.BorderWidth,
                         Rect.Height), null, Info.BorderColor);
-                lastColumnLeft = column.XOffset + column.PixelWidth;
+                lastColumnLeft = column.XOffset + column.PixelWidth + edgeSpacing - Info.BorderWidth;
             }
 
             if (lastColumnLeft != 0)
@@ -217,7 +238,7 @@ public class Grid : UiElementContainer
             foreach (var rowYOffset in RowXOffsets)
             {
                 renderContext.AddRect(
-                    new Bounds(offset.X, offset.Y + rowYOffset - Info.BorderWidth, Rect.Width,
+                    new Bounds(offset.X, offset.Y + rowYOffset - edgeSpacing, Rect.Width,
                         Info.BorderWidth), null, Info.BorderColor);
             }
         }

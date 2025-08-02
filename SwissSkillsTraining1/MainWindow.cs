@@ -37,6 +37,8 @@ public static class MainWindow
 
     public static void ScrollingContent(Ui ui, Store store, FlamuiWindowHost windowHost)
     {
+        const float rowHeight = 20;
+        
         using (var grid = ui.Grid().Border(2, ColorPalette.BorderColor))
         {
             grid.DefineColumn(200);
@@ -46,17 +48,16 @@ public static class MainWindow
                 grid.DefineColumn(100, true);
             }
 
-            using (ui.Rect().Height(40))
+            using (ui.Rect().Height(rowHeight))
             {
                 //top left corner
-                ui.Text("anita 5");
             }
 
             foreach (var storeProduct in store.Products)
             {
                 using var _ = ui.CreateIdScope(storeProduct.Id);
 
-                using (ui.Rect().Height(40))
+                using (ui.Rect().Height(rowHeight))
                 {
                     ui.StyledInput(ref storeProduct.Name);
 
@@ -77,7 +78,7 @@ public static class MainWindow
             {
                 using var _ = ui.CreateIdScope(criterion.Id);
 
-                using (ui.Rect().Direction(Dir.Horizontal).Height(40))
+                using (ui.Rect().Direction(Dir.Horizontal).Height(rowHeight))
                 {
                     ui.Text(criterion.Name);
 
@@ -111,7 +112,7 @@ public static class MainWindow
 
                     var rating = product.Ratings.First(x => x.Criterion == criterion);
 
-                    using (ui.Rect().Height(40))
+                    using (ui.Rect().Height(rowHeight))
                     {
                         if (criterion.Type == CriterionType.Numerical)
                         {

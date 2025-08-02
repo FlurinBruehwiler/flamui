@@ -6,15 +6,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <InterceptorsNamespaces>$(InterceptorsNamespaces);InterceptorNamespace</InterceptorsNamespaces>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Flamui.Components\Flamui.Components.csproj" />
         <ProjectReference Include="..\Flamui\Flamui.csproj" />
-<!--        <ProjectReference Include="..\Flamui.SourceGenerators\Flamui.SourceGenerators.csproj"-->
-<!--                          OutputItemType="Analyzer"-->
-<!--                          ReferenceOutputAssembly="false" />-->
     </ItemGroup>
 
 </Project>

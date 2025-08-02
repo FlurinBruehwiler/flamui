@@ -50,7 +50,7 @@ public class Criterion
 
         return 0;
     }
-    
+
     static float CalculatePercentage(float min, float max, float value)
     {
         if (value < min)
@@ -68,12 +68,12 @@ public class Criterion
 
 public class OrdinalOption
 {
-    public string Name  = string.Empty;
+    public string Name = string.Empty;
     public int Points = 0;
 }
 
 public class EditOrdinalOption
 {
-    public string Name  = string.Empty;
+    public string Name = string.Empty;
     public string Points = "0";
 }
