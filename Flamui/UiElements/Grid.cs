@@ -103,7 +103,7 @@ public class Grid : UiElementContainer
             var availableSize = constraint.MaxWidth - totalFixedSize;
             var sizePerPercentage = FlexSizeCalculator.GetSizePerPercentage(totalPercentage, availableSize);
 
-            float currentX = Info.BorderWidth;
+            float currentX = edgeSpacing;
             for (var i = 0; i < Columns.Count; i++)
             {
                 var column = Columns[i];
@@ -136,7 +136,7 @@ public class Grid : UiElementContainer
                 if (!Children.TryGet(currentChildIndex, out var currentChild))
                 {
                     var lastColumn = Columns.LastOrDefault();
-                    Rect = new BoxSize(lastColumn.XOffset + lastColumn.PixelWidth + edgeSpacing / 2, currentY);
+                    Rect = new BoxSize(lastColumn.XOffset + lastColumn.PixelWidth + edgeSpacing, currentY - spacing + edgeSpacing);
                     goto columnHitDetection;
                 }
 

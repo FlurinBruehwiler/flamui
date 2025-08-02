@@ -11,7 +11,7 @@ public static partial class UiExtensions
                 btn.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
             }
 
-            ui.SvgImage(icon, ColorPalette.TextColor);
+            ui.SvgImage(icon).Color(ColorPalette.TextColor);
 
             return btn.IsClicked();
 

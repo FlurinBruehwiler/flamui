@@ -45,7 +45,7 @@ public static class TestComponent
     {
         using (ui.Rect().Color(20, 20, 20).Padding(10).Gap(10).ScrollVertical())
         {
-            using (var grid = ui.Grid().Border(2, new ColorDefinition(47, 47, 47)))
+            using (var grid = ui.Grid().Border(2, new ColorDefinition(47, 47, 47)).Gap(10))
             {
                 var columns = ui.GetObj<List<float>>(() => [100, 100, 100]);
                 ref var draggingColumn = ref ui.Get(-1);

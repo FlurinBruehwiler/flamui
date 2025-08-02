@@ -39,7 +39,7 @@ public static class MainWindow
     {
         const float rowHeight = 20;
         
-        using (var grid = ui.Grid().Border(2, ColorPalette.BorderColor))
+        using (var grid = ui.Grid().Border(2, ColorPalette.BorderColor).Gap(10))
         {
             grid.DefineColumn(200);
 
@@ -53,66 +53,70 @@ public static class MainWindow
                 //top left corner
             }
 
+            //products header
             foreach (var storeProduct in store.Products)
             {
                 using var _ = ui.CreateIdScope(storeProduct.Id);
 
-                using (ui.Rect().Height(rowHeight))
+                using (ui.Rect().ShrinkHeight().Direction(Dir.Horizontal))
                 {
                     ui.StyledInput(ref storeProduct.Name);
 
-                    using (var rect = ui.Rect().Color(C.Transparent))
+                    using (var rect = ui.Rect().Color(C.Transparent).Shrink())
                     {
                         if (rect.IsClicked())
                         {
                             ui.RunAfterFrame(() => store.DeleteProduct(storeProduct));
                         }
 
-                        ui.SvgImage("Icons/TVG/delete.tvg");
+                        ui.SvgImage("Icons/TVG/delete.tvg").Width(20);
                     }
                 }
             }
 
-            //rows
+            //rows for each criterion
             foreach (var criterion in store.Criteria)
             {
                 using var _ = ui.CreateIdScope(criterion.Id);
 
-                using (ui.Rect().Direction(Dir.Horizontal).Height(rowHeight))
+                using (ui.Rect().Direction(Dir.Horizontal).Height(rowHeight).MainAlign(MAlign.SpaceBetween))
                 {
                     ui.Text(criterion.Name);
 
-                    using (var rect = ui.Rect().Color(C.Transparent))
+                    using (ui.Rect().Direction(Dir.Horizontal).ShrinkWidth())
                     {
-                        if (rect.IsClicked())
+                        using (var rect = ui.Rect().Color(C.Transparent).Width(20))
                         {
-                            windowHost.CreateWindow($"Edit Criterion {criterion.Name}", (ui2) => { ui2.GetObj<EditCriterion>().Build(ui2, criterion, store); });
+                            if (rect.IsClicked())
+                            {
+                                windowHost.CreateWindow($"Edit Criterion {criterion.Name}", (ui2) => { ui2.GetObj<EditCriterion>().Build(ui2, criterion, store); });
+                            }
+
+                            ui.SvgImage("Icons/TVG/info.tvg");
                         }
 
-                        ui.SvgImage("Icons/TVG/info.tvg");
-                    }
-
-                    using (var rect = ui.Rect().Color(C.Transparent))
-                    {
-                        if (rect.IsClicked())
+                        using (var rect = ui.Rect().Color(C.Transparent).Width(20))
                         {
-                            ui.RunAfterFrame(() => store.DeleteCriteria(criterion));
+                            if (rect.IsClicked())
+                            {
+                                ui.RunAfterFrame(() => store.DeleteCriteria(criterion));
+                            }
+
+                            ui.SvgImage("Icons/TVG/delete.tvg");
                         }
 
-                        ui.SvgImage("Icons/TVG/delete.tvg");
+                        ui.Text($"{(int)criterion.GetEffectiveWeight(store)}%");
                     }
-
-                    ui.Text($"{(int)criterion.GetEffectiveWeight(store)}%");
                 }
 
-                //columns
+                //columns for each product
                 foreach (var product in store.Products)
                 {
                     using var _1 = ui.CreateIdScope(product.Id);
 
                     var rating = product.Ratings.First(x => x.Criterion == criterion);
 
-                    using (ui.Rect().Height(rowHeight))
+                    using (ui.Rect().ShrinkHeight())
                     {
                         if (criterion.Type == CriterionType.Numerical)
                         {

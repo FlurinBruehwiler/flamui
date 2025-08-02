@@ -312,7 +312,7 @@ public sealed class Ui
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public UiSvg SvgImage(ArenaString src, ColorDefinition? colorDefinition = null, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
+    public UiSvg SvgImage(ArenaString src, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
         using var _ = CreateIdScope(file, lineNumber);
         var svg = GetData(static (ui) => new UiSvg
@@ -322,8 +322,7 @@ public sealed class Ui
         });
 
         OpenElement.AddChild(svg);
-        svg.ColorDefinition = colorDefinition;
-        svg.Src = src;
+        svg.Info.Src = src;
 
         return svg;
     }

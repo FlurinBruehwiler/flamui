@@ -27,6 +27,7 @@ public abstract class UiElement
     public virtual void Reset()
     {
         UiElementInfo = default;
+        FlexibleChildConfig = default;
     }
 
     public virtual void PrepareLayout(Dir dir)
