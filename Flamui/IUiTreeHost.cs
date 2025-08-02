@@ -54,6 +54,5 @@ public sealed class NativeUiTreeHost : IUiTreeHost
 
         currentCursor = cursorShape;
         _glfw.SetCursor((WindowHandle*)_window.Handle, cursor);
-        Console.WriteLine($"Setting cursor to {cursorShape}");
     }
 }

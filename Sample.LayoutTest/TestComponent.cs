@@ -48,26 +48,44 @@ public static class TestComponent
             using (var grid = ui.Grid().Border(2, new ColorDefinition(47, 47, 47)))
             {
                 var columns = ui.GetObj<List<float>>(() => [100, 100, 100]);
+                ref var draggingColumn = ref ui.Get(-1);
 
-                if (grid.HoveredColumnIndex != -1)
+                if (grid.HoveredColumnIndex != -1 && draggingColumn == -1)
                 {
                     ui.Tree.UseCursor(CursorShape.HResize, 10);
 
-                    if (ui.Tree.IsMouseButtonDown(MouseButton.Left))
+                    if (ui.Tree.IsMouseButtonPressed(MouseButton.Left))
                     {
-                        var left = grid.LastColumns[grid.HoveredColumnIndex];
-                        var right = grid.LastColumns[grid.HoveredColumnIndex + 1];
-
-                        var mouseDelta = ui.Tree.MouseDelta.X;
-                        var newLeftPixelSize = Math.Max(left.PixelWidth + mouseDelta, 10); //min column size
-                        var newRightPixelSize = Math.Max(right.PixelWidth - mouseDelta, 10); //min column size
-
-                        var newLeftFraction = left.Width / left.PixelWidth * newLeftPixelSize;
-                        var newRightFraction = right.Width / right.PixelWidth * newRightPixelSize;
-
-                        columns[grid.HoveredColumnIndex] = newLeftFraction;
-                        columns[grid.HoveredColumnIndex + 1] = newRightFraction;
+                        draggingColumn = grid.HoveredColumnIndex;
                     }
+                }
+
+                if (ui.Tree.IsMouseButtonReleased(MouseButton.Left))
+                {
+                    draggingColumn = -1;
+                }
+
+                if (draggingColumn != -1)
+                {
+                    const float minColumnWidth = 20;
+
+                    ui.Tree.UseCursor(CursorShape.HResize, 10);
+
+                    var left = grid.LastColumns[draggingColumn];
+                    var right = grid.LastColumns[draggingColumn + 1];
+
+
+                    //this code somehow works...
+                    var leftMouseOffset = ui.Tree.MousePosition.X - grid.FinalOnScreenSize.X - left.XOffset;
+                    var newLeftPixelSize = Math.Max(leftMouseOffset, minColumnWidth);
+                    var newRightPixelSize = Math.Max(left.PixelWidth - newLeftPixelSize + right.PixelWidth, minColumnWidth);
+                    newLeftPixelSize = Math.Max(right.PixelWidth - newRightPixelSize + left.PixelWidth, minColumnWidth);
+
+                    var newLeftFraction = left.Width / left.PixelWidth * newLeftPixelSize;
+                    var newRightFraction = right.Width / right.PixelWidth * newRightPixelSize;
+
+                    columns[draggingColumn] = newLeftFraction;
+                    columns[draggingColumn + 1] = newRightFraction;
                 }
 
                 foreach (var column in columns)
