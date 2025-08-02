@@ -147,7 +147,7 @@ public sealed class FontShaping
     //rule: preferably only ever the start of a new word can go onto the next line,
     //so we make a new line, as soon as the next word + following whitespace doesn't fit on the current line
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
-    public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed, Arena arena)
+    public static TextLayoutInfo LayoutMultiLineText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, Arena arena)
     {
         ArenaList<Line> lines = new ArenaList<Line>(arena, 1);
         float widthOfLongestLine = 0;
@@ -168,7 +168,7 @@ public sealed class FontShaping
                 currentBlockWidth = 0;
             }
 
-            if (c is '\n' or '\r' && multilineAllowed)
+            if (c is '\n' or '\r')
             {
                 if (c == '\r' && text.Length > i + 1 && text[i + 1] == '\n')
                     i++;
@@ -186,7 +186,7 @@ public sealed class FontShaping
             currentLineWidth += charWidth;
             currentBlockWidth += charWidth;
 
-            if (currentLineWidth > maxWidth && multilineAllowed)
+            if (currentLineWidth > maxWidth)
             {
                 if (currentLineStart == currentBlockStart) //not even a single word fits onto the line
                 {

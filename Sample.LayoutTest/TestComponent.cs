@@ -43,7 +43,7 @@ public static class TestComponent
 
     private static void Tab3(Ui ui)
     {
-        using (ui.Rect().Color(20, 20, 20).Padding(10).Gap(10))
+        using (ui.Rect().Color(20, 20, 20).Padding(10).Gap(10).ScrollVertical())
         {
             using (var grid = ui.Grid().Border(2, new ColorDefinition(47, 47, 47)))
             {
@@ -94,7 +94,7 @@ public static class TestComponent
                 }
 
                 //5 rows
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 30; i++)
                 {
                     //3 columns
                     for (int j = 0; j < 3; j++)

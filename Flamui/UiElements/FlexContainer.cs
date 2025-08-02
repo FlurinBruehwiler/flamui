@@ -1,4 +1,5 @@
-﻿using Flamui.Layouting;
+﻿using System.Diagnostics;
+using Flamui.Layouting;
 using Silk.NET.Input;
 
 namespace Flamui.UiElements;
@@ -9,6 +10,7 @@ public sealed partial class FlexContainer : UiElementContainer
     public bool FocusOut { get; } //todo
 
     public FlexContainerInfo Info = new();
+    private long lastClickTime;
 
     public override void Reset()
     {
@@ -37,17 +39,20 @@ public sealed partial class FlexContainer : UiElementContainer
         }
     }
 
-    public bool IsDoubleClicked //todo
+    public bool IsDoubleClicked()
     {
-        get
+        if (IsClicked)
         {
-            Info.Interactable = true;
+            if (lastClickTime != 0 && Stopwatch.GetElapsedTime(lastClickTime).TotalMilliseconds < 300)
+            {
+                return true;
+            }
 
-            return true;
+            lastClickTime = Stopwatch.GetTimestamp();
         }
+
+        return false;
     }
-
-
 
     public bool IsHovered
     {

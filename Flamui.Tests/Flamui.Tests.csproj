@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Flamui.Components\Flamui.Components.csproj" />
       <ProjectReference Include="..\Flamui\Flamui.csproj" />
     </ItemGroup>
 

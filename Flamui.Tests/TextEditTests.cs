@@ -1,4 +1,5 @@
-﻿using Flamui.Drawing;
+﻿using Flamui.Components;
+using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Input;
 
@@ -413,6 +414,34 @@ public sealed class TextEditTests
         Assert.Equal("", subString);
     }
 
+    [Fact]
+    public void GetWordUnderCursorTest()
+    {
+        var (start, end) = UiExtensions.GetWordUnderCursor("anita max wynn", 6);
+        Assert.Equal(6, start);
+        Assert.Equal(9, end);
+
+        (start, end) = UiExtensions.GetWordUnderCursor("anita max wynn", 7);
+        Assert.Equal(6, start);
+        Assert.Equal(9, end);
+
+        (start, end) = UiExtensions.GetWordUnderCursor("anita max wynn", 8);
+        Assert.Equal(6, start);
+        Assert.Equal(9, end);
+
+        (start, end) = UiExtensions.GetWordUnderCursor("anita max wynn", 9);
+        Assert.Equal(6, start);
+        Assert.Equal(9, end);
+
+        (start, end) = UiExtensions.GetWordUnderCursor("anita max wynn", 4);
+        Assert.Equal(0, start);
+        Assert.Equal(5, end);
+
+        (start, end) = UiExtensions.GetWordUnderCursor("anita max wynn", 11);
+        Assert.Equal(10, start);
+        Assert.Equal(14, end);
+    }
+
     private string PerformTextInput(string initialText, string inputText)
     {
         var input = new UiTree();
@@ -468,7 +497,7 @@ public sealed class TextEditTests
         var arena = Ui.Arena = new Arena("TestArena", 1_000);
 
         var font = FontLoader.LoadFont("segoeui.ttf");
-        var layoutInfo = FontShaping.LayoutText(new ScaledFont(font, 20), initialText, float.MaxValue, TextAlign.Start, false, arena);
+        var layoutInfo = FontShaping.LayoutSingleLineText(new ScaledFont(font, 20), initialText, float.MaxValue, arena, TextAlign.Start, TextTrimMode.None);
 
         arena.Dispose();
 

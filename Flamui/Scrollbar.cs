@@ -31,7 +31,7 @@ public static class Scrollbar
 {
     public static void Build(Ui ui, ScrollService scrollService, ScrollbarSettings settings)
     {
-        Console.WriteLine(JsonSerializer.Serialize(scrollService));
+        // Console.WriteLine(JsonSerializer.Serialize(scrollService));
 
         scrollService.MinBarSize = settings.MinTrackSize;
 

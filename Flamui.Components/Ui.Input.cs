@@ -1,6 +1,8 @@
-﻿using Flamui.Drawing;
+﻿using System.Diagnostics;
+using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.GLFW;
+using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui.Components;
 
@@ -12,13 +14,43 @@ public enum InputType
 
 public static partial class UiExtensions
 {
-    public static UiText Anita2(this Ui ui)
+    private static int GetCharacterUnderMouse(Ui ui, UiText t, string text)
     {
-        return default;
+        var l = t.TextLayoutInfo.Lines[0];
+
+        var pos = ui.Tree.MousePosition - (t.FinalOnScreenSize.GetPosition() + l.Bounds.GetPosition());
+
+        if (pos.X < 0)
+            return 0;
+
+        if (pos.X > l.Bounds.W)
+            return text.Length;
+
+        var offsets = l.CharOffsets;
+
+        for (int i = 0; i < offsets.Length; i++)
+        {
+            if (offsets[i] > pos.X)
+            {
+                if (offsets.ContainsIndex(i - 1))
+                {
+                    if (Math.Abs(offsets[i - 1] - pos.X) < Math.Abs(offsets[i] - pos.X))
+                    {
+                        return i;
+                    }
+                }
+
+                return i + 1;
+            }
+        }
+
+        throw new Exception(":(");
     }
 
     public static UiText Input(this Ui ui, ref string text, bool hasFocus = false, InputType inputType = InputType.Text)
     {
+        ref bool lastClickWasDoubleClick = ref ui.Get(false);
+
         using (var hitBox = ui.Rect().ShrinkHeight().Color(C.Transparent))
         {
             if (hasFocus)
@@ -33,40 +65,29 @@ public static partial class UiExtensions
                 ui.Tree.UseCursor(CursorShape.IBeam);
             }
 
-            if (hitBox.IsClicked)
+            if (hitBox.IsHovered)
             {
-                var l = t.TextLayoutInfo.Lines[0];
-
-                var pos = ui.Tree.MousePosition - (t.FinalOnScreenSize.GetPosition() + l.Bounds.GetPosition());
-
-                if (pos.X < 0)
+                if (ui.Tree.IsMouseButtonPressed(MouseButton.Left))
                 {
-                    t.SelectionStart = t.CursorPosition = 0;
-                }else if (pos.X > l.Bounds.W)
-                {
-                    t.SelectionStart = t.CursorPosition = text.Length;
+                    t.SelectionStart = t.CursorPosition = GetCharacterUnderMouse(ui, t, text);
                 }
-                else
+
+                if (ui.Tree.IsMouseButtonDown(MouseButton.Left) && !lastClickWasDoubleClick)
                 {
-                    var offsets = l.CharOffsets;
+                    t.CursorPosition = GetCharacterUnderMouse(ui, t, text);
+                }
 
-                    for (int i = 0; i < offsets.Length; i++)
-                    {
-                        if (offsets[i] > pos.X)
-                        {
-                            if (offsets.ContainsIndex(i - 1))
-                            {
-                                if (Math.Abs(offsets[i - 1] - pos.X) < Math.Abs(offsets[i] - pos.X))
-                                {
-                                    t.SelectionStart = t.CursorPosition = i;
-                                    break;
-                                }
-                            }
+                if (ui.Tree.IsMouseButtonReleased(MouseButton.Left))
+                {
+                    lastClickWasDoubleClick = false;
+                }
 
-                            t.SelectionStart = t.CursorPosition = i + 1;
-                            break;
-                        }
-                    }
+                if (hitBox.IsDoubleClicked())
+                {
+                    lastClickWasDoubleClick = true;
+                    var c = GetCharacterUnderMouse(ui, t, text);
+
+                    (t.SelectionStart, t.CursorPosition) = GetWordUnderCursor(text, c);
                 }
             }
 
@@ -82,5 +103,16 @@ public static partial class UiExtensions
 
             return t;
         }
+    }
+
+    public static (int start, int end) GetWordUnderCursor(string text, int cursor)
+    {
+        var wordStart = text.AsSpan().Slice(0, cursor).LastIndexOfAny([' ', '\t', '\n']);
+        wordStart = wordStart == -1 ? 0 : wordStart + 1;
+
+        var wordEnd = text.AsSpan().Slice(cursor).IndexOfAny([' ', '\t', '\n']);
+        wordEnd = wordEnd == -1 ? text.Length : wordEnd + cursor;
+
+        return (wordStart, wordEnd);
     }
 }

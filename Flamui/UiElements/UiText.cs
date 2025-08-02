@@ -115,8 +115,8 @@ public sealed class UiText : UiElement
     {
         if (UiTextInfo.Multiline)
         {
-            TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
-                constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Tree.Arena);
+            TextLayoutInfo = FontShaping.LayoutMultiLineText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
+                constraint.MaxWidth, UiTextInfo.HorizontalAlignment, Tree.Arena);
         }
         else
         {
