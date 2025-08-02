@@ -42,10 +42,21 @@ public struct ArenaStringBuilder
 
 public static class ArenaStringExtensions
 {
-    public static unsafe ArenaString ToArenaString(this string str)
+    public static unsafe ArenaString AsArenaString(this string str)
     {
         _ = Ui.Arena.AddReference(str);
 
+        fixed (char* c = str.AsSpan())
+        {
+            return new ArenaString(new Slice<char>(c, str.Length));
+        }
+    }
+
+    /// <summary>
+    /// must only be called if the string is a string literal
+    /// </summary>
+    public static unsafe ArenaString AsArenaStringLiteral(this string str)
+    {
         fixed (char* c = str.AsSpan())
         {
             return new ArenaString(new Slice<char>(c, str.Length));
@@ -127,7 +138,7 @@ public struct ArenaString : IEquatable<ArenaString> //todo implement IEnumerable
 
     public static implicit operator ArenaString(string str)
     {
-        return str.ToArenaString();
+        return str.AsArenaString();
     }
 
     [Pure]

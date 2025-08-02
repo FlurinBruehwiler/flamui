@@ -2,6 +2,13 @@ using Flamui.UiElements;
 
 namespace Flamui.Drawing;
 
+public enum TextTrimMode
+{
+    AddEllipsis = 0,
+    None,
+    TrimToFit,
+}
+
 //todo, we should not do font shaping ourselves, it is way to complicated, we should use https://github.com/JimmyLefevre/kb/blob/main/kb_text_shape.h
 public sealed class FontShaping
 {
@@ -46,12 +53,103 @@ public sealed class FontShaping
         return (width, charOffsets);
     }
 
+    //not sure if it is a good idea to have a separate function for single line...
+    public static unsafe TextLayoutInfo LayoutSingleLineText(ScaledFont scaledFont, ArenaString text, float maxWidth, Arena arena, TextAlign horizontalAlignement, TextTrimMode trimMode)
+    {
+        float ellipsisAdvanceWidth = scaledFont.GetAdvanceWith('.') * 3;
+
+        TrimText(trimMode);
+
+        var r = new Range(new Index(0), new Index(text.Length));
+        var (width, charOffsets) = MeasureText(scaledFont, text[r], arena);
+
+        Line* line = arena.Allocate(new Line
+        {
+            TextContent = text[r],
+            Bounds = new Bounds
+            {
+                W = width,
+                H = scaledFont.GetHeight(),
+                X = 0, //will be set later
+                Y = 0
+            },
+            CharOffsets = charOffsets
+        });
+
+        var yCoord = 0f;
+
+        line->Bounds = line->Bounds with
+        {
+            X = horizontalAlignement switch
+            {
+                TextAlign.Start => 0,
+                TextAlign.Center => (maxWidth - line->Bounds.W) / 2,
+                TextAlign.End => maxWidth - line->Bounds.W,
+                _ => throw new ArgumentOutOfRangeException()
+            },
+            Y = yCoord,
+        };
+
+        return new TextLayoutInfo
+        {
+            Lines = new Slice<Line>(line, 1),
+            Width = width,
+            Height = scaledFont.GetHeight(),
+            Content = text
+        };
+
+        void TrimText(TextTrimMode innerTrimMode)
+        {
+            if (innerTrimMode == TextTrimMode.None)
+                return;
+
+            var totalWidth = 0f;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                var c = text[i];
+
+                var charWidth = scaledFont.GetAdvanceWith(c);
+                totalWidth += charWidth;
+
+                if (totalWidth <= maxWidth)
+                    continue;
+
+                if (innerTrimMode == TextTrimMode.AddEllipsis)
+                {
+                    //walk back to figure out where to insert the ellipsis
+                    for (int j = i; j > 0; j--)
+                    {
+                        var charWidth1 = scaledFont.GetAdvanceWith(text[j]);
+
+                        totalWidth -= charWidth1;
+
+                        if (totalWidth + ellipsisAdvanceWidth < maxWidth)
+                        {
+                            text = text.Slice(0, j) + "...".AsArenaStringLiteral();
+
+                            return;
+                        }
+                    }
+
+                    //not even the ellipsis is fitting, try without
+                    TrimText(TextTrimMode.TrimToFit);
+                    return;
+                }
+                else
+                {
+                    text = text.Slice(0, i);
+                }
+            }
+        }
+    }
+
     //rule: preferably only ever the start of a new word can go onto the next line,
     //so we make a new line, as soon as the next word + following whitespace doesn't fit on the current line
     //if we can't even fit a single word on a line, we have to start to split in the middle of the word!
-    public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed, Arena arena, bool addEllipsisOnSingleLineIfNeeded)
+    public static TextLayoutInfo LayoutText(ScaledFont scaledFont, ArenaString text, float maxWidth, TextAlign horizontalAlignement, bool multilineAllowed, Arena arena)
     {
-        ArenaList<Line> lines = new ArenaList<Line>(Ui.Arena, 1);
+        ArenaList<Line> lines = new ArenaList<Line>(arena, 1);
         float widthOfLongestLine = 0;
 
         int currentBlockStart = 0;
@@ -90,26 +188,20 @@ public sealed class FontShaping
 
             if (currentLineWidth > maxWidth && multilineAllowed)
             {
-                if (multilineAllowed)
+                if (currentLineStart == currentBlockStart) //not even a single word fits onto the line
                 {
-                    if (currentLineStart == currentBlockStart) //not even a single word fits onto the line
-                    {
-                        AddLine(i, text);
-                        currentLineStart = i;
-                        currentBlockStart = i;
-                        currentLineWidth = charWidth;
-                        currentBlockWidth = charWidth;
-                    }
-                    else
-                    {
-                        //add new line
-                        AddLine(currentBlockStart, text);
-                        currentLineWidth = currentBlockWidth;
-                        currentLineStart = currentBlockStart;
-                    }
-                }else if (addEllipsisOnSingleLineIfNeeded)
+                    AddLine(i, text);
+                    currentLineStart = i;
+                    currentBlockStart = i;
+                    currentLineWidth = charWidth;
+                    currentBlockWidth = charWidth;
+                }
+                else
                 {
-                    //todo, now we need to walk back and insert an ellipsis somehow...
+                    //add new line
+                    AddLine(currentBlockStart, text);
+                    currentLineWidth = currentBlockWidth;
+                    currentLineStart = currentBlockStart;
                 }
             }
         }

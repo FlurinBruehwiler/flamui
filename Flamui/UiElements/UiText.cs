@@ -18,7 +18,7 @@ public struct UiTextInfo
     public TextAlign VerticalAlignment = TextAlign.Center;
     public bool Multiline;
     public ArenaString Content = default;
-    public bool DisableAutomaticEllipsis;
+    public TextTrimMode TrimMode;
 }
 
 public struct TextPosition
@@ -113,11 +113,28 @@ public sealed class UiText : UiElement
 
     public override BoxSize Layout(BoxConstraint constraint)
     {
-        TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
-            constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Ui.Arena, !UiTextInfo.DisableAutomaticEllipsis);
+        if (UiTextInfo.Multiline)
+        {
+            TextLayoutInfo = FontShaping.LayoutText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
+                constraint.MaxWidth, UiTextInfo.HorizontalAlignment, UiTextInfo.Multiline, Tree.Arena);
+        }
+        else
+        {
+            TextLayoutInfo = FontShaping.LayoutSingleLineText(new ScaledFont(UiTextInfo.Font, UiTextInfo.Size), UiTextInfo.Content,
+                constraint.MaxWidth, Tree.Arena, UiTextInfo.HorizontalAlignment, UiTextInfo.TrimMode);
+        }
 
         Rect = new BoxSize(TextLayoutInfo.Width, TextLayoutInfo.Height);
         return Rect;
+    }
+
+    /// <summary>
+    /// The default trim mode is ellipsis
+    /// </summary>
+    public UiText TrimMode(TextTrimMode trimMode)
+    {
+        UiTextInfo.TrimMode = trimMode;
+        return this;
     }
 
     public UiText Color(byte red, byte green, byte blue, byte transparency = 255)

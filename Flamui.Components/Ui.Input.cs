@@ -1,4 +1,5 @@
-﻿using Flamui.UiElements;
+﻿using Flamui.Drawing;
+using Flamui.UiElements;
 using Silk.NET.GLFW;
 
 namespace Flamui.Components;
@@ -20,7 +21,12 @@ public static partial class UiExtensions
     {
         using (var hitBox = ui.Rect().ShrinkHeight().Color(C.Transparent))
         {
-            var t = ui.Text(text);
+            if (hasFocus)
+            {
+                hitBox.Clip();
+            }
+
+            var t = ui.Text(text).TrimMode(hasFocus ? TextTrimMode.None : TextTrimMode.AddEllipsis);
 
             if (hitBox.IsHovered)
             {

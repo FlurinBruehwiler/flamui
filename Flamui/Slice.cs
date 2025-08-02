@@ -14,6 +14,15 @@ public unsafe struct Slice<T> : IEnumerable<T>, IEquatable<Slice<T>> where T : u
         Length = length;
     }
 
+    public Slice(ReadOnlySpan<T> items)
+    {
+        fixed (T* ptr = items)
+        {
+            Items = ptr;
+            Length = items.Length;
+        }
+    }
+
     public Span<T> Span => new(Items, Length);
     public ReadOnlySpan<T> ReadonlySpan => new(Items, Length);
 

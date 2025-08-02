@@ -36,7 +36,12 @@ public static class TextBoxInputHandler
 
     public static string ProcessInput(string text, TextLayoutInfo textLayout, UiTree input, bool allowMultiline, ref int cursorPosition, ref int selectionStart)
     {
-        Debug.Assert(text.AsSpan().Equals(textLayout.Content.AsSpan(), StringComparison.Ordinal));
+        if (!text.AsSpan().Equals(textLayout.Content.AsSpan(), StringComparison.Ordinal))
+        {
+            //this can happen in the input box, when there is an ellipsis on the first frame...
+            //should not happen often, otherwise we have a problem...
+            return text;
+        }
 
         bool selectionDisable = false;
 
