@@ -18,6 +18,8 @@ public class EditCriterion
     {
         ui.CascadingValues.TextColor = C.White;
 
+        bool hasErrors = false;
+
         if (_name is null)
         {
             _name = criterion.Name;
@@ -57,7 +59,7 @@ public class EditCriterion
                         var eff = criterion.GetEffectiveWeight(store);
                         ui.Text($"Effective Weight: {eff}%");
                     }
-                    ui.StyledInput(ref _weight, inputType: InputType.Numeric);
+                    ui.StyledInput(ref _weight).WithValidation(InputValidation.IsFloat()).Invalidate(ref hasErrors);
 
                     //type
                     ui.Text("Type");
@@ -66,10 +68,10 @@ public class EditCriterion
                     if (_selectedType == CriterionType.Numerical)
                     {
                         ui.Text("Min");
-                        ui.StyledInput(ref _min, inputType: InputType.Numeric);
+                        ui.StyledInput(ref _min).WithValidation(InputValidation.IsFloat()).Invalidate(ref hasErrors);
 
                         ui.Text("Max");
-                        ui.StyledInput(ref _max, inputType: InputType.Numeric);
+                        ui.StyledInput(ref _max).WithValidation(InputValidation.IsFloat()).Invalidate(ref hasErrors);
                     }
 
                     if (_selectedType == CriterionType.Ordinal)
@@ -83,19 +85,26 @@ public class EditCriterion
                         {
                             for (var i = 0; i < OrdinalOptions.Count; i++)
                             {
+                                var option = OrdinalOptions[i];
+
                                 using var _ = ui.CreateIdScope(i);
-                                using (ui.Rect().Height(30).Direction(Dir.Horizontal))
+                                using (ui.Rect().Height(30).Direction(Dir.Horizontal).Gap(5))
                                 {
-                                    using (ui.Rect().Direction(Dir.Horizontal))
+                                    using (ui.Rect().Direction(Dir.Horizontal).Gap(5))
                                     {
                                         ui.Text("Name");
-                                        ui.StyledInput(ref OrdinalOptions[i].Name);
+                                        ui.StyledInput(ref option.Name);
                                     }
 
-                                    using (ui.Rect().Direction(Dir.Horizontal))
+                                    using (ui.Rect().Direction(Dir.Horizontal).Gap(5))
                                     {
                                         ui.Text("Value");
-                                        ui.StyledInput(ref OrdinalOptions[i].Points, inputType: InputType.Numeric);
+                                        ui.StyledInput(ref option.Points).WithValidation(InputValidation.IsFloat()).Invalidate(ref hasErrors);
+                                    }
+
+                                    if (ui.SquareButton("Icons/TVG/delete.tvg"))
+                                    {
+                                        ui.RunAfterFrame(() => OrdinalOptions.Remove(option));
                                     }
                                 }
                             }
@@ -107,7 +116,7 @@ public class EditCriterion
 
                             if (OrdinalOptions.Count < 2)
                             {
-                                ui.Text("Please specify at least two Options");
+                                ui.Text("Please specify at least two Options").Color(C.Red5);
                             }
                         }
                     }
@@ -119,12 +128,12 @@ public class EditCriterion
             {
                 if (ui.Button("Cancel"))
                 {
-                    store.CriterionToEdit = null;
+                    ui.Tree.UiTreeHost.CloseWindow();
                 }
 
-                var shouldBeDisabled = _selectedType == CriterionType.Ordinal && OrdinalOptions.Count < 2;
+                var shouldBeDisabled = hasErrors || _selectedType == CriterionType.Ordinal && OrdinalOptions.Count < 2;
 
-                if (ui.Button("Save", primary: true)) //todo disabled based on shouldBeDisabled
+                if (ui.Button("Save", primary: true, disabled: shouldBeDisabled))
                 {
                     criterion.Name = _name;
 
@@ -185,7 +194,7 @@ public class EditCriterion
                         criterion.Weight = 0;
                     }
 
-                    store.CriterionToEdit = null;
+                    ui.Tree.UiTreeHost.CloseWindow();
                 }
             }
         }

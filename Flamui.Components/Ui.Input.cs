@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.GLFW;
@@ -14,6 +15,8 @@ public enum InputType
 
 public static partial class UiExtensions
 {
+    private static readonly System.Buffers.SearchValues<char> s_myChars = System.Buffers.SearchValues.Create("0123456789-,.");
+
     private static int GetCharacterUnderMouse(Ui ui, UiText t, string text)
     {
         var l = t.TextLayoutInfo.Lines[0];
@@ -47,7 +50,7 @@ public static partial class UiExtensions
         throw new Exception(":(");
     }
 
-    public static UiText Input(this Ui ui, ref string text, bool hasFocus = false, InputType inputType = InputType.Text)
+    public static UiText Input(this Ui ui, ref string text, bool hasFocus = false)
     {
         if (text == null)
             throw new Exception("text cannot be null");

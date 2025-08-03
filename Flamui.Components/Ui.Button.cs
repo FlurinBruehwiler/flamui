@@ -20,9 +20,12 @@ public static partial  class UiExtensions
 
     }
 
-    public static bool Button(this Ui ui, string text, bool primary = false, bool focusable = true, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
+    public static bool Button(this Ui ui, string text, bool primary = false, bool disabled = false, bool focusable = true, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
         using var _ = ui.CreateIdScope(file, lineNumber);
+
+        if (disabled)
+            focusable = false;
 
         using (var btn = ui.Rect().Height(23).Rounded(2).Focusable(focusable).ShrinkWidth().Direction(Dir.Horizontal).PaddingHorizontal(10).CrossAlign(XAlign.Center))
         {
@@ -40,9 +43,16 @@ public static partial  class UiExtensions
                 btn.BorderColor(ColorPalette.AccentColor).BorderWidth(2);
             }
 
-            ui.Text(text).Color(ColorPalette.TextColor);
+            var txt = ui.Text(text).Color(ColorPalette.TextColor);
 
-            return btn.IsClicked();
+            if (disabled)
+            {
+                btn.Color(78, 81, 87);
+                txt.Color(134, 138, 145);
+                btn.BorderWidth(0);
+            }
+
+            return btn.IsClicked() && !disabled;
         }
     }
 }

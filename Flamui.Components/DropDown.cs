@@ -24,7 +24,7 @@ public sealed class DropDown<T>
         {
             HandleStart(ui, dropDownDiv, ref selectedOption, options);
 
-            ui.Text(selectedOption.ToString() ?? string.Empty).Color(ColorPalette.TextColor);
+            ui.Text(selectedOption?.ToString() ?? string.Empty).Color(ColorPalette.TextColor);
 
             using (ui.Rect().Height(23).Width(23))
             {

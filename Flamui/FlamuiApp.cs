@@ -4,12 +4,18 @@ using  Silk.NET.Windowing;
 
 namespace Flamui;
 
-public sealed class FlamuiWindowOptions
+public struct FlamuiWindowOptions
 {
-    public int Width { get; set; } = 900;
-    public int Height { get; set; } = 500;
-    public SizeConstraint? MinSize { get; set; }
-    public SizeConstraint? MaxSize { get; set; }
+    public int Width = 900;
+    public int Height = 500;
+    public SizeConstraint? MinSize;
+    public SizeConstraint? MaxSize;
+    public IntPtr ParentWindow;
+
+    public FlamuiWindowOptions()
+    {
+
+    }
 }
 
 public record SizeConstraint(int Width, int Height);
@@ -23,27 +29,29 @@ public sealed class FlamuiWindowHost
         _windows = [];
     }
 
-    public void CreateWindow(string title, Action<Ui> buildFunc, FlamuiWindowOptions? options = null)
+    public PhysicalWindow CreateWindow(string title, Action<Ui> buildFunc, FlamuiWindowOptions? o = null)
     {
-        options ??= new FlamuiWindowOptions();
+        var options = o ?? new FlamuiWindowOptions();
 
-        WindowOptions o = WindowOptions.Default with
+        WindowOptions o2 = WindowOptions.Default with
         {
             Size = new Vector2D<int>(options.Width, options.Height),
             Title = title,
             VSync = true, //for some reason this doesn't work on my laptop, so we just sleep ourselves
-            ShouldSwapAutomatically = false
+            ShouldSwapAutomatically = false,
         };
 
-        var window = Window.Create(o);
+        var window = Window.Create(o2);
 
-
-        _windows.Add(PhysicalWindow.Create(window, new UiTree(buildFunc)));
+        var physicalWindow = PhysicalWindow.Create(window, new UiTree(buildFunc), options.ParentWindow);
+        _windows.Add(physicalWindow);
 
         //hack to get paint during resize
         window.GetType().GetField("_onFrame", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(window, new Action(() => UpdateWindow(window)));
 
         window.Initialize();
+
+        return physicalWindow;
     }
 
     public void Run()

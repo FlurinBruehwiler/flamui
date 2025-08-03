@@ -70,6 +70,11 @@ public class OrdinalOption
 {
     public string Name = string.Empty;
     public int Points = 0;
+
+    public override string ToString()
+    {
+        return Name;
+    }
 }
 
 public class EditOrdinalOption

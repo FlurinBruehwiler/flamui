@@ -16,9 +16,9 @@ public sealed class PhysicalWindow
 {
     private PhysicalWindow() { }
 
-    public IWindow GlfwWindow;
+    public required IWindow GlfwWindow;
 
-    public Glfw GlfwApi;
+    public required Glfw GlfwApi;
 
     /// <summary>
     /// The DPI scaling from the OS
@@ -38,25 +38,36 @@ public sealed class PhysicalWindow
     /// </summary>
     public Vector2 GetCompleteScaling() => DpiScaling * UserScaling;
 
-    public UiTree UiTree;
+    public required UiTree UiTree;
+    public required IWindow NativeWindow;
+
 
     public CommandBuffer LastCommandBuffer;
     private readonly Renderer _renderer = new();
     private Vector2 lastScreenMousePosition;
     private int framecount;
 
-    public static PhysicalWindow Create(IWindow window, UiTree uiTree)
+    public static PhysicalWindow Create(IWindow window, UiTree uiTree, IntPtr parentWindow)
     {
-        var w = new PhysicalWindow();
-
-        w.UiTree = uiTree;
-        w.GlfwWindow = window;
-        w.GlfwApi = Glfw.GetApi();
+        var w = new PhysicalWindow
+        {
+            UiTree = uiTree,
+            GlfwWindow = window,
+            GlfwApi = Glfw.GetApi(),
+            NativeWindow = window
+        };
 
         uiTree.UiTreeHost = new NativeUiTreeHost(window, w.GlfwApi);
-        window.Load += w.OnLoad;
+        window.Load += () => w.OnLoad(parentWindow);
         window.Update += w.OnUpdate;
         window.Render += w.OnRender;
+        window.Closing += () =>
+        {
+            if (OperatingSystem.IsWindows() && parentWindow != 0)
+            {
+                WindowsNative.EnableWindow(parentWindow, true);
+            }
+        };
 
         return w;
     }
@@ -124,8 +135,14 @@ public sealed class PhysicalWindow
 
     private Vector2 screenMousePos;
 
-    private unsafe void OnLoad()
+    private unsafe void OnLoad(IntPtr parentWindow)
     {
+        if (OperatingSystem.IsWindows() && parentWindow != 0)
+        {
+            WindowsNative.SetParent(NativeWindow.Handle, parentWindow);
+            WindowsNative.EnableWindow(parentWindow, false);
+        }
+
         int darkMode = 1;
         if (OperatingSystem.IsWindows())
         {

@@ -38,7 +38,7 @@ public static class MainWindow
     public static void ScrollingContent(Ui ui, Store store, FlamuiWindowHost windowHost)
     {
         const float rowHeight = 20;
-        
+
         using (var grid = ui.Grid().Border(2, ColorPalette.BorderColor).Gap(10))
         {
             grid.DefineColumn(200);
@@ -58,18 +58,13 @@ public static class MainWindow
             {
                 using var _ = ui.CreateIdScope(storeProduct.Id);
 
-                using (ui.Rect().ShrinkHeight().Direction(Dir.Horizontal))
+                using (ui.Rect().ShrinkHeight().Direction(Dir.Horizontal).Gap(5).CrossAlign(XAlign.Center))
                 {
                     ui.StyledInput(ref storeProduct.Name);
 
-                    using (var rect = ui.Rect().Color(C.Transparent).Shrink())
+                    if (ui.SquareButton("Icons/TVG/delete.tvg"))
                     {
-                        if (rect.IsClicked())
-                        {
-                            ui.RunAfterFrame(() => store.DeleteProduct(storeProduct));
-                        }
-
-                        ui.SvgImage("Icons/TVG/delete.tvg").Width(20);
+                        ui.RunAfterFrame(() => store.DeleteProduct(storeProduct));
                     }
                 }
             }
@@ -83,26 +78,19 @@ public static class MainWindow
                 {
                     ui.Text(criterion.Name);
 
-                    using (ui.Rect().Direction(Dir.Horizontal).ShrinkWidth())
+                    using (ui.Rect().Direction(Dir.Horizontal).ShrinkWidth().Gap(5).CrossAlign(XAlign.Center))
                     {
-                        using (var rect = ui.Rect().Color(C.Transparent).Width(20))
+                        if (ui.SquareButton("Icons/TVG/info.tvg"))
                         {
-                            if (rect.IsClicked())
+                            windowHost.CreateWindow($"Edit Criterion {criterion.Name}", ui2 => { ui2.GetObj<EditCriterion>().Build(ui2, criterion, store); }, new FlamuiWindowOptions
                             {
-                                windowHost.CreateWindow($"Edit Criterion {criterion.Name}", (ui2) => { ui2.GetObj<EditCriterion>().Build(ui2, criterion, store); });
-                            }
-
-                            ui.SvgImage("Icons/TVG/info.tvg");
+                                ParentWindow = ui.Tree.UiTreeHost.GetWindowHandle()
+                            });
                         }
 
-                        using (var rect = ui.Rect().Color(C.Transparent).Width(20))
+                        if (ui.SquareButton("Icons/TVG/delete.tvg"))
                         {
-                            if (rect.IsClicked())
-                            {
-                                ui.RunAfterFrame(() => store.DeleteCriteria(criterion));
-                            }
-
-                            ui.SvgImage("Icons/TVG/delete.tvg");
+                            ui.RunAfterFrame(() => store.DeleteCriteria(criterion));
                         }
 
                         ui.Text($"{(int)criterion.GetEffectiveWeight(store)}%");

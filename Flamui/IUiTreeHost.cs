@@ -11,6 +11,10 @@ public interface IUiTreeHost
 
     //sets the cursor style across once, remains across frames
     void SetCursorStyle(CursorShape cursorShape);
+
+    IntPtr GetWindowHandle();
+
+    void CloseWindow();
 }
 
 public sealed class NativeUiTreeHost : IUiTreeHost
@@ -54,5 +58,16 @@ public sealed class NativeUiTreeHost : IUiTreeHost
 
         currentCursor = cursorShape;
         _glfw.SetCursor((WindowHandle*)_window.Handle, cursor);
+
+    }
+
+    public IntPtr GetWindowHandle()
+    {
+        return _window.Handle;
+    }
+
+    public void CloseWindow()
+    {
+        _window.Close();
     }
 }

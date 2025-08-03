@@ -4,8 +4,6 @@ namespace Regionalmeisterschaften;
 
 public class Store
 {
-    public Criterion? CriterionToEdit = null;
-
     public List<Product> Products { get; set; } = new();
     public List<Criterion> Criteria { get; set; } = new();
 

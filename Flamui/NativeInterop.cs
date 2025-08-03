@@ -29,6 +29,15 @@ public static unsafe class WindowsNative
         UIntPtr dwMaximumWorkingSetSize);
 
 
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetParent(
+        IntPtr hWndChild,
+        IntPtr hWndNewParent);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool EnableWindow(IntPtr hWnd, bool bEnable);
+
     [DllImport("tinyvg.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe TinyvgError tinyvg_render_svg(
         byte[] tvgData,
