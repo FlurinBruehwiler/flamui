@@ -113,7 +113,7 @@ public static class TestComponent
                                 cell.Color(26, 26, 26);
                             }
 
-                            ref string t = ref ui.GetString($"{i} Anita max wynn");
+                            ref string t = ref ui.GetString($"{i} Cell");
                             ui.Input(ref t, cell.HasFocusWithin);
                         }
                     }
