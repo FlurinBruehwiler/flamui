@@ -7,6 +7,24 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
+/*
+ * I want to make some upgrades to the renderer:
+ *
+ * Blur:
+ * I want to do a similar blur to the one from raddbg. Blur seems to be really difficult, we need at least one separate
+ * pass. The first (non blur) pass needs to render to a texture. Then we do our blur pass, where we produce a blured version of the first pass.
+ * And then we need to composide these two passes together. In the second blur pass we probably only want to blur the regions where we actually need the blur.
+ * The thing is, we have a setup like from back to front:
+ * 1. Background
+ * 2. Blured Rectangle
+ * 3. Text Ontop
+ * These are 3 separate render passes, that get composited together in the end. The question is, can we combine the 1. and 3. pass together,
+ * and just keep a depthBuffer, then when doing the 2. pass, we only sample from the pixels that are further back,
+ * and when doing compositing
+ *
+ * We should start counting draw calls
+ */
+
 namespace Flamui.Drawing;
 
 public struct Mesh
@@ -135,6 +153,18 @@ public sealed class Renderer
         }
 
         CheckError();
+
+        //generate framebuffer for rendering the blurred rects
+        Gl.GenFramebuffers(1, out uint framebufferName);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferName);
+
+        Gl.GenTextures(1, out uint renderTexture);
+        Gl.BindTexture(TextureTarget.Texture2D, renderTexture);
+
+        Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgb, 1024, 768, 0, PixelFormat.Rgb, PixelType.UnsignedByte, 0);
+
+        Gl.TextureParameterI(TextureTarget.Texture2D, GLEnum.TextureMagFilter, GLEnum.Nearest);
+        Gl.TextureParameterI(TextureTarget.Texture2D, GLEnum.TextureMinFilter, GLEnum.Nearest);
 
         Gl.Enable(EnableCap.StencilTest);
     }

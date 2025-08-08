@@ -12,8 +12,8 @@ using Sample.LayoutTest;
  * - Implement ChangeParent/SetParent -- done
  *
  *
- * - Make Scroll work again
- * - Make Debug Zoom work properly   -- wip
+ * - Make Scroll work again --wip (vertical scroll works)
+ * - Make Debug Zoom work properly -- wip
  * - Fix InputBox hit testing -- done
  * - Check SVG workflow
  * - Implement some kind of Grid -- wip (still need to add scrolling)
@@ -21,11 +21,11 @@ using Sample.LayoutTest;
  *     - Design Inspo: https://www.figma.com/design/YH6PqUnUPjbUcM9On5gfjz/Int-UI-Kit--Community-?node-id=6222-73687&p=f&t=u6cSRJMlVN6fukUu-0
  *     - DropDown - done
  *     - Checkbox / Toggle -- done
- *     - Singleline Input
+ *     - Singleline Input -- wip
  *     - Multiline Input
  *     - Button -- done
  *     - Confirmation Window (Modal) -- done
- *     - Tab System -- wip
+ *     - Tab System -- done
  *     - Slider -- done
  *     - Tree
  *     - Radio Button (Group) -- done

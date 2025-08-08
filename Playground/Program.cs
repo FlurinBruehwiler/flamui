@@ -4,7 +4,7 @@
     {
         static void Print()
         {
-            Console.WriteLine("Hi23");
+
         }
 
         public static unsafe void Main()
