@@ -22,7 +22,7 @@ public static class StaticFunctions
 
     public static void ExecuteRenderInstructions(CommandBuffer commands, Renderer renderer, Arena arena)
     {
-        var canvas = new GlCanvas(renderer, arena);
+        var canvas = new Canvas(renderer, arena);
 
         foreach (var (_, value) in commands.InnerBuffers.OrderBy(x => x.Key))
         {

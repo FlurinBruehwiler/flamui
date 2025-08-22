@@ -145,7 +145,7 @@ public sealed class RenderContext
             prevMat = x;
         }
 
-        var finalMat = multiply ? Matrix4X4.Multiply(prevMat, matrix) : matrix;
+        var finalMat = multiply ? Matrix4X4.Multiply(matrix, prevMat) : matrix;
 
         MatrixStack.Push(finalMat);
 
