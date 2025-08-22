@@ -9,7 +9,6 @@ public struct Paint
 {
     public ColorDefinition Color;
     public ScaledFont Font;
-    public float BlurRadius; // 0 = noblur
 }
 
 public enum SegmentType
@@ -86,20 +85,18 @@ public struct GlPath
     }
 }
 
-public sealed class Canvas
+public sealed class GlCanvas
 {
     public MeshBuilder MeshBuilder;
-    public MeshBuilder BlurMeshBuilder;
 
     private readonly Renderer _renderer;
     public Paint Paint;
     private static Dictionary<Bitmap, GpuTexture> _textures = []; //Todo not static
-    public Canvas(Renderer renderer, Arena arena)
+    public GlCanvas(Renderer renderer, Arena arena)
     {
         _renderer = renderer;
 
         MeshBuilder = new MeshBuilder(arena);
-        BlurMeshBuilder = new MeshBuilder(arena);
 
         Start();
     }
@@ -107,7 +104,6 @@ public sealed class Canvas
     public void SetMatrix(Matrix4X4<float> matrix)
     {
         MeshBuilder.Matrix = matrix;
-        BlurMeshBuilder.Matrix = matrix;
     }
 
     public void DrawBitmap(Bitmap bitmap, Bounds bounds)
@@ -289,36 +285,30 @@ public sealed class Canvas
 
     public void DrawTriangle(Vector2 p1, Vector2 p2, Vector2 p3)
     {
-        var meshBuilder = Paint.BlurRadius == 0 ? MeshBuilder : BlurMeshBuilder;
-
-        meshBuilder.AddTriangle(
-                meshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color),
-                meshBuilder.AddVertex(p2, new Vector2(0, 0), Paint.Color),
-                meshBuilder.AddVertex(p3, new Vector2(0, 0), Paint.Color)
+        MeshBuilder.AddTriangle(
+                MeshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color),
+                MeshBuilder.AddVertex(p2, new Vector2(0, 0), Paint.Color),
+                MeshBuilder.AddVertex(p3, new Vector2(0, 0), Paint.Color)
             );
     }
 
     public void DrawRect(float x, float y, float width, float height)
     {
-        var meshBuilder = Paint.BlurRadius == 0 ? MeshBuilder : BlurMeshBuilder;
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Paint.Color, textureType: TextureType.Color);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Paint.Color, textureType: TextureType.Color);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Paint.Color, textureType: TextureType.Color);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Paint.Color, textureType: TextureType.Color);
 
-        uint topLeft = meshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Paint.Color, textureType: TextureType.Color);
-        uint topRight = meshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Paint.Color, textureType: TextureType.Color);
-        uint bottomRight = meshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Paint.Color, textureType: TextureType.Color);
-        uint bottomLeft = meshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Paint.Color, textureType: TextureType.Color);
-
-        meshBuilder.AddTriangle(topLeft, topRight, bottomRight);
-        meshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
+        MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
+        MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
     }
 
     public void DrawFilledBezier(Vector2 p1, Vector2 p2, Vector2 p3)
     {
-        var meshBuilder = Paint.BlurRadius == 0 ? MeshBuilder : BlurMeshBuilder;
-
-        meshBuilder.AddTriangle(
-            meshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color, 1),
-            meshBuilder.AddVertex(p2, new Vector2(0.5f, 0), Paint.Color, 1),
-            meshBuilder.AddVertex(p3, new Vector2(1, 1), Paint.Color, 1)
+        MeshBuilder.AddTriangle(
+            MeshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color, 1),
+            MeshBuilder.AddVertex(p2, new Vector2(0.5f, 0), Paint.Color, 1),
+            MeshBuilder.AddVertex(p3, new Vector2(1, 1), Paint.Color, 1)
         );
     }
 
