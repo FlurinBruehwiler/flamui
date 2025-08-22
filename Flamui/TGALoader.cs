@@ -96,7 +96,7 @@ public sealed class TGALoader
             if (header.ImageSpecification.PixelDepth != 32)
                 throw new Exception("We only support 32 bit pixel depth");
 
-            Console.WriteLine(JsonSerializer.Serialize(header, options: new JsonSerializerOptions{ IncludeFields = true, WriteIndented = true}));
+            // Console.WriteLine(JsonSerializer.Serialize(header, options: new JsonSerializerOptions{ IncludeFields = true, WriteIndented = true}));
 
             tgaFile = tgaFile.Slice(sizeof(TGAHeader));
 

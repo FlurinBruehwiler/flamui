@@ -41,10 +41,13 @@ public sealed class Renderer
     private int _blurTextureLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
+    private uint _vao2;
     private Dictionary<ScaledFont, FontAtlas> _fontAtlasMap = [];
 
     private uint vbo;
     private uint ebo;
+    private uint vbo2;
+    private uint ebo2;
     public VgAtlas? VgAtlas;
 
     public unsafe FontAtlas GetFontAtlas(ScaledFont scaledFont)
@@ -115,6 +118,7 @@ public sealed class Renderer
         Gl.Enable(EnableCap.Blend);
 
         _vao = Gl.GenVertexArray();
+        _vao2 = Gl.GenVertexArray();
         Gl.BindVertexArray(_vao);
 
         //main_program
@@ -142,6 +146,8 @@ public sealed class Renderer
 
         vbo = Gl.GenBuffer();
         ebo = Gl.GenBuffer();
+        vbo2 = Gl.GenBuffer();
+        ebo2 = Gl.GenBuffer();
 
         CheckError();
 
@@ -269,41 +275,54 @@ public sealed class Renderer
 
     public unsafe void FullScreenBlur()
     {
+        Gl.Flush();
+        Gl.Disable(GLEnum.StencilTest);
+
         ReadOnlySpan<float> vertices =
         [
-            -1.0f, -1.0f, 0.5f,
-            1.0f, -1.0f, 0.5f,
-            1.0f, 1.0f, 0.5f,
-            -1.0f, 1.0f, 0.5f
+            1f,  1f, 0.0f, 1.0f, 1.0f,
+            1f, -1f, 0.0f, 1.0f, 0.0f,
+            -1f, -1f, 0.0f, 0.0f, 0.0f,
+            -1f,  1f, 0.0f, 0.0f, 1.0f
         ];
 
         ReadOnlySpan<uint> indices =
         [
-            0, 1, 2,
-            2, 3, 0
+            3u, 2u, 0u,
+            2u, 1u, 0u
         ];
 
-        Gl.BindVertexArray(_vao);
+        Gl.BindVertexArray(_vao2);
         Gl.UseProgram(_blurProgram);
 
         Gl.ActiveTexture(GLEnum.Texture0);
         Gl.BindTexture(TextureTarget.Texture2D, renderTexture.renderedTexture);
         Gl.Uniform1(_blurTextureLoc, 0);
 
-        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
+
+        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo2);
         Gl.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);
 
-        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
+        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo2);
         Gl.BufferData(BufferTargetARB.ElementArrayBuffer, indices, BufferUsageARB.StaticDraw);
 
         const uint positionLoc = 0; //aPosition in shader
         Gl.EnableVertexAttribArray(positionLoc);
-        Gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), (void*)0);
+        Gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)0);
+
+        const uint textureVecLoc = 1; //aPosition in shader
+        Gl.EnableVertexAttribArray(textureVecLoc);
+        Gl.VertexAttribPointer(textureVecLoc, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
         Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
+        Gl.BindVertexArray(_vao2);
+        Gl.UseProgram(_blurProgram);
+
         Gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
         Gl.Flush();
+
+        Gl.Enable(EnableCap.StencilTest);
     }
 
     public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)

@@ -1,12 +1,11 @@
-﻿#version 460 core
+﻿#version 330 core
 
+in vec2 vTexCoord;
 uniform sampler2D uTexture;
 
 out vec4 out_color;
 
 void main()
 {
-    vec4 color = texture(uTexture, gl_FragCoord.xy);
-
-    out_color = color;
+    out_color = texture(uTexture, vTexCoord);
 }
