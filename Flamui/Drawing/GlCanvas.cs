@@ -95,6 +95,7 @@ public sealed class GlCanvas
     public GlCanvas(Renderer renderer, Arena arena)
     {
         _renderer = renderer;
+
         MeshBuilder = new MeshBuilder(arena);
 
         Start();
@@ -243,6 +244,8 @@ public sealed class GlCanvas
 
     public void Start()
     {
+        _renderer.BeforeFrame();
+
         _renderer.Gl.Viewport(_renderer.Window.Size);
 
         _renderer.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);

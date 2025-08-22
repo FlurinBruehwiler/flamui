@@ -67,5 +67,7 @@ public static class StaticFunctions
         }
 
         canvas.Flush();
+
+        renderer.FullScreenBlur();
     }
 }

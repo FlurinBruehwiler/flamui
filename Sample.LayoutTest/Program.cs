@@ -65,6 +65,26 @@ using Sample.LayoutTest;
  * so we can determine if we should also have a similar system.
  */
 
+/*
+ * Plan for blur:
+ *
+ * Option 1:
+ * - Single post process effect with blur based on depth texture
+ * - Positive: Very simple and fast
+ * - Negative: Not really accurate
+ *
+ * Option 2:
+ * - Apply blur after each time we receive a rect that should be blurred.
+ * - Positive: 100% accurate
+ * - Negative: Performance will be really bad if we have many blurred elements.
+ *
+ * We could research how other libraries to blur, but this is less fun. I want to try to implement blur myself.
+ * Intermediate steps:
+ * - Apply a full screen blur
+ *  - Create the concept of "passes"
+ * - ...
+ */
+
 var windowHost = new FlamuiWindowHost();
 
 

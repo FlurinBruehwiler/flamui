@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 
 in vec2 frag_texCoords;
 in float fill_bezier_type;
@@ -9,6 +9,7 @@ in float texture_id;
 uniform int stencil_enabled; //0 = disabled, 1 = enabled
 uniform sampler2D uTextures[10]; //maximum of 10 textures
 
+layout(location = 0)
 out vec4 out_color;
 
 void main()

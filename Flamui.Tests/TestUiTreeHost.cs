@@ -26,4 +26,14 @@ public sealed class TestUiTreeHost : IUiTreeHost
     {
         _cursorShape = cursorShape;
     }
+
+    public IntPtr GetWindowHandle()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void CloseWindow()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -20,6 +20,8 @@ public enum Shader
 {
     main_fragment,
     main_vertex,
+    blur_fragment,
+    blur_vertex
 }
 
 public sealed class GpuTexture
@@ -34,7 +36,9 @@ public sealed class Renderer
     public IWindow Window;
 
     private uint _mainProgram;
+    private uint _blurProgram;
     private int _transformLoc;
+    private int _blurTextureLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
     private Dictionary<ScaledFont, FontAtlas> _fontAtlasMap = [];
@@ -97,6 +101,7 @@ public sealed class Renderer
 
     //nvidia paper: https://developer.nvidia.com/nv-path-rendering
 
+
     public void Initialize(IWindow window)
     {
         Window = window;
@@ -122,6 +127,17 @@ public sealed class Renderer
 
         CheckError();
 
+        //blur_program
+        uint blur_vertexShader = CompileShader(Shader.blur_vertex, ShaderType.VertexShader);
+        uint blur_fragmentShader = CompileShader(Shader.blur_fragment, ShaderType.FragmentShader);
+
+        _blurProgram = CreateProgram(blur_vertexShader, blur_fragmentShader);
+        _blurTextureLoc = Gl.GetUniformLocation(_blurProgram, "uTexture");
+
+        CheckError();
+
+        //end
+
         Gl.BindVertexArray(0);
 
         vbo = Gl.GenBuffer();
@@ -134,12 +150,22 @@ public sealed class Renderer
             textureSlotUniformLocations[i] = Gl.GetUniformLocation(_mainProgram, $"uTextures[{i}]");
         }
 
+        renderTexture = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
+
         CheckError();
 
         Gl.Enable(EnableCap.StencilTest);
     }
 
+    private RenderTexture renderTexture;
     private int[] textureSlotUniformLocations = new int[10];
+
+    public void BeforeFrame()
+    {
+        renderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
+
+        Gl.BindFramebuffer(GLEnum.Framebuffer, renderTexture.FramebufferName);
+    }
 
     private void CheckError([CallerLineNumber] int line = 0)
     {
@@ -239,6 +265,45 @@ public sealed class Renderer
             9 => TextureUnit.Texture9,
             _ => throw new Exception("invalid texture slot")
         };
+    }
+
+    public unsafe void FullScreenBlur()
+    {
+        ReadOnlySpan<float> vertices =
+        [
+            -1.0f, -1.0f, 0.5f,
+            1.0f, -1.0f, 0.5f,
+            1.0f, 1.0f, 0.5f,
+            -1.0f, 1.0f, 0.5f
+        ];
+
+        ReadOnlySpan<uint> indices =
+        [
+            0, 1, 2,
+            2, 3, 0
+        ];
+
+        Gl.BindVertexArray(_vao);
+        Gl.UseProgram(_blurProgram);
+
+        Gl.ActiveTexture(GLEnum.Texture0);
+        Gl.BindTexture(TextureTarget.Texture2D, renderTexture.renderedTexture);
+        Gl.Uniform1(_blurTextureLoc, 0);
+
+        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
+        Gl.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);
+
+        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
+        Gl.BufferData(BufferTargetARB.ElementArrayBuffer, indices, BufferUsageARB.StaticDraw);
+
+        const uint positionLoc = 0; //aPosition in shader
+        Gl.EnableVertexAttribArray(positionLoc);
+        Gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), (void*)0);
+
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+        Gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
+        Gl.Flush();
     }
 
     public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)
