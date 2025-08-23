@@ -41,6 +41,7 @@ public sealed class Renderer
     private int _transformLoc;
     private int _blurTextureLoc;
     private int _blurViewportSizeLoc;
+    private int _blurKernelSizeLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
     private uint _vao2;
@@ -140,6 +141,7 @@ public sealed class Renderer
         _blurProgram = CreateProgram(blur_vertexShader, blur_fragmentShader);
         _blurTextureLoc = Gl.GetUniformLocation(_blurProgram, "uTexture");
         _blurViewportSizeLoc = Gl.GetUniformLocation(_blurProgram, "uViewportSize");
+        _blurKernelSizeLoc = Gl.GetUniformLocation(_blurProgram, "kernelSize");
 
         CheckError();
 
@@ -276,6 +278,8 @@ public sealed class Renderer
         };
     }
 
+    public static float blurKernelSize = 1;
+
     public unsafe void FullScreenBlur()
     {
         Gl.Flush();
@@ -303,6 +307,7 @@ public sealed class Renderer
         Gl.Uniform1(_blurTextureLoc, 0);
 
         Gl.Uniform2(_blurViewportSizeLoc, new Vector2(Window.Size.X, Window.Size.Y));
+        Gl.Uniform1(_blurKernelSizeLoc, (float)(int)blurKernelSize);
 
         Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo2);
         Gl.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);

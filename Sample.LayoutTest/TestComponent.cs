@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Flamui;
 using Flamui.Components;
+using Flamui.Drawing;
 using Silk.NET.GLFW;
 using MouseButton = Silk.NET.Input.MouseButton;
 
@@ -14,7 +15,7 @@ public static class TestComponent
     {
         ui.CascadingValues.TextColor = C.White;
 
-        var tabBar = ui.GetTabBar(initialTab: 2);
+        var tabBar = ui.GetTabBar(initialTab: 3);
 
         if (tabBar.TabItem("Tab 1"))
         {
@@ -37,6 +38,20 @@ public static class TestComponent
             using (tabBar.Body.Enter())
             {
                 Tab3(ui);
+            }
+        }
+
+        if (tabBar.TabItem("Tab 4"))
+        {
+
+
+            using (tabBar.Body.Enter())
+            {
+                using (ui.Rect().Color(20, 20, 20).Padding(10).Gap(10))
+                {
+                    ui.Slider(0, 5, ref Renderer.blurKernelSize);
+                    ui.Text(((int)Renderer.blurKernelSize).ToArenaString());
+                }
             }
         }
     }

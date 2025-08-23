@@ -3,12 +3,12 @@
 in vec2 vTexCoord;
 uniform sampler2D uTexture;
 uniform vec2 uViewportSize;
+uniform float kernelSize;
 
 out vec4 out_color;
 
 void main()
 {
-    const float kernelSize = 3.0;
     vec3 boxBlurColor = vec3(0.0);
 
     float boxBlurDivisor = pow(2.0 * kernelSize + 1.0, 2.0);
