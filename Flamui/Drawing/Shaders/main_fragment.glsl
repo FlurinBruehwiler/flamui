@@ -8,6 +8,7 @@ in float texture_id;
 
 uniform int stencil_enabled; //0 = disabled, 1 = enabled
 uniform sampler2D uTextures[10]; //maximum of 10 textures
+uniform vec2 uViewportSize;
 
 layout(location = 0)
 out vec4 out_color;
@@ -23,6 +24,9 @@ void main()
             float alpha = texture(uTextures[int(texture_id)], frag_texCoords).r;
             out_color = vec4(frag_color.rgb * alpha, alpha);
            // out_color = vec4(1, 0, 0, 1);
+        }
+        else if(texture_type == 3){
+            out_color = texture(uTextures[int(texture_id)], gl_FragCoord.xy / uViewportSize);
         }
     }else{
         float x = frag_texCoords.x;

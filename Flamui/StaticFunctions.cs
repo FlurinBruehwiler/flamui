@@ -33,6 +33,7 @@ public static class StaticFunctions
                 {
                     case CommandType.Rect:
                         canvas.Paint.Color = command.RectCommand.Color;
+                        canvas.Paint.BlurRadius = command.RectCommand.BlurRadius;
                         if(command.RectCommand.Radius == 0)
                             canvas.DrawRect(command.RectCommand.Bounds.X, command.RectCommand.Bounds.Y, command.RectCommand.Bounds.W, command.RectCommand.Bounds.H);
                         else
@@ -69,7 +70,6 @@ public static class StaticFunctions
 
         canvas.Flush();
 
-        renderer.FullScreenBlur(Renderer._blurKernelSize, new Vector2(0, 1), true);
-        renderer.FullScreenBlur(Renderer._blurKernelSize, new Vector2(1, 0), false);
+        renderer.DisplayRenderTextureOnScreen(renderer.mainRenderTexture);
     }
 }

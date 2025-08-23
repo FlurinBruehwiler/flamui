@@ -15,7 +15,7 @@ public static class TestComponent
     {
         ui.CascadingValues.TextColor = C.White;
 
-        var tabBar = ui.GetTabBar(initialTab: 3);
+        var tabBar = ui.GetTabBar(initialTab: 0);
 
         if (tabBar.TabItem("Tab 1"))
         {
@@ -196,7 +196,7 @@ public static class TestComponent
             {
                 using (popup.Body.Enter())
                 {
-                    using (ui.Rect().Rounded(10).Color(ColorPalette.BackgroundColor).Margin(51).BlockHit().Padding(10))
+                    using (ui.Rect().Color(ColorPalette.BackgroundColor).Margin(51).BlockHit().Padding(10).Blur(10))
                     {
                         ui.Text("My Popup Text"); //this text will be displayed within the popup :)
                     }

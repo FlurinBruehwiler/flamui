@@ -98,6 +98,7 @@ public struct RectCommand
     public required Bounds Bounds;
     public required float Radius;
     public required ColorDefinition Color;
+    public required float BlurRadius;
 
 }
 

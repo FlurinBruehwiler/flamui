@@ -51,6 +51,13 @@ public sealed partial class FlexContainer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public FlexContainer Blur(float blurRadius)
+    {
+        Info.BlurRadius = blurRadius;
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FlexContainer BorderColor(byte red, byte green, byte blue, byte alpha = 255)
     {
         Info.BorderColor = new ColorDefinition(red, green, blue, alpha);

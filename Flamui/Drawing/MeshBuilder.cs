@@ -8,7 +8,8 @@ public enum TextureType
 {
     Color = 0,
     Texture = 1,
-    Text = 2
+    Text = 2,
+    Blur = 3
 }
 
 public ref struct VerticesEnumerator
@@ -131,7 +132,7 @@ public sealed class MeshBuilder
 {
     private ArenaChunkedList<Vertex> _vertices;
     private ArenaChunkedList<uint> _indices;
-    private Dictionary<GpuTexture, int> _textureIdToTextureSlot;
+    private Dictionary<uint, int> _textureIdToTextureSlot;
     public Matrix4X4<float> Matrix;
     private Arena _arena;
 
@@ -146,7 +147,7 @@ public sealed class MeshBuilder
 
     private int GetTextureSlot(GpuTexture texture)
     {
-        if (_textureIdToTextureSlot.TryGetValue(texture, out var slot))
+        if (_textureIdToTextureSlot.TryGetValue(texture.TextureId, out var slot))
         {
             return slot;
         }
@@ -157,7 +158,7 @@ public sealed class MeshBuilder
             newTextureSlot = _textureIdToTextureSlot.MaxBy(x => x.Value).Value + 1;
         }
 
-        _textureIdToTextureSlot.Add(texture, newTextureSlot);
+        _textureIdToTextureSlot.Add(texture.TextureId, newTextureSlot);
         return newTextureSlot;
     }
 
@@ -166,9 +167,9 @@ public sealed class MeshBuilder
         var pos = _vertices.Count;
 
         int textureSlot = 0;
-        if (texture != null)
+        if (texture is {} t)
         {
-            textureSlot = GetTextureSlot(texture);
+            textureSlot = GetTextureSlot(t);
         }
 
         _vertices.Add(new Vertex(position.Multiply(Matrix), uv, color)

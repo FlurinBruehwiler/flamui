@@ -5,7 +5,7 @@ namespace Flamui.Drawing;
 public class RenderTexture
 {
     public uint FramebufferName;
-    public uint renderedTexture;
+    public uint textureId;
     public int width;
     public int height;
 
@@ -13,7 +13,7 @@ public class RenderTexture
     {
         if (this.width != width || this.height != height)
         {
-            gl.BindTexture(GLEnum.Texture2D, renderedTexture);
+            gl.BindTexture(GLEnum.Texture2D, textureId);
             gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgb, (uint)width, (uint)height, 0, GLEnum.Rgb, GLEnum.UnsignedByte, 0);
         }
     }
@@ -59,7 +59,7 @@ public class RenderTexture
         return new RenderTexture
         {
             FramebufferName = FramebufferName,
-            renderedTexture = renderedTexture,
+            textureId = renderedTexture,
             height = height,
             width = width
         };

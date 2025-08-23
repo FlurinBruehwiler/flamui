@@ -38,7 +38,7 @@ public sealed class RenderContext
         MatrixStack.Clear();
     }
 
-    public void AddRect(Bounds bounds, UiElement? uiElement, ColorDefinition color, float radius = 0)
+    public void AddRect(Bounds bounds, UiElement? uiElement, ColorDefinition color, float radius = 0, float blurRadius = 0)
     {
         var cmd = new Command
         {
@@ -48,7 +48,8 @@ public sealed class RenderContext
             {
                 Bounds = bounds,
                 Radius = radius,
-                Color = color
+                Color = color,
+                BlurRadius = blurRadius
             }
         };
 

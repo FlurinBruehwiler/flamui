@@ -9,6 +9,7 @@ public struct Paint
 {
     public ColorDefinition Color;
     public ScaledFont Font;
+    public float BlurRadius; // <= 1 = no blur
 }
 
 public enum SegmentType
@@ -294,10 +295,20 @@ public sealed class GlCanvas
 
     public void DrawRect(float x, float y, float width, float height)
     {
-        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Paint.Color, textureType: TextureType.Color);
-        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Paint.Color, textureType: TextureType.Color);
-        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Paint.Color, textureType: TextureType.Color);
-        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Paint.Color, textureType: TextureType.Color);
+        TextureType textureType = TextureType.Color;
+        GpuTexture? texture = null;
+
+        if (Paint.BlurRadius > 1)
+        {
+            Flush();
+            texture = _renderer.ProduceBlurTexture(Paint.BlurRadius);
+            textureType = TextureType.Blur;
+        }
+
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Paint.Color, textureType: textureType, texture: texture);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Paint.Color, textureType: textureType, texture: texture);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Paint.Color, textureType: textureType, texture: texture);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Paint.Color, textureType: textureType, texture: texture);
 
         MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
         MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);

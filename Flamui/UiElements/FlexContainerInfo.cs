@@ -31,6 +31,7 @@ public struct FlexContainerInfo
     public bool Focusable;
     public bool IsNew;
     public ColorDefinition? Color;
+    public float BlurRadius;
     public ColorDefinition? BorderColor;
     public Quadrant Padding;
     public float Rotation;

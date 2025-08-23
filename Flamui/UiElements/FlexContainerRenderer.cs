@@ -89,7 +89,7 @@ public static class FlexContainerRenderer
             //     renderContext.AddRect(bounds, flexContainer, blurColor, flexContainer.Info.Radius == 0 ? 0 : borderRadius);
             // }
 
-            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius);
+            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius, blurRadius: flexContainer.Info.BlurRadius);
         }else if (flexContainer.Info.Interactable)
         {
             //hack, pls fix
