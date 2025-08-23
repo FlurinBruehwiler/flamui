@@ -8,22 +8,35 @@ public class RenderTexture
     public uint textureId;
     public int width;
     public int height;
+    public uint DepthStencilRbo;
 
-    public void UpdateSize(GL gl, int width, int height)
+    public void UpdateSize(GL gl, int pWidth, int pHeight)
     {
-        if (this.width != width || this.height != height)
+        if (width != pWidth || height != pHeight)
         {
-            gl.BindTexture(GLEnum.Texture2D, textureId);
-            gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgb, (uint)width, (uint)height, 0, GLEnum.Rgb, GLEnum.UnsignedByte, 0);
+            width = pWidth;
+            height = pHeight;
+
+            gl.DeleteTexture(textureId);
+
+            textureId = CreateTexture(gl, pWidth, pHeight);
+
+            // Reattach color texture
+            gl.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferName);
+            gl.FramebufferTexture(GLEnum.Framebuffer, GLEnum.ColorAttachment0, textureId, 0);
+
+            // Resize depth-stencil renderbuffer
+            gl.BindRenderbuffer(GLEnum.Renderbuffer, DepthStencilRbo);
+            gl.RenderbufferStorage(GLEnum.Renderbuffer, InternalFormat.Depth24Stencil8, (uint)width, (uint)height);
+
+            // Make sure framebuffer is complete
+            if (gl.CheckFramebufferStatus(GLEnum.Framebuffer) != GLEnum.FramebufferComplete)
+                throw new Exception("Framebuffer incomplete after resize");
         }
     }
 
-    public static unsafe RenderTexture Create(GL gl, int width, int height)
+    private static unsafe uint CreateTexture(GL gl, int width, int height)
     {
-        //gen frame buffer
-        gl.GenFramebuffers(1, out uint FramebufferName);
-        gl.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferName);
-
         //gen texture
         gl.GenTextures(1, out uint renderedTexture);
 
@@ -42,10 +55,19 @@ public class RenderTexture
         // gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgb, (uint)width, (uint)height, 0, PixelFormat.Red, PixelType.UnsignedByte, null);
 
         // Poor filtering. Needed !
-        gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest); //not sure if this cast to int is correct
-        gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest); //not sure if this cast to int is correct
+        gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)GLEnum.Nearest); //not sure if this cast to int is correct
+        gl.TexParameter(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)GLEnum.Nearest); //not sure if this cast to int is correct
 
-        //todo insert depth testing here if needed
+        return renderedTexture;
+    }
+
+    public static unsafe RenderTexture Create(GL gl, int width, int height)
+    {
+        //gen frame buffer
+        gl.GenFramebuffers(1, out uint FramebufferName);
+        gl.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferName);
+
+        var renderedTexture = CreateTexture(gl, width, height);
 
         // Set "renderedTexture" as our colour attachement #0
         gl.FramebufferTexture(GLEnum.Framebuffer, GLEnum.ColorAttachment0, renderedTexture, 0);
@@ -79,6 +101,7 @@ public class RenderTexture
         {
             FramebufferName = FramebufferName,
             textureId = renderedTexture,
+            DepthStencilRbo = depthStencilRbo,
             height = height,
             width = width
         };
