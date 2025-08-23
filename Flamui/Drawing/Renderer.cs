@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Flamui.PerfTrace;
 using Silk.NET.Maths;
@@ -42,6 +43,8 @@ public sealed class Renderer
     private int _blurTextureLoc;
     private int _blurViewportSizeLoc;
     private int _blurKernelSizeLoc;
+    private int _blurKernelWeightsLoc;
+    private int _blurDirectionLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
     private uint _vao2;
@@ -99,7 +102,7 @@ public sealed class Renderer
         Gl.CompileShader(identifier);
 
         Gl.GetShader(identifier, ShaderParameterName.CompileStatus, out int vStatus);
-        if (vStatus != (int) GLEnum.True)
+        if (vStatus != (int)GLEnum.True)
             throw new Exception("Vertex shader failed to compile: " + Gl.GetShaderInfoLog(identifier));
 
         return identifier;
@@ -142,6 +145,8 @@ public sealed class Renderer
         _blurTextureLoc = Gl.GetUniformLocation(_blurProgram, "uTexture");
         _blurViewportSizeLoc = Gl.GetUniformLocation(_blurProgram, "uViewportSize");
         _blurKernelSizeLoc = Gl.GetUniformLocation(_blurProgram, "kernelSize");
+        _blurKernelWeightsLoc = Gl.GetUniformLocation(_blurProgram, "kernel");
+        _blurDirectionLoc = Gl.GetUniformLocation(_blurProgram, "direction");
 
         CheckError();
 
@@ -161,21 +166,24 @@ public sealed class Renderer
             textureSlotUniformLocations[i] = Gl.GetUniformLocation(_mainProgram, $"uTextures[{i}]");
         }
 
-        renderTexture = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
+        renderTexture1 = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
+        renderTexture2 = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
 
         CheckError();
 
         Gl.Enable(EnableCap.StencilTest);
     }
 
-    private RenderTexture renderTexture;
+    private RenderTexture renderTexture1;
+    private RenderTexture renderTexture2;
     private int[] textureSlotUniformLocations = new int[10];
 
     public void BeforeFrame()
     {
-        renderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
+        renderTexture1.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
+        renderTexture2.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
 
-        Gl.BindFramebuffer(GLEnum.Framebuffer, renderTexture.FramebufferName);
+        Gl.BindFramebuffer(GLEnum.Framebuffer, renderTexture1.FramebufferName);
     }
 
     private void CheckError([CallerLineNumber] int line = 0)
@@ -197,7 +205,7 @@ public sealed class Renderer
         Gl.LinkProgram(program);
 
         Gl.GetProgram(program, ProgramPropertyARB.LinkStatus, out int lStatus);
-        if (lStatus != (int) GLEnum.True)
+        if (lStatus != (int)GLEnum.True)
             throw new Exception("Program failed to link: " + Gl.GetProgramInfoLog(program));
 
         Gl.DetachShader(program, vertexShader);
@@ -278,19 +286,61 @@ public sealed class Renderer
         };
     }
 
-    public static float blurKernelSize = 1;
+    public static float _blurKernelSize = 10;
 
-    public unsafe void FullScreenBlur()
+    public unsafe void FullScreenBlur(float blurSize, Vector2 direction, bool renderToTexture)
     {
         Gl.Flush();
         Gl.Disable(GLEnum.StencilTest);
 
+        //code inspired from raddbg render_d3d11.c
+
+        //setup weights
+        Span<Vector4> uniformKernel = stackalloc Vector4[32];
+        Span<float> weights = stackalloc float[uniformKernel.Length * 2];
+
+        blurSize = MathF.Min(blurSize, weights.Length);
+        int blurCount = (int)MathF.Round(blurSize);
+        float stdev = (blurSize - 1.0f) / 2.0f;
+        float oneOverRoot2piStdev2 = 1 / MathF.Sqrt(2 * MathF.PI * stdev * stdev);
+
+        weights[0] = 1f;
+        if (stdev > 0f)
+        {
+            for (int i = 0; i < blurCount; i++)
+            {
+                float kernelX = (float)i;
+                weights[i] = oneOverRoot2piStdev2 * MathF.Pow(MathF.E, -kernelX * kernelX / (2f * stdev * stdev));
+            }
+        }
+
+        if (weights[0] > 1f)
+        {
+            weights.Clear();
+            weights[0] = 1f;
+        }
+        else
+        {
+            for (int i = 1; i < blurCount; i += 2)
+            {
+                float w0 = weights[i + 0];
+                float w1 = weights[i + 1];
+                float w = w0 + w1;
+                float t = w1 / w;
+
+                uniformKernel[(i + 1) / 2] = new Vector4(w, (float)i + t, 0, 0);
+            }
+        }
+
+        uniformKernel[0].X = weights[0];
+
+
         ReadOnlySpan<float> vertices =
         [
-            1f,  1f, 0.0f, 1.0f, 1.0f,
+            1f, 1f, 0.0f, 1.0f, 1.0f,
             1f, -1f, 0.0f, 1.0f, 0.0f,
             -1f, -1f, 0.0f, 0.0f, 0.0f,
-            -1f,  1f, 0.0f, 0.0f, 1.0f
+            -1f, 1f, 0.0f, 0.0f, 1.0f
         ];
 
         ReadOnlySpan<uint> indices =
@@ -303,11 +353,21 @@ public sealed class Renderer
         Gl.UseProgram(_blurProgram);
 
         Gl.ActiveTexture(GLEnum.Texture0);
-        Gl.BindTexture(TextureTarget.Texture2D, renderTexture.renderedTexture);
+        if (renderToTexture)
+        {
+            Gl.BindTexture(TextureTarget.Texture2D, renderTexture1.renderedTexture);
+        }
+        else
+        {
+            Gl.BindTexture(TextureTarget.Texture2D, renderTexture2.renderedTexture);
+        }
         Gl.Uniform1(_blurTextureLoc, 0);
 
+        var marshal = MemoryMarshal.Cast<Vector4, float>(uniformKernel);
         Gl.Uniform2(_blurViewportSizeLoc, new Vector2(Window.Size.X, Window.Size.Y));
-        Gl.Uniform1(_blurKernelSizeLoc, (float)(int)blurKernelSize);
+        Gl.Uniform1(_blurKernelSizeLoc, 1f + (float)blurCount);
+        Gl.Uniform4(_blurKernelWeightsLoc, marshal);
+        Gl.Uniform2(_blurDirectionLoc, direction);
 
         Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo2);
         Gl.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);
@@ -323,12 +383,19 @@ public sealed class Renderer
         Gl.EnableVertexAttribArray(textureVecLoc);
         Gl.VertexAttribPointer(textureVecLoc, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        if (renderToTexture)
+        {
+            Gl.BindFramebuffer(GLEnum.Framebuffer, renderTexture2.FramebufferName);
+        }
+        else
+        { //render to screen
+            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        }
 
         Gl.BindVertexArray(_vao2);
         Gl.UseProgram(_blurProgram);
 
-        Gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
+        Gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, (void*)0);
         Gl.Flush();
 
         Gl.Enable(EnableCap.StencilTest);
@@ -405,7 +472,7 @@ public sealed class Renderer
 
         using (Systrace.BeginEvent("DrawElements"))
         {
-            Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt,  (void*) 0);
+            Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
         }
 
         // using (Systrace.BeginEvent("GetError"))
@@ -421,9 +488,9 @@ public sealed class Renderer
     private Matrix4X4<float> GetWorldToScreenMatrix()
     {
         return Matrix4X4.CreateScale(1f / Window.Size.X, 1f / Window.Size.Y, 1) *
-            Matrix4X4.CreateScale(2f, 2f, 1) *
-            Matrix4X4.CreateTranslation(-1f, -1f, 0) *
-            Matrix4X4.CreateScale(1f, -1f, 1f);
+               Matrix4X4.CreateScale(2f, 2f, 1) *
+               Matrix4X4.CreateTranslation(-1f, -1f, 0) *
+               Matrix4X4.CreateScale(1f, -1f, 1f);
     }
 
     private static float[] GetAsFloatArray(Matrix4X4<float> matrix)

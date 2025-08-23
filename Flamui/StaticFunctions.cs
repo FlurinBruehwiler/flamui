@@ -1,4 +1,5 @@
-﻿using Flamui.Drawing;
+﻿using System.Numerics;
+using Flamui.Drawing;
 using Flamui.Layouting;
 using Silk.NET.Maths;
 
@@ -68,6 +69,7 @@ public static class StaticFunctions
 
         canvas.Flush();
 
-        renderer.FullScreenBlur();
+        renderer.FullScreenBlur(Renderer._blurKernelSize, new Vector2(0, 1), true);
+        renderer.FullScreenBlur(Renderer._blurKernelSize, new Vector2(1, 0), false);
     }
 }

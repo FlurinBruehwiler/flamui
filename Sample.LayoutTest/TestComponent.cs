@@ -43,14 +43,12 @@ public static class TestComponent
 
         if (tabBar.TabItem("Tab 4"))
         {
-
-
             using (tabBar.Body.Enter())
             {
                 using (ui.Rect().Color(20, 20, 20).Padding(10).Gap(10))
                 {
-                    ui.Slider(0, 5, ref Renderer.blurKernelSize);
-                    ui.Text(((int)Renderer.blurKernelSize).ToArenaString());
+                    ui.Slider(0, 20, ref Renderer._blurKernelSize);
+                    ui.Text(((int)Renderer._blurKernelSize).ToArenaString());
                 }
             }
         }
