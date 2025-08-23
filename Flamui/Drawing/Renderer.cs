@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -39,6 +40,7 @@ public sealed class Renderer
     private uint _blurProgram;
     private int _transformLoc;
     private int _blurTextureLoc;
+    private int _blurViewportSizeLoc;
     private int _stencilEnabledLoc;
     private uint _vao;
     private uint _vao2;
@@ -137,6 +139,7 @@ public sealed class Renderer
 
         _blurProgram = CreateProgram(blur_vertexShader, blur_fragmentShader);
         _blurTextureLoc = Gl.GetUniformLocation(_blurProgram, "uTexture");
+        _blurViewportSizeLoc = Gl.GetUniformLocation(_blurProgram, "uViewportSize");
 
         CheckError();
 
@@ -299,6 +302,7 @@ public sealed class Renderer
         Gl.BindTexture(TextureTarget.Texture2D, renderTexture.renderedTexture);
         Gl.Uniform1(_blurTextureLoc, 0);
 
+        Gl.Uniform2(_blurViewportSizeLoc, new Vector2(Window.Size.X, Window.Size.Y));
 
         Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo2);
         Gl.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);
