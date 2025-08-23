@@ -41,16 +41,43 @@ public static class FlexContainerRenderer
             // renderContext.Add(new Restore());//todo
         }
 
-        if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is {} borderColor)
-        {
-            float borderRadius = flexContainer.Info.Radius == 0 ? 0 : flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
+        bool renderBorderAfter = false;
 
-            var needsClip = flexContainer.Info.Color == null || flexContainer.Info.Color.Value.Alpha != 255;
+        float borderRadius = flexContainer.Info.Radius == 0 ? 0 : flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
+        if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is { } borderColor)
+        {
+            var needsClip = flexContainer.Info.Color == null || flexContainer.Info.Color.Value.Alpha != 255 || flexContainer.Info.BlurRadius != 0;
 
             if (needsClip)
             {
-                renderContext.PushClip(flexContainer.Rect.ToBounds(offset), ClipMode.OnlyDrawOutside, flexContainer.Info.Radius);
+                renderBorderAfter = true;
             }
+            else
+            {
+                var bounds = new Bounds
+                {
+                    X = offset.X - flexContainer.Info.BorderWidth,
+                    Y = offset.Y - flexContainer.Info.BorderWidth,
+                    W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
+                    H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
+                };
+                renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
+            }
+        }
+
+        if (flexContainer.Info.Color is { } color)
+        {
+            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius, blurRadius: flexContainer.Info.BlurRadius);
+        }
+        else if (flexContainer.Info.Interactable)
+        {
+            //hack, pls fix
+            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, C.Transparent, 0);
+        }
+
+        if (renderBorderAfter)
+        {
+            renderContext.PushClip(flexContainer.Rect.ToBounds(offset), ClipMode.OnlyDrawOutside, flexContainer.Info.Radius);
 
             var bounds = new Bounds
             {
@@ -59,41 +86,9 @@ public static class FlexContainerRenderer
                 W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
                 H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
             };
-            renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
+            renderContext.AddRect(bounds, flexContainer, flexContainer.Info.BorderColor!.Value, borderRadius);
 
-            if (needsClip)
-            {
-                renderContext.PopClip();
-            }
-        }
-
-        if (flexContainer.Info.Color is { } color)
-        {
-            // //shadow
-            // if (flexContainer.Info.PShadowColor is { } blurColor)
-            // {
-            //     float borderRadius = flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
-            //
-            //     //todo replace with readable code or something
-            //     var bounds = new Bounds
-            //     {
-            //         X = offset.X - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Left,
-            //         Y = offset.Y - flexContainer.Info.BorderWidth + flexContainer.Info.ShadowOffset.Top,
-            //         H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth -
-            //             flexContainer.Info.ShadowOffset.Top - flexContainer.Info.ShadowOffset.Bottom,
-            //         W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth -
-            //             flexContainer.Info.ShadowOffset.Left - flexContainer.Info.ShadowOffset.Right,
-            //     };
-            //
-            //     //todo shadowsigma from flexcontainer.Info
-            //     renderContext.AddRect(bounds, flexContainer, blurColor, flexContainer.Info.Radius == 0 ? 0 : borderRadius);
-            // }
-
-            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius, blurRadius: flexContainer.Info.BlurRadius);
-        }else if (flexContainer.Info.Interactable)
-        {
-            //hack, pls fix
-            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, C.Transparent, 0);
+            renderContext.PopClip();
         }
 
 

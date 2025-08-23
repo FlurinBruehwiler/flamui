@@ -50,6 +50,25 @@ public class RenderTexture
         // Set "renderedTexture" as our colour attachement #0
         gl.FramebufferTexture(GLEnum.Framebuffer, GLEnum.ColorAttachment0, renderedTexture, 0);
 
+        gl.GenRenderbuffers(1, out uint depthStencilRbo);
+        gl.BindRenderbuffer(GLEnum.Renderbuffer, depthStencilRbo);
+
+        // Use DEPTH24_STENCIL8 for a combined depth+stencil buffer
+        gl.RenderbufferStorage(
+            GLEnum.Renderbuffer,
+            InternalFormat.Depth24Stencil8,
+            (uint)width,
+            (uint)height
+        );
+
+        // Attach it to the framebuffer
+        gl.FramebufferRenderbuffer(
+            GLEnum.Framebuffer,
+            GLEnum.DepthStencilAttachment,
+            GLEnum.Renderbuffer,
+            depthStencilRbo
+        );
+
         // Set the list of draw buffers.
         gl.DrawBuffers(1, [GLEnum.ColorAttachment0]);
 

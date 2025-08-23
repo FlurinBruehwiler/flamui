@@ -196,7 +196,7 @@ public static class TestComponent
             {
                 using (popup.Body.Enter())
                 {
-                    using (ui.Rect().Color(ColorPalette.BackgroundColor).Margin(51).BlockHit().Padding(10).Blur(10))
+                    using (ui.Rect().Rounded(5).Color(ColorPalette.BackgroundColor).Margin(51).BlockHit().Padding(10).Blur(10).Border(2, ColorPalette.BorderColor))
                     {
                         ui.Text("My Popup Text"); //this text will be displayed within the popup :)
                     }

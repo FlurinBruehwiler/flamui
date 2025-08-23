@@ -322,7 +322,7 @@ public sealed class Renderer
     public unsafe void FullScreenBlur(float blurSize, Vector2 direction, RenderTexture source, RenderTexture? target)
     {
         Gl.Flush();
-        Gl.Disable(GLEnum.StencilTest);
+        Gl.Disable(EnableCap.StencilTest);
 
         //code inspired from raddbg render_d3d11.c
 

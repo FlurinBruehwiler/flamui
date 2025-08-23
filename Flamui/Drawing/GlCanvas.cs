@@ -263,34 +263,54 @@ public sealed class GlCanvas
         _renderer.DrawMesh(MeshBuilder.BuildMeshAndReset());
     }
 
-
     public void DrawRoundedRect(float x, float y, float width, float height, float radius)
     {
-        DrawRect(x + radius, y, width - 2 * radius, radius);
-        DrawRect(x + radius, y + height - radius, width - 2 * radius, radius);
+        TextureType textureType = TextureType.Color;
+        GpuTexture? texture = null;
 
-        DrawRect(x, y + radius, width, height - 2 * radius);
+        if (Paint.BlurRadius > 1)
+        {
+            Flush();
+            texture = _renderer.ProduceBlurTexture(Paint.BlurRadius);
+            textureType = TextureType.Blur;
+        }
 
-        DrawTriangle(new Vector2(x + radius, y), new Vector2(x + radius, y + radius), new Vector2(x, y + radius));
-        DrawTriangle(new Vector2(x + width - radius, y), new Vector2(x + width, y + radius), new Vector2(x + width - radius, y + radius));
-        DrawTriangle(new Vector2(x + width, y + height - radius), new Vector2(x + width - radius, y + height), new Vector2(x + width - radius, y + height - radius));
-        DrawTriangle(new Vector2(x, y + height - radius), new Vector2(x + radius, y + height - radius), new Vector2(x + radius, y + height));
+        AddRect(x + radius, y, width - 2 * radius, radius, textureType, texture);
+        AddRect(x + radius, y + height - radius, width - 2 * radius, radius, textureType, texture);
+
+        AddRect(x, y + radius, width, height - 2 * radius, textureType, texture);
+
+        DrawTriangle(new Vector2(x + radius, y), new Vector2(x + radius, y + radius), new Vector2(x, y + radius), textureType, texture);
+        DrawTriangle(new Vector2(x + width - radius, y), new Vector2(x + width, y + radius), new Vector2(x + width - radius, y + radius), textureType, texture);
+        DrawTriangle(new Vector2(x + width, y + height - radius), new Vector2(x + width - radius, y + height), new Vector2(x + width - radius, y + height - radius), textureType, texture);
+        DrawTriangle(new Vector2(x, y + height - radius), new Vector2(x + radius, y + height - radius), new Vector2(x + radius, y + height), textureType, texture);
 
 
         var bezierCurveApproximation = radius * 0.1f;
-        DrawFilledBezier(new Vector2(x, y + radius), new Vector2(x + bezierCurveApproximation, y + bezierCurveApproximation), new Vector2(x + radius, y));
-        DrawFilledBezier(new Vector2(x + width - radius, y), new Vector2(x + width - bezierCurveApproximation, y + bezierCurveApproximation),new Vector2(x + width, y + radius));
-        DrawFilledBezier(new Vector2(x + width, y + height - radius), new Vector2(x + width - bezierCurveApproximation, y + height - bezierCurveApproximation), new Vector2(x + width - radius, y + height));
-        DrawFilledBezier(new Vector2(x + radius, y + height), new Vector2(x + bezierCurveApproximation, y + height - bezierCurveApproximation), new Vector2(x, y + height - radius));
+        DrawFilledBezier(new Vector2(x, y + radius), new Vector2(x + bezierCurveApproximation, y + bezierCurveApproximation), new Vector2(x + radius, y), textureType, texture);
+        DrawFilledBezier(new Vector2(x + width - radius, y), new Vector2(x + width - bezierCurveApproximation, y + bezierCurveApproximation),new Vector2(x + width, y + radius), textureType, texture);
+        DrawFilledBezier(new Vector2(x + width, y + height - radius), new Vector2(x + width - bezierCurveApproximation, y + height - bezierCurveApproximation), new Vector2(x + width - radius, y + height), textureType, texture);
+        DrawFilledBezier(new Vector2(x + radius, y + height), new Vector2(x + bezierCurveApproximation, y + height - bezierCurveApproximation), new Vector2(x, y + height - radius), textureType, texture);
     }
 
-    public void DrawTriangle(Vector2 p1, Vector2 p2, Vector2 p3)
+    public void DrawTriangle(Vector2 p1, Vector2 p2, Vector2 p3, TextureType textureType, GpuTexture? texture)
     {
         MeshBuilder.AddTriangle(
-                MeshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color),
-                MeshBuilder.AddVertex(p2, new Vector2(0, 0), Paint.Color),
-                MeshBuilder.AddVertex(p3, new Vector2(0, 0), Paint.Color)
+                MeshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color, textureType: textureType, texture: texture),
+                MeshBuilder.AddVertex(p2, new Vector2(0, 0), Paint.Color, textureType: textureType, texture: texture),
+                MeshBuilder.AddVertex(p3, new Vector2(0, 0), Paint.Color, textureType: textureType, texture: texture)
             );
+    }
+
+    private void AddRect(float x, float y, float width, float height, TextureType textureType, GpuTexture? texture)
+    {
+        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Paint.Color, textureType: textureType, texture: texture);
+        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Paint.Color, textureType: textureType, texture: texture);
+        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Paint.Color, textureType: textureType, texture: texture);
+        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Paint.Color, textureType: textureType, texture: texture);
+
+        MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
+        MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
     }
 
     public void DrawRect(float x, float y, float width, float height)
@@ -305,21 +325,15 @@ public sealed class GlCanvas
             textureType = TextureType.Blur;
         }
 
-        uint topLeft = MeshBuilder.AddVertex(new Vector2(x, y), new Vector2(0, 0), Paint.Color, textureType: textureType, texture: texture);
-        uint topRight = MeshBuilder.AddVertex(new Vector2(x  + width, y), new Vector2(1, 0), Paint.Color, textureType: textureType, texture: texture);
-        uint bottomRight = MeshBuilder.AddVertex(new Vector2(x + width, y + height), new Vector2(1, 1), Paint.Color, textureType: textureType, texture: texture);
-        uint bottomLeft = MeshBuilder.AddVertex(new Vector2(x, y + height), new Vector2(0, 1), Paint.Color, textureType: textureType, texture: texture);
-
-        MeshBuilder.AddTriangle(topLeft, topRight, bottomRight);
-        MeshBuilder.AddTriangle(bottomRight, bottomLeft, topLeft);
+        AddRect(x, y, width, height, textureType, texture);
     }
 
-    public void DrawFilledBezier(Vector2 p1, Vector2 p2, Vector2 p3)
+    public void DrawFilledBezier(Vector2 p1, Vector2 p2, Vector2 p3, TextureType textureType, GpuTexture? texture)
     {
         MeshBuilder.AddTriangle(
-            MeshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color, 1),
-            MeshBuilder.AddVertex(p2, new Vector2(0.5f, 0), Paint.Color, 1),
-            MeshBuilder.AddVertex(p3, new Vector2(1, 1), Paint.Color, 1)
+            MeshBuilder.AddVertex(p1, new Vector2(0, 0), Paint.Color, 1, textureType, texture),
+            MeshBuilder.AddVertex(p2, new Vector2(0.5f, 0), Paint.Color, 1, textureType, texture),
+            MeshBuilder.AddVertex(p3, new Vector2(1, 1), Paint.Color, 1, textureType, texture)
         );
     }
 

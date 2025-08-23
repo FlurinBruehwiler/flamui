@@ -15,20 +15,9 @@ out vec4 out_color;
 
 void main()
 {
-    if(fill_bezier_type == 0){
-        if (texture_type == 0){
-            out_color = frag_color;
-        }else if(texture_type == 1){
-            out_color = texture(uTextures[int(texture_id)], frag_texCoords);
-        }else if(texture_type == 2){
-            float alpha = texture(uTextures[int(texture_id)], frag_texCoords).r;
-            out_color = vec4(frag_color.rgb * alpha, alpha);
-           // out_color = vec4(1, 0, 0, 1);
-        }
-        else if(texture_type == 3){
-            out_color = texture(uTextures[int(texture_id)], gl_FragCoord.xy / uViewportSize);
-        }
-    }else{
+    float opacity = 1;
+
+    if(fill_bezier_type != 0){
         float x = frag_texCoords.x;
         float y = frag_texCoords.y;
 
@@ -38,7 +27,7 @@ void main()
         float dy = dFdy(f);
         float sd = f/sqrt(dx*dx+dy*dy);
 
-        float opacity = 0;
+        opacity = 0;
 
         if(sd < -1)
             opacity = 0;
@@ -56,7 +45,20 @@ void main()
         }
 
         opacity *= frag_color.a;
-
-        out_color = vec4(frag_color.r * opacity, frag_color.g * opacity, frag_color.b * opacity, opacity);
     }
+
+    if (texture_type == 0){
+        out_color = frag_color;
+    }else if(texture_type == 1){
+        out_color = texture(uTextures[int(texture_id)], frag_texCoords);
+    }else if(texture_type == 2){
+        float alpha = texture(uTextures[int(texture_id)], frag_texCoords).r;
+        out_color = vec4(frag_color.rgb * alpha, alpha);
+        // out_color = vec4(1, 0, 0, 1);
+    }
+    else if(texture_type == 3){
+        out_color = texture(uTextures[int(texture_id)], gl_FragCoord.xy / uViewportSize);
+    }
+
+    out_color = vec4(out_color.r * opacity, out_color.g * opacity, out_color.b * opacity, out_color.a * opacity);
 }
