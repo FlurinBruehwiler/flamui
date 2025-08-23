@@ -58,7 +58,8 @@ void main()
     }
     else if(texture_type == 3){
         out_color = texture(uTextures[int(texture_id)], gl_FragCoord.xy / uViewportSize);
+        out_color = vec4((frag_color.rgb * frag_color.a) + (out_color.rgb * (1.0 - frag_color.a)), 1.0);
     }
 
-    out_color = vec4(out_color.r * opacity, out_color.g * opacity, out_color.b * opacity, out_color.a * opacity);
+    out_color = out_color * opacity;// vec4(out_color.r * opacity, out_color.g * opacity, out_color.b * opacity, out_color.a * opacity);
 }

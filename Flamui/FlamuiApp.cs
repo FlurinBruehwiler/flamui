@@ -37,6 +37,7 @@ public sealed class FlamuiWindowHost
         {
             Size = new Vector2D<int>(options.Width, options.Height),
             Title = title,
+            // VSync = false,
             VSync = true, //for some reason this doesn't work on my laptop, so we just sleep ourselves
             ShouldSwapAutomatically = false,
         };

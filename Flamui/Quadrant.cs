@@ -231,6 +231,14 @@ public record struct ColorDefinition
         Alpha = a;
     }
 
+    public ColorDefinition WithAlpha(byte alpha)
+    {
+        return this with
+        {
+            Alpha = alpha
+        };
+    }
+
     [Pure]
     public Color ToColor()
     {

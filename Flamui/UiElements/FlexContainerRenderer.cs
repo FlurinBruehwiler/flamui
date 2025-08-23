@@ -65,9 +65,9 @@ public static class FlexContainerRenderer
             }
         }
 
-        if (flexContainer.Info.Color is { } color)
+        if (flexContainer.Info.Color != null || flexContainer.Info.BlurRadius != 0)
         {
-            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, color, flexContainer.Info.Radius, blurRadius: flexContainer.Info.BlurRadius);
+            renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, flexContainer.Info.Color ?? new ColorDefinition(), flexContainer.Info.Radius, blurRadius: flexContainer.Info.BlurRadius);
         }
         else if (flexContainer.Info.Interactable)
         {

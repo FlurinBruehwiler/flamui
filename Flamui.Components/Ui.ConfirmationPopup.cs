@@ -20,8 +20,8 @@ public static partial class UiExtensions
 
             using (popup.Body.Enter())
             {
-                using (ui.Rect().Width(200).Height(100).Color(ColorPalette.BackgroundColor).Border(2, ColorPalette.BackgroundColor).BlockHit()
-                           .Padding(10).MainAlign(MAlign.SpaceBetween).Rounded(10).Border(1, ColorPalette.BorderColor))
+                using (ui.Rect().Width(200).Height(100).Color(ColorPalette.BackgroundColor.WithAlpha(100)).Border(2, ColorPalette.BackgroundColor).BlockHit()
+                           .Padding(10).MainAlign(MAlign.SpaceBetween).Rounded(2).Border(1, ColorPalette.BorderColor).Blur(10))
                 {
                     using (ui.Rect())
                     {
