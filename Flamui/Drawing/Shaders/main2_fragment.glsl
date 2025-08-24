@@ -1,11 +1,11 @@
 ﻿#version 450 core
 
 
-in vec4 color;
-in vec2 rect_center;
-in vec2 rect_half_size;
-in float corner_radius_px;
-in float border_thickness_px;
+in vec4 vColor;
+in vec2 vRectCenter;
+in vec2 vRectHalfSize;
+in float vCornerRadius;
+in float vBorderThickness;
 
 layout(location = 0)
 out vec4 out_color;
@@ -28,12 +28,15 @@ float sdBoxRound( in vec2 p, in vec2 b, in float r )
 
 void main()
 {
-    float sdf_result = sbBoxRounded((gl_FragCoord.xy / uViewportSize) - rect_center, rect_half_size, corner_radius);
+    out_color = vec4(1.0, 0.0, 0.0, 1.0);
+/*
+    float sdf_result = sdBoxRound((gl_FragCoord.xy / uViewportSize) - vRectCenter, vRectHalfSize, vCornerRadius);
 
     if(sdf_result < 0)
     {
         discard;
     }
 
-    return color;
+    out_color = vColor;
+    */
 }

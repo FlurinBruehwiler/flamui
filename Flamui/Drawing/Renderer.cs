@@ -134,22 +134,9 @@ public sealed class Renderer
         _vao = Gl.GenVertexArray();
         _vao2 = Gl.GenVertexArray();
 
-        unsafe {
-            _vaoMain2 = Gl.GenVertexArray();
-            Gl.BindVertexArray(_vaoMain2);
 
-            uint stride = (uint)sizeof(RectInfo);
-            var fields = GlCanvas2.GetFields<RectInfo>();
-            for (uint i = 0; i < fields.Length; i++)
-            {
-                var field = fields[i];
 
-                Gl.VertexAttribPointer(i, field.size, GLEnum.Float, false, stride, (IntPtr)field.offset);
-                Gl.VertexAttribDivisor(i, 1);
-                Gl.EnableVertexAttribArray(i);
-            }
-
-        }
+        CheckError();
 
         Gl.BindVertexArray(_vao);
 
@@ -182,10 +169,45 @@ public sealed class Renderer
         uint main2_fragmentShader = CompileShader(Shader.main2_fragment, ShaderType.FragmentShader);
 
         _main2Program = CreateProgram(main2_vertexShader, main2_fragmentShader);
-        _main2TransformLoc = Gl.GetUniformLocation(_mainProgram, "transform");
-        _main2ViewportSizeLoc = Gl.GetUniformLocation(_mainProgram, "uViewportSize");
+        _main2TransformLoc = Gl.GetUniformLocation(_main2Program, "transform");
+        _main2ViewportSizeLoc = Gl.GetUniformLocation(_main2Program, "uViewportSize");
 
         CheckError();
+
+
+        unsafe {
+            Gl.UseProgram(_main2Program);
+
+            _vaoMain2 = Gl.GenVertexArray();
+            Gl.BindVertexArray(_vaoMain2);
+
+            main2Buffer = Gl.GenBuffer();
+            Gl.BindBuffer(GLEnum.ArrayBuffer, main2Buffer);
+
+            uint stride = (uint)sizeof(RectInfo);
+            var fields = GlCanvas2.GetFields<RectInfo>();
+            for (uint i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+
+                CheckError();
+
+                Gl.EnableVertexAttribArray(i);
+                Gl.VertexAttribPointer(i, field.byteSize / sizeof(float), GLEnum.Float, false, stride, (IntPtr)field.byteOffset);
+                CheckError();
+
+                Gl.VertexAttribDivisor(i, 1);
+
+                CheckError();
+
+
+                CheckError();
+
+            }
+        }
+
+        CheckError();
+
 
         //end
 
@@ -195,7 +217,6 @@ public sealed class Renderer
         ebo = Gl.GenBuffer();
         vbo2 = Gl.GenBuffer();
         ebo2 = Gl.GenBuffer();
-        main2Buffer = Gl.GenBuffer();
 
         CheckError();
 
@@ -220,6 +241,8 @@ public sealed class Renderer
 
     public void BeforeFrame()
     {
+        Gl.Viewport(Window.Size);
+
         mainRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
         blurRenderTextureTemp.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
         blurRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
@@ -243,6 +266,7 @@ public sealed class Renderer
         if (err != GLEnum.NoError)
         {
             Console.WriteLine($"{err} at Line {line}");
+            throw new Exception("wom pwomp");
         }
     }
 

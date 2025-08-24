@@ -50,6 +50,7 @@
     <EmbeddedResource Include="Drawing\Shaders\main_fragment.glsl"/>
     <EmbeddedResource Include="Drawing\Shaders\main_vertex.glsl"/>
     <EmbeddedResource Include="Drawing\Shaders\main2_vertex.glsl" />
+    <EmbeddedResource Include="Drawing\Shaders\main2_fragment.glsl" />
     <EmbeddedResource Include="Drawing\Shaders\blur_fragment.glsl"/>
     <EmbeddedResource Include="Drawing\Shaders\blur_vertex.glsl"/>
     <EmbeddedResource Include="Drawing\segoeui.ttf"/>
