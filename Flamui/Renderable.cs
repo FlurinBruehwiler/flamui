@@ -63,13 +63,17 @@ public record struct Bounds
         return withinX && withinY;
     }
 
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 TopLeft() => new(X, Y);
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 TopRight() => new(X + W, Y);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Pure]
     public Vector2 BottomLeft() => new(X, Y + H);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Pure]
     public Vector2 BottomRight() => new(X + W, Y + H);
 
     public override string ToString()

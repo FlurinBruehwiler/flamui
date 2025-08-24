@@ -23,7 +23,9 @@ public enum Shader
     main_fragment,
     main_vertex,
     blur_fragment,
-    blur_vertex
+    blur_vertex,
+    main2_fragment,
+    main2_vertex
 }
 
 public struct GpuTexture
@@ -39,7 +41,10 @@ public sealed class Renderer
 
     private uint _mainProgram;
     private uint _blurProgram;
+    public uint _main2Program;
     private int _transformLoc;
+    public int _main2TransformLoc;
+    public int _main2ViewportSizeLoc;
     private int _blurTextureLoc;
     private int _blurViewportSizeLoc;
     private int _blurKernelSizeLoc;
@@ -49,12 +54,14 @@ public sealed class Renderer
     private int _mainViewportSizeLoc;
     private uint _vao;
     private uint _vao2;
+    public uint _vaoMain2;
     private Dictionary<ScaledFont, FontAtlas> _fontAtlasMap = [];
 
     private uint vbo;
     private uint ebo;
     private uint vbo2;
     private uint ebo2;
+    public uint main2Buffer;
     public VgAtlas? VgAtlas;
 
     public unsafe FontAtlas GetFontAtlas(ScaledFont scaledFont)
@@ -126,6 +133,24 @@ public sealed class Renderer
 
         _vao = Gl.GenVertexArray();
         _vao2 = Gl.GenVertexArray();
+
+        unsafe {
+            _vaoMain2 = Gl.GenVertexArray();
+            Gl.BindVertexArray(_vaoMain2);
+
+            uint stride = (uint)sizeof(RectInfo);
+            var fields = GlCanvas2.GetFields<RectInfo>();
+            for (uint i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+
+                Gl.VertexAttribPointer(i, field.size, GLEnum.Float, false, stride, (IntPtr)field.offset);
+                Gl.VertexAttribDivisor(i, 1);
+                Gl.EnableVertexAttribArray(i);
+            }
+
+        }
+
         Gl.BindVertexArray(_vao);
 
         //main_program
@@ -152,6 +177,16 @@ public sealed class Renderer
 
         CheckError();
 
+        //main_2_program
+        uint main2_vertexShader = CompileShader(Shader.main2_vertex, ShaderType.VertexShader);
+        uint main2_fragmentShader = CompileShader(Shader.main2_fragment, ShaderType.FragmentShader);
+
+        _main2Program = CreateProgram(main2_vertexShader, main2_fragmentShader);
+        _main2TransformLoc = Gl.GetUniformLocation(_mainProgram, "transform");
+        _main2ViewportSizeLoc = Gl.GetUniformLocation(_mainProgram, "uViewportSize");
+
+        CheckError();
+
         //end
 
         Gl.BindVertexArray(0);
@@ -160,6 +195,7 @@ public sealed class Renderer
         ebo = Gl.GenBuffer();
         vbo2 = Gl.GenBuffer();
         ebo2 = Gl.GenBuffer();
+        main2Buffer = Gl.GenBuffer();
 
         CheckError();
 
@@ -189,6 +225,16 @@ public sealed class Renderer
         blurRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
 
         Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
+
+        Gl.Viewport(Window.Size);
+
+        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+        Gl.StencilMask(0xFF);
+        Gl.StencilFunc(StencilFunction.Always, 1, 0xFF);
+
+        // _renderer.Gl.Enable(EnableCap.FramebufferSrgb);
+        Gl.Enable(EnableCap.Blend);
+        Gl.BlendFunc(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
     }
 
     private void CheckError([CallerLineNumber] int line = 0)
@@ -512,7 +558,7 @@ public sealed class Renderer
         // }
     }
 
-    private Matrix4X4<float> GetWorldToScreenMatrix()
+    public Matrix4X4<float> GetWorldToScreenMatrix()
     {
         return Matrix4X4.CreateScale(1f / Window.Size.X, 1f / Window.Size.Y, 1) *
                Matrix4X4.CreateScale(2f, 2f, 1) *
@@ -520,7 +566,7 @@ public sealed class Renderer
                Matrix4X4.CreateScale(1f, -1f, 1f);
     }
 
-    private static float[] GetAsFloatArray(Matrix4X4<float> matrix)
+    public static float[] GetAsFloatArray(Matrix4X4<float> matrix)
     {
         return
         [

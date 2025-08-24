@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -83,6 +85,74 @@ public struct GlPath
             p4 = end
         });
         CurrentPoint = end;
+    }
+}
+
+[StructLayout(LayoutKind.Explicit)]
+public struct RectInfo
+{
+    [FieldOffset(0)]
+    public Vector4 Color;
+
+    [FieldOffset(16)]
+    public Vector4 BorderColor;
+
+    [FieldOffset(32)]
+    public Vector2 TopLeft;
+
+    [FieldOffset(40)]
+    public Vector2 BottomRight;
+
+    [FieldOffset(48)]
+    public float CornerRadius;
+
+    [FieldOffset(52)]
+    public float BorderWidth;
+}
+
+public sealed class GlCanvas2
+{
+    public static void IssueDrawCall(Renderer renderer, ReadOnlySpan<RectInfo> rects)
+    {
+        renderer.Gl.BindVertexArray(renderer._vaoMain2);
+        renderer.Gl.UseProgram(renderer._main2Program);
+
+        renderer.Gl.BindBuffer(GLEnum.ArrayBuffer, renderer.main2Buffer);
+        renderer.Gl.BufferData(GLEnum.ArrayBuffer, rects, GLEnum.StaticDraw);
+
+
+        var matrix = renderer.GetWorldToScreenMatrix();
+
+        renderer.Gl.ProgramUniformMatrix4(renderer._main2Program, renderer._main2TransformLoc, false, new ReadOnlySpan<float>(Renderer.GetAsFloatArray(matrix)));
+        renderer.Gl.Uniform2(renderer._main2ViewportSizeLoc, new Vector2(renderer.Window.Size.X, renderer.Window.Size.Y));
+
+        // renderer.Gl.BindVertexArray(renderer._vaoMain2);
+        // renderer.Gl.UseProgram(renderer._main2Program);
+        renderer.Gl.DrawArraysInstanced(GLEnum.TriangleStrip, 0, 4, (uint)rects.Length);
+    }
+
+    private static readonly Dictionary<Type, (int offset, int size)[]> FieldsCache = [];
+
+    public static (int offset, int size)[] GetFields<T>() where T : unmanaged
+    {
+        if (FieldsCache.TryGetValue(typeof(T), out var offsets))
+            return offsets;
+
+        var fields = typeof(T).GetFields(BindingFlags.Public | BindingFlags.Instance);
+        offsets = new (int offset, int size)[fields.Length];
+
+        int offset = 0;
+        for (var i = 0; i < fields.Length; i++)
+        {
+            var fieldInfo = fields[i];
+
+            offsets[i] = (offset, Marshal.SizeOf(fieldInfo.FieldType));
+
+            offset += fieldInfo.GetCustomAttribute<FieldOffsetAttribute>()!.Value;
+        }
+
+        FieldsCache.Add(typeof(T), offsets);
+        return offsets;
     }
 }
 
@@ -246,16 +316,6 @@ public sealed class GlCanvas
     public void Start()
     {
         _renderer.BeforeFrame();
-
-        _renderer.Gl.Viewport(_renderer.Window.Size);
-
-        _renderer.Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
-        _renderer.Gl.StencilMask(0xFF);
-        _renderer.Gl.StencilFunc(StencilFunction.Always, 1, 0xFF);
-
-        // _renderer.Gl.Enable(EnableCap.FramebufferSrgb);
-        _renderer.Gl.Enable(EnableCap.Blend);
-        _renderer.Gl.BlendFunc(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
     }
 
     public void Flush()
