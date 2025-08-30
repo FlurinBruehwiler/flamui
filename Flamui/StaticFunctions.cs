@@ -39,8 +39,6 @@ public static class StaticFunctions
             {
                 if (command.Type == CommandType.Rect)
                 {
-                    var transformed = Vector4D.Multiply(new Vector4D<float>(10, 0, 0, 1), currentMatrix).X;
-
                     arenaList.Add(new RectInfo
                     {
                         TopLeft = command.RectCommand.Bounds.TopLeft().Multiply(currentMatrix),
@@ -52,6 +50,25 @@ public static class StaticFunctions
                 }else if (command.Type == CommandType.Matrix)
                 {
                     currentMatrix = command.MatrixCommand.Matrix;
+                }else if (command.Type == CommandType.ClipRect)
+                {
+                    GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                    arenaList.Clear();
+
+                    renderer.Gl.Enable(EnableCap.ScissorTest);
+
+                    var bounds = command.ClipRectCommand.Bounds.Multiply(currentMatrix);
+                    if (command.ClipRectCommand.ClipMode == ClipMode.OnlyDrawWithin)
+                    {
+                        renderer.Gl.Scissor((int)bounds.X, (int)(renderer.Window.Size.Y - (bounds.Y + bounds.H)), (uint)bounds.W, (uint)bounds.H);
+                    }
+                }
+                else if (command.Type == CommandType.ClearClip)
+                {
+                    GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                    arenaList.Clear();
+
+                    renderer.Gl.Disable(EnableCap.ScissorTest);
                 }
 
                 // switch (command.Type)

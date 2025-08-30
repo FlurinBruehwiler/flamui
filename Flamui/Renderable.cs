@@ -38,12 +38,12 @@ public record struct Bounds
         H = height;
     }
 
-    public Vector2 GetPosition()
+    public Vector2 Position()
     {
         return new Vector2(X, Y);
     }
 
-    public Vector2 GetSize()
+    public Vector2 Size()
     {
         return new Vector2(W, H);
     }
@@ -51,7 +51,7 @@ public record struct Bounds
     [Pure]
     public Bounds OffsetBy(Vector2 offsetPosition)
     {
-        return new Bounds(GetPosition() + offsetPosition, GetSize());
+        return new Bounds(Position() + offsetPosition, Size());
     }
 
     [Pure]

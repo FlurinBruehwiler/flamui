@@ -27,6 +27,11 @@ public struct ArenaList<T> : IEnumerable<T> where T : unmanaged
         _backingSliceAllocateNum = arena.AllocNum;
     }
 
+    public void Clear()
+    {
+        Count = 0;
+    }
+
     public void AddRange(ReadOnlySpan<T> values)
     {
         EnsureInit();

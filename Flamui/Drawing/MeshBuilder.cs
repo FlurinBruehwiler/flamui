@@ -117,6 +117,14 @@ public static class Extensions
         return new Vector2(transformedPosition.X, transformedPosition.Y);
     }
 
+    public static Bounds Multiply(this Bounds bounds, Matrix4X4<float> mat)
+    {
+        var position = bounds.Position().Multiply(mat);
+        var size = bounds.Size().Multiply(mat);
+        return new Bounds(position, size);
+    }
+
+
     public static float Multiply(this float scalar, Matrix4X4<float> mat)
     {
         return Vector4D.Multiply(new Vector4D<float>(scalar, 0, 0, 1), mat).X;

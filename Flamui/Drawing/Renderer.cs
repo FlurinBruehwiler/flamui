@@ -258,6 +258,8 @@ public sealed class Renderer
         // _renderer.Gl.Enable(EnableCap.FramebufferSrgb);
         Gl.Enable(EnableCap.Blend);
         Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+        Gl.Disable(EnableCap.ScissorTest);
     }
 
     private void CheckError([CallerLineNumber] int line = 0)
