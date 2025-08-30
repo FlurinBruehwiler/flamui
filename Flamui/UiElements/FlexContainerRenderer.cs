@@ -77,7 +77,7 @@ public static class FlexContainerRenderer
         {
             float borderRadius = flexContainer.Info.Radius == 0 ? 0 : flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
 
-            renderContext.PushClip(flexContainer.Rect.ToBounds(offset), ClipMode.OnlyDrawOutside, flexContainer.Info.Radius);
+            //renderContext.PushClip(flexContainer.Rect.ToBounds(offset), ClipMode.OnlyDrawOutside, flexContainer.Info.Radius);
 
             var bounds = new Bounds
             {
@@ -89,7 +89,7 @@ public static class FlexContainerRenderer
             renderContext.AddRect(bounds, flexContainer, flexContainer.Info.BorderColor, borderRadius,
                 blurRadius:0, borderWidth: flexContainer.Info.BorderWidth);
 
-            renderContext.PopClip();
+            //renderContext.PopClip();
         }
 
 

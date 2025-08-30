@@ -61,10 +61,27 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                using (ui.Rect().Color(20, 20, 20).Padding(10).Gap(10))
+                using (ui.Rect().Color(20, 20, 20).Padding(10))
                 {
-                    ui.Slider(0, 20, ref Renderer._blurKernelSize);
-                    ui.Text(((int)Renderer._blurKernelSize).ToArenaString());
+                    using (ui.Rect().Width(100).Color(C.Blue3))
+                    {
+
+                    }
+
+                    using (ui.Rect().Width(100).Color(C.Amber5).Border(5, C.Blue4).Rounded(1))
+                    {
+
+                    }
+
+                    using (ui.Rect().Width(100).Color(C.Amber5).Border(2, C.Blue4).Rounded(1))
+                    {
+
+                    }
+
+                    using (ui.Rect().Width(100).Color(C.Amber5).Border(10, C.Blue4).Rounded(1))
+                    {
+
+                    }
                 }
             }
         }

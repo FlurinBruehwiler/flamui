@@ -74,7 +74,7 @@ public static class StaticFunctions
                         renderer.Gl.Disable(EnableCap.ScissorTest);
                         break;
                     case CommandType.Text:
-
+                    {
                         var resolutionMultiplier = new Vector2(1, 1).Multiply(currentMatrix.GetScale()).Y;
 
                         var fontAtlas = renderer.GetFontAtlas(new ScaledFont(command.TextCommand.Font.Get()!, command.TextCommand.FontSize));
@@ -110,6 +110,31 @@ public static class StaticFunctions
                             // Console.WriteLine($"Metrics: {c}:{glyphInfo.AdvanceWidth}:{glyphInfo.LeftSideBearing}");
                         }
                         break;
+                    }
+                    case CommandType.TinyVG:
+                    {
+                        renderer.VgAtlas ??= new VgAtlas(renderer);
+
+                        var bounds = command.TinyVGCommand.Bounds.Multiply(currentMatrix);
+
+                        var resolutionMultiplier = new Vector2(1, 1).Multiply(currentMatrix.GetScale()).Y;
+                        var entry = renderer.VgAtlas.GetAtlasEntry(command.TinyVGCommand.VGId, command.TinyVGCommand.VGData.Span, (uint)(bounds.W * resolutionMultiplier),
+                            (uint)(bounds.H * resolutionMultiplier));
+
+                        var entryBounds = new Bounds(new Vector2(entry.X, entry.Y) / 1000, new Vector2(entry.Width, entry.Height) / 1000);
+
+                        arenaList.Add(new RectInfo
+                        {
+                            TopLeft = bounds.TopLeft(),
+                            BottomRight = bounds.BottomRight(),
+                            Color = default,
+                            BorderWidth = 0,
+                            CornerRadius = 0,
+                            TextureCoordinate = new Vector4(entryBounds.X, entryBounds.H, entryBounds.W, entryBounds.H),
+                            TextureHandle = renderer.VgAtlas.GpuTexture.TextureHandle
+                        });
+                        break;
+                    }
                 }
 
                 // switch (command.Type)
@@ -149,7 +174,6 @@ public static class StaticFunctions
                 //         throw new ArgumentOutOfRangeException(command.Type.ToString());
                 // }
             }
-
         }
 
         GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);

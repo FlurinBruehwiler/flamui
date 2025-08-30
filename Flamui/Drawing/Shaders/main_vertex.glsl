@@ -1,26 +1,61 @@
-#version 450 core
+﻿#version 450 core
 
-layout (location = 0) in vec3 aPosition;
-layout (location = 1) in vec2 aTextureCoord;
-layout (location = 2) in float aFillBezierType; //0 = disabled fill, >0 = fill inside, <0 = fill outside
-layout (location = 3) in vec4 aColor;
-layout (location = 4) in float aTextureType; //0 = dont use texture, >0 = use texture
-layout (location = 5) in float aTextureId;
+layout(location = 0) in vec4 inColor;
+layout(location = 1) in vec2 inTopLeft;
+layout(location = 2) in vec2 inBottomRight;
+layout(location = 3) in float inCornerRadius;
+layout(location = 4) in float inBorderThickness;
+layout(location = 5) in uvec2 inTextureHandle;
+layout(location = 6) in vec4 inTextureCoordinate;
+
+out vec4 vColor;
+out vec2 vRectCenterPx;
+out vec2 vRectHalfSizePx;
+out float vCornerRadiusPx;
+out float vBorderThicknessPx;
+flat out uvec2 vTextureHandle;
+out vec2 vTextureCoordinate;
 
 uniform mat4 transform;
 
-out vec2 frag_texCoords;
-out float fill_bezier_type;
-out vec4 frag_color;
-out float texture_type;
-out float texture_id;
 
 void main()
 {
-  gl_Position = transform * vec4(aPosition, 1.0);
-  frag_texCoords = aTextureCoord;
-  fill_bezier_type = aFillBezierType;
-  frag_color = aColor;
-  texture_type = aTextureType;
-  texture_id = aTextureId;
+    vec2 topLeft = (transform * vec4(inTopLeft, 1.0, 1.0)).xy;
+    vec2 bottomRight = (transform * vec4(inBottomRight, 1.0, 1.0)).xy;
+
+    if(gl_VertexID == 0)
+    {
+        gl_Position = vec4(bottomRight, 0.0, 1.0);
+        vTextureCoordinate = inTextureCoordinate.xy + inTextureCoordinate.zw;
+    }else if(gl_VertexID == 1)
+    {
+        gl_Position = vec4(topLeft.x, bottomRight.y, 0.0, 1.0);
+        vTextureCoordinate = inTextureCoordinate.xy + vec2(0, inTextureCoordinate.w);
+
+    }
+    else if(gl_VertexID == 2)
+    {
+    vTextureCoordinate = inTextureCoordinate.xy + vec2(inTextureCoordinate.z, 0);
+        gl_Position = vec4(bottomRight.x, topLeft.y, 0.0, 1.0);
+    }
+    else if(gl_VertexID == 3)
+    {
+        vTextureCoordinate = inTextureCoordinate.xy;
+        gl_Position = vec4(topLeft, 0.0, 1.0);
+    }
+
+    //vTextureCoordinate = inTextureCoordinate.xy ;
+
+    // pass per-instance data to fragment shader
+    vColor = inColor;
+    vTextureHandle = inTextureHandle;
+
+    vRectHalfSizePx = abs(inBottomRight - inTopLeft) / 2;
+
+    vec2 bottomLeftPx = vec2(inTopLeft.x, inBottomRight.y);
+    vRectCenterPx = inTopLeft + vRectHalfSizePx;
+    vCornerRadiusPx = inCornerRadius;
+    vBorderThicknessPx = inBorderThickness;
+
 }
