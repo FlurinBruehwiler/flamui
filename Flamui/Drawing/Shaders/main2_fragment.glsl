@@ -1,6 +1,6 @@
 ﻿
-//render doc tutorial https://www.youtube.com/watch?v=lFexgk_2FTc&t=439s
 #version 450 core
+#extension GL_ARB_bindless_texture : enable
 
 
 in vec4 vColor;
@@ -8,11 +8,15 @@ in vec2 vRectCenterPx;
 in vec2 vRectHalfSizePx;
 in float vCornerRadiusPx;
 in float vBorderThicknessPx;
+flat in uvec2 vTextureHandle;
+in vec2 vTextureCoordinate;
 
 layout(location = 0)
 out vec4 out_color;
 
 layout(origin_upper_left) in vec4 gl_FragCoord;
+
+
 
 uniform vec2 uViewportSize;
 
@@ -53,6 +57,12 @@ void main()
     }
 
     out_color = vColor;
+
+    if(vTextureHandle.x != 0 || vTextureHandle.y != 0)
+    {
+        out_color.a *= texture(sampler2D(vTextureHandle), vTextureCoordinate).r;
+    }
+
     out_color.a *= corner_sdf;
     out_color.a *= border_sdf;
 }

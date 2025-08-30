@@ -7,6 +7,7 @@ using System.Text;
 using Flamui.PerfTrace;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
+using Silk.NET.OpenGL.Extensions.ARB;
 using Silk.NET.Windowing;
 
 namespace Flamui.Drawing;
@@ -32,6 +33,7 @@ public struct GpuTexture
 {
     public required GL Gl { get; init; }
     public required uint TextureId { get; init; }
+    public required ulong TextureHandle { get; init; }
 }
 
 public sealed class Renderer
@@ -336,12 +338,18 @@ public sealed class Renderer
 
         Gl.UseProgram(_mainProgram);
 
+        var arbBindlessTexture = new ArbBindlessTexture(Gl.Context);
+        var handle = arbBindlessTexture.GetTextureHandle(textureId);
+        arbBindlessTexture.MakeTextureHandleResident(handle);
+
+
         CheckError();
 
         return new GpuTexture
         {
             TextureId = textureId,
-            Gl = Gl
+            Gl = Gl,
+            TextureHandle = handle
         };
     }
 
@@ -387,7 +395,8 @@ public sealed class Renderer
         return new GpuTexture
         {
             Gl = Gl,
-            TextureId = blurRenderTexture.textureId
+            TextureId = blurRenderTexture.textureId,
+            TextureHandle = 0
         };
     }
 

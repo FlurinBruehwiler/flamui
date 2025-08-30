@@ -21,6 +21,7 @@
     <PackageReference Include="Lib.Harmony" Version="2.3.6"/>
     <PackageReference Include="Silk.NET.Input" Version="2.22.0"/>
     <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0"/>
+    <PackageReference Include="Silk.NET.OpenGL.Extensions.ARB" Version="2.22.0" />
     <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0"/>
     <PackageReference Include="StbTrueTypeSharp" Version="1.26.12"/>
     <PackageReference Include="Varena" Version="1.2.0"/>

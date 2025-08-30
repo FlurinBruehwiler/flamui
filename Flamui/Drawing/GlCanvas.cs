@@ -105,6 +105,12 @@ public struct RectInfo
 
     [FieldOffset(36)]
     public float BorderWidth;
+
+    [FieldOffset(40)]
+    public ulong TextureHandle;
+
+    [FieldOffset(48)]
+    public Vector4 TextureCoordinate; // xy = xy, z = width, w = height
 }
 
 public sealed class GlCanvas2

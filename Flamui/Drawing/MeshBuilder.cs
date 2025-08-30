@@ -160,19 +160,21 @@ public sealed class MeshBuilder
 
     private int GetTextureSlot(GpuTexture texture)
     {
-        if (_textureIdToTextureSlot.TryGetValue(texture.TextureId, out var slot))
-        {
-            return slot;
-        }
+        return 0;
 
-        int newTextureSlot = 0;
-        if (_textureIdToTextureSlot.Count != 0)
-        {
-            newTextureSlot = _textureIdToTextureSlot.MaxBy(x => x.Value).Value + 1;
-        }
-
-        _textureIdToTextureSlot.Add(texture.TextureId, newTextureSlot);
-        return newTextureSlot;
+        // if (_textureIdToTextureSlot.TryGetValue(texture.TextureId, out var slot))
+        // {
+        //     return slot;
+        // }
+        //
+        // int newTextureSlot = 0;
+        // if (_textureIdToTextureSlot.Count != 0)
+        // {
+        //     newTextureSlot = _textureIdToTextureSlot.MaxBy(x => x.Value).Value + 1;
+        // }
+        //
+        // _textureIdToTextureSlot.Add(texture.TextureId, newTextureSlot);
+        // return newTextureSlot;
     }
 
     public uint AddVertex(Vector2 position, Vector2 uv, ColorDefinition color, float bezierFillType = 0, TextureType textureType = 0, GpuTexture? texture = null)

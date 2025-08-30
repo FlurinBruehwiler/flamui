@@ -107,7 +107,7 @@ public sealed class VgAtlas
             bitmap.CopyTo(tempBitmap);
             // tempBitmap.PrintToConsole();
 
-
+            //patch texture
             GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
             GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.X, entry.Y, (uint)tempBitmap.Width, (uint)tempBitmap.Height, PixelFormat.Rgba, PixelType.UnsignedByte, (void*)tempBitmap.Data.Items);

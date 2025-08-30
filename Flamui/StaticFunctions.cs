@@ -37,38 +37,79 @@ public static class StaticFunctions
         {
             foreach (var command in value)
             {
-                if (command.Type == CommandType.Rect)
+                switch (command.Type)
                 {
-                    arenaList.Add(new RectInfo
+                    case CommandType.Rect:
+                        arenaList.Add(new RectInfo
+                        {
+                            TopLeft = command.RectCommand.Bounds.TopLeft().Multiply(currentMatrix),
+                            BottomRight = command.RectCommand.Bounds.BottomRight().Multiply(currentMatrix),
+                            Color = command.RectCommand.Color.ToVec4(),
+                            BorderWidth = command.RectCommand.BorderWidth.Multiply(currentMatrix),
+                            CornerRadius = command.RectCommand.Radius.Multiply(currentMatrix)
+                        });
+                        break;
+                    case CommandType.Matrix:
+                        currentMatrix = command.MatrixCommand.Matrix;
+                        break;
+                    case CommandType.ClipRect:
                     {
-                        TopLeft = command.RectCommand.Bounds.TopLeft().Multiply(currentMatrix),
-                        BottomRight = command.RectCommand.Bounds.BottomRight().Multiply(currentMatrix),
-                        Color = command.RectCommand.Color.ToVec4(),
-                        BorderWidth = command.RectCommand.BorderWidth,
-                        CornerRadius = command.RectCommand.Radius.Multiply(currentMatrix)
-                    });
-                }else if (command.Type == CommandType.Matrix)
-                {
-                    currentMatrix = command.MatrixCommand.Matrix;
-                }else if (command.Type == CommandType.ClipRect)
-                {
-                    GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
-                    arenaList.Clear();
+                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                        arenaList.Clear();
 
-                    renderer.Gl.Enable(EnableCap.ScissorTest);
+                        renderer.Gl.Enable(EnableCap.ScissorTest);
 
-                    var bounds = command.ClipRectCommand.Bounds.Multiply(currentMatrix);
-                    if (command.ClipRectCommand.ClipMode == ClipMode.OnlyDrawWithin)
-                    {
-                        renderer.Gl.Scissor((int)bounds.X, (int)(renderer.Window.Size.Y - (bounds.Y + bounds.H)), (uint)bounds.W, (uint)bounds.H);
+                        var bounds = command.ClipRectCommand.Bounds.Multiply(currentMatrix);
+                        if (command.ClipRectCommand.ClipMode == ClipMode.OnlyDrawWithin)
+                        {
+                            renderer.Gl.Scissor((int)bounds.X, (int)(renderer.Window.Size.Y - (bounds.Y + bounds.H)), (uint)bounds.W, (uint)bounds.H);
+                        }
+
+                        break;
                     }
-                }
-                else if (command.Type == CommandType.ClearClip)
-                {
-                    GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
-                    arenaList.Clear();
+                    case CommandType.ClearClip:
+                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                        arenaList.Clear();
 
-                    renderer.Gl.Disable(EnableCap.ScissorTest);
+                        renderer.Gl.Disable(EnableCap.ScissorTest);
+                        break;
+                    case CommandType.Text:
+
+                        var resolutionMultiplier = new Vector2(1, 1).Multiply(currentMatrix.GetScale()).Y;
+
+                        var fontAtlas = renderer.GetFontAtlas(new ScaledFont(command.TextCommand.Font.Get()!, command.TextCommand.FontSize));
+
+                        var xCoord = command.TextCommand.Bounds.X;
+
+                        foreach (var c in command.TextCommand.String.AsSpan())
+                        {
+                            var glyphInfo = fontAtlas.FindGlyphEntry(c, resolutionMultiplier);
+
+                            float x = xCoord + glyphInfo.LeftSideBearing;
+                            float y = command.TextCommand.Bounds.Y + fontAtlas.Font.Ascent + glyphInfo.YOff;
+
+                            // Console.WriteLine($"{c}: {fontAtlas.Font.Ascent}: {glyphInfo.YOff}, {glyphInfo.AtlasHeight}, {glyphInfo.Height}");
+                            // DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture, xCoord + glyphInfo.LeftSideBearing, command.TextCommand.Bounds.Y + fontAtlas.Font.Ascent + glyphInfo.YOff);
+                            var uvXOffset = (1 / (float)fontAtlas.AtlasWidth) * glyphInfo.AtlasX;
+                            var uvYOffset = (1 / (float)fontAtlas.AtlasHeight) * glyphInfo.AtlasY;
+                            var uvWidth = (1 / (float)fontAtlas.AtlasWidth) * glyphInfo.AtlasWidth;
+                            var uvHeight = (1 / (float)fontAtlas.AtlasHeight) * glyphInfo.AtlasHeight;
+
+                            arenaList.Add(new RectInfo
+                            {
+                                TopLeft = new Vector2(x, y).Multiply(currentMatrix),
+                                BottomRight = (new Vector2(x, y) + new Vector2(glyphInfo.Width, glyphInfo.Height)).Multiply(currentMatrix),
+                                Color = command.TextCommand.Color.ToVec4(),
+                                BorderWidth = 0,
+                                CornerRadius = 0,
+                                TextureCoordinate = new Vector4(uvXOffset, uvYOffset, uvWidth, uvHeight),
+                                TextureHandle = fontAtlas.GpuTexture.TextureHandle
+                            });
+
+                            xCoord += glyphInfo.AdvanceWidth;
+                            // Console.WriteLine($"Metrics: {c}:{glyphInfo.AdvanceWidth}:{glyphInfo.LeftSideBearing}");
+                        }
+                        break;
                 }
 
                 // switch (command.Type)
