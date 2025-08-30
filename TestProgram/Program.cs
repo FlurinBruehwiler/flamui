@@ -1,100 +1,15 @@
-﻿using System.Reflection;
-using System.Reflection.Emit;
-using System.Reflection.Metadata;
-using HarmonyLib;
-using TestProgram;
+﻿
+using System.Numerics;
 
-[assembly: MetadataUpdateHandler(typeof(HotReloadManager))]
+Console.WriteLine(smoothstep(0, 5, 400));
+Console.WriteLine(smoothstep(0, 5, 100));
+Console.WriteLine(smoothstep(0, 5, -100));
+Console.WriteLine(smoothstep(0, 5, 3));
 
-namespace TestProgram;
-
-public static class Program
+float smoothstep(float edge0, float edge1, float x)
 {
-    private static Harmony harmony;
-
-    public static void Main()
-    {
-        harmony = new Harmony("flamui");
-
-        PrintIl();
-
-        PatchPrintCall();
-
-        PrintIl();
-
-        while (true)
-        {
-            Print();
-            Thread.Sleep(500);
-        }
-    }
-
-    public static void Print()
-    {
-        InnerPrint1();
-    }
-
-    public static void InnerPrint1()
-    {
-        Console.WriteLine("Hi from 1");
-    }
-
-    public static void InnerPrint2()
-    {
-        Console.WriteLine("Hi from 2");
-    }
-
-    public static void PatchPrintCall()
-    {
-        harmony.Patch(typeof(Program).GetMethod("Print"), transpiler: new HarmonyMethod(Transpiler));
-    }
-
-    private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> originalInstructions, ILGenerator generator, MethodBase original)
-    {
-        var instructions = originalInstructions.ToList();
-
-        foreach (var ins in instructions)
-        {
-            if ((ins.opcode == OpCodes.Callvirt || ins.opcode == OpCodes.Call) && ins.operand is MethodInfo methodInfo)
-            {
-                if (methodInfo.Name == "InnerPrint1")
-                {
-                    ins.operand = typeof(Program).GetMethod("InnerPrint2");
-                }
-            }
-        }
-
-        return instructions;
-    }
-
-    public static void PrintIl()
-    {
-        PrintIlForMethod(typeof(Program).GetMethod("Main"));
-        PrintIlForMethod(typeof(Program).GetMethod("Print"));
-    }
-
-
-    public static void PrintIlForMethod(MethodInfo method)
-    {
-        Console.WriteLine($"----- {method.Name} ------");
-        var instructions = Mono.Reflection.Disassembler.GetInstructions(method);
-        foreach (var b in instructions)
-        {
-            Console.WriteLine(b.ToString());
-        }
-    }
-
+    float t = x;  /* Or genDType t; */
+    t = (float)Math.Clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    return t * t * (3.0f - 2.0f * t);
 }
 
-public static class HotReloadManager
-{
-    public static void UpdateApplication(Type[]? updatedTypes)
-    {
-        Program.PrintIl();
-    }
-
-    public static void ClearCache(Type[]? updatedTypes)
-    {
-        Program.PrintIl();
-    }
-}

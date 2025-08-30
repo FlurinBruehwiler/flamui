@@ -1,11 +1,13 @@
-﻿#version 450 core
+﻿
+//render doc tutorial https://www.youtube.com/watch?v=lFexgk_2FTc&t=439s
+#version 450 core
 
 
 in vec4 vColor;
-in vec2 vRectCenter;
-in vec2 vRectHalfSize;
-in float vCornerRadius;
-in float vBorderThickness;
+in vec2 vRectCenterPx;
+in vec2 vRectHalfSizePx;
+in float vCornerRadiusPx;
+in float vBorderThicknessPx;
 
 layout(location = 0)
 out vec4 out_color;
@@ -23,20 +25,22 @@ float sdBox( in vec2 p, in vec2 b )
 // r = radius
 float sdBoxRound( in vec2 p, in vec2 b, in float r )
 {
-  return sdBox(p, b) - r;
+  return sdBox(p, vec2(b.x - r, b.y - r)) - r;
 }
 
 void main()
 {
-    out_color = vec4(1.0, 0.0, 0.0, 1.0);
-/*
-    float sdf_result = sdBoxRound((gl_FragCoord.xy / uViewportSize) - vRectCenter, vRectHalfSize, vCornerRadius);
+    vec2 p = gl_FragCoord.xy - vRectCenterPx;
 
-    if(sdf_result < 0)
-    {
+    float sdf_result = -sdBoxRound(p, vRectHalfSizePx, vCornerRadiusPx);
+
+    float alpha = smoothstep(0.0, 1.0, sdf_result);
+
+/*
+    if(alpha <= 0){
         discard;
     }
+*/
 
-    out_color = vColor;
-    */
+    out_color = vec4(vColor.rgb, alpha);
 }

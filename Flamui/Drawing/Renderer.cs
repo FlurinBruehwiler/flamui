@@ -257,7 +257,7 @@ public sealed class Renderer
 
         // _renderer.Gl.Enable(EnableCap.FramebufferSrgb);
         Gl.Enable(EnableCap.Blend);
-        Gl.BlendFunc(BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
+        Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
     }
 
     private void CheckError([CallerLineNumber] int line = 0)

@@ -117,6 +117,11 @@ public static class Extensions
         return new Vector2(transformedPosition.X, transformedPosition.Y);
     }
 
+    public static float Multiply(this float scalar, Matrix4X4<float> mat)
+    {
+        return Vector4D.Multiply(new Vector4D<float>(scalar, 0, 0, 1), mat).X;
+    }
+
     public static Matrix4X4<float> GetScale(this Matrix4X4<float> matrix)
     {
         return new Matrix4X4<float>(

@@ -13,6 +13,17 @@ public static class TestComponent
 
     public static void Build(Ui ui, FlamuiWindowHost app)
     {
+
+        using (ui.Rect().Color(C.Green7).Padding(10))
+        {
+            using (ui.Rect().Color(C.White).Rounded(20))
+            {
+
+            }
+        }
+
+        return;
+
         ui.CascadingValues.TextColor = C.White;
 
         var tabBar = ui.GetTabBar(initialTab: 0);

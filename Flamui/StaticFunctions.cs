@@ -29,23 +29,30 @@ public static class StaticFunctions
 
         renderer.BeforeFrame();
 
+        var arenaList = new ArenaList<RectInfo>(arena, commands.InnerBuffers.Sum(x => x.Value.Count));
+
+        Matrix4X4<float> currentMatrix = Matrix4X4<float>.Identity;
+
         foreach (var (_, value) in commands.InnerBuffers.OrderBy(x => x.Key))
         {
-            var arenaList = new ArenaList<RectInfo>(arena, value.Count);
-
             foreach (var command in value)
             {
                 if (command.Type == CommandType.Rect)
                 {
+                    var transformed = Vector4D.Multiply(new Vector4D<float>(10, 0, 0, 1), currentMatrix).X;
+
                     arenaList.Add(new RectInfo
                     {
-                        TopLeft = command.RectCommand.Bounds.TopLeft(),
-                        BottomRight = command.RectCommand.Bounds.BottomRight(),
-                        Color = new Vector4(command.RectCommand.Color.Red, command.RectCommand.Color.Green, command.RectCommand.Color.Blue, command.RectCommand.Color.Alpha),
+                        TopLeft = command.RectCommand.Bounds.TopLeft().Multiply(currentMatrix),
+                        BottomRight = command.RectCommand.Bounds.BottomRight().Multiply(currentMatrix),
+                        Color = new Vector4((float)command.RectCommand.Color.Red / 255, (float)command.RectCommand.Color.Green / 255, (float)command.RectCommand.Color.Blue / 255, (float)command.RectCommand.Color.Alpha / 255),
                         BorderColor = new Vector4(),
                         BorderWidth = 0,
-                        CornerRadius = 0
+                        CornerRadius = command.RectCommand.Radius.Multiply(currentMatrix)
                     });
+                }else if (command.Type == CommandType.Matrix)
+                {
+                    currentMatrix = command.MatrixCommand.Matrix;
                 }
 
                 // switch (command.Type)
@@ -86,9 +93,9 @@ public static class StaticFunctions
                 // }
             }
 
-            GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
         }
 
+        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
         renderer.Gl.Flush();
 
         // canvas.Flush();
