@@ -12,6 +12,8 @@ in float vBorderThicknessPx;
 layout(location = 0)
 out vec4 out_color;
 
+layout(origin_upper_left) in vec4 gl_FragCoord;
+
 uniform vec2 uViewportSize;
 
 float sdBox( in vec2 p, in vec2 b )
@@ -30,17 +32,27 @@ float sdBoxRound( in vec2 p, in vec2 b, in float r )
 
 void main()
 {
-    vec2 p = gl_FragCoord.xy - vRectCenterPx;
+    vec2 sdf_sample_pos = gl_FragCoord.xy - vRectCenterPx;
 
-    float sdf_result = -sdBoxRound(p, vRectHalfSizePx, vCornerRadiusPx);
-
-    float alpha = smoothstep(0.0, 1.0, sdf_result);
-
-/*
-    if(alpha <= 0){
+    float border_sdf = 1;
+    if(vBorderThicknessPx > 0)
+    {
+        border_sdf = abs(sdBoxRound(sdf_sample_pos, vRectHalfSizePx, vCornerRadiusPx)  + 3 * vBorderThicknessPx) - vBorderThicknessPx;
+        border_sdf = smoothstep(0.0, 1.0, -border_sdf);
+    }
+    if(border_sdf < 0.001f)
+    {
         discard;
     }
-*/
 
-    out_color = vec4(vColor.rgb, alpha);
+    float corner_sdf = 1;
+    if(vCornerRadiusPx > 0)
+    {
+        corner_sdf = -sdBoxRound(sdf_sample_pos, vRectHalfSizePx, vCornerRadiusPx);
+        corner_sdf = smoothstep(0.0, 1.0, corner_sdf);
+    }
+
+    out_color = vColor;
+    out_color.a *= corner_sdf;
+    out_color.a *= border_sdf;
 }

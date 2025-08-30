@@ -10,19 +10,24 @@ namespace Sample.LayoutTest;
 public static class TestComponent
 {
     private static long lastFrameTimeStamp;
+    private static bool hi;
 
     public static void Build(Ui ui, FlamuiWindowHost app)
     {
 
-        using (ui.Rect().Color(C.Green7).Padding(10))
-        {
-            using (ui.Rect().Color(C.White).Rounded(20))
-            {
-
-            }
-        }
-
-        return;
+        // using (ui.Rect()
+        //            .Color(C.Green7)
+        //            .Padding(10))
+        // {
+        //
+        //     using (ui.Rect() .Color(C.White).Rounded(10).Padding(10) )
+        //     {
+        //         using (var div = ui.Rect().Height(150).Width(150).Color(C.Black).Rounded(0))
+        //         {}
+        //     }
+        // }
+        //
+        // return;
 
         ui.CascadingValues.TextColor = C.White;
 

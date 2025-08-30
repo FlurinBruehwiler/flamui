@@ -41,29 +41,27 @@ public static class FlexContainerRenderer
             // renderContext.Add(new Restore());//todo
         }
 
-        bool renderBorderAfter = false;
 
-        float borderRadius = flexContainer.Info.Radius == 0 ? 0 : flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
-        if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is { } borderColor)
-        {
-            var needsClip = flexContainer.Info.Color == null || flexContainer.Info.Color.Value.Alpha != 255 || flexContainer.Info.BlurRadius != 0;
-
-            if (needsClip)
-            {
-                renderBorderAfter = true;
-            }
-            else
-            {
-                var bounds = new Bounds
-                {
-                    X = offset.X - flexContainer.Info.BorderWidth,
-                    Y = offset.Y - flexContainer.Info.BorderWidth,
-                    W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
-                    H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
-                };
-                renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
-            }
-        }
+        // if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is { } borderColor)
+        // {
+        //     var needsClip = flexContainer.Info.Color == null || flexContainer.Info.Color.Value.Alpha != 255 || flexContainer.Info.BlurRadius != 0;
+        //
+        //     if (needsClip)
+        //     {
+        //         renderBorderAfter = true;
+        //     }
+        //     else
+        //     {
+        //         var bounds = new Bounds
+        //         {
+        //             X = offset.X - flexContainer.Info.BorderWidth,
+        //             Y = offset.Y - flexContainer.Info.BorderWidth,
+        //             W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
+        //             H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
+        //         };
+        //         renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
+        //     }
+        // }
 
         if (flexContainer.Info.Color != null || flexContainer.Info.BlurRadius != 0)
         {
@@ -75,8 +73,10 @@ public static class FlexContainerRenderer
             renderContext.AddRect(flexContainer.Rect.ToBounds(offset), flexContainer, C.Transparent, 0);
         }
 
-        if (renderBorderAfter)
+        if (flexContainer.Info.BorderWidth != 0) //render border after
         {
+            float borderRadius = flexContainer.Info.Radius == 0 ? 0 : flexContainer.Info.Radius + flexContainer.Info.BorderWidth;
+
             renderContext.PushClip(flexContainer.Rect.ToBounds(offset), ClipMode.OnlyDrawOutside, flexContainer.Info.Radius);
 
             var bounds = new Bounds
@@ -86,7 +86,8 @@ public static class FlexContainerRenderer
                 W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
                 H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
             };
-            renderContext.AddRect(bounds, flexContainer, flexContainer.Info.BorderColor!.Value, borderRadius);
+            renderContext.AddRect(bounds, flexContainer, flexContainer.Info.BorderColor, borderRadius,
+                blurRadius:0, borderWidth: flexContainer.Info.BorderWidth);
 
             renderContext.PopClip();
         }

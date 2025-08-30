@@ -1,11 +1,10 @@
 ﻿#version 450 core
 
 layout(location = 0) in vec4 inColor;
-layout(location = 1) in vec4 inBorderColor;
-layout(location = 2) in vec2 inTopLeft;
-layout(location = 3) in vec2 inBottomRight;
-layout(location = 4) in float inCornerRadius;
-layout(location = 5) in float inBorderThickness;
+layout(location = 1) in vec2 inTopLeft;
+layout(location = 2) in vec2 inBottomRight;
+layout(location = 3) in float inCornerRadius;
+layout(location = 4) in float inBorderThickness;
 
 out vec4 vColor;
 out vec2 vRectCenterPx;

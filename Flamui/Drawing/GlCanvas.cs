@@ -95,18 +95,15 @@ public struct RectInfo
     public Vector4 Color;
 
     [FieldOffset(16)]
-    public Vector4 BorderColor;
-
-    [FieldOffset(32)]
     public Vector2 TopLeft;
 
-    [FieldOffset(40)]
+    [FieldOffset(24)]
     public Vector2 BottomRight;
 
-    [FieldOffset(48)]
+    [FieldOffset(32)]
     public float CornerRadius;
 
-    [FieldOffset(52)]
+    [FieldOffset(36)]
     public float BorderWidth;
 }
 

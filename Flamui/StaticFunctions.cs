@@ -45,9 +45,8 @@ public static class StaticFunctions
                     {
                         TopLeft = command.RectCommand.Bounds.TopLeft().Multiply(currentMatrix),
                         BottomRight = command.RectCommand.Bounds.BottomRight().Multiply(currentMatrix),
-                        Color = new Vector4((float)command.RectCommand.Color.Red / 255, (float)command.RectCommand.Color.Green / 255, (float)command.RectCommand.Color.Blue / 255, (float)command.RectCommand.Color.Alpha / 255),
-                        BorderColor = new Vector4(),
-                        BorderWidth = 0,
+                        Color = command.RectCommand.Color.ToVec4(),
+                        BorderWidth = command.RectCommand.BorderWidth,
                         CornerRadius = command.RectCommand.Radius.Multiply(currentMatrix)
                     });
                 }else if (command.Type == CommandType.Matrix)

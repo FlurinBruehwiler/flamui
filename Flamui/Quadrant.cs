@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.Contracts;
 using System.Drawing;
+using System.Numerics;
 using Flamui.Layouting;
 using Flamui.UiElements;
 
@@ -263,6 +264,12 @@ public record struct ColorDefinition
         {
             Alpha = (byte)(original.Alpha / opacity)
         };
+    }
+
+    [Pure]
+    public Vector4 ToVec4()
+    {
+        return new Vector4((float)Red / 255, (float)Green / 255, (float)Blue / 255, (float)Alpha / 255);
     }
 }
 
