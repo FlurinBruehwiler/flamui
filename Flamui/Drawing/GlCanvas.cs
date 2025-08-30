@@ -113,21 +113,21 @@ public struct RectInfo
     public Vector4 TextureCoordinate; // xy = xy, z = width, w = height
 }
 
-public sealed class GlCanvas2
+public sealed class GlCanvas
 {
     public static void IssueDrawCall(Renderer renderer, ReadOnlySpan<RectInfo> rects)
     {
-        renderer.Gl.BindVertexArray(renderer.NewRenderer.VAO);
-        renderer.Gl.UseProgram(renderer.NewRenderer.Program);
+        renderer.Gl.BindVertexArray(renderer.MainProgram.VAO);
+        renderer.Gl.UseProgram(renderer.MainProgram.Program);
 
-        renderer.Gl.BindBuffer(GLEnum.ArrayBuffer, renderer.NewRenderer.Buffer);
+        renderer.Gl.BindBuffer(GLEnum.ArrayBuffer, renderer.MainProgram.Buffer);
         renderer.Gl.BufferData(GLEnum.ArrayBuffer, rects, GLEnum.DynamicDraw);
 
 
         var matrix = renderer.GetWorldToScreenMatrix();
 
-        renderer.Gl.ProgramUniformMatrix4(renderer.NewRenderer.Program, renderer.NewRenderer.Transform, false, new ReadOnlySpan<float>(Renderer.GetAsFloatArray(matrix)));
-        renderer.Gl.Uniform2(renderer.NewRenderer.ViewportSize, new Vector2(renderer.Window.Size.X, renderer.Window.Size.Y));
+        renderer.Gl.ProgramUniformMatrix4(renderer.MainProgram.Program, renderer.MainProgram.Transform, false, new ReadOnlySpan<float>(Renderer.GetAsFloatArray(matrix)));
+        renderer.Gl.Uniform2(renderer.MainProgram.ViewportSize, new Vector2(renderer.Window.Size.X, renderer.Window.Size.Y));
 
         // renderer.Gl.BindVertexArray(renderer._vaoMain2);
         // renderer.Gl.UseProgram(renderer._main2Program);

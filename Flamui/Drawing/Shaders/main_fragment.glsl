@@ -62,7 +62,7 @@ void main()
     {
         out_color.a *= texture(sampler2D(vTextureHandle), vTextureCoordinate).r;
     }
-
+//anita max
     out_color.a *= corner_sdf;
     out_color.a *= border_sdf;
 }

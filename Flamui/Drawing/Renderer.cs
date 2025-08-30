@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Flamui.PerfTrace;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ARB;
@@ -34,7 +33,7 @@ public struct GpuTexture
     public required ulong TextureHandle { get; init; }
 }
 
-public struct NewRenderer
+public struct MainProgram
 {
     public uint Program;
     public int Transform;
@@ -68,7 +67,7 @@ public sealed class Renderer
     public IWindow Window;
 
     public BlurProgram BlurProgram;
-    public NewRenderer NewRenderer;
+    public MainProgram MainProgram;
 
 
     private Dictionary<ScaledFont, FontAtlas> _fontAtlasMap = [];
@@ -99,40 +98,114 @@ public sealed class Renderer
         return atlas;
     }
 
-    private Dictionary<Shader, string> _shaderStrings = [];
-
-    private string GetShaderCode(Shader shader)
+    private static string GetDevShaderDirectory()
     {
-        if (_shaderStrings.TryGetValue(shader, out var code))
-            return code;
+        return Path.GetFullPath(Path.Combine(Directory.GetParent(typeof(Renderer).Assembly.Location)!.FullName, @"..\..\..\..\Flamui\Drawing\Shaders"));
+    }
 
+    private static string LoadShaderCode(Shader shader)
+    {
+#if DEBUG
+        var shaderFile = Path.Combine(GetDevShaderDirectory(), $"{shader.ToString()}.glsl");
+        return File.ReadAllText(shaderFile);
+#else
         var asm = Assembly.GetExecutingAssembly();
         using var stream = asm.GetManifestResourceStream($"Flamui.Drawing.Shaders.{shader.ToString()}.glsl");
         using var reader = new StreamReader(stream!, Encoding.UTF8);
-        code = reader.ReadToEnd();
-        _shaderStrings[shader] = code;
-        return code;
+        return reader.ReadToEnd();
+#endif
     }
 
-    private uint CompileShader(Shader shader, ShaderType shaderType)
+    private static (uint, string? errorInfo) CompileShader(GL gl, Shader shader, ShaderType shaderType)
     {
-        var identifier = Gl.CreateShader(shaderType);
-        Gl.ShaderSource(identifier, GetShaderCode(shader));
+        var identifier = gl.CreateShader(shaderType);
+        gl.ShaderSource(identifier, LoadShaderCode(shader));
 
-        Gl.CompileShader(identifier);
+        gl.CompileShader(identifier);
 
-        Gl.GetShader(identifier, ShaderParameterName.CompileStatus, out int vStatus);
+        gl.GetShader(identifier, ShaderParameterName.CompileStatus, out int vStatus);
+
+        string? e = null;
         if (vStatus != (int)GLEnum.True)
-            throw new Exception("Vertex shader failed to compile: " + Gl.GetShaderInfoLog(identifier));
+            e = $"{shaderType} shader failed to compile: " + gl.GetShaderInfoLog(identifier);
 
-        return identifier;
+        return (identifier, e);
     }
 
     //nvidia paper: https://developer.nvidia.com/nv-path-rendering
 
+    public static (MainProgram, BlurProgram, bool) CreatePrograms(GL gl)
+    {
+        string? error = null;
+
+        (uint blur_vertexShader, error) = CompileShader(gl, Shader.blur_vertex, ShaderType.VertexShader);
+        (uint blur_fragmentShader, error) = CompileShader(gl, Shader.blur_fragment, ShaderType.FragmentShader);
+        (uint main_vertexShader, error) = CompileShader(gl, Shader.main_vertex, ShaderType.VertexShader);
+        (uint main_fragmentShader, error) = CompileShader(gl, Shader.main_fragment, ShaderType.FragmentShader);
+
+        if (error != null)
+        {
+            Console.WriteLine(error);
+            return (default, default, false);
+        }
+
+        //blur_program
+
+        var blurProgram = new BlurProgram();
+        blurProgram.VAO = gl.GenVertexArray();
+        blurProgram.Program = CreateProgram(gl, blur_vertexShader, blur_fragmentShader);
+        blurProgram.Texture = gl.GetUniformLocation(blurProgram.Program, "uTexture");
+        blurProgram.ViewportSize = gl.GetUniformLocation(blurProgram.Program, "uViewportSize");
+        blurProgram.KernelSize = gl.GetUniformLocation(blurProgram.Program, "kernelSize");
+        blurProgram.KernelWeights = gl.GetUniformLocation(blurProgram.Program, "kernel");
+        blurProgram.Direction = gl.GetUniformLocation(blurProgram.Program, "direction");
+
+
+        //main_program
+        var mainProgram = new MainProgram();
+        mainProgram.Program = CreateProgram(gl, main_vertexShader, main_fragmentShader);
+        mainProgram.Transform = gl.GetUniformLocation(mainProgram.Program, "transform");
+        mainProgram.ViewportSize = gl.GetUniformLocation(mainProgram.Program, "uViewportSize");
+
+
+        unsafe {
+            gl.UseProgram(mainProgram.Program);
+
+            mainProgram.VAO = gl.GenVertexArray();
+            gl.BindVertexArray(mainProgram.VAO);
+
+            mainProgram.Buffer = gl.GenBuffer();
+            gl.BindBuffer(GLEnum.ArrayBuffer, mainProgram.Buffer);
+
+            uint stride = (uint)sizeof(RectInfo);
+            var fields = GlCanvas.GetFields<RectInfo>();
+            for (uint i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+
+                CheckError(gl);
+
+                gl.EnableVertexAttribArray(i);
+                gl.VertexAttribPointer(i, field.byteSize / sizeof(float), GLEnum.Float, false, stride, (IntPtr)field.byteOffset);
+                CheckError(gl);
+
+                gl.VertexAttribDivisor(i, 1);
+
+                CheckError(gl);
+
+
+                CheckError(gl);
+
+            }
+        }
+
+        return (mainProgram, blurProgram, true);
+    }
 
     public void Initialize(IWindow window)
     {
+        InitDebugShaderHotReload();
+
         Window = window;
 
         Gl = Window.CreateOpenGL();
@@ -143,67 +216,10 @@ public sealed class Renderer
         Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         Gl.Enable(EnableCap.Blend);
 
-        BlurProgram.VAO = Gl.GenVertexArray();
 
-        CheckError();
-
-        //blur_program
-        uint blur_vertexShader = CompileShader(Shader.blur_vertex, ShaderType.VertexShader);
-        uint blur_fragmentShader = CompileShader(Shader.blur_fragment, ShaderType.FragmentShader);
-
-        BlurProgram.Program = CreateProgram(blur_vertexShader, blur_fragmentShader);
-        BlurProgram.Texture = Gl.GetUniformLocation(BlurProgram.Program, "uTexture");
-        BlurProgram.ViewportSize = Gl.GetUniformLocation(BlurProgram.Program, "uViewportSize");
-        BlurProgram.KernelSize = Gl.GetUniformLocation(BlurProgram.Program, "kernelSize");
-        BlurProgram.KernelWeights = Gl.GetUniformLocation(BlurProgram.Program, "kernel");
-        BlurProgram.Direction = Gl.GetUniformLocation(BlurProgram.Program, "direction");
-
-        CheckError();
-
-        //main_2_program
-        uint main2_vertexShader = CompileShader(Shader.main_vertex, ShaderType.VertexShader);
-        uint main2_fragmentShader = CompileShader(Shader.main_fragment, ShaderType.FragmentShader);
-
-        NewRenderer.Program = CreateProgram(main2_vertexShader, main2_fragmentShader);
-        NewRenderer.Transform = Gl.GetUniformLocation(NewRenderer.Program, "transform");
-        NewRenderer.ViewportSize = Gl.GetUniformLocation(NewRenderer.Program, "uViewportSize");
-
-        CheckError();
-
-
-        unsafe {
-            Gl.UseProgram(NewRenderer.Program);
-
-            NewRenderer.VAO = Gl.GenVertexArray();
-            Gl.BindVertexArray(NewRenderer.VAO);
-
-            NewRenderer.Buffer = Gl.GenBuffer();
-            Gl.BindBuffer(GLEnum.ArrayBuffer, NewRenderer.Buffer);
-
-            uint stride = (uint)sizeof(RectInfo);
-            var fields = GlCanvas2.GetFields<RectInfo>();
-            for (uint i = 0; i < fields.Length; i++)
-            {
-                var field = fields[i];
-
-                CheckError();
-
-                Gl.EnableVertexAttribArray(i);
-                Gl.VertexAttribPointer(i, field.byteSize / sizeof(float), GLEnum.Float, false, stride, (IntPtr)field.byteOffset);
-                CheckError();
-
-                Gl.VertexAttribDivisor(i, 1);
-
-                CheckError();
-
-
-                CheckError();
-
-            }
-        }
-
-        CheckError();
-
+        (MainProgram, BlurProgram, var success) = CreatePrograms(Gl);
+        if (!success)
+            throw new Exception("Unable to create Programs");
 
         //end
 
@@ -212,13 +228,13 @@ public sealed class Renderer
         BlurProgram.VBO = Gl.GenBuffer();
         BlurProgram.ebo2 = Gl.GenBuffer();
 
-        CheckError();
+        CheckError(Gl);
 
         mainRenderTexture = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
         blurRenderTextureTemp = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
         blurRenderTexture = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
 
-        CheckError();
+        CheckError(Gl);
 
         Gl.Enable(EnableCap.StencilTest);
     }
@@ -229,6 +245,20 @@ public sealed class Renderer
 
     public void BeforeFrame()
     {
+        if (ShouldRecompileShaders) //should only happen during dev
+        {
+            ShouldRecompileShaders = false;
+            Console.WriteLine("Reloading Shaders");
+            var (mainProgram, blurProgram, success) = CreatePrograms(Gl);
+
+            if (success)
+            {
+                MainProgram = mainProgram;
+                BlurProgram = blurProgram;
+                Console.WriteLine("Shader reloaded successfully");
+            }
+        }
+
         Gl.Viewport(Window.Size);
 
         mainRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
@@ -250,9 +280,9 @@ public sealed class Renderer
         Gl.Disable(EnableCap.ScissorTest);
     }
 
-    private void CheckError([CallerLineNumber] int line = 0)
+    private static void CheckError(GL gl, [CallerLineNumber] int line = 0)
     {
-        var err = Gl.GetError();
+        var err = gl.GetError();
         if (err != GLEnum.NoError)
         {
             Console.WriteLine($"{err} at Line {line}");
@@ -260,38 +290,38 @@ public sealed class Renderer
         }
     }
 
-    private uint CreateProgram(uint vertexShader, uint fragmentShader)
+    private static uint CreateProgram(GL gl, uint vertexShader, uint fragmentShader)
     {
-        var program = Gl.CreateProgram();
+        var program = gl.CreateProgram();
 
-        Gl.AttachShader(program, vertexShader);
-        Gl.AttachShader(program, fragmentShader);
+        gl.AttachShader(program, vertexShader);
+        gl.AttachShader(program, fragmentShader);
 
-        Gl.LinkProgram(program);
+        gl.LinkProgram(program);
 
-        Gl.GetProgram(program, ProgramPropertyARB.LinkStatus, out int lStatus);
+        gl.GetProgram(program, ProgramPropertyARB.LinkStatus, out int lStatus);
         if (lStatus != (int)GLEnum.True)
-            throw new Exception("Program failed to link: " + Gl.GetProgramInfoLog(program));
+            throw new Exception("Program failed to link: " + gl.GetProgramInfoLog(program));
 
-        Gl.DetachShader(program, vertexShader);
-        Gl.DetachShader(program, fragmentShader);
-        Gl.DeleteShader(vertexShader);
-        Gl.DeleteShader(fragmentShader);
+        gl.DetachShader(program, vertexShader);
+        gl.DetachShader(program, fragmentShader);
+        gl.DeleteShader(vertexShader);
+        gl.DeleteShader(fragmentShader);
 
         return program;
     }
 
     public unsafe GpuTexture UploadTexture(Bitmap bitmap)
     {
-        CheckError();
+        CheckError(Gl);
 
         var textureId = Gl.GenTexture();
 
-        CheckError();
+        CheckError(Gl);
 
         Gl.BindTexture(TextureTarget.Texture2D, textureId);
 
-        CheckError();
+        CheckError(Gl);
 
         // Debug.Assert(data.Length == width * height);
         fixed (byte* ptr = bitmap.Data.Span)
@@ -311,7 +341,7 @@ public sealed class Renderer
 
         Console.WriteLine($"Uploading texture...");
 
-        CheckError();
+        CheckError(Gl);
 
         Gl.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
         Gl.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
@@ -320,13 +350,13 @@ public sealed class Renderer
 
         Gl.BindTexture(TextureTarget.Texture2D, 0);
 
-        CheckError();
+        CheckError(Gl);
 
         var arbBindlessTexture = new ArbBindlessTexture(Gl.Context);
         var handle = arbBindlessTexture.GetTextureHandle(textureId);
         arbBindlessTexture.MakeTextureHandleResident(handle);
 
-        CheckError();
+        CheckError(Gl);
 
         return new GpuTexture
         {
@@ -508,25 +538,28 @@ public sealed class Renderer
         ];
     }
 
-    public void DebugShaderHotReload()
+    public void InitDebugShaderHotReload()
     {
 #if DEBUG
-        var shaderDirectory = Path.Combine(Directory.GetParent(typeof(Renderer).Assembly.Location)!.FullName, "../../../Drawing/Shaders");
-
         var watcher = new FileSystemWatcher();
-        watcher.Path = shaderDirectory;
+        watcher.Path = GetDevShaderDirectory();
         watcher.IncludeSubdirectories = false;
         watcher.NotifyFilter = NotifyFilters.LastWrite;
+        watcher.Error += (sender, args) => { Console.WriteLine(args.GetException().ToString()); };
         watcher.Changed += ShaderChanged;
+        watcher.Filter = "*.glsl";
         watcher.EnableRaisingEvents = true;
+        _fileSystemWatcher = watcher;
+        Console.WriteLine("Watching for shader changes...");
 #endif
     }
 
     private void ShaderChanged(object sender, FileSystemEventArgs e)
     {
-        if (e.ChangeType != WatcherChangeTypes.Changed)
-            return;
-
-
+        Console.WriteLine("yoonge");
+        ShouldRecompileShaders = true;
     }
+
+    private bool ShouldRecompileShaders;
+    private FileSystemWatcher _fileSystemWatcher;
 }
