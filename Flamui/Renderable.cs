@@ -38,12 +38,12 @@ public record struct Bounds
         H = height;
     }
 
-    public Vector2 GetPosition()
+    public Vector2 Position()
     {
         return new Vector2(X, Y);
     }
 
-    public Vector2 GetSize()
+    public Vector2 Size()
     {
         return new Vector2(W, H);
     }
@@ -51,7 +51,7 @@ public record struct Bounds
     [Pure]
     public Bounds OffsetBy(Vector2 offsetPosition)
     {
-        return new Bounds(GetPosition() + offsetPosition, GetSize());
+        return new Bounds(Position() + offsetPosition, Size());
     }
 
     [Pure]
@@ -63,13 +63,17 @@ public record struct Bounds
         return withinX && withinY;
     }
 
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 TopLeft() => new(X, Y);
+    [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector2 TopRight() => new(X + W, Y);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Pure]
     public Vector2 BottomLeft() => new(X, Y + H);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Pure]
     public Vector2 BottomRight() => new(X + W, Y + H);
 
     public override string ToString()
@@ -99,6 +103,7 @@ public struct RectCommand
     public required float Radius;
     public required ColorDefinition Color;
     public required float BlurRadius;
+    public required float BorderWidth;
 
 }
 

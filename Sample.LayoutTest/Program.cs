@@ -1,4 +1,5 @@
-﻿using Flamui;
+﻿using System.Runtime.InteropServices;
+using Flamui;
 using Sample.LayoutTest;
 
 /*
@@ -66,6 +67,11 @@ using Sample.LayoutTest;
  */
 
 //rewrite so that border/corners are sdf based https://iquilezles.org/articles/distfunctions2d/
+
+//bindless textures: https://www.youtube.com/watch?v=YTfdBSjitd8
+
+//render doc tutorial https://www.youtube.com/watch?v=lFexgk_2FTc&t=439s
+
 
 var windowHost = new FlamuiWindowHost();
 

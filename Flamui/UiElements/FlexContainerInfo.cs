@@ -32,7 +32,7 @@ public struct FlexContainerInfo
     public bool IsNew;
     public ColorDefinition? Color;
     public float BlurRadius;
-    public ColorDefinition? BorderColor;
+    public ColorDefinition BorderColor;
     public Quadrant Padding;
     public float Rotation;
     public int Gap;

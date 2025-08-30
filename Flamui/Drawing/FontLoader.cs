@@ -137,6 +137,7 @@ public sealed class FontAtlas
         int xOff = ix0;
         int yOff = iy0;
 
+        //patch texture
         GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
         GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
         GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, 100, 100, PixelFormat.Red, PixelType.UnsignedByte, (void*)GlyphTempMemory);

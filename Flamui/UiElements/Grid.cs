@@ -169,7 +169,7 @@ public class Grid : UiElementContainer
         {
             if (FinalOnScreenSize.ContainsPoint(Tree.MousePosition))
             {
-                var relativePos = Tree.MousePosition - FinalOnScreenSize.GetPosition();
+                var relativePos = Tree.MousePosition - FinalOnScreenSize.Position();
 
                 for (var i = 1; i < Columns.Count; i++)
                 {

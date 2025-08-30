@@ -21,7 +21,7 @@ public static partial class UiExtensions
     {
         var l = t.TextLayoutInfo.Lines[0];
 
-        var pos = ui.Tree.MousePosition - (t.FinalOnScreenSize.GetPosition() + l.Bounds.GetPosition());
+        var pos = ui.Tree.MousePosition - (t.FinalOnScreenSize.Position() + l.Bounds.Position());
 
         if (pos.X < 0)
             return 0;

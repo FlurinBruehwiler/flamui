@@ -38,7 +38,10 @@ public sealed class RenderContext
         MatrixStack.Clear();
     }
 
-    public void AddRect(Bounds bounds, UiElement? uiElement, ColorDefinition color, float radius = 0, float blurRadius = 0)
+    /// <summary>
+    /// If a bordeWidth is provided, only the outline of a rect will be rendered
+    /// </summary>
+    public void AddRect(Bounds bounds, UiElement? uiElement, ColorDefinition color, float radius = 0, float blurRadius = 0, float borderWidth = default)
     {
         var cmd = new Command
         {
@@ -49,7 +52,8 @@ public sealed class RenderContext
                 Bounds = bounds,
                 Radius = radius,
                 Color = color,
-                BlurRadius = blurRadius
+                BlurRadius = blurRadius,
+                BorderWidth = borderWidth
             }
         };
 

@@ -117,6 +117,19 @@ public static class Extensions
         return new Vector2(transformedPosition.X, transformedPosition.Y);
     }
 
+    public static Bounds Multiply(this Bounds bounds, Matrix4X4<float> mat)
+    {
+        var position = bounds.Position().Multiply(mat);
+        var size = bounds.Size().Multiply(mat);
+        return new Bounds(position, size);
+    }
+
+
+    public static float Multiply(this float scalar, Matrix4X4<float> mat)
+    {
+        return Vector4D.Multiply(new Vector4D<float>(scalar, 0, 0, 1), mat).X;
+    }
+
     public static Matrix4X4<float> GetScale(this Matrix4X4<float> matrix)
     {
         return new Matrix4X4<float>(
@@ -147,19 +160,21 @@ public sealed class MeshBuilder
 
     private int GetTextureSlot(GpuTexture texture)
     {
-        if (_textureIdToTextureSlot.TryGetValue(texture.TextureId, out var slot))
-        {
-            return slot;
-        }
+        return 0;
 
-        int newTextureSlot = 0;
-        if (_textureIdToTextureSlot.Count != 0)
-        {
-            newTextureSlot = _textureIdToTextureSlot.MaxBy(x => x.Value).Value + 1;
-        }
-
-        _textureIdToTextureSlot.Add(texture.TextureId, newTextureSlot);
-        return newTextureSlot;
+        // if (_textureIdToTextureSlot.TryGetValue(texture.TextureId, out var slot))
+        // {
+        //     return slot;
+        // }
+        //
+        // int newTextureSlot = 0;
+        // if (_textureIdToTextureSlot.Count != 0)
+        // {
+        //     newTextureSlot = _textureIdToTextureSlot.MaxBy(x => x.Value).Value + 1;
+        // }
+        //
+        // _textureIdToTextureSlot.Add(texture.TextureId, newTextureSlot);
+        // return newTextureSlot;
     }
 
     public uint AddVertex(Vector2 position, Vector2 uv, ColorDefinition color, float bezierFillType = 0, TextureType textureType = 0, GpuTexture? texture = null)

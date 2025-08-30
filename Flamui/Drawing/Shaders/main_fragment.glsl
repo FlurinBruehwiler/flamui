@@ -1,65 +1,68 @@
-#version 330 core
+﻿
+#version 450 core
+#extension GL_ARB_bindless_texture : enable
 
-in vec2 frag_texCoords;
-in float fill_bezier_type;
-in vec4 frag_color;
-in float texture_type; // 0 == color, 1 == texture, 2 == font
-in float texture_id;
 
-uniform int stencil_enabled; //0 = disabled, 1 = enabled
-uniform sampler2D uTextures[10]; //maximum of 10 textures
-uniform vec2 uViewportSize;
+in vec4 vColor;
+in vec2 vRectCenterPx;
+in vec2 vRectHalfSizePx;
+in float vCornerRadiusPx;
+in float vBorderThicknessPx;
+flat in uvec2 vTextureHandle;
+in vec2 vTextureCoordinate;
 
 layout(location = 0)
 out vec4 out_color;
 
+layout(origin_upper_left) in vec4 gl_FragCoord;
+
+
+
+uniform vec2 uViewportSize;
+
+float sdBox( in vec2 p, in vec2 b )
+{
+    vec2 d = abs(p)-b;
+    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+}
+
+// p = sample point
+// b = half size
+// r = radius
+float sdBoxRound( in vec2 p, in vec2 b, in float r )
+{
+  return sdBox(p, vec2(b.x - r, b.y - r)) - r;
+}
+
 void main()
 {
-    float opacity = 1;
+    vec2 sdf_sample_pos = gl_FragCoord.xy - vRectCenterPx;
 
-    if(fill_bezier_type != 0){
-        float x = frag_texCoords.x;
-        float y = frag_texCoords.y;
-
-        //anti aliasing: some magic stuff i don't get from this video: https://dl.acm.org/doi/10.1145/1073204.1073303
-        float f = x*x-y;
-        float dx = dFdx(f);
-        float dy = dFdy(f);
-        float sd = f/sqrt(dx*dx+dy*dy);
-
-        opacity = 0;
-
-        if(sd < -1)
-            opacity = 0;
-        else if (sd > 1)
-            opacity = 1;
-        else
-            opacity = (1 + sd) / 2;
-
-        if(fill_bezier_type > 0){
-            opacity = 1 - opacity;
-        }
-
-        if(stencil_enabled == 1 && opacity == 0){
-            discard;
-        }
-
-        opacity *= frag_color.a;
+    float border_sdf = 1;
+    if(vBorderThicknessPx > 0)
+    {
+        border_sdf = abs(sdBoxRound(sdf_sample_pos, vRectHalfSizePx, vCornerRadiusPx)  + 2 * vBorderThicknessPx) - vBorderThicknessPx;
+        border_sdf = smoothstep(0.0, 1.0, -border_sdf);
+    }
+    if(border_sdf < 0.001f)
+    {
+        discard;
     }
 
-    if (texture_type == 0){
-        out_color = frag_color;
-    }else if(texture_type == 1){
-        out_color = texture(uTextures[int(texture_id)], frag_texCoords);
-    }else if(texture_type == 2){
-        float alpha = texture(uTextures[int(texture_id)], frag_texCoords).r;
-        out_color = vec4(frag_color.rgb * alpha, alpha);
-        // out_color = vec4(1, 0, 0, 1);
-    }
-    else if(texture_type == 3){
-        out_color = texture(uTextures[int(texture_id)], gl_FragCoord.xy / uViewportSize);
-        out_color = vec4((frag_color.rgb * frag_color.a) + (out_color.rgb * (1.0 - frag_color.a)), 1.0);
+    float corner_sdf = 1;
+    if(vCornerRadiusPx > 0)
+    {
+        corner_sdf = -sdBoxRound(sdf_sample_pos, vRectHalfSizePx, vCornerRadiusPx);
+        corner_sdf = smoothstep(0.0, 1.0, corner_sdf);
     }
 
-    out_color = out_color * opacity;// vec4(out_color.r * opacity, out_color.g * opacity, out_color.b * opacity, out_color.a * opacity);
+    out_color = vColor;
+
+    if(vTextureHandle.x != 0 || vTextureHandle.y != 0)
+    {
+        out_color.a *= texture(sampler2D(vTextureHandle), vTextureCoordinate).r;
+    }
+
+    out_color.a *= corner_sdf;
+    out_color.a *= border_sdf;
 }

@@ -1,61 +1,59 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <RootNamespace>Flamui</RootNamespace>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Flamui</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <!-- Nuget Package -->
-        <PackageId>Flamui</PackageId>
-        <Version>0.1.0-alpha.5</Version>
-        <Authors>Flurin Brühwiler</Authors>
-        <PackageLicenseUrl>MIT</PackageLicenseUrl>
-        <RepositoryUrl>https://github.com/FlurinBruehwiler/flamui</RepositoryUrl>
-        <Description>A desktop UI framework</Description>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-    </PropertyGroup>
+    <!-- Nuget Package -->
+    <PackageId>Flamui</PackageId>
+    <Version>0.1.0-alpha.5</Version>
+    <Authors>Flurin Brühwiler</Authors>
+    <PackageLicenseUrl>MIT</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/FlurinBruehwiler/flamui</RepositoryUrl>
+    <Description>A desktop UI framework</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Lib.Harmony" Version="2.3.6" />
-        <PackageReference Include="Silk.NET.Input" Version="2.22.0" />
-        <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
-        <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0" />
-        <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
-        <PackageReference Include="Varena" Version="1.2.0" />
-        <PackageReference Include="ZLinq" Version="1.4.9" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.3.6"/>
+    <PackageReference Include="Silk.NET.Input" Version="2.22.0"/>
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0"/>
+    <PackageReference Include="Silk.NET.OpenGL.Extensions.ARB" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.22.0"/>
+    <PackageReference Include="StbTrueTypeSharp" Version="1.26.12"/>
+    <PackageReference Include="Varena" Version="1.2.0"/>
+    <PackageReference Include="ZLinq" Version="1.4.9"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <None Update="./Icons/TVG/*.tvg">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <Content Include="./ThirdParty/x86_64-windows/tinyvg.dll">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <TargetPath>runtimes/win-x64/native/tinyvg.dll</TargetPath>
-        </Content>
-        <Content Include="./ThirdParty/x86_64-linux/libtinyvg.so">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>runtimes/linux-x64/native/libtinyvg.so</TargetPath>
-        </Content>
-    </ItemGroup>
+  <ItemGroup>
+    <None Update="./Icons/TVG/*.tvg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="./ThirdParty/x86_64-windows/tinyvg.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>runtimes/win-x64/native/tinyvg.dll</TargetPath>
+    </Content>
+    <Content Include="./ThirdParty/x86_64-linux/libtinyvg.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>runtimes/linux-x64/native/libtinyvg.so</TargetPath>
+    </Content>
+  </ItemGroup>
 
-    <ItemGroup>
-<!--        <None Include="../Flamui.SourceGenerators/bin/Release/netstandard2.0/Flamui.SourceGenerators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>-->
-        <None Include="../README.md" Pack="true" PackagePath="\"/>
-    </ItemGroup>
+  <ItemGroup>
+    <!--        <None Include="../Flamui.SourceGenerators/bin/Release/netstandard2.0/Flamui.SourceGenerators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>-->
+    <None Include="../README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Include="Drawing\Shaders\main_fragment.glsl" />
-      <EmbeddedResource Include="Drawing\Shaders\main_vertex.glsl" />
-        <EmbeddedResource Include="Drawing\Shaders\blur_fragment.glsl" />
-        <EmbeddedResource Include="Drawing\Shaders\blur_vertex.glsl" />
-      <EmbeddedResource Include="Drawing\segoeui.ttf" />
-    </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Drawing\Shaders\*.glsl"/>
+    <EmbeddedResource Include="Drawing\segoeui.ttf"/>
+  </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Icons\TVG\" />
-    </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Icons\TVG\"/>
+  </ItemGroup>
 
 </Project>

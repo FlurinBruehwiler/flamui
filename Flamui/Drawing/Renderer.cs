@@ -7,6 +7,7 @@ using System.Text;
 using Flamui.PerfTrace;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
+using Silk.NET.OpenGL.Extensions.ARB;
 using Silk.NET.Windowing;
 
 namespace Flamui.Drawing;
@@ -20,16 +21,45 @@ public struct Mesh
 
 public enum Shader
 {
-    main_fragment,
-    main_vertex,
     blur_fragment,
-    blur_vertex
+    blur_vertex,
+    main_fragment,
+    main_vertex
 }
 
 public struct GpuTexture
 {
     public required GL Gl { get; init; }
     public required uint TextureId { get; init; }
+    public required ulong TextureHandle { get; init; }
+}
+
+public struct NewRenderer
+{
+    public uint Program;
+    public int Transform;
+    public int ViewportSize;
+
+    public uint VAO;
+
+
+    public uint Buffer;
+}
+
+public struct BlurProgram
+{
+    public uint Program;
+
+    public int Transform;
+    public int ViewportSize;
+    public int KernelSize;
+    public int KernelWeights;
+    public int Direction;
+    public int Texture;
+    public uint VAO;
+    public uint VBO;
+    public uint ebo2;
+
 }
 
 public sealed class Renderer
@@ -37,24 +67,13 @@ public sealed class Renderer
     public GL Gl;
     public IWindow Window;
 
-    private uint _mainProgram;
-    private uint _blurProgram;
-    private int _transformLoc;
-    private int _blurTextureLoc;
-    private int _blurViewportSizeLoc;
-    private int _blurKernelSizeLoc;
-    private int _blurKernelWeightsLoc;
-    private int _blurDirectionLoc;
-    private int _stencilEnabledLoc;
-    private int _mainViewportSizeLoc;
-    private uint _vao;
-    private uint _vao2;
+    public BlurProgram BlurProgram;
+    public NewRenderer NewRenderer;
+
+
     private Dictionary<ScaledFont, FontAtlas> _fontAtlasMap = [];
 
-    private uint vbo;
-    private uint ebo;
-    private uint vbo2;
-    private uint ebo2;
+
     public VgAtlas? VgAtlas;
 
     public unsafe FontAtlas GetFontAtlas(ScaledFont scaledFont)
@@ -124,18 +143,7 @@ public sealed class Renderer
         Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         Gl.Enable(EnableCap.Blend);
 
-        _vao = Gl.GenVertexArray();
-        _vao2 = Gl.GenVertexArray();
-        Gl.BindVertexArray(_vao);
-
-        //main_program
-        uint vertexShader = CompileShader(Shader.main_vertex, ShaderType.VertexShader);
-        uint fragmentShader = CompileShader(Shader.main_fragment, ShaderType.FragmentShader);
-
-        _mainProgram = CreateProgram(vertexShader, fragmentShader);
-        _transformLoc = Gl.GetUniformLocation(_mainProgram, "transform");
-        _mainViewportSizeLoc = Gl.GetUniformLocation(_mainProgram, "uViewportSize");
-        _stencilEnabledLoc = Gl.GetUniformLocation(_mainProgram, "stencil_enabled");
+        BlurProgram.VAO = Gl.GenVertexArray();
 
         CheckError();
 
@@ -143,30 +151,68 @@ public sealed class Renderer
         uint blur_vertexShader = CompileShader(Shader.blur_vertex, ShaderType.VertexShader);
         uint blur_fragmentShader = CompileShader(Shader.blur_fragment, ShaderType.FragmentShader);
 
-        _blurProgram = CreateProgram(blur_vertexShader, blur_fragmentShader);
-        _blurTextureLoc = Gl.GetUniformLocation(_blurProgram, "uTexture");
-        _blurViewportSizeLoc = Gl.GetUniformLocation(_blurProgram, "uViewportSize");
-        _blurKernelSizeLoc = Gl.GetUniformLocation(_blurProgram, "kernelSize");
-        _blurKernelWeightsLoc = Gl.GetUniformLocation(_blurProgram, "kernel");
-        _blurDirectionLoc = Gl.GetUniformLocation(_blurProgram, "direction");
+        BlurProgram.Program = CreateProgram(blur_vertexShader, blur_fragmentShader);
+        BlurProgram.Texture = Gl.GetUniformLocation(BlurProgram.Program, "uTexture");
+        BlurProgram.ViewportSize = Gl.GetUniformLocation(BlurProgram.Program, "uViewportSize");
+        BlurProgram.KernelSize = Gl.GetUniformLocation(BlurProgram.Program, "kernelSize");
+        BlurProgram.KernelWeights = Gl.GetUniformLocation(BlurProgram.Program, "kernel");
+        BlurProgram.Direction = Gl.GetUniformLocation(BlurProgram.Program, "direction");
 
         CheckError();
+
+        //main_2_program
+        uint main2_vertexShader = CompileShader(Shader.main_vertex, ShaderType.VertexShader);
+        uint main2_fragmentShader = CompileShader(Shader.main_fragment, ShaderType.FragmentShader);
+
+        NewRenderer.Program = CreateProgram(main2_vertexShader, main2_fragmentShader);
+        NewRenderer.Transform = Gl.GetUniformLocation(NewRenderer.Program, "transform");
+        NewRenderer.ViewportSize = Gl.GetUniformLocation(NewRenderer.Program, "uViewportSize");
+
+        CheckError();
+
+
+        unsafe {
+            Gl.UseProgram(NewRenderer.Program);
+
+            NewRenderer.VAO = Gl.GenVertexArray();
+            Gl.BindVertexArray(NewRenderer.VAO);
+
+            NewRenderer.Buffer = Gl.GenBuffer();
+            Gl.BindBuffer(GLEnum.ArrayBuffer, NewRenderer.Buffer);
+
+            uint stride = (uint)sizeof(RectInfo);
+            var fields = GlCanvas2.GetFields<RectInfo>();
+            for (uint i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+
+                CheckError();
+
+                Gl.EnableVertexAttribArray(i);
+                Gl.VertexAttribPointer(i, field.byteSize / sizeof(float), GLEnum.Float, false, stride, (IntPtr)field.byteOffset);
+                CheckError();
+
+                Gl.VertexAttribDivisor(i, 1);
+
+                CheckError();
+
+
+                CheckError();
+
+            }
+        }
+
+        CheckError();
+
 
         //end
 
         Gl.BindVertexArray(0);
 
-        vbo = Gl.GenBuffer();
-        ebo = Gl.GenBuffer();
-        vbo2 = Gl.GenBuffer();
-        ebo2 = Gl.GenBuffer();
+        BlurProgram.VBO = Gl.GenBuffer();
+        BlurProgram.ebo2 = Gl.GenBuffer();
 
         CheckError();
-
-        for (var i = 0; i < textureSlotUniformLocations.Length; i++)
-        {
-            textureSlotUniformLocations[i] = Gl.GetUniformLocation(_mainProgram, $"uTextures[{i}]");
-        }
 
         mainRenderTexture = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
         blurRenderTextureTemp = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
@@ -180,15 +226,28 @@ public sealed class Renderer
     public RenderTexture mainRenderTexture;
     private RenderTexture blurRenderTextureTemp;
     private RenderTexture blurRenderTexture;
-    private int[] textureSlotUniformLocations = new int[10];
 
     public void BeforeFrame()
     {
+        Gl.Viewport(Window.Size);
+
         mainRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
         blurRenderTextureTemp.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
         blurRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
 
         Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
+
+        Gl.Viewport(Window.Size);
+
+        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+        Gl.StencilMask(0xFF);
+        Gl.StencilFunc(StencilFunction.Always, 1, 0xFF);
+
+        // _renderer.Gl.Enable(EnableCap.FramebufferSrgb);
+        Gl.Enable(EnableCap.Blend);
+        Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+        Gl.Disable(EnableCap.ScissorTest);
     }
 
     private void CheckError([CallerLineNumber] int line = 0)
@@ -197,6 +256,7 @@ public sealed class Renderer
         if (err != GLEnum.NoError)
         {
             Console.WriteLine($"{err} at Line {line}");
+            throw new Exception("wom pwomp");
         }
     }
 
@@ -262,14 +322,17 @@ public sealed class Renderer
 
         CheckError();
 
-        Gl.UseProgram(_mainProgram);
+        var arbBindlessTexture = new ArbBindlessTexture(Gl.Context);
+        var handle = arbBindlessTexture.GetTextureHandle(textureId);
+        arbBindlessTexture.MakeTextureHandleResident(handle);
 
         CheckError();
 
         return new GpuTexture
         {
             TextureId = textureId,
-            Gl = Gl
+            Gl = Gl,
+            TextureHandle = handle
         };
     }
 
@@ -315,7 +378,8 @@ public sealed class Renderer
         return new GpuTexture
         {
             Gl = Gl,
-            TextureId = blurRenderTexture.textureId
+            TextureId = blurRenderTexture.textureId,
+            TextureHandle = 0
         };
     }
 
@@ -380,23 +444,23 @@ public sealed class Renderer
             2u, 1u, 0u
         ];
 
-        Gl.BindVertexArray(_vao2);
-        Gl.UseProgram(_blurProgram);
+        Gl.BindVertexArray(BlurProgram.VAO);
+        Gl.UseProgram(BlurProgram.Program);
 
         Gl.ActiveTexture(GLEnum.Texture0);
         Gl.BindTexture(TextureTarget.Texture2D, source.textureId);
-        Gl.Uniform1(_blurTextureLoc, 0);
+        Gl.Uniform1(BlurProgram.Texture, 0);
 
         var marshal = MemoryMarshal.Cast<Vector4, float>(uniformKernel);
-        Gl.Uniform2(_blurViewportSizeLoc, new Vector2(Window.Size.X, Window.Size.Y));
-        Gl.Uniform1(_blurKernelSizeLoc, 1f + (float)blurCount);
-        Gl.Uniform4(_blurKernelWeightsLoc, marshal);
-        Gl.Uniform2(_blurDirectionLoc, direction);
+        Gl.Uniform2(BlurProgram.ViewportSize, new Vector2(Window.Size.X, Window.Size.Y));
+        Gl.Uniform1(BlurProgram.KernelSize, 1f + (float)blurCount);
+        Gl.Uniform4(BlurProgram.KernelWeights, marshal);
+        Gl.Uniform2(BlurProgram.Direction, direction);
 
-        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo2);
+        Gl.BindBuffer(BufferTargetARB.ArrayBuffer, BlurProgram.VBO);
         Gl.BufferData(BufferTargetARB.ArrayBuffer, vertices, BufferUsageARB.StaticDraw);
 
-        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo2);
+        Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, BlurProgram.ebo2);
         Gl.BufferData(BufferTargetARB.ElementArrayBuffer, indices, BufferUsageARB.StaticDraw);
 
         const uint positionLoc = 0; //aPosition in shader
@@ -416,8 +480,8 @@ public sealed class Renderer
             Gl.BindFramebuffer(GLEnum.Framebuffer, target.FramebufferName);
         }
 
-        Gl.BindVertexArray(_vao2);
-        Gl.UseProgram(_blurProgram);
+        Gl.BindVertexArray(BlurProgram.VAO);
+        Gl.UseProgram(BlurProgram.Program);
 
         Gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, (void*)0);
         Gl.Flush();
@@ -425,94 +489,7 @@ public sealed class Renderer
         Gl.Enable(EnableCap.StencilTest);
     }
 
-    public unsafe void DrawMesh(Mesh mesh, bool stencilMode = false)
-    {
-        if (mesh.Indices.Length == 0) //empty mesh, noting to do...
-            return;
-
-        using var _ = Systrace.BeginEvent(nameof(DrawMesh));
-
-        Gl.BindVertexArray(_vao);
-        Gl.UseProgram(_mainProgram);
-
-        foreach (var (texture, textureSlot) in mesh.TextureIdToTextureSlot)
-        {
-            Gl.ActiveTexture(IntToTextureUnit(textureSlot));
-            Gl.BindTexture(TextureTarget.Texture2D, texture);
-            Gl.Uniform1(textureSlotUniformLocations[textureSlot], textureSlot);
-        }
-
-        using (Systrace.BeginEvent("Bind/Upload Buffers"))
-        {
-            //create / bind vbo
-            Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
-            Gl.BufferData(BufferTargetARB.ArrayBuffer, mesh.Floats.ReadonlySpan, BufferUsageARB.StaticDraw);
-
-            //create / bind ebo
-            Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
-            Gl.BufferData(BufferTargetARB.ElementArrayBuffer, mesh.Indices.ReadonlySpan, BufferUsageARB.StaticDraw);
-        }
-
-        //todo, do we need to do this on every DrawMesh call?
-
-        const int stride = 3 + 2 + 1 + 4 + 1 + 1; //10 because of 3 vertices + 2 UVs + 1 filltype + 4 color + 1 texturetype + 1 textureId
-
-        const uint positionLoc = 0; //aPosition in shader
-        Gl.EnableVertexAttribArray(positionLoc);
-        Gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)0);
-
-        const uint texCoordLoc = 1;
-        Gl.EnableVertexAttribArray(texCoordLoc);
-        Gl.VertexAttribPointer(texCoordLoc, 2, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(3 * sizeof(float)));
-
-        const uint bezierTypeLoc = 2;
-        Gl.EnableVertexAttribArray(bezierTypeLoc);
-        Gl.VertexAttribPointer(bezierTypeLoc, 1, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(5 * sizeof(float)));
-
-        const uint colorLoc = 3;
-        Gl.EnableVertexAttribArray(colorLoc);
-        Gl.VertexAttribPointer(colorLoc, 4, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(6 * sizeof(float)));
-
-        const uint textureTypeLoc = 4;
-        Gl.EnableVertexAttribArray(textureTypeLoc);
-        Gl.VertexAttribPointer(textureTypeLoc, 1, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(10 * sizeof(float)));
-
-        const uint textureIdLoc = 5;
-        Gl.EnableVertexAttribArray(textureIdLoc);
-        Gl.VertexAttribPointer(textureIdLoc, 1, VertexAttribPointerType.Float, false, stride * sizeof(float), (void*)(11 * sizeof(float)));
-
-
-        var matrix = GetWorldToScreenMatrix();
-
-        Gl.ProgramUniformMatrix4(_mainProgram, _transformLoc, false, new ReadOnlySpan<float>(GetAsFloatArray(matrix)));
-
-        if (stencilMode)
-            Gl.ProgramUniform1(_mainProgram, _stencilEnabledLoc, 1);
-        else
-            Gl.ProgramUniform1(_mainProgram, _stencilEnabledLoc, 0);
-
-        Gl.Uniform2(_mainViewportSizeLoc, new Vector2(Window.Size.X, Window.Size.Y));
-        // Gl.ProgramUniform1(_mainProgram, _mainViewportSizeLoc);
-
-        Gl.BindVertexArray(_vao);
-        Gl.UseProgram(_mainProgram);
-
-        using (Systrace.BeginEvent("DrawElements"))
-        {
-            Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
-        }
-
-        // using (Systrace.BeginEvent("GetError"))
-        // {
-        //     var err = Gl.GetError();
-        //     if (err != GLEnum.NoError)
-        //     {
-        //         Console.WriteLine(err);
-        //     }
-        // }
-    }
-
-    private Matrix4X4<float> GetWorldToScreenMatrix()
+    public Matrix4X4<float> GetWorldToScreenMatrix()
     {
         return Matrix4X4.CreateScale(1f / Window.Size.X, 1f / Window.Size.Y, 1) *
                Matrix4X4.CreateScale(2f, 2f, 1) *
@@ -520,7 +497,7 @@ public sealed class Renderer
                Matrix4X4.CreateScale(1f, -1f, 1f);
     }
 
-    private static float[] GetAsFloatArray(Matrix4X4<float> matrix)
+    public static float[] GetAsFloatArray(Matrix4X4<float> matrix)
     {
         return
         [
@@ -529,5 +506,27 @@ public sealed class Renderer
             matrix.M31, matrix.M32, matrix.M33, matrix.M34,
             matrix.M41, matrix.M42, matrix.M43, matrix.M44
         ];
+    }
+
+    public void DebugShaderHotReload()
+    {
+#if DEBUG
+        var shaderDirectory = Path.Combine(Directory.GetParent(typeof(Renderer).Assembly.Location)!.FullName, "../../../Drawing/Shaders");
+
+        var watcher = new FileSystemWatcher();
+        watcher.Path = shaderDirectory;
+        watcher.IncludeSubdirectories = false;
+        watcher.NotifyFilter = NotifyFilters.LastWrite;
+        watcher.Changed += ShaderChanged;
+        watcher.EnableRaisingEvents = true;
+#endif
+    }
+
+    private void ShaderChanged(object sender, FileSystemEventArgs e)
+    {
+        if (e.ChangeType != WatcherChangeTypes.Changed)
+            return;
+
+
     }
 }
