@@ -61,9 +61,29 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                using (ui.Rect().Color(20, 20, 20).Padding(50))
+                using (ui.Rect().Color(177, 221, 234).Padding(50))
                 {
-                    using (ui.Rect().Width(100).Color(C.Blue3).ShadowColor(C.Orange7).DropShadow(40, 0))
+                    using (ui.Rect().Width(100).Height(100).Color(173, 216, 230)
+                               .ShadowColor(C.Black.WithAlpha(50)).Rounded(16)
+                               .DropShadow(40, 0, x: 6, y: 6))
+                    {
+
+                    }
+                }
+            }
+        }
+
+        if (tabBar.TabItem("Tab 5"))
+        {
+            using (tabBar.Body.Enter())
+            {
+                using (ui.Rect().Color(177, 221, 234).Padding(10))
+                {
+                    using (ui.Rect().Width(100).Height(100).Color(C.Green6).Border(10, C.Black))
+                    {
+
+                    }
+                    using (ui.Rect().Width(10).Height(100).Color(C.Blue5))
                     {
 
                     }

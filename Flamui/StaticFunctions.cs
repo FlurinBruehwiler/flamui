@@ -116,7 +116,7 @@ public static class StaticFunctions
                     {
                         renderer.VgAtlas ??= new VgAtlas(renderer);
 
-                        var bounds = command.TinyVGCommand.Bounds.Multiply(currentMatrix);
+                        var bounds = command.TinyVGCommand.Bounds;
 
                         var resolutionMultiplier = new Vector2(1, 1).Multiply(currentMatrix.GetScale()).Y;
                         var entry = renderer.VgAtlas.GetAtlasEntry(command.TinyVGCommand.VGId, command.TinyVGCommand.VGData.Span, (uint)(bounds.W * resolutionMultiplier),
@@ -126,12 +126,12 @@ public static class StaticFunctions
 
                         arenaList.Add(new RectInfo
                         {
-                            TopLeft = bounds.TopLeft(),
-                            BottomRight = bounds.BottomRight(),
-                            Color = default,
+                            TopLeft = bounds.TopLeft().Multiply(currentMatrix),
+                            BottomRight = bounds.BottomRight().Multiply(currentMatrix),
+                            Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                             BorderWidth = 0,
                             CornerRadius = 0,
-                            TextureCoordinate = new Vector4(entryBounds.X, entryBounds.H, entryBounds.W, entryBounds.H),
+                            TextureCoordinate = new Vector4(entryBounds.X, entryBounds.Y, entryBounds.W, entryBounds.H),
                             TextureHandle = renderer.VgAtlas.GpuTexture.TextureHandle
                         });
                         break;

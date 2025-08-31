@@ -8,7 +8,8 @@ namespace Flamui;
 public enum BitmapFormat
 {
     R,
-    RGBA
+    RGBA,
+    A
 }
 
 public struct Bitmap

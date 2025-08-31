@@ -42,7 +42,7 @@ void main()
     float border_sdf = 1;
     if(vBorderThicknessPx > 0)
     {
-        border_sdf = abs(sdBoxRound(sdf_sample_pos, vRectHalfSizePx, vCornerRadiusPx)  + 2 * vBorderThicknessPx) - vBorderThicknessPx;
+        border_sdf = abs(sdBoxRound(sdf_sample_pos, vRectHalfSizePx, vCornerRadiusPx) + 1.5 * vBorderThicknessPx) - (vBorderThicknessPx / 2);// abs( + 2 * vBorderThicknessPx) - vBorderThicknessPx;
         border_sdf = smoothstep(0.0, 1.0, -border_sdf);
     }
     if(border_sdf < 0.001f)
@@ -69,7 +69,8 @@ void main()
 
     if(vTextureHandle.x != 0 || vTextureHandle.y != 0)
     {
-        out_color.a *= texture(sampler2D(vTextureHandle), vTextureCoordinate).r;
+        out_color *= texture(sampler2D(vTextureHandle), vTextureCoordinate);
+        //out_color = vec4(1.0, 0.0, 0.0, 1.0);
     }
 
     out_color.a *= shadow_sdf;

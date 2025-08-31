@@ -66,8 +66,13 @@ using Sample.LayoutTest;
  * so we can determine if we should also have a similar system.
  */
 
+//todo remove bindless textures, so that we can use renderdoc again
+//todo fix blur
+
 //rewrite so that border/corners are sdf based https://iquilezles.org/articles/distfunctions2d/
 //sdf info: https://github.com/elcritch/sdfy
+
+//box shadow generator = https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_backgrounds_and_borders/Box-shadow_generator
 
 //bindless textures: https://www.youtube.com/watch?v=YTfdBSjitd8
 

@@ -91,7 +91,7 @@ public sealed class Renderer
                 Data = new Slice<byte>(c, content.Length),
                 Width = atlas.AtlasWidth,
                 Height = atlas.AtlasHeight,
-                BitmapFormat = BitmapFormat.R
+                BitmapFormat = BitmapFormat.A
             };
             atlas.GpuTexture = UploadTexture(bitmap);
         }
@@ -299,10 +299,16 @@ public sealed class Renderer
             switch (bitmap.BitmapFormat)
             {
                 case BitmapFormat.R:
+                    throw new NotImplementedException();
                     Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, bitmap.Width, bitmap.Height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
                     break;
                 case BitmapFormat.RGBA:
                     Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, bitmap.Width, bitmap.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+                    break;
+                case BitmapFormat.A:
+                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, bitmap.Width, bitmap.Height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
+                    ReadOnlySpan<int> swizzleMask = [(int)GLEnum.One, (int)GLEnum.One, (int)GLEnum.One, (int)GLEnum.Red];
+                    Gl.TextureParameter(textureId, GLEnum.TextureSwizzleRgba, swizzleMask);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

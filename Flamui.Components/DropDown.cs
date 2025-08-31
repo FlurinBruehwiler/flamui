@@ -41,7 +41,7 @@ public sealed class DropDown<T>
                            .ZIndex(100)
                            .Padding(5)
                            .Color(ColorPalette.BackgroundColor).AbsolutePosition(top: 30, left: 0).AbsoluteSize(widthOffsetParent:0f).Rounded(5).BorderWidth(1).BorderColor(ColorPalette.BorderColor)
-                           .DropShadow(5, 0, y: 4, x: 4).ShadowColor(0, 0, 0, 100)
+                           .DropShadow(5, 0, y: 4, x: 4).ShadowColor(0, 0, 0, 50)
                        )
                 {
                     if (_filterText is not null)
