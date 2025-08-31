@@ -33,7 +33,7 @@ public static class TestComponent
 
         var tabBar = ui.GetTabBar(initialTab: 3);
 
-        if (tabBar.TabItem("Tab 1"))
+        if (tabBar.TabItem("Controls"))
         {
             using (tabBar.Body.Enter())
             {
@@ -41,15 +41,7 @@ public static class TestComponent
             }
         }
 
-        if (tabBar.TabItem("Tab 2"))
-        {
-            using (tabBar.Body.Enter())
-            {
-                Tab2(ui);
-            }
-        }
-
-        if (tabBar.TabItem("Tab 3"))
+        if (tabBar.TabItem("Grid"))
         {
             using (tabBar.Body.Enter())
             {
@@ -57,7 +49,7 @@ public static class TestComponent
             }
         }
 
-        if (tabBar.TabItem("Tab 4"))
+        if (tabBar.TabItem("Shadow"))
         {
             using (tabBar.Body.Enter())
             {
@@ -73,7 +65,7 @@ public static class TestComponent
             }
         }
 
-        if (tabBar.TabItem("Tab 5"))
+        if (tabBar.TabItem("Layout"))
         {
             using (tabBar.Body.Enter())
             {
