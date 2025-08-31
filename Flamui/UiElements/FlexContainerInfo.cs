@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace Flamui.UiElements;
 
 public struct ScrollConfig
@@ -46,9 +48,10 @@ public struct FlexContainerInfo
     public MAlign MainAlignment;
     public XAlign CrossAlignment;
     public bool AutoFocus; //todo
-    public ColorDefinition? PShadowColor;
-    public Quadrant ShadowOffset;
-    public float ShadowSigma;
+    public ColorDefinition ShadowColor;
+    public Vector2 ShadowOffset;
+    public float ShadowBlur;
+    public float ShadowSpread;
     public bool Hidden;
     public bool BlockHit;
     public bool Interactable;

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using EnumXAlign = Flamui.XAlign;
 using EnumMAlign = Flamui.MAlign;
 
@@ -22,17 +23,25 @@ public sealed partial class FlexContainer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public FlexContainer Shadow(float sigma, int top = 0, int right = 0, int left = 0, int bottom = 0)
+    public FlexContainer DropShadow(float blur, float spread, float x = 0, float y = 0)
     {
-        Info.ShadowSigma = sigma;
-        Info.ShadowOffset = new Quadrant(left, right, top, bottom);
+        Info.ShadowBlur = blur;
+        Info.ShadowSpread = spread;
+        Info.ShadowOffset = new Vector2(x, y);
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FlexContainer ShadowColor(byte red, byte green, byte blue, byte alpha = 255)
     {
-        Info.PShadowColor = new ColorDefinition(red, green, blue, alpha);
+        Info.ShadowColor = new ColorDefinition(red, green, blue, alpha);
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public FlexContainer ShadowColor(ColorDefinition colorDefinition)
+    {
+        Info.ShadowColor = colorDefinition;
         return this;
     }
 

@@ -31,7 +31,7 @@ public static class TestComponent
 
         ui.CascadingValues.TextColor = C.White;
 
-        var tabBar = ui.GetTabBar(initialTab: 0);
+        var tabBar = ui.GetTabBar(initialTab: 3);
 
         if (tabBar.TabItem("Tab 1"))
         {
@@ -61,24 +61,9 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                using (ui.Rect().Color(20, 20, 20).Padding(10))
+                using (ui.Rect().Color(20, 20, 20).Padding(50))
                 {
-                    using (ui.Rect().Width(100).Color(C.Blue3))
-                    {
-
-                    }
-
-                    using (ui.Rect().Width(100).Color(C.Amber5).Border(5, C.Blue4).Rounded(1))
-                    {
-
-                    }
-
-                    using (ui.Rect().Width(100).Color(C.Amber5).Border(2, C.Blue4).Rounded(1))
-                    {
-
-                    }
-
-                    using (ui.Rect().Width(100).Color(C.Amber5).Border(10, C.Blue4).Rounded(1))
+                    using (ui.Rect().Width(100).Color(C.Blue3).ShadowColor(C.Orange7).DropShadow(40, 0))
                     {
 
                     }

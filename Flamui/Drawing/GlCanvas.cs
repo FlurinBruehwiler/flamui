@@ -111,6 +111,9 @@ public struct RectInfo
 
     [FieldOffset(48)]
     public Vector4 TextureCoordinate; // xy = xy, z = width, w = height
+
+    [FieldOffset(64)]
+    public float ShadowBlur;
 }
 
 public sealed class GlCanvas2

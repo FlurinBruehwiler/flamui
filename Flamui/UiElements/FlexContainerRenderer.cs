@@ -41,27 +41,22 @@ public static class FlexContainerRenderer
             // renderContext.Add(new Restore());//todo
         }
 
+        //this is not technically correct, you can still have a shadow with 0 blur and spread!!!!, should probably introduce a separate property
+        if (flexContainer.Info.ShadowBlur != 0 || flexContainer.Info.ShadowSpread != 0)
+        {
+            var bounds = new Bounds
+            {
+                X = offset.X,
+                Y = offset.Y,
+                H = flexContainer.Rect.Height,
+                W = flexContainer.Rect.Width
+            }
+                .OffsetBy(flexContainer.Info.ShadowOffset)
+                .ExpandBy(new Vector2(flexContainer.Info.ShadowSpread))
+                .ExpandBy(new Vector2(flexContainer.Info.ShadowBlur)); //the blur also outgrows the bounds... but maybe we can also make this smaller
 
-        // if (flexContainer.Info.BorderWidth != 0 && flexContainer.Info.BorderColor is { } borderColor)
-        // {
-        //     var needsClip = flexContainer.Info.Color == null || flexContainer.Info.Color.Value.Alpha != 255 || flexContainer.Info.BlurRadius != 0;
-        //
-        //     if (needsClip)
-        //     {
-        //         renderBorderAfter = true;
-        //     }
-        //     else
-        //     {
-        //         var bounds = new Bounds
-        //         {
-        //             X = offset.X - flexContainer.Info.BorderWidth,
-        //             Y = offset.Y - flexContainer.Info.BorderWidth,
-        //             W = flexContainer.Rect.Width + 2 * flexContainer.Info.BorderWidth,
-        //             H = flexContainer.Rect.Height + 2 * flexContainer.Info.BorderWidth,
-        //         };
-        //         renderContext.AddRect(bounds, flexContainer, borderColor, borderRadius);
-        //     }
-        // }
+            renderContext.AddRect(bounds, flexContainer, flexContainer.Info.ShadowColor, flexContainer.Info.Radius + flexContainer.Info.ShadowBlur, 0, 0, flexContainer.Info.ShadowBlur);
+        }
 
         if (flexContainer.Info.Color != null || flexContainer.Info.BlurRadius != 0)
         {
@@ -88,8 +83,6 @@ public static class FlexContainerRenderer
             };
             renderContext.AddRect(bounds, flexContainer, flexContainer.Info.BorderColor, borderRadius,
                 blurRadius:0, borderWidth: flexContainer.Info.BorderWidth);
-
-            //renderContext.PopClip();
         }
 
 

@@ -7,6 +7,7 @@ layout(location = 3) in float inCornerRadius;
 layout(location = 4) in float inBorderThickness;
 layout(location = 5) in uvec2 inTextureHandle;
 layout(location = 6) in vec4 inTextureCoordinate;
+layout(location = 7) in float inShadowBlur;
 
 out vec4 vColor;
 out vec2 vRectCenterPx;
@@ -15,6 +16,7 @@ out float vCornerRadiusPx;
 out float vBorderThicknessPx;
 flat out uvec2 vTextureHandle;
 out vec2 vTextureCoordinate;
+out float vShadowBlur;
 
 uniform mat4 transform;
 
@@ -50,6 +52,7 @@ void main()
     // pass per-instance data to fragment shader
     vColor = inColor;
     vTextureHandle = inTextureHandle;
+    vShadowBlur = inShadowBlur;
 
     vRectHalfSizePx = abs(inBottomRight - inTopLeft) / 2;
 

@@ -54,6 +54,18 @@ public record struct Bounds
         return new Bounds(Position() + offsetPosition, Size());
     }
 
+    /// <summary>
+    /// Expands the bounds by <see cref="sizeOffset"/> in each direction
+    /// </summary>
+    /// <param name="sizeOffset"></param>
+    /// <returns></returns>
+    [Pure]
+    public Bounds ExpandBy(Vector2 sizeOffset)
+    {
+        return new Bounds(Position() - sizeOffset, Size() + (2 * sizeOffset));
+    }
+
+
     [Pure]
     public bool ContainsPoint(Vector2 point)
     {
@@ -104,6 +116,7 @@ public struct RectCommand
     public required ColorDefinition Color;
     public required float BlurRadius;
     public required float BorderWidth;
+    public required float ShadowBlur;
 
 }
 

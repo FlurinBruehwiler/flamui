@@ -10,6 +10,7 @@ in float vCornerRadiusPx;
 in float vBorderThicknessPx;
 flat in uvec2 vTextureHandle;
 in vec2 vTextureCoordinate;
+in float vShadowBlur;
 
 layout(location = 0)
 out vec4 out_color;
@@ -56,6 +57,14 @@ void main()
         corner_sdf = smoothstep(0.0, 1.0, corner_sdf);
     }
 
+    float shadow_sdf = 1;
+    if(vShadowBlur > 0)
+    {
+        shadow_sdf = sdBoxRound(sdf_sample_pos, vRectHalfSizePx, vCornerRadiusPx);
+        shadow_sdf += 2 * vShadowBlur; //make the shape smaller by shadow blur, because we have expanded the mesh by shadowBlur, in the renderer
+        shadow_sdf = 1 - smoothstep(-vShadowBlur, +vShadowBlur, shadow_sdf);
+    }
+
     out_color = vColor;
 
     if(vTextureHandle.x != 0 || vTextureHandle.y != 0)
@@ -63,6 +72,7 @@ void main()
         out_color.a *= texture(sampler2D(vTextureHandle), vTextureCoordinate).r;
     }
 
+    out_color.a *= shadow_sdf;
     out_color.a *= corner_sdf;
     out_color.a *= border_sdf;
 }
