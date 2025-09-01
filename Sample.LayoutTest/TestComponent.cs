@@ -31,7 +31,7 @@ public static class TestComponent
 
         ui.CascadingValues.TextColor = C.White;
 
-        var tabBar = ui.GetTabBar(initialTab: 3);
+        var tabBar = ui.GetTabBar(initialTab: 0);
 
         if (tabBar.TabItem("Controls"))
         {

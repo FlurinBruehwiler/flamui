@@ -5,7 +5,7 @@ layout(location = 1) in vec2 inTopLeft;
 layout(location = 2) in vec2 inBottomRight;
 layout(location = 3) in float inCornerRadius;
 layout(location = 4) in float inBorderThickness;
-layout(location = 5) in uvec2 inTextureHandle;
+layout(location = 5) in int inTextureSlot;
 layout(location = 6) in vec4 inTextureCoordinate;
 layout(location = 7) in float inShadowBlur;
 
@@ -14,7 +14,7 @@ out vec2 vRectCenterPx;
 out vec2 vRectHalfSizePx;
 out float vCornerRadiusPx;
 out float vBorderThicknessPx;
-flat out uvec2 vTextureHandle;
+flat out int vTextureSlot;
 out vec2 vTextureCoordinate;
 out float vShadowBlur;
 
@@ -51,7 +51,7 @@ void main()
 
     // pass per-instance data to fragment shader
     vColor = inColor;
-    vTextureHandle = inTextureHandle;
+    vTextureSlot = inTextureSlot;
     vShadowBlur = inShadowBlur;
 
     vRectHalfSizePx = abs(inBottomRight - inTopLeft) / 2;

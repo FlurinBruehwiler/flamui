@@ -47,7 +47,8 @@ public static class StaticFunctions
                             Color = command.RectCommand.Color.ToVec4(),
                             BorderWidth = command.RectCommand.BorderWidth.Multiply(currentMatrix),
                             CornerRadius = command.RectCommand.Radius.Multiply(currentMatrix),
-                            ShadowBlur = command.RectCommand.ShadowBlur
+                            ShadowBlur = command.RectCommand.ShadowBlur,
+                            TextureSlot = -1
                         });
                         break;
                     case CommandType.Matrix:
@@ -104,7 +105,7 @@ public static class StaticFunctions
                                 BorderWidth = 0,
                                 CornerRadius = 0,
                                 TextureCoordinate = new Vector4(uvXOffset, uvYOffset, uvWidth, uvHeight),
-                                TextureHandle = fontAtlas.GpuTexture.TextureHandle
+                                TextureSlot = fontAtlas.GpuTexture.TextureSlot
                             });
 
                             xCoord += glyphInfo.AdvanceWidth;
@@ -132,7 +133,7 @@ public static class StaticFunctions
                             BorderWidth = 0,
                             CornerRadius = 0,
                             TextureCoordinate = new Vector4(entryBounds.X, entryBounds.Y, entryBounds.W, entryBounds.H),
-                            TextureHandle = renderer.VgAtlas.GpuTexture.TextureHandle
+                            TextureSlot = renderer.VgAtlas.GpuTexture.TextureSlot
                         });
                         break;
                     }

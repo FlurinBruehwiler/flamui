@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using Flamui;
+﻿using Flamui;
 using Sample.LayoutTest;
 
 /*
@@ -66,7 +65,7 @@ using Sample.LayoutTest;
  * so we can determine if we should also have a similar system.
  */
 
-//todo remove bindless textures, so that we can use renderdoc again
+//todo remove bindless textures, so that we can use renderdoc again, replace with sparse texture arrays
 //todo fix blur
 
 //rewrite so that border/corners are sdf based https://iquilezles.org/articles/distfunctions2d/
@@ -81,7 +80,6 @@ using Sample.LayoutTest;
 //mesa: https://github.com/mmozeiko/build-mesa/releases
 
 var windowHost = new FlamuiWindowHost();
-
 
 windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
 

@@ -8,7 +8,7 @@ in vec2 vRectCenterPx;
 in vec2 vRectHalfSizePx;
 in float vCornerRadiusPx;
 in float vBorderThicknessPx;
-flat in uvec2 vTextureHandle;
+flat in int vTextureSlot;
 in vec2 vTextureCoordinate;
 in float vShadowBlur;
 
@@ -17,7 +17,7 @@ out vec4 out_color;
 
 layout(origin_upper_left) in vec4 gl_FragCoord;
 
-
+uniform sampler2D uTextures[10];
 
 uniform vec2 uViewportSize;
 
@@ -67,9 +67,9 @@ void main()
 
     out_color = vColor;
 
-    if(vTextureHandle.x != 0 || vTextureHandle.y != 0)
+    if(vTextureSlot != -1)
     {
-        out_color *= texture(sampler2D(vTextureHandle), vTextureCoordinate);
+        out_color *= texture(uTextures[int(vTextureSlot)], vTextureCoordinate);
         //out_color = vec4(1.0, 0.0, 0.0, 1.0);
     }
 

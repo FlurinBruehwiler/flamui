@@ -4,10 +4,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Flamui.PerfTrace;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using Silk.NET.OpenGL.Extensions.ARB;
 using Silk.NET.Windowing;
 
 namespace Flamui.Drawing;
@@ -31,7 +29,8 @@ public struct GpuTexture
 {
     public required GL Gl { get; init; }
     public required uint TextureId { get; init; }
-    public required ulong TextureHandle { get; init; }
+    // public required ulong TextureHandle { get; init; }
+    public required int TextureSlot; // the index that can be used to access the texture;
 }
 
 public struct NewRenderer
@@ -39,10 +38,9 @@ public struct NewRenderer
     public uint Program;
     public int Transform;
     public int ViewportSize;
+    public int[] TextureSlotUniformLocations;
 
     public uint VAO;
-
-
     public uint Buffer;
 }
 
@@ -68,7 +66,7 @@ public sealed class Renderer
     public IWindow Window;
 
     public BlurProgram BlurProgram;
-    public NewRenderer NewRenderer;
+    public NewRenderer MainProgram;
 
 
     private Dictionary<ScaledFont, FontAtlas> _fontAtlasMap = [];
@@ -164,21 +162,26 @@ public sealed class Renderer
         uint main2_vertexShader = CompileShader(Shader.main_vertex, ShaderType.VertexShader);
         uint main2_fragmentShader = CompileShader(Shader.main_fragment, ShaderType.FragmentShader);
 
-        NewRenderer.Program = CreateProgram(main2_vertexShader, main2_fragmentShader);
-        NewRenderer.Transform = Gl.GetUniformLocation(NewRenderer.Program, "transform");
-        NewRenderer.ViewportSize = Gl.GetUniformLocation(NewRenderer.Program, "uViewportSize");
+        MainProgram.Program = CreateProgram(main2_vertexShader, main2_fragmentShader);
+        MainProgram.Transform = Gl.GetUniformLocation(MainProgram.Program, "transform");
+        MainProgram.ViewportSize = Gl.GetUniformLocation(MainProgram.Program, "uViewportSize");
+        MainProgram.TextureSlotUniformLocations = new int[10];
+        for (var i = 0; i < MainProgram.TextureSlotUniformLocations.Length; i++)
+        {
+            MainProgram.TextureSlotUniformLocations[i] = Gl.GetUniformLocation(MainProgram.Program, $"uTextures[{i}]");
+        }
 
         CheckError();
 
 
         unsafe {
-            Gl.UseProgram(NewRenderer.Program);
+            Gl.UseProgram(MainProgram.Program);
 
-            NewRenderer.VAO = Gl.GenVertexArray();
-            Gl.BindVertexArray(NewRenderer.VAO);
+            MainProgram.VAO = Gl.GenVertexArray();
+            Gl.BindVertexArray(MainProgram.VAO);
 
-            NewRenderer.Buffer = Gl.GenBuffer();
-            Gl.BindBuffer(GLEnum.ArrayBuffer, NewRenderer.Buffer);
+            MainProgram.Buffer = Gl.GenBuffer();
+            Gl.BindBuffer(GLEnum.ArrayBuffer, MainProgram.Buffer);
 
             uint stride = (uint)sizeof(RectInfo);
             var fields = GlCanvas2.GetFields<RectInfo>();
@@ -328,18 +331,29 @@ public sealed class Renderer
 
         CheckError();
 
-        var arbBindlessTexture = new ArbBindlessTexture(Gl.Context);
-        var handle = arbBindlessTexture.GetTextureHandle(textureId);
-        arbBindlessTexture.MakeTextureHandleResident(handle);
-
-        CheckError();
-
         return new GpuTexture
         {
             TextureId = textureId,
             Gl = Gl,
-            TextureHandle = handle
+            TextureSlot = StoreTextureInSlot(textureId),
         };
+    }
+
+    private int textureSlot = 0;
+
+    public int StoreTextureInSlot(uint textureId)
+    {
+        if (textureSlot >= 9)
+            throw new Exception("wooow, too many textures!!!!");
+
+        Gl.ActiveTexture(IntToTextureUnit(0));
+        Gl.BindTexture(GLEnum.Texture2D, textureId);
+        Gl.Uniform1(MainProgram.TextureSlotUniformLocations[textureSlot], textureSlot);
+
+        var slot = textureSlot;
+
+        textureSlot++;
+        return slot;
     }
 
     private TextureUnit IntToTextureUnit(int i)
@@ -385,7 +399,7 @@ public sealed class Renderer
         {
             Gl = Gl,
             TextureId = blurRenderTexture.textureId,
-            TextureHandle = 0
+            TextureSlot = StoreTextureInSlot(blurRenderTexture.textureId)
         };
     }
 
