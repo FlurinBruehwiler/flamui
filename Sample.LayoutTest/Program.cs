@@ -34,6 +34,7 @@ using Sample.LayoutTest;
  *   OpenGL on the CPU (Mesa, for example github.com/mmozeiko/build-mesa/releases), or use a library like TinySkia or full on Skia
  * - implement error boundaries, so that when something in Build or Layout crashes, the program keeps on running until
  *   the next hot reload, this should lead to much faster iteration, which is important for swiss skills
+ * - implement support for large scrollable lists
 
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
@@ -64,6 +65,15 @@ using Sample.LayoutTest;
  * But Pangui has this interesting concept of a Snapshot, it may be worth looking into it and trying to understand it,
  * so we can determine if we should also have a similar system.
  */
+
+/*
+ * Idea for SwissSkills:
+ * - Write the DataModel (plain classes)
+ * - Create some test data via c#
+ * - Start flamui and create the entire ui via hot reloading
+ * - implement business logic
+ */
+
 
 //todo remove bindless textures, so that we can use renderdoc again, replace with sparse texture arrays
 //todo fix blur

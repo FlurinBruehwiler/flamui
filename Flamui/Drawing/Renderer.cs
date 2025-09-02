@@ -30,15 +30,16 @@ public struct GpuTexture
     public required GL Gl { get; init; }
     public required uint TextureId { get; init; }
     // public required ulong TextureHandle { get; init; }
-    public required int TextureSlot; // the index that can be used to access the texture;
+    public required int TextureSlot; //todo super bad system right now, needs tobe fixed
 }
 
 public struct NewRenderer
 {
     public uint Program;
-    public int Transform;
-    public int ViewportSize;
-    public int[] TextureSlotUniformLocations;
+    public int U_Transform;
+    public int U_ViewportSize;
+    public int U_GlyphAtlasTexture;
+    public int U_IconAtlasTexture;
 
     public uint VAO;
     public uint Buffer;
@@ -69,33 +70,10 @@ public sealed class Renderer
     public NewRenderer MainProgram;
 
 
-    private Dictionary<ScaledFont, FontAtlas> _fontAtlasMap = [];
+    public FontAtlas FontAtlas;
 
 
-    public VgAtlas? VgAtlas;
-
-    public unsafe FontAtlas GetFontAtlas(ScaledFont scaledFont)
-    {
-        if (_fontAtlasMap.TryGetValue(scaledFont, out var atlas))
-            return atlas;
-
-        atlas = FontLoader.CreateFontAtlas(scaledFont);
-        _fontAtlasMap.Add(scaledFont, atlas);
-        var content = new byte[atlas.AtlasWidth * atlas.AtlasHeight];
-        fixed (byte* c = content)
-        {
-            var bitmap = new Bitmap
-            {
-                Data = new Slice<byte>(c, content.Length),
-                Width = atlas.AtlasWidth,
-                Height = atlas.AtlasHeight,
-                BitmapFormat = BitmapFormat.A
-            };
-            atlas.GpuTexture = UploadTexture(bitmap);
-        }
-
-        return atlas;
-    }
+    public VgAtlas VgAtlas;
 
     private Dictionary<Shader, string> _shaderStrings = [];
 
@@ -163,13 +141,10 @@ public sealed class Renderer
         uint main2_fragmentShader = CompileShader(Shader.main_fragment, ShaderType.FragmentShader);
 
         MainProgram.Program = CreateProgram(main2_vertexShader, main2_fragmentShader);
-        MainProgram.Transform = Gl.GetUniformLocation(MainProgram.Program, "transform");
-        MainProgram.ViewportSize = Gl.GetUniformLocation(MainProgram.Program, "uViewportSize");
-        MainProgram.TextureSlotUniformLocations = new int[10];
-        for (var i = 0; i < MainProgram.TextureSlotUniformLocations.Length; i++)
-        {
-            MainProgram.TextureSlotUniformLocations[i] = Gl.GetUniformLocation(MainProgram.Program, $"uTextures[{i}]");
-        }
+        MainProgram.U_Transform = Gl.GetUniformLocation(MainProgram.Program, "transform");
+        MainProgram.U_ViewportSize = Gl.GetUniformLocation(MainProgram.Program, "uViewportSize");
+        MainProgram.U_GlyphAtlasTexture = Gl.GetUniformLocation(MainProgram.Program, "uGlyphAtlasTexture");
+        MainProgram.U_IconAtlasTexture = Gl.GetUniformLocation(MainProgram.Program, "uIconAtlasTexture");
 
         CheckError();
 
@@ -224,6 +199,25 @@ public sealed class Renderer
         CheckError();
 
         Gl.Enable(EnableCap.StencilTest);
+
+        VgAtlas = new VgAtlas(this);
+
+        FontAtlas = FontLoader.CreateFontAtlas();
+        var content = new byte[FontAtlas.AtlasWidth * FontAtlas.AtlasHeight];
+        unsafe
+        {
+            fixed (byte* c = content)
+            {
+                var bitmap = new Bitmap
+                {
+                    Data = new Slice<byte>(c, content.Length),
+                    Width = FontAtlas.AtlasWidth,
+                    Height = FontAtlas.AtlasHeight,
+                    BitmapFormat = BitmapFormat.A
+                };
+                FontAtlas.GpuTexture = UploadTexture(bitmap, 0);
+            }
+        }
     }
 
     public RenderTexture mainRenderTexture;
@@ -237,6 +231,13 @@ public sealed class Renderer
         mainRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
         blurRenderTextureTemp.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
         blurRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
+
+        Gl.UseProgram(MainProgram.Program);
+        Gl.ActiveTexture(GLEnum.Texture0 + 0);
+        Gl.BindTexture(TextureTarget.Texture2D, FontAtlas.GpuTexture.TextureId);
+
+        Gl.ActiveTexture(GLEnum.Texture0 + 1);
+        Gl.BindTexture(TextureTarget.Texture2D, VgAtlas.GpuTexture.TextureId);
 
         Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
 
@@ -253,9 +254,19 @@ public sealed class Renderer
         Gl.Disable(EnableCap.ScissorTest);
     }
 
-    private void CheckError([CallerLineNumber] int line = 0)
+    public void CheckError([CallerLineNumber] int line = 0)
     {
         var err = Gl.GetError();
+        if (err != GLEnum.NoError)
+        {
+            Console.WriteLine($"{err} at Line {line}");
+            throw new Exception("wom pwomp");
+        }
+    }
+
+    public static void CheckError2(GL gl, [CallerLineNumber] int line = 0)
+    {
+        var err = gl.GetError();
         if (err != GLEnum.NoError)
         {
             Console.WriteLine($"{err} at Line {line}");
@@ -284,7 +295,7 @@ public sealed class Renderer
         return program;
     }
 
-    public unsafe GpuTexture UploadTexture(Bitmap bitmap)
+    public unsafe GpuTexture UploadTexture(Bitmap bitmap, int textureSlot)
     {
         CheckError();
 
@@ -292,7 +303,21 @@ public sealed class Renderer
 
         CheckError();
 
+        Gl.UseProgram(MainProgram.Program);
+        Gl.ActiveTexture(GLEnum.Texture0 + textureSlot);
         Gl.BindTexture(TextureTarget.Texture2D, textureId);
+        if (textureSlot == 0)
+        {
+            Gl.Uniform1(MainProgram.U_GlyphAtlasTexture, textureSlot);
+        }
+        else if (textureSlot == 1)
+        {
+            Gl.Uniform1(MainProgram.U_IconAtlasTexture, textureSlot);
+        }
+        else
+        {
+            throw new Exception("Invalid texture slot");
+        }
 
         CheckError();
 
@@ -335,46 +360,9 @@ public sealed class Renderer
         {
             TextureId = textureId,
             Gl = Gl,
-            TextureSlot = StoreTextureInSlot(textureId),
+            TextureSlot = textureSlot,
         };
     }
-
-    private int textureSlot = 0;
-
-    public int StoreTextureInSlot(uint textureId)
-    {
-        if (textureSlot >= 9)
-            throw new Exception("wooow, too many textures!!!!");
-
-        Gl.ActiveTexture(IntToTextureUnit(0));
-        Gl.BindTexture(GLEnum.Texture2D, textureId);
-        Gl.Uniform1(MainProgram.TextureSlotUniformLocations[textureSlot], textureSlot);
-
-        var slot = textureSlot;
-
-        textureSlot++;
-        return slot;
-    }
-
-    private TextureUnit IntToTextureUnit(int i)
-    {
-        return i switch
-        {
-            0 => TextureUnit.Texture0,
-            1 => TextureUnit.Texture1,
-            2 => TextureUnit.Texture2,
-            3 => TextureUnit.Texture3,
-            4 => TextureUnit.Texture4,
-            5 => TextureUnit.Texture5,
-            6 => TextureUnit.Texture6,
-            7 => TextureUnit.Texture7,
-            8 => TextureUnit.Texture8,
-            9 => TextureUnit.Texture9,
-            _ => throw new Exception("invalid texture slot")
-        };
-    }
-
-    public static float _blurKernelSize = 10;
 
     public void DisplayRenderTextureOnScreen(RenderTexture source)
     {
@@ -399,7 +387,7 @@ public sealed class Renderer
         {
             Gl = Gl,
             TextureId = blurRenderTexture.textureId,
-            TextureSlot = StoreTextureInSlot(blurRenderTexture.textureId)
+            TextureSlot = 0
         };
     }
 
@@ -467,7 +455,7 @@ public sealed class Renderer
         Gl.BindVertexArray(BlurProgram.VAO);
         Gl.UseProgram(BlurProgram.Program);
 
-        Gl.ActiveTexture(GLEnum.Texture0);
+        Gl.ActiveTexture(TextureUnit.Texture0);
         Gl.BindTexture(TextureTarget.Texture2D, source.textureId);
         Gl.Uniform1(BlurProgram.Texture, 0);
 

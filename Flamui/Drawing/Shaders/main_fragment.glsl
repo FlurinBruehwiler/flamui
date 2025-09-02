@@ -17,7 +17,8 @@ out vec4 out_color;
 
 layout(origin_upper_left) in vec4 gl_FragCoord;
 
-uniform sampler2D uTextures[10];
+uniform sampler2D uGlyphAtlasTexture;
+uniform sampler2D uIconAtlasTexture;
 
 uniform vec2 uViewportSize;
 
@@ -69,8 +70,14 @@ void main()
 
     if(vTextureSlot != -1)
     {
-        out_color *= texture(uTextures[int(vTextureSlot)], vTextureCoordinate);
-        //out_color = vec4(1.0, 0.0, 0.0, 1.0);
+        if(vTextureSlot == 0)
+        {
+            out_color *= texture(uGlyphAtlasTexture, vTextureCoordinate);
+        }
+        else if(vTextureSlot == 1)
+        {
+            out_color *= texture(uIconAtlasTexture, vTextureCoordinate);
+        }
     }
 
     out_color.a *= shadow_sdf;

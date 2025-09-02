@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Silk.NET.OpenGL;
 using StbTrueTypeSharp;
@@ -15,7 +16,7 @@ public struct GlyphBoundingBox
     public int y1;
 }
 
-public struct ScaledFont
+public struct ScaledFont : IEquatable<ScaledFont>
 {
     public Font Font;
     public float PixelSize;
@@ -27,12 +28,13 @@ public struct ScaledFont
 
     public ScaledFont(Font font, float pixelSize)
     {
+        if (font == null)
+            throw new Exception();
+
         Font = font;
         PixelSize = pixelSize;
         Scale = Font.GetScale(pixelSize);
     }
-
-
 
     public float GetAdvanceWith(char c)
     {
@@ -43,7 +45,17 @@ public struct ScaledFont
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Font.GetHashCode(), PixelSize.GetHashCode());
+        return HashCode.Combine(Font?.GetHashCode() ?? 0, PixelSize.GetHashCode());
+    }
+
+    public bool Equals(ScaledFont other)
+    {
+        return Font == other.Font && PixelSize.Equals(other.PixelSize);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is ScaledFont other && Equals(other);
     }
 }
 
@@ -91,13 +103,14 @@ public sealed class Font
 
 public record struct GlyphCacheHash
 {
-    public char Character;
-    public float ResolutionMultiplier;
+    public required char Character;
+    public required float ResolutionMultiplier;
+    public required ScaledFont ScaledFont;
 }
 
 public sealed class FontAtlas
 {
-    public required ScaledFont Font;
+    // public required ScaledFont Font;
     public required uint AtlasWidth;
     public required uint AtlasHeight;
 
@@ -112,9 +125,11 @@ public sealed class FontAtlas
         GlyphTempMemory = Marshal.AllocHGlobal(100 * 100);
     }
 
-    public unsafe AtlasGlyphInfo FindGlyphEntry(char c, float resolutionMultiplier)
+    public unsafe AtlasGlyphInfo FindGlyphEntry(ScaledFont font, char c, float resolutionMultiplier)
     {
-        var hash = new GlyphCacheHash { Character = c, ResolutionMultiplier = resolutionMultiplier };
+        Unsafe.InitBlock((void*)GlyphTempMemory, 0, 100 * 100);
+
+        var hash = new GlyphCacheHash { Character = c, ResolutionMultiplier = resolutionMultiplier, ScaledFont = font };
 
         if (Table.TryGet(hash, out var entry))
         {
@@ -128,19 +143,49 @@ public sealed class FontAtlas
         int ix1 = 0;
         int iy1 = 0;
 
-        var scale = Font.Scale * resolutionMultiplier;
-        StbTrueType.stbtt_GetCodepointBitmapBox(Font.Font.FontInfo, c, scale, scale, &ix0, &iy0, &ix1, &iy1);
-        StbTrueType.stbtt_MakeCodepointBitmap(Font.Font.FontInfo, (byte*)GlyphTempMemory, 100, 100, 100, scale, scale, c);
+        var scale = font.Scale * resolutionMultiplier;
+        StbTrueType.stbtt_GetCodepointBitmapBox(font.Font.FontInfo, c, scale, scale, &ix0, &iy0, &ix1, &iy1);
+        StbTrueType.stbtt_MakeCodepointBitmap(font.Font.FontInfo, (byte*)GlyphTempMemory, 100, 100, 100, scale, scale, c);
 
         int width = ix1 - ix0;
         int height = iy1 - iy0;
         int xOff = ix0;
         int yOff = iy0;
 
+        // if (c == 't')
+        // {
+        //     Console.WriteLine($"Dumping {c}");
+        //     var span = new Span<byte>((void*)GlyphTempMemory, 100 * 100);
+        //     for (int i = 0; i < 100; i++)
+        //     {
+        //         for (int j = 0; j < 100; j++)
+        //         {
+        //             Console.Write(span[i * 100 + j] == 0 ? '0' : '1');
+        //         }
+        //
+        //         Console.WriteLine();
+        //     }
+        // }
+
+
+        // Span<byte> tempBuffer = stackalloc byte[100];
+        // var s = new Span<byte>((void*)GlyphTempMemory, 100 * 100);
+        //
+        // for (int i = 0; i < 50; i++)
+        // {
+        //     var slice1 = s.Slice(i * 100, 100);
+        //     var slice2 = s.Slice((100 - i - 1) * 100, 100);
+        //     slice1.CopyTo(tempBuffer);
+        //     slice2.CopyTo(slice1);
+        //     tempBuffer.CopyTo(slice2);
+        // }
+
         //patch texture
         GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
         GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
         GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, 100, 100, PixelFormat.Red, PixelType.UnsignedByte, (void*)GlyphTempMemory);
+
+        Renderer.CheckError2(GpuTexture.Gl);
 
         var info = new AtlasGlyphInfo
         {
@@ -154,8 +199,8 @@ public sealed class FontAtlas
             AtlasWidth = width,
             AtlasHeight = height,
             // GlyphBoundingBox = bb,
-            FontGlyphInfo = Font.Font.GetGlyphInfo(c),
-            Scale = Font.Scale
+            FontGlyphInfo = font.Font.GetGlyphInfo(c),
+            Scale = font.Scale
         };
 
         Table.Add(hash, info);
@@ -238,7 +283,7 @@ public sealed class FontLoader
         return ms.ToArray();
     }
 
-    public static FontAtlas CreateFontAtlas(ScaledFont scaledFont)
+    public static FontAtlas CreateFontAtlas()
     {
         var table = new LRUCache<GlyphCacheHash, AtlasGlyphInfo>(10*10);
 
@@ -248,7 +293,12 @@ public sealed class FontLoader
         {
             for (int j = 0; j < 10; j++)
             {
-                table.Add(new GlyphCacheHash{ Character = (char)(i * 10 + j), ResolutionMultiplier = i * j}, default(AtlasGlyphInfo) with
+                table.Add(new GlyphCacheHash
+                {
+                    Character = (char)(i * 10 + j),
+                    ResolutionMultiplier = i * j,
+                    ScaledFont = default
+                }, default(AtlasGlyphInfo) with
                 {
                     AtlasX = i * 100,
                     AtlasY = j * 100,
@@ -261,7 +311,6 @@ public sealed class FontLoader
 
         return new FontAtlas
         {
-            Font = scaledFont,
             // AtlasBitmap = fontAtlasBitmapData,
             AtlasWidth = 1024,
             AtlasHeight = 1024,

@@ -3,7 +3,6 @@ using Flamui.Drawing;
 using Flamui.Layouting;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using Silk.NET.Windowing;
 
 namespace Flamui;
 
@@ -79,21 +78,25 @@ public static class StaticFunctions
                     {
                         var resolutionMultiplier = new Vector2(1, 1).Multiply(currentMatrix.GetScale()).Y;
 
-                        var fontAtlas = renderer.GetFontAtlas(new ScaledFont(command.TextCommand.Font.Get()!, command.TextCommand.FontSize));
+                        var fontAtlas = renderer.FontAtlas;
 
                         var xCoord = command.TextCommand.Bounds.X;
 
+                        var font = new ScaledFont(command.TextCommand.Font.Get()!, command.TextCommand.FontSize);
+
                         foreach (var c in command.TextCommand.String.AsSpan())
                         {
-                            var glyphInfo = fontAtlas.FindGlyphEntry(c, resolutionMultiplier);
+                            var glyphInfo = fontAtlas.FindGlyphEntry(font, c, resolutionMultiplier);
 
                             float x = xCoord + glyphInfo.LeftSideBearing;
-                            float y = command.TextCommand.Bounds.Y + fontAtlas.Font.Ascent + glyphInfo.YOff;
+                            float y = command.TextCommand.Bounds.Y + font.Ascent + glyphInfo.YOff;
+
+                            //ok, i think know what the issue is now, there are multiple texture atlases apparently, and they get confused
 
                             // Console.WriteLine($"{c}: {fontAtlas.Font.Ascent}: {glyphInfo.YOff}, {glyphInfo.AtlasHeight}, {glyphInfo.Height}");
                             // DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture, xCoord + glyphInfo.LeftSideBearing, command.TextCommand.Bounds.Y + fontAtlas.Font.Ascent + glyphInfo.YOff);
                             var uvXOffset = (1 / (float)fontAtlas.AtlasWidth) * glyphInfo.AtlasX;
-                            var uvYOffset = (1 / (float)fontAtlas.AtlasHeight) * glyphInfo.AtlasY;
+                            var uvYOffset = (1 / (float)fontAtlas.AtlasHeight) * (glyphInfo.AtlasY);// + (100 - glyphInfo.AtlasHeight));
                             var uvWidth = (1 / (float)fontAtlas.AtlasWidth) * glyphInfo.AtlasWidth;
                             var uvHeight = (1 / (float)fontAtlas.AtlasHeight) * glyphInfo.AtlasHeight;
 
@@ -115,8 +118,6 @@ public static class StaticFunctions
                     }
                     case CommandType.TinyVG:
                     {
-                        renderer.VgAtlas ??= new VgAtlas(renderer);
-
                         var bounds = command.TinyVGCommand.Bounds;
 
                         var resolutionMultiplier = new Vector2(1, 1).Multiply(currentMatrix.GetScale()).Y;

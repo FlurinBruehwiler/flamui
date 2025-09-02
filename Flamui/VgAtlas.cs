@@ -35,7 +35,7 @@ public sealed class VgAtlas
                 Height = 1000,
                 BitmapFormat = BitmapFormat.RGBA
             };
-            GpuTexture = renderer.UploadTexture(bitmap);
+            GpuTexture = renderer.UploadTexture(bitmap, 1);
         }
 
         Table = new LRUCache<AtlasEntryKey, AtlasEntry>(10*10);
@@ -51,7 +51,6 @@ public sealed class VgAtlas
                 });
             }
         }
-
 
         tempBitmap = new Bitmap
         {
