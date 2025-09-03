@@ -40,6 +40,7 @@ public struct NewRenderer
     public int U_ViewportSize;
     public int U_GlyphAtlasTexture;
     public int U_IconAtlasTexture;
+    public int U_BlurTexture;
 
     public uint VAO;
     public uint Buffer;
@@ -145,6 +146,7 @@ public sealed class Renderer
         MainProgram.U_ViewportSize = Gl.GetUniformLocation(MainProgram.Program, "uViewportSize");
         MainProgram.U_GlyphAtlasTexture = Gl.GetUniformLocation(MainProgram.Program, "uGlyphAtlasTexture");
         MainProgram.U_IconAtlasTexture = Gl.GetUniformLocation(MainProgram.Program, "uIconAtlasTexture");
+        MainProgram.U_BlurTexture = Gl.GetUniformLocation(MainProgram.Program, "uBlurTexture");
 
         CheckError();
 
@@ -232,6 +234,16 @@ public sealed class Renderer
         blurRenderTextureTemp.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
         blurRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
 
+        Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
+        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+
+        Gl.Viewport(Window.Size);
+
+       PrepareMainProgram();
+    }
+
+    public void PrepareMainProgram()
+    {
         Gl.UseProgram(MainProgram.Program);
         Gl.ActiveTexture(GLEnum.Texture0 + 0);
         Gl.BindTexture(TextureTarget.Texture2D, FontAtlas.GpuTexture.TextureId);
@@ -240,12 +252,6 @@ public sealed class Renderer
         Gl.BindTexture(TextureTarget.Texture2D, VgAtlas.GpuTexture.TextureId);
 
         Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
-
-        Gl.Viewport(Window.Size);
-
-        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
-        Gl.StencilMask(0xFF);
-        Gl.StencilFunc(StencilFunction.Always, 1, 0xFF);
 
         // _renderer.Gl.Enable(EnableCap.FramebufferSrgb);
         Gl.Enable(EnableCap.Blend);
@@ -381,17 +387,23 @@ public sealed class Renderer
 
         Gl.Flush();
 
-        Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
+        const int textureSlot = 2;
+        Gl.UseProgram(MainProgram.Program);
+        Gl.ActiveTexture(GLEnum.Texture0 + textureSlot);
+        Gl.BindTexture(TextureTarget.Texture2D, blurRenderTexture.textureId);
+        Gl.Uniform1(MainProgram.U_BlurTexture, textureSlot);
+
+        PrepareMainProgram();
 
         return new GpuTexture
         {
             Gl = Gl,
             TextureId = blurRenderTexture.textureId,
-            TextureSlot = 0
+            TextureSlot = textureSlot
         };
     }
 
-    public unsafe void FullScreenBlur(float blurSize, Vector2 direction, RenderTexture source, RenderTexture? target)
+    public unsafe void FullScreenBlur(float blurSize, Vector2 direction, RenderTexture source, RenderTexture target)
     {
         Gl.Flush();
         Gl.Disable(EnableCap.StencilTest);
@@ -479,14 +491,7 @@ public sealed class Renderer
         Gl.EnableVertexAttribArray(textureVecLoc);
         Gl.VertexAttribPointer(textureVecLoc, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-        if (target == null)
-        {
-            Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        }
-        else
-        {
-            Gl.BindFramebuffer(GLEnum.Framebuffer, target.FramebufferName);
-        }
+        Gl.BindFramebuffer(GLEnum.Framebuffer, target.FramebufferName);
 
         Gl.BindVertexArray(BlurProgram.VAO);
         Gl.UseProgram(BlurProgram.Program);

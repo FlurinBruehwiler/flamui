@@ -39,16 +39,34 @@ public static class StaticFunctions
                 switch (command.Type)
                 {
                     case CommandType.Rect:
-                        arenaList.Add(new RectInfo
+                        var topLeft = command.RectCommand.Bounds.TopLeft().Multiply(currentMatrix);
+                        var bottomRight = command.RectCommand.Bounds.BottomRight().Multiply(currentMatrix);
+
+                        var info = new RectInfo
                         {
-                            TopLeft = command.RectCommand.Bounds.TopLeft().Multiply(currentMatrix),
-                            BottomRight = command.RectCommand.Bounds.BottomRight().Multiply(currentMatrix),
+                            TopLeft = topLeft,
+                            BottomRight = bottomRight,
                             Color = command.RectCommand.Color.ToVec4(),
                             BorderWidth = command.RectCommand.BorderWidth.Multiply(currentMatrix),
                             CornerRadius = command.RectCommand.Radius.Multiply(currentMatrix),
                             ShadowBlur = command.RectCommand.ShadowBlur,
                             TextureSlot = -1
-                        });
+                        };
+
+                        if (command.RectCommand.BlurRadius != 0)
+                        {
+                            GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                            arenaList.Clear();
+                            info.Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+                            info.TextureSlot = renderer.ProduceBlurTexture(command.RectCommand.BlurRadius).TextureSlot;
+                            info.TextureCoordinate = new Vector4(topLeft.X / renderer.Window.Size.X,
+                                ((topLeft.Y + (bottomRight.Y - topLeft.Y)) / renderer.Window.Size.Y),
+                                (bottomRight.X - topLeft.X) / renderer.Window.Size.X,
+                                -(bottomRight.Y - topLeft.Y) / renderer.Window.Size.Y
+                            ) ;
+                        }
+
+                        arenaList.Add(info);
                         break;
                     case CommandType.Matrix:
                         currentMatrix = command.MatrixCommand.Matrix;

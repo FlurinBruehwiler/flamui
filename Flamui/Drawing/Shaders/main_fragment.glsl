@@ -2,7 +2,6 @@
 #version 450 core
 #extension GL_ARB_bindless_texture : enable
 
-
 in vec4 vColor;
 in vec2 vRectCenterPx;
 in vec2 vRectHalfSizePx;
@@ -19,6 +18,7 @@ layout(origin_upper_left) in vec4 gl_FragCoord;
 
 uniform sampler2D uGlyphAtlasTexture;
 uniform sampler2D uIconAtlasTexture;
+uniform sampler2D uBlurTexture;
 
 uniform vec2 uViewportSize;
 
@@ -77,6 +77,10 @@ void main()
         else if(vTextureSlot == 1)
         {
             out_color *= texture(uIconAtlasTexture, vTextureCoordinate);
+        }
+        else if(vTextureSlot == 2)
+        {
+                out_color *= texture(uBlurTexture, vTextureCoordinate);
         }
     }
 
