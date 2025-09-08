@@ -78,7 +78,7 @@ public static class TestComponent
                 {
                     using (ui.Rect().Width(100).Height(100).Color(C.Green6).Border(10, C.Black))
                     {
-
+                        ui.SvgImage("incomplete_circle").Height(100);
                     }
                     using (ui.Rect().Width(10).Height(100).Color(C.Blue5))
                     {

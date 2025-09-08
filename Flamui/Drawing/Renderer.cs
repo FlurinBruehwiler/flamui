@@ -543,5 +543,6 @@ public sealed class Renderer
     }
 #if DEBUG
     public static string DebugRootDirectory = Path.Combine(Directory.GetParent(typeof(Renderer).Assembly.Location)!.FullName, "../../../");
+    public static string DebugSolutionDirectory = Path.Combine(Directory.GetParent(typeof(Renderer).Assembly.Location)!.FullName, "../../../../");
 #endif
 }

@@ -63,6 +63,23 @@ public sealed class VgAtlas
 
     public unsafe AtlasEntry GetAtlasEntry(int svgHash, Span<byte> vgData, uint width, uint height)
     {
+        if (width > 100 || height > 100)
+        {
+            //try to be as big as possible given the constraints
+            var svgRatio = (float)width / height;
+
+            if (1 > svgRatio) //Height is the limiting factor
+            {
+                width = (uint)(height * svgRatio);
+                height = 100;
+            }
+            else //Width is the limiting factor
+            {
+                width = 100;
+                height = (uint)(width / svgRatio);
+            }
+        }
+
         var hash = new AtlasEntryKey(svgHash, width, height);
         if (Table.TryGet(hash, out var entry))
         {

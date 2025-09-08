@@ -93,48 +93,14 @@ public sealed class UiSvg : UiElement
         {
             var tvgPath = Path.Combine(Directory.GetParent(typeof(UiSvg).Assembly.Location)!.FullName, "Icons/TVG", Info.Src.ToString() + ".tvg");
 
-            byte[] bytes = [];
+            byte[] bytes = MissingIcon.missingTVG;
             if (File.Exists(tvgPath))
             {
                 bytes = File.ReadAllBytes(tvgPath);
             }
             else
             {
-#if DEBUG
-                var svgPath = Path.Combine(Renderer.DebugRootDirectory, "Icons/SVG", Info.Src.ToString() + ".svg");
-
-                var tvgtPath = Path.Combine(Renderer.DebugRootDirectory, "Icons/SVG/temp.tvg");
-                var debugTvgPath = Path.Combine(Renderer.DebugRootDirectory, "Icons/TVG/", Info.Src.ToString() + ".tvg");
-
-                var svg2tvgProcess = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "svg2tvgt",
-                        Arguments = $"\"{svgPath}\" -o \"{tvgtPath}\"",
-                        CreateNoWindow = true
-                    }
-                };
-                svg2tvgProcess.Start();
-
-                var tvgTextProcess = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "tvg-text",
-                        Arguments = $"-O tvg \"{tvgtPath}\" -o \"{debugTvgPath}\"",
-                        CreateNoWindow = true
-                    }
-                };
-                tvgTextProcess.Start();
-
-                if (File.Exists(debugTvgPath))
-                {
-                    bytes = File.ReadAllBytes(debugTvgPath);
-                }
-#else
-                Console.WriteLine("Unable to find TVG ${Info.Src.ToString()}")
-#endif
+                Console.WriteLine($"Unable to find TVG {Info.Src.ToString()}");
             }
 
             var (width, height) = TinyVG.ParseHeader(bytes);
