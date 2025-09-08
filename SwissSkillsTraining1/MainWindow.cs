@@ -62,7 +62,7 @@ public static class MainWindow
                 {
                     ui.StyledInput(ref storeProduct.Name);
 
-                    if (ui.SquareButton("Icons/TVG/delete.tvg"))
+                    if (ui.SquareButton("delete"))
                     {
                         ui.RunAfterFrame(() => store.DeleteProduct(storeProduct));
                     }
@@ -80,7 +80,7 @@ public static class MainWindow
 
                     using (ui.Rect().Direction(Dir.Horizontal).ShrinkWidth().Gap(5).CrossAlign(XAlign.Center))
                     {
-                        if (ui.SquareButton("Icons/TVG/info.tvg"))
+                        if (ui.SquareButton("info"))
                         {
                             windowHost.CreateWindow($"Edit Criterion {criterion.Name}", ui2 => { ui2.GetObj<EditCriterion>().Build(ui2, criterion, store); }, new FlamuiWindowOptions
                             {
@@ -88,7 +88,7 @@ public static class MainWindow
                             });
                         }
 
-                        if (ui.SquareButton("Icons/TVG/delete.tvg"))
+                        if (ui.SquareButton("delete"))
                         {
                             ui.RunAfterFrame(() => store.DeleteCriteria(criterion));
                         }

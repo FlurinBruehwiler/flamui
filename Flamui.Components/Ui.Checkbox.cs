@@ -31,7 +31,7 @@ public static partial class UiExtensions
             {
                 div.Color(ColorPalette.AccentColor);
                 div.BorderWidth(0);
-                ui.SvgImage("Icons/TVG/check.tvg").Color(C.White);
+                ui.SvgImage("check").Color(C.White);
             }
         }
     }

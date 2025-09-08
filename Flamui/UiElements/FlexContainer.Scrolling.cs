@@ -22,6 +22,8 @@ public struct ScrollInputInfo
 
     public void Smooth(ref float scrollPos)
     {
+        scrollPos = TargetScrollPos;
+        return;
         if (ScrollDelay > 0)
         {
             scrollPos = Lerp(StartScrollPos, TargetScrollPos, 1 - ScrollDelay / smoothScrollDelay);
@@ -148,21 +150,24 @@ public sealed partial class FlexContainer
             return;
         }
 
+        //todo reimplement smooth scrolling that actually works:)
         if (dir == Dir.Horizontal)
         {
             if (IsHovered)
             {
-                ScrollInputInfoY.ApplyInput(ref scrollPos, wheelDelta);
+                scrollPos += wheelDelta * 65;
+                // ScrollInputInfoY.ApplyInput(ref scrollPos, wheelDelta);
             }
-            ScrollInputInfoY.Smooth(ref scrollPos);
+            // ScrollInputInfoY.Smooth(ref scrollPos);
         }
         if (dir == Dir.Vertical)
         {
             if (IsHovered)
             {
-                ScrollInputInfoX.ApplyInput(ref scrollPos, wheelDelta);
+                scrollPos += wheelDelta * 30;
+                // ScrollInputInfoX.ApplyInput(ref scrollPos, wheelDelta);
             }
-            ScrollInputInfoX.Smooth(ref scrollPos);
+            // ScrollInputInfoX.Smooth(ref scrollPos);
         }
 
         scrollPos = Math.Clamp(scrollPos, 0, ActualContentSize.GetDirection(dir) - Rect.GetDirection(dir));

@@ -83,8 +83,7 @@ public sealed class Renderer
         if (_shaderStrings.TryGetValue(shader, out var code))
             return code;
 
-        var asm = Assembly.GetExecutingAssembly();
-        using var stream = asm.GetManifestResourceStream($"Flamui.Drawing.Shaders.{shader.ToString()}.glsl");
+        using var stream = typeof(Renderer).Assembly.GetManifestResourceStream($"Flamui.Drawing.Shaders.{shader.ToString()}.glsl");
         using var reader = new StreamReader(stream!, Encoding.UTF8);
         code = reader.ReadToEnd();
         _shaderStrings[shader] = code;
@@ -312,7 +311,7 @@ public sealed class Renderer
         Gl.UseProgram(MainProgram.Program);
         Gl.ActiveTexture(GLEnum.Texture0 + textureSlot);
         Gl.BindTexture(TextureTarget.Texture2D, textureId);
-        if (textureSlot == 0)
+        if (textureSlot == 0) //stupid design, pls fix
         {
             Gl.Uniform1(MainProgram.U_GlyphAtlasTexture, textureSlot);
         }
@@ -524,7 +523,7 @@ public sealed class Renderer
     public void DebugShaderHotReload()
     {
 #if DEBUG
-        var shaderDirectory = Path.Combine(Directory.GetParent(typeof(Renderer).Assembly.Location)!.FullName, "../../../Drawing/Shaders");
+        var shaderDirectory = Path.Combine(DebugRootDirectory, "/Drawing/Shaders");
 
         var watcher = new FileSystemWatcher();
         watcher.Path = shaderDirectory;
@@ -542,4 +541,7 @@ public sealed class Renderer
 
 
     }
+#if DEBUG
+    public static string DebugRootDirectory = Path.Combine(Directory.GetParent(typeof(Renderer).Assembly.Location)!.FullName, "../../../");
+#endif
 }

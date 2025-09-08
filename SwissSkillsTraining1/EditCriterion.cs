@@ -102,7 +102,7 @@ public class EditCriterion
                                         ui.StyledInput(ref option.Points).WithValidation(InputValidation.IsFloat()).Invalidate(ref hasErrors);
                                     }
 
-                                    if (ui.SquareButton("Icons/TVG/delete.tvg"))
+                                    if (ui.SquareButton("delete"))
                                     {
                                         ui.RunAfterFrame(() => OrdinalOptions.Remove(option));
                                     }

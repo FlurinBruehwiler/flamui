@@ -36,6 +36,7 @@ using Sample.LayoutTest;
  *   the next hot reload, this should lead to much faster iteration, which is important for swiss skills
  * - implement support for large scrollable lists
  * - Add Back PNG/JPG Support
+ * - Improve TVG workflow
 
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:
@@ -74,10 +75,6 @@ using Sample.LayoutTest;
  * - Start flamui and create the entire ui via hot reloading
  * - implement business logic
  */
-
-
-//todo remove bindless textures, so that we can use renderdoc again, replace with sparse texture arrays
-//todo fix blur
 
 //rewrite so that border/corners are sdf based https://iquilezles.org/articles/distfunctions2d/
 //sdf info: https://github.com/elcritch/sdfy

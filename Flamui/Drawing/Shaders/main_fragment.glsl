@@ -80,11 +80,12 @@ void main()
         }
         else if(vTextureSlot == 2)
         {
-                out_color *= texture(uBlurTexture, vTextureCoordinate);
+            out_color *= texture(uBlurTexture, vTextureCoordinate);
         }
     }
 
-    out_color.a *= shadow_sdf;
+
+out_color.a *= shadow_sdf;
     out_color.a *= corner_sdf;
     out_color.a *= border_sdf;
 }

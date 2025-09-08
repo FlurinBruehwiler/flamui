@@ -40,26 +40,6 @@ public struct TinyvgBitmap
 
 public static class TinyVG
 {
-    public static unsafe TinyvgError tinyvg_render_svg(
-        byte[] tvgData,
-        nint tvgLength,
-        ref TinyvgOutStream target
-    )
-    {
-        if (OperatingSystem.IsLinux())
-        {
-            return LinuxNative.tinyvg_render_svg(tvgData, tvgLength, ref target);
-        }
-        else if (OperatingSystem.IsWindows())
-        {
-            return WindowsNative.tinyvg_render_svg(tvgData, tvgLength, ref target);
-        }
-        else
-        {
-            throw new NotImplementedException("Open an Issue on the github and we may fix it (sometime next century)");
-        }
-    }
-
     public static unsafe TinyvgError tinyvg_render_bitmap(
         byte* tvgData,
         nint tvgLength,

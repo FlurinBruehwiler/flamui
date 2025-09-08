@@ -28,7 +28,7 @@ public sealed class DropDown<T>
 
             using (ui.Rect().Height(23).Width(23))
             {
-                ui.SvgImage("Icons/TVG/expand_more.tvg");
+                ui.SvgImage("expand_more");
             }
 
             if (_isExpanded)

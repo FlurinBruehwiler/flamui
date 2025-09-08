@@ -275,9 +275,7 @@ public sealed class FontLoader
             return File.ReadAllBytes(windowsFontLocation);
         }
 
-        var asm = Assembly.GetExecutingAssembly();
-
-        using var stream = asm.GetManifestResourceStream($"Flamui.Drawing.{fileName}");
+        using var stream = typeof(FontLoader).Assembly.GetManifestResourceStream($"Flamui.Drawing.{fileName}");
         using MemoryStream ms = new MemoryStream();
         stream!.CopyTo(ms);
         return ms.ToArray();
