@@ -156,6 +156,35 @@ public static class StaticFunctions
                         });
                         break;
                     }
+                    case CommandType.Picture:
+                        //separate drawcall...
+                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                        arenaList.Clear();
+
+                        var pictureCommand = command.PictureCommand;
+                        const int textureSlot = 2;
+
+                        if (!renderer.GpuImageCache.TryGetValue(pictureCommand.Bitmap, out var texture))
+                        {
+                            texture = renderer.UploadTexture(pictureCommand.Bitmap, textureSlot);
+                            renderer.GpuImageCache.Add(pictureCommand.Bitmap, texture);
+                        }
+
+                        renderer.Gl.ActiveTexture(GLEnum.Texture0 + textureSlot);
+                        renderer.Gl.BindTexture(TextureTarget.Texture2D, texture.TextureId);
+                        renderer.Gl.Uniform1(renderer.MainProgram.U_PictureTexture, textureSlot);
+
+                        renderer.CheckError();
+
+                        arenaList.Add(new RectInfo
+                        {
+                            TopLeft = pictureCommand.Bounds.TopLeft().Multiply(currentMatrix),
+                            BottomRight = pictureCommand.Bounds.BottomRight().Multiply(currentMatrix),
+                            TextureSlot = 3,
+                            TextureCoordinate = new Vector4(0, 0, 1.0f, 1.0f),
+                            Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+                        });
+                        break;
                 }
             }
         }

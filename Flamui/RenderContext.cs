@@ -62,6 +62,22 @@ public sealed class RenderContext
         Add(cmd);
     }
 
+    public void AddPicture(UiElement uiElement, Bounds bounds, Bitmap bitmap)
+    {
+        var cmd = new Command
+        {
+            Type = CommandType.Picture,
+            UiElementId = uiElement.Id,
+            PictureCommand = new PictureCommand
+            {
+                Bounds = bounds,
+                Bitmap = bitmap
+            }
+        };
+
+        Add(cmd);
+    }
+
     public void AddText(UiElement uiElement, Bounds bounds, ArenaString text, ColorDefinition color, ScaledFont scaledFont)
     {
         var cmd = new Command

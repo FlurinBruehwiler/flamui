@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using StbImageSharp;
 
 namespace Flamui;
 
@@ -14,8 +15,8 @@ public enum BitmapFormat
 
 public struct Bitmap
 {
-    public required uint Width;
-    public required uint Height;
+    public required int Width;
+    public required int Height;
     public required Slice<byte> Data;
     public required BitmapFormat BitmapFormat;
 
@@ -71,6 +72,19 @@ public struct Bitmap
             Console.WriteLine();
         }
     }
+
+    public static Bitmap LoadFromFile(string fileName)
+    {
+        var bytes = File.ReadAllBytes(fileName);
+        var res = ImageResult.FromMemory(bytes);
+        return new Bitmap
+        {
+            Height = res.Height,
+            Width = res.Width,
+            Data = new Slice<byte>(res.Data.AsSpan()),
+            BitmapFormat = BitmapFormat.RGBA
+        };
+    }
 }
 
 public sealed class TGALoader
@@ -114,8 +128,8 @@ public sealed class TGALoader
 
             return new Bitmap
             {
-                Width = (uint)header.ImageSpecification.ImageWidth,
-                Height = (uint)header.ImageSpecification.ImageHeight,
+                Width = header.ImageSpecification.ImageWidth,
+                Height = header.ImageSpecification.ImageHeight,
                 Data = new Slice<byte>(),
                 BitmapFormat = BitmapFormat.RGBA
                 // Data = tgaFile.ToArray()

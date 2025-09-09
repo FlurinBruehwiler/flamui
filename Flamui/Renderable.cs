@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
-using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Maths;
 using Font = Flamui.Drawing.Font;
@@ -117,7 +115,6 @@ public struct RectCommand
     public required float BlurRadius;
     public required float BorderWidth;
     public required float ShadowBlur;
-
 }
 
 public struct ClipRectCommand
@@ -150,6 +147,12 @@ public struct TinyVGCommand
     public required Slice<byte> VGData;
 }
 
+public struct PictureCommand
+{
+    public required Bitmap Bitmap;
+    public required Bounds Bounds;
+}
+
 public struct ClearClipCommand;
 
 [StructLayout(LayoutKind.Explicit)]
@@ -173,6 +176,8 @@ public struct Command
     public ClearClipCommand ClearClipCommand;
     [FieldOffset(8)]
     public TextCommand TextCommand;
+    [FieldOffset(8)]
+    public PictureCommand PictureCommand;
 
     public UiElement? GetAssociatedUiElement(Ui ui)
     {

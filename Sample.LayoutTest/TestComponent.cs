@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Flamui;
 using Flamui.Components;
-using Flamui.Drawing;
 using Silk.NET.GLFW;
 using MouseButton = Silk.NET.Input.MouseButton;
 
@@ -12,29 +11,11 @@ public static class TestComponent
     private static long lastFrameTimeStamp;
     private static bool hi;
 
+    public static Bitmap bitmap = Bitmap.LoadFromFile(@"C:\Users\FBR\Downloads\example-png.png"); //this is obviously just an example, you should obviously not load this here!!!!!
+
     public static void Build(Ui ui, FlamuiWindowHost app)
     {
-
-        // using (ui.Rect()
-        //            .Color(C.Green7)
-        //            .Padding(10))
-        // {
-        //
-        //     using (ui.Rect() .Color(C.White).Rounded(10).Padding(10) )
-        //     {
-        //         using (var div = ui.Rect().Height(150).Width(150).Color(C.Black).Rounded(0))
-        //         {}
-        //     }
-        // }
-        //
-        // return;
-
         ui.CascadingValues.TextColor = C.White;
-
-        // using (ui.Rect().Blur(10).Absolute().AbsoluteSize(0, 0).ZIndex(100))
-        // {
-        //
-        // }
 
         var tabBar = ui.GetTabBar(initialTab: 0);
 
@@ -74,15 +55,15 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                using (ui.Rect().Color(177, 221, 234).Padding(10))
+                using (ui.Rect().Color(177, 221, 234).Padding(10).Gap(10))
                 {
                     using (ui.Rect().Width(100).Height(100).Color(C.Green6).Border(10, C.Black))
                     {
                         ui.SvgImage("incomplete_circle").Height(100);
                     }
-                    using (ui.Rect().Width(10).Height(100).Color(C.Blue5))
+                    using (ui.Rect().Height(100).Color(C.Black))
                     {
-
+                        ui.Image(bitmap);
                     }
                 }
             }

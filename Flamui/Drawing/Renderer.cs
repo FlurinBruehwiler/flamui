@@ -41,6 +41,7 @@ public struct NewRenderer
     public int U_GlyphAtlasTexture;
     public int U_IconAtlasTexture;
     public int U_BlurTexture;
+    public int U_PictureTexture;
 
     public uint VAO;
     public uint Buffer;
@@ -77,6 +78,8 @@ public sealed class Renderer
     public VgAtlas VgAtlas;
 
     private Dictionary<Shader, string> _shaderStrings = [];
+
+    public Dictionary<Bitmap, GpuTexture> GpuImageCache = [];
 
     private string GetShaderCode(Shader shader)
     {
@@ -146,6 +149,7 @@ public sealed class Renderer
         MainProgram.U_GlyphAtlasTexture = Gl.GetUniformLocation(MainProgram.Program, "uGlyphAtlasTexture");
         MainProgram.U_IconAtlasTexture = Gl.GetUniformLocation(MainProgram.Program, "uIconAtlasTexture");
         MainProgram.U_BlurTexture = Gl.GetUniformLocation(MainProgram.Program, "uBlurTexture");
+        MainProgram.U_PictureTexture = Gl.GetUniformLocation(MainProgram.Program, "uPictureTexture");
 
         CheckError();
 
@@ -319,6 +323,10 @@ public sealed class Renderer
         {
             Gl.Uniform1(MainProgram.U_IconAtlasTexture, textureSlot);
         }
+        else if (textureSlot == 2)
+        {
+            Gl.Uniform1(MainProgram.U_PictureTexture, textureSlot);
+        }
         else
         {
             throw new Exception("Invalid texture slot");
@@ -333,13 +341,13 @@ public sealed class Renderer
             {
                 case BitmapFormat.R:
                     throw new NotImplementedException();
-                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, bitmap.Width, bitmap.Height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
+                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, (uint)bitmap.Width, (uint)bitmap.Height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
                     break;
                 case BitmapFormat.RGBA:
-                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, bitmap.Width, bitmap.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint)bitmap.Width, (uint)bitmap.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
                     break;
                 case BitmapFormat.A:
-                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, bitmap.Width, bitmap.Height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
+                    Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8, (uint)bitmap.Width, (uint)bitmap.Height, 0, PixelFormat.Red, PixelType.UnsignedByte, ptr);
                     ReadOnlySpan<int> swizzleMask = [(int)GLEnum.One, (int)GLEnum.One, (int)GLEnum.One, (int)GLEnum.Red];
                     Gl.TextureParameter(textureId, GLEnum.TextureSwizzleRgba, swizzleMask);
                     break;

@@ -327,20 +327,37 @@ public sealed class Ui
         return svg;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public UiImage Image(Bitmap bitmap, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
+    {
+        using var _ = CreateIdScope(file, lineNumber);
+        var svg = GetData(static (ui) => new UiImage()
+        {
+            Id = ui.GetHash(),
+            Tree = ui.Tree
+        });
+
+        OpenElement.AddChild(svg);
+        svg.Bitmap = bitmap;
+
+        return svg;
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UiImage Image(string src)
     {
-        var image = GetData(static (ui) => new UiImage
-        {
-            Id = ui.GetHash(),
-            Tree = ui.Tree,
-        });
-
-        image.Src = src;
-        OpenElement.AddChild(image);
-
-        return image;
+        return default;//todo
+        // var image = GetData(static (ui) => new UiImage
+        // {
+        //     Id = ui.GetHash(),
+        //     Tree = ui.Tree,
+        // });
+        //
+        // image.Src = src;
+        // OpenElement.AddChild(image);
+        //
+        // return image;
     }
 
 

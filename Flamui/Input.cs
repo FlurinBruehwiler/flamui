@@ -125,7 +125,6 @@ public static class Input
             };
             mouse.Scroll += (_, wheel) =>
             {
-                Console.WriteLine(wheel.Y);
                 var uiTree = GetHoveredUiTree(window);
                 uiTree.ScrollDelta = new Vector2(wheel.X, wheel.Y);
             };

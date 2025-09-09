@@ -35,8 +35,10 @@ using Sample.LayoutTest;
  * - implement error boundaries, so that when something in Build or Layout crashes, the program keeps on running until
  *   the next hot reload, this should lead to much faster iteration, which is important for swiss skills
  * - implement support for large scrollable lists
- * - Add Back PNG/JPG Support
- * - Improve TVG workflow
+ * - Add Back PNG/JPG Support -- wip
+ * - Improve TVG workflow -- done
+ * - Fix bug where somehow only half of the screen refreshes....
+ * - Fix TVG blending issue
 
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:

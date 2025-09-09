@@ -104,8 +104,8 @@ public sealed class VgAtlas
 
             var bitmap = new Bitmap
             {
-                Width = tinyvgBitmap.Width,
-                Height = tinyvgBitmap.Height,
+                Width = (int)tinyvgBitmap.Width,
+                Height = (int)tinyvgBitmap.Height,
                 Data = new Slice<byte>((byte*)tinyvgBitmap.Pixels, (int)(tinyvgBitmap.Width * tinyvgBitmap.Height * 4)),
                 BitmapFormat = BitmapFormat.RGBA
             };
