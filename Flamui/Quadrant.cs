@@ -67,6 +67,13 @@ public enum XAlign
     Center
 }
 
+public enum ChildSizeKind
+{
+    Fixed = 0, //Default
+    Percentage,
+    Dynamic
+}
+
 public enum SizeKind
 {
     Percentage = 0, //Default
@@ -178,17 +185,17 @@ public static class Extensions
         return uiElement;
     }
 
-    public static bool IsFlexible(this UiElement uiElement, out FlexibleChildConfig config)
-    {
-        if (uiElement.FlexibleChildConfig is null)
-        {
-            config = default;
-            return false;
-        }
-
-        config = uiElement.FlexibleChildConfig.Value;
-        return true;
-    }
+    // public static bool IsFlexible(this UiElement uiElement, out FlexibleChildConfig config)
+    // {
+    //     if (uiElement.FlexibleChildConfig is null)
+    //     {
+    //         config = default;
+    //         return false;
+    //     }
+    //
+    //     config = uiElement.FlexibleChildConfig.Value;
+    //     return true;
+    // }
 
     public static Dir Other(this Dir dir)
     {

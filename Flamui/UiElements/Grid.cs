@@ -142,7 +142,7 @@ public class Grid : UiElementContainer
 
                 currentChild.PrepareLayout(Dir.Horizontal);
 
-                var maxHeight = currentChild.FlexibleChildConfig.HasValue && Info.RowHeightIfFlexible != 0 ? Info.RowHeightIfFlexible : constraint.MaxHeight - currentY;
+                var maxHeight = currentChild.FlexibleChildConfig.SizeKind == ChildSizeKind.Percentage && Info.RowHeightIfFlexible != 0 ? Info.RowHeightIfFlexible : constraint.MaxHeight - currentY;
 
                 var horizontalMargin = currentChild.UiElementInfo.Margin.SumInDirection(Dir.Horizontal);
                 var childSize = currentChild.Layout(new BoxConstraint(0, column.PixelWidth - horizontalMargin, 0, maxHeight));

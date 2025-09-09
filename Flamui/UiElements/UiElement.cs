@@ -11,7 +11,7 @@ public abstract class UiElement
     public bool IsActive;
     // public Bounds ComputedBounds;
     public ParentData ParentData { get; set; }
-    public FlexibleChildConfig? FlexibleChildConfig { get; set; }
+    public FlexibleChildConfig FlexibleChildConfig;
 
     public BoxSize ActualContentSize;
     public UiElementInfo UiElementInfo;

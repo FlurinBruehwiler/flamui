@@ -13,6 +13,7 @@ namespace Flamui.Layouting;
 
 public struct FlexibleChildConfig
 {
+    public ChildSizeKind SizeKind;
     public float Percentage;
 }
 

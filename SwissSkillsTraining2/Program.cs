@@ -26,7 +26,7 @@ public static class Program
 
         using (ui.Rect().MainAlign(MAlign.Start).Padding(10).Gap(10))
         {
-            using (ui.Rect().ScrollVertical().ShrinkHeight().Gap(10))
+            using (ui.Rect().ScrollVertical().Gap(10))
             {
                 foreach (var blog in Data.Blogs)
                 {

@@ -93,16 +93,17 @@ public sealed partial class FlexContainer : UiElementContainer
 
     public override void PrepareLayout(Dir dir)
     {
+        FlexibleChildConfig = new FlexibleChildConfig();
+        FlexibleChildConfig.SizeKind = Info.GetMainSizeKind(dir) switch
+        {
+            SizeKind.Percentage => ChildSizeKind.Percentage,
+            SizeKind.Pixel => ChildSizeKind.Fixed,
+            SizeKind.Shrink => ChildSizeKind.Dynamic
+        };
+
         if (Info.GetMainSizeKind(dir) == SizeKind.Percentage)
         {
-            FlexibleChildConfig = new FlexibleChildConfig
-            {
-                Percentage = Info.GetSizeInDirection(dir)
-            };
-        }
-        else
-        {
-            FlexibleChildConfig = null;
+            FlexibleChildConfig.Percentage = Info.GetSizeInDirection(dir);
         }
     }
 
