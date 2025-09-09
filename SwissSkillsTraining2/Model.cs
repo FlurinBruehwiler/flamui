@@ -23,10 +23,10 @@ public class InMemoryDb(BloggingContext bloggingContext)
         {
             if (!blogsInDb.Contains(blog))
             {
-                bloggingContext.Blogs.Add(new Blog
+                blog.BlogId = bloggingContext.Blogs.Add(new Blog
                 {
                     Url = blog.Url
-                });
+                }).Entity.BlogId;
             }
         }
 
@@ -35,12 +35,12 @@ public class InMemoryDb(BloggingContext bloggingContext)
         {
             if (!postsInDb.Contains(post))
             {
-                bloggingContext.Posts.Add(new Post()
+                post.PostId = bloggingContext.Posts.Add(new Post()
                 {
                     Content = post.Content,
                     Title = post.Title,
                     BlogId = post.BlogId
-                });
+                }).Entity.PostId;
             }
         }
 
@@ -73,7 +73,7 @@ public class BloggingContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseSqlServer($"Data source=DESKTOP-FBR\\MSSQLSERVER02;initial catalog=SwissSkillsTest;trusted_connection=true");
+        options.UseSqlServer($"Data source=localhost\\MSSQLSERVER02;initial catalog=SwissSkillsTest;trusted_connection=true;TrustServerCertificate=True");
     }
 }
 
