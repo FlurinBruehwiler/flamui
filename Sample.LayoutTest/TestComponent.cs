@@ -11,7 +11,7 @@ public static class TestComponent
     private static long lastFrameTimeStamp;
     private static bool hi;
 
-    public static Bitmap bitmap = Bitmap.LoadFromFile(@"C:\Users\FBR\Downloads\example-png.png"); //this is obviously just an example, you should obviously not load this here!!!!!
+    public static Bitmap bitmap = Bitmap.LoadFromFile(@"C:\Users\FBR\Downloads\example-png.png"); //this is just an example, you should obviously not load this here!!!!!
 
     public static void Build(Ui ui, FlamuiWindowHost app)
     {
@@ -43,7 +43,7 @@ public static class TestComponent
                 {
                     using (ui.Rect().Width(100).Height(100).Color(173, 216, 230)
                                .ShadowColor(C.Black.WithAlpha(50)).Rounded(16)
-                               .DropShadow(40, 0, x: 6, y: 6))
+                               .DropShadow(40, 0, x: -6, y: 6))
                     {
 
                     }
@@ -55,16 +55,9 @@ public static class TestComponent
         {
             using (tabBar.Body.Enter())
             {
-                using (ui.Rect().Color(177, 221, 234).Padding(10).Gap(10))
+                using (ui.Rect().Padding(10).Gap(10))
                 {
-                    using (ui.Rect().Width(100).Height(100).Color(C.Green6).Border(10, C.Black))
-                    {
-                        ui.SvgImage("incomplete_circle").Height(100);
-                    }
-                    using (ui.Rect().Height(100).Color(C.Black))
-                    {
-                        ui.Image(bitmap);
-                    }
+
                 }
             }
         }
@@ -246,9 +239,11 @@ public static class TestComponent
             //--------------- radio button group ------------------
 
             ref int selectedRadioButton = ref ui.Get(0);
-            ui.RadioButton(ref selectedRadioButton, 0);
-            ui.RadioButton(ref selectedRadioButton, 1);
-            ui.RadioButton(ref selectedRadioButton, 2);
+            for (int i = 0; i < 10; i++)
+            {
+                using var _ = ui.CreateIdScope(i);
+                ui.RadioButton(ref selectedRadioButton, i);
+            }
         }
     }
 }

@@ -24,10 +24,7 @@ namespace SwissSkillsTraining2.Migrations
             modelBuilder.Entity("SwissSkillsTraining2.Blog", b =>
                 {
                     b.Property<int>("BlogId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BlogId"));
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -41,10 +38,7 @@ namespace SwissSkillsTraining2.Migrations
             modelBuilder.Entity("SwissSkillsTraining2.Post", b =>
                 {
                     b.Property<int>("PostId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
 
                     b.Property<int>("BlogId")
                         .HasColumnType("int");

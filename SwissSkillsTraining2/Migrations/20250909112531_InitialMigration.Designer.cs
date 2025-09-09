@@ -11,8 +11,8 @@ using SwissSkillsTraining2;
 namespace SwissSkillsTraining2.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    [Migration("20250909091943_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250909112531_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,10 +27,7 @@ namespace SwissSkillsTraining2.Migrations
             modelBuilder.Entity("SwissSkillsTraining2.Blog", b =>
                 {
                     b.Property<int>("BlogId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BlogId"));
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -44,10 +41,7 @@ namespace SwissSkillsTraining2.Migrations
             modelBuilder.Entity("SwissSkillsTraining2.Post", b =>
                 {
                     b.Property<int>("PostId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
 
                     b.Property<int>("BlogId")
                         .HasColumnType("int");

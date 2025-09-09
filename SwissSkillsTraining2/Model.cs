@@ -1,18 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace SwissSkillsTraining2;
 
-public class InMemoryDb(BloggingContext bloggingContext)
+public class InMemoryDb()
 {
     public List<Blog> Blogs = [];
 
     public async Task LoadFromDb()
     {
+        using var bloggingContext = new BloggingContext();
         Blogs = await bloggingContext.Blogs.Include(x => x.Posts).ToListAsync();
     }
 
-    public async Task SaveToDb()
+    public async Task<string> SaveToDb()
     {
+        using var bloggingContext = new BloggingContext();
+
         //first insert, then delete
 
         var blogsInDb = (await bloggingContext.Blogs.ToListAsync()).ToHashSet();
@@ -23,10 +27,11 @@ public class InMemoryDb(BloggingContext bloggingContext)
         {
             if (!blogsInDb.Contains(blog))
             {
-                blog.BlogId = bloggingContext.Blogs.Add(new Blog
+                bloggingContext.Blogs.Add(new Blog
                 {
-                    Url = blog.Url
-                }).Entity.BlogId;
+                    Url = blog.Url,
+                    BlogId = blog.BlogId
+                });
             }
         }
 
@@ -35,12 +40,13 @@ public class InMemoryDb(BloggingContext bloggingContext)
         {
             if (!postsInDb.Contains(post))
             {
-                post.PostId = bloggingContext.Posts.Add(new Post()
+                bloggingContext.Posts.Add(new Post()
                 {
                     Content = post.Content,
                     Title = post.Title,
-                    BlogId = post.BlogId
-                }).Entity.PostId;
+                    BlogId = post.Blog.BlogId,
+                    PostId = post.PostId
+                });
             }
         }
 
@@ -62,7 +68,16 @@ public class InMemoryDb(BloggingContext bloggingContext)
             }
         }
 
-        await bloggingContext.SaveChangesAsync();
+        try
+        {
+            await bloggingContext.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            return e.ToString();
+        }
+
+        return string.Empty;
     }
 }
 
@@ -79,6 +94,7 @@ public class BloggingContext : DbContext
 
 public class Blog : IEquatable<Blog>
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int BlogId { get; set; }
     public string Url { get; set; }
 
@@ -107,6 +123,7 @@ public class Blog : IEquatable<Blog>
 
 public class Post : IEquatable<Post>
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int PostId { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }
