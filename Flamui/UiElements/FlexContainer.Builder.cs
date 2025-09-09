@@ -271,7 +271,7 @@ public sealed partial class FlexContainer
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public FlexContainer Direction(Dir dir)
+    public FlexContainer Direction(Dir dir = Dir.Vertical)
     {
         Info.Direction = dir;
         return this;
