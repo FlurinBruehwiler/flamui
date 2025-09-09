@@ -84,7 +84,7 @@ public static class MainWindow
                         {
                             windowHost.CreateWindow($"Edit Criterion {criterion.Name}", ui2 => { ui2.GetObj<EditCriterion>().Build(ui2, criterion, store); }, new FlamuiWindowOptions
                             {
-                                ParentWindow = ui.Tree.UiTreeHost.GetWindowHandle()
+                                ParentWindow = null
                             });
                         }
 

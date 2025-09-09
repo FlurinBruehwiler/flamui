@@ -12,8 +12,6 @@ public interface IUiTreeHost
     //sets the cursor style across once, remains across frames
     void SetCursorStyle(CursorShape cursorShape);
 
-    IntPtr GetWindowHandle();
-
     void CloseWindow();
 }
 

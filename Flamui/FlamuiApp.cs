@@ -10,7 +10,7 @@ public struct FlamuiWindowOptions
     public int Height = 500;
     public SizeConstraint? MinSize;
     public SizeConstraint? MaxSize;
-    public IntPtr ParentWindow;
+    public PhysicalWindow ParentWindow;
 
     public FlamuiWindowOptions()
     {

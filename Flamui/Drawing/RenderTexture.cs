@@ -12,6 +12,9 @@ public class RenderTexture
 
     public void UpdateSize(GL gl, int pWidth, int pHeight)
     {
+        if (pWidth == 0 || pHeight == 0)
+            return;
+
         if (width != pWidth || height != pHeight)
         {
             width = pWidth;

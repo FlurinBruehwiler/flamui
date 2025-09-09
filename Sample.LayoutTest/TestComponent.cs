@@ -65,52 +65,16 @@ public static class TestComponent
 
     private static void Tab3(Ui ui)
     {
+        //todo make resize work in reusable component....
+
         using (ui.Rect().Color(20, 20, 20).Padding(10).Gap(10).ScrollVertical())
         {
             using (var grid = ui.Grid().Border(2, new ColorDefinition(47, 47, 47)).Gap(10))
             {
-                var columns = ui.GetObj<List<float>>(() => [100, 100, 100]);
-                ref var draggingColumn = ref ui.Get(-1);
+                //could be better I think
+                var columns = ui.GetObj<float[]>(() => [100, 100, 100]);
 
-                if (grid.HoveredColumnIndex != -1 && draggingColumn == -1)
-                {
-                    //todo, we need to put hitboxes there instead, and then they should block the hit, but only if they are dragging. kinda complicated
-
-                    ui.Tree.UseCursor(CursorShape.HResize, 10);
-
-                    if (ui.Tree.IsMouseButtonPressed(MouseButton.Left))
-                    {
-                        draggingColumn = grid.HoveredColumnIndex;
-                    }
-                }
-
-                if (ui.Tree.IsMouseButtonReleased(MouseButton.Left))
-                {
-                    draggingColumn = -1;
-                }
-
-                if (draggingColumn != -1)
-                {
-                    const float minColumnWidth = 20;
-
-                    ui.Tree.UseCursor(CursorShape.HResize, 10);
-
-                    var left = grid.LastColumns[draggingColumn];
-                    var right = grid.LastColumns[draggingColumn + 1];
-
-
-                    //this code somehow works...
-                    var leftMouseOffset = ui.Tree.MousePosition.X - grid.FinalOnScreenSize.X - left.XOffset;
-                    var newLeftPixelSize = Math.Max(leftMouseOffset, minColumnWidth);
-                    var newRightPixelSize = Math.Max(left.PixelWidth - newLeftPixelSize + right.PixelWidth, minColumnWidth);
-                    newLeftPixelSize = Math.Max(right.PixelWidth - newRightPixelSize + left.PixelWidth, minColumnWidth);
-
-                    var newLeftFraction = left.Width / left.PixelWidth * newLeftPixelSize;
-                    var newRightFraction = right.Width / right.PixelWidth * newRightPixelSize;
-
-                    columns[draggingColumn] = newLeftFraction;
-                    columns[draggingColumn + 1] = newRightFraction;
-                }
+                grid.Resizable(columns);
 
                 foreach (var column in columns)
                 {

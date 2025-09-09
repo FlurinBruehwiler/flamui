@@ -14,7 +14,9 @@ namespace Flamui;
 
 public sealed class PhysicalWindow
 {
-    private PhysicalWindow() { }
+    private PhysicalWindow()
+    {
+    }
 
     public required IWindow GlfwWindow;
 
@@ -47,7 +49,7 @@ public sealed class PhysicalWindow
     private Vector2 lastScreenMousePosition;
     private int framecount;
 
-    public static PhysicalWindow Create(IWindow window, UiTree uiTree, IntPtr parentWindow)
+    public static PhysicalWindow Create(IWindow window, UiTree uiTree, PhysicalWindow? parentWindow)
     {
         var w = new PhysicalWindow
         {
@@ -63,9 +65,10 @@ public sealed class PhysicalWindow
         window.Render += w.OnRender;
         window.Closing += () =>
         {
-            if (OperatingSystem.IsWindows() && parentWindow != 0)
+            if (OperatingSystem.IsWindows() && parentWindow != null)
             {
-                WindowsNative.EnableWindow(parentWindow, true);
+                var hWnd = parentWindow.GlfwWindow.Native.Win32.Value.Hwnd;
+                WindowsNative.EnableWindow(hWnd, true);
             }
         };
 
@@ -74,6 +77,9 @@ public sealed class PhysicalWindow
 
     private void OnRender(double obj)
     {
+        // if (NativeWindow.WindowState == WindowState.Minimized)
+        //     return;
+
         var start = Stopwatch.GetTimestamp();
 
         using var _ = Systrace.BeginEvent(nameof(OnRender));
@@ -135,12 +141,13 @@ public sealed class PhysicalWindow
 
     private Vector2 screenMousePos;
 
-    private unsafe void OnLoad(IntPtr parentWindow)
+    private unsafe void OnLoad(PhysicalWindow? parentWindow)
     {
-        if (OperatingSystem.IsWindows() && parentWindow != 0)
+        if (OperatingSystem.IsWindows() && parentWindow != null)
         {
-            WindowsNative.SetParent(NativeWindow.Handle, parentWindow);
-            WindowsNative.EnableWindow(parentWindow, false);
+            var hWnd = parentWindow.GlfwWindow.Native.Win32.Value.Hwnd;
+            WindowsNative.SetParent(NativeWindow.Handle, hWnd);
+            WindowsNative.EnableWindow(hWnd, false);
         }
 
         int darkMode = 1;
@@ -158,7 +165,7 @@ public sealed class PhysicalWindow
         {
             WindowsNative.glfwSetWindowContentScaleCallback(GlfwWindow.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
         }
-        else if(OperatingSystem.IsLinux())
+        else if (OperatingSystem.IsLinux())
         {
             LinuxNative.glfwSetWindowContentScaleCallback(GlfwWindow.Handle, (window, xScale, yScale) => DpiScaling = new Vector2(xScale, yScale));
         }
@@ -175,10 +182,7 @@ public sealed class PhysicalWindow
             LinuxNative.glfwGetWindowContentScale(GlfwWindow.Handle, &xScale, &yScale);
         }
 
-        GlfwApi.SetCursorPosCallback((WindowHandle*)GlfwWindow.Handle, (_, x, y) =>
-        {
-            screenMousePos = new Vector2((float)x, (float)y);
-        });
+        GlfwApi.SetCursorPosCallback((WindowHandle*)GlfwWindow.Handle, (_, x, y) => { screenMousePos = new Vector2((float)x, (float)y); });
 
         DpiScaling = new Vector2(xScale, yScale);
 
@@ -248,6 +252,6 @@ public sealed class PhysicalWindow
 
         var translate = Matrix4X4.CreateTranslation(ZoomOffset.X, ZoomOffset.Y, 0);
 
-        return  origin * scale * translate;
+        return origin * scale * translate;
     }
 }

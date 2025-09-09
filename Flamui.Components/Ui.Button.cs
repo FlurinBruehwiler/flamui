@@ -15,11 +15,6 @@ public static partial  class UiExtensions
         return true;
     }
 
-    public static void Anita(this Ui ui)
-    {
-
-    }
-
     public static bool Button(this Ui ui, string text, bool primary = false, bool disabled = false, bool focusable = true, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
         using var _ = ui.CreateIdScope(file, lineNumber);
