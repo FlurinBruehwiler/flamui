@@ -26,65 +26,61 @@ public static class Program
 
         using (ui.Rect().MainAlign(MAlign.Start).Padding(10).Gap(10))
         {
-            using (ui.Rect().Direction(Dir.Horizontal))
+            using (ui.Rect().ScrollVertical().ShrinkHeight().Gap(10))
             {
-                using (ui.Rect().ScrollVertical().ShrinkHeight().Gap(10))
+                foreach (var blog in Data.Blogs)
                 {
-                    foreach (var blog in Data.Blogs)
+                    using var _ = ui.CreateIdScope(blog.BlogId);
+
+                    using (ui.Rect().Direction().ShrinkHeight().Color(C.Gray5).Padding(5).Rounded(5))
                     {
-                        using var _ = ui.CreateIdScope(blog.BlogId);
-
-                        using (ui.Rect().Direction().ShrinkHeight().Color(C.Gray5).Padding(5).Rounded(5))
+                        using (ui.Rect().ShrinkHeight().Direction(Dir.Horizontal).MainAlign(MAlign.SpaceBetween))
                         {
-                            using (ui.Rect().ShrinkHeight().Direction(Dir.Horizontal).MainAlign(MAlign.SpaceBetween))
+                            ui.Text($"Blog: {blog.Url}").Size(30);
+
+                            if (ui.SquareButton("delete"))
                             {
-                                ui.Text($"Blog: {blog.Url}").Size(30);
-
-
-                                if (ui.SquareButton("delete"))
-                                {
-                                    ui.RunAfterFrame(() => Data.Blogs.Remove(blog));
-                                }
-                            }
-
-                            using (ui.Rect().Padding(10).ShrinkHeight().Gap(5))
-                            {
-                                foreach (var post in blog.Posts)
-                                {
-                                    using var _2 = ui.CreateIdScope(post.PostId);
-
-                                    using (ui.Rect().ShrinkHeight().Direction(Dir.Horizontal))
-                                    {
-                                        using (ui.Rect().ShrinkHeight())
-                                        {
-                                            ui.Text($"Title: {post.Title}");
-                                            ui.Text($"Content: {post.Content}");
-                                        }
-
-                                        if (ui.SquareButton("delete"))
-                                        {
-                                            ui.RunAfterFrame(() => blog.Posts.Remove(post));
-                                        }
-                                    }
-                                }
-
-                                if (blog.Posts.Count == 0)
-                                {
-                                    ui.Text("No Blog posts");
-                                }
-                            }
-
-                            if (ui.Button("Add Post"))
-                            {
-                                windowHost.CreateWindow("Create Post", ui2 => BuildCreatePostWindow(ui2, blog));
+                                ui.RunAfterFrame(() => Data.Blogs.Remove(blog));
                             }
                         }
-                    }
 
-                    if (Data.Blogs.Count == 0)
-                    {
-                        ui.Text("No Blogs");
+                        using (ui.Rect().Padding(10).ShrinkHeight().Gap(5))
+                        {
+                            foreach (var post in blog.Posts)
+                            {
+                                using var _2 = ui.CreateIdScope(post.PostId);
+
+                                using (ui.Rect().ShrinkHeight().Direction(Dir.Horizontal))
+                                {
+                                    using (ui.Rect().ShrinkHeight())
+                                    {
+                                        ui.Text($"Title: {post.Title}");
+                                        ui.Text($"Content: {post.Content}");
+                                    }
+
+                                    if (ui.SquareButton("delete"))
+                                    {
+                                        ui.RunAfterFrame(() => blog.Posts.Remove(post));
+                                    }
+                                }
+                            }
+
+                            if (blog.Posts.Count == 0)
+                            {
+                                ui.Text("No Blog posts");
+                            }
+                        }
+
+                        if (ui.Button("Add Post"))
+                        {
+                            windowHost.CreateWindow("Create Post", ui2 => BuildCreatePostWindow(ui2, blog));
+                        }
                     }
+                }
+
+                if (Data.Blogs.Count == 0)
+                {
+                    ui.Text("No Blogs");
                 }
             }
 
