@@ -9,13 +9,15 @@ public class InMemoryDb()
 
     public async Task LoadFromDb()
     {
-        using var bloggingContext = new BloggingContext();
+        await using var bloggingContext = new BloggingContext();
         Blogs = await bloggingContext.Blogs.Include(x => x.Posts).ToListAsync();
     }
 
     public async Task<string> SaveToDb()
     {
-        using var bloggingContext = new BloggingContext();
+        //todo automate this
+
+        await using var bloggingContext = new BloggingContext();
 
         //first insert, then delete
 

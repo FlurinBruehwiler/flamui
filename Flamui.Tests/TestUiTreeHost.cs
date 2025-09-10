@@ -4,32 +4,27 @@ namespace Flamui.Tests;
 
 public sealed class TestUiTreeHost : IUiTreeHost
 {
-    private string _clipboardText;
-    private CursorShape _cursorShape;
+    public string ClipboardText;
+    public CursorShape CursorShape;
 
     public TestUiTreeHost(string clipboardText)
     {
-        _clipboardText = clipboardText;
+        ClipboardText = clipboardText;
     }
 
     public string GetClipboardText()
     {
-        return _clipboardText;
+        return ClipboardText;
     }
 
     public void SetClipboardText(string text)
     {
-        _clipboardText = text;
+        ClipboardText = text;
     }
 
     public void SetCursorStyle(CursorShape cursorShape)
     {
-        _cursorShape = cursorShape;
-    }
-
-    public IntPtr GetWindowHandle()
-    {
-        throw new NotImplementedException();
+        CursorShape = cursorShape;
     }
 
     public void CloseWindow()

@@ -59,10 +59,6 @@ public sealed class NativeUiTreeHost : IUiTreeHost
 
     }
 
-    public IntPtr GetWindowHandle()
-    {
-        return _window.Handle;
-    }
 
     public void CloseWindow()
     {

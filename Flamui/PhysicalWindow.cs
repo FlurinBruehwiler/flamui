@@ -49,7 +49,7 @@ public sealed class PhysicalWindow
     private Vector2 lastScreenMousePosition;
     private int framecount;
 
-    public static PhysicalWindow Create(IWindow window, UiTree uiTree, PhysicalWindow? parentWindow)
+    public static PhysicalWindow Create(IWindow window, UiTree uiTree, FlamuiWindowOptions options)
     {
         var w = new PhysicalWindow
         {
@@ -60,14 +60,14 @@ public sealed class PhysicalWindow
         };
 
         uiTree.UiTreeHost = new NativeUiTreeHost(window, w.GlfwApi);
-        window.Load += () => w.OnLoad(parentWindow);
+        window.Load += () => w.OnLoad(options);
         window.Update += w.OnUpdate;
         window.Render += w.OnRender;
         window.Closing += () =>
         {
-            if (OperatingSystem.IsWindows() && parentWindow != null)
+            if (OperatingSystem.IsWindows() && options.ParentWindow != null)
             {
-                var hWnd = parentWindow.GlfwWindow.Native.Win32.Value.Hwnd;
+                var hWnd = options.ParentWindow.GlfwWindow.Native.Win32.Value.Hwnd;
                 WindowsNative.EnableWindow(hWnd, true);
             }
         };
@@ -141,11 +141,15 @@ public sealed class PhysicalWindow
 
     private Vector2 screenMousePos;
 
-    private unsafe void OnLoad(PhysicalWindow? parentWindow)
+    private unsafe void OnLoad(FlamuiWindowOptions options)
     {
-        if (OperatingSystem.IsWindows() && parentWindow != null)
+        GlfwApi.SetWindowSizeLimits((WindowHandle*)GlfwWindow.Handle,
+            options.MinSize.Width, options.MinSize.Height,
+            options.MaxSize.Width, options.MaxSize.Height);
+
+        if (OperatingSystem.IsWindows() && options.ParentWindow != null)
         {
-            var hWnd = parentWindow.GlfwWindow.Native.Win32.Value.Hwnd;
+            var hWnd = options.ParentWindow.GlfwWindow.Native.Win32.Value.Hwnd;
             WindowsNative.SetParent(NativeWindow.Handle, hWnd);
             WindowsNative.EnableWindow(hWnd, false);
         }

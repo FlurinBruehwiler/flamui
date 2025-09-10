@@ -117,7 +117,7 @@ public static class Program
 
     private static void ShowErrorDialog(string err)
     {
-        windowHost.CreateWindow("An error occured", ui => { ui.Text(err).Multiline(true).Color(C.White); }, new FlamuiWindowOptions
+        windowHost.CreateWindow("An error occured", ui => { ui.Text(err).Multiline().Color(C.White); }, new FlamuiWindowOptions
         {
             ParentWindow = MainWindow
         });

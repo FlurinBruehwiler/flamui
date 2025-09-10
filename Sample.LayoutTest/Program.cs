@@ -39,6 +39,7 @@ using Sample.LayoutTest;
  * - Improve TVG workflow -- done
  * - Fix bug where somehow only half of the screen refreshes....
  * - Fix TVG blending issue
+ * - Fix horizontal scroll....
 
  *
  * Stuff that also needs to be done at some point, but doesn't have priority for SwissSkills:

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using  Silk.NET.Windowing;
 
@@ -8,9 +9,9 @@ public struct FlamuiWindowOptions
 {
     public int Width = 900;
     public int Height = 500;
-    public SizeConstraint? MinSize;
-    public SizeConstraint? MaxSize;
-    public PhysicalWindow ParentWindow;
+    public SizeConstraint MinSize = new(400, 300);
+    public SizeConstraint MaxSize = new(9000, 9000);
+    public PhysicalWindow? ParentWindow;
 
     public FlamuiWindowOptions()
     {
@@ -18,7 +19,7 @@ public struct FlamuiWindowOptions
     }
 }
 
-public record SizeConstraint(int Width, int Height);
+public record struct SizeConstraint(int Width, int Height);
 
 public sealed class FlamuiWindowHost
 {
@@ -29,22 +30,23 @@ public sealed class FlamuiWindowHost
         _windows = [];
     }
 
-    public PhysicalWindow CreateWindow(string title, Action<Ui> buildFunc, FlamuiWindowOptions? o = null)
+    public PhysicalWindow CreateWindow(string title, Action<Ui> buildFunc, FlamuiWindowOptions? options = null)
     {
-        var options = o ?? new FlamuiWindowOptions();
+        var o = options ?? new FlamuiWindowOptions(); //needs to be done like this so the field initializers run
 
-        WindowOptions o2 = WindowOptions.Default with
+        WindowOptions silkWindowOptions = WindowOptions.Default with
         {
-            Size = new Vector2D<int>(options.Width, options.Height),
+            Size = new Vector2D<int>(o.Width, o.Height),
             Title = title,
             // VSync = false,
             VSync = true, //for some reason this doesn't work on my laptop, so we just sleep ourselves
             ShouldSwapAutomatically = false,
         };
 
-        var window = Window.Create(o2);
+        var window = Window.Create(silkWindowOptions);
 
-        var physicalWindow = PhysicalWindow.Create(window, new UiTree(buildFunc), options.ParentWindow);
+        var physicalWindow = PhysicalWindow.Create(window, new UiTree(buildFunc), o);
+
         _windows.Add(physicalWindow);
 
         //hack to get paint during resize
