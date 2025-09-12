@@ -1300,7 +1300,7 @@ public sealed class LayoutingTests : IDisposable
 
         var expected =
             """
-            Grid = X:0, Y:0, W:0, H:0
+            Grid = X:0, Y:0, W:400, H:30
                 FlexContainer = X:0, Y:0, W:400, H:10
                 FlexContainer = X:0, Y:10, W:400, H:10
                 FlexContainer = X:0, Y:20, W:400, H:10
@@ -1334,7 +1334,7 @@ public sealed class LayoutingTests : IDisposable
 
         var expected =
             """
-            Grid = X:0, Y:0, W:0, H:0
+            Grid = X:0, Y:0, W:400.00003, H:10
                 FlexContainer = X:0, Y:0, W:133.33334, H:10
                 FlexContainer = X:133.33334, Y:0, W:133.33334, H:10
                 FlexContainer = X:266.6667, Y:0, W:133.33334, H:10
@@ -1368,7 +1368,7 @@ public sealed class LayoutingTests : IDisposable
 
         var expected =
             """
-            Grid = X:0, Y:0, W:0, H:0
+            Grid = X:0, Y:0, W:400.00003, H:10
                 FlexContainer = X:0, Y:0, W:133.33334, H:10
                 FlexContainer = X:133.33334, Y:0, W:133.33334, H:10
                 FlexContainer = X:266.6667, Y:0, W:133.33334, H:10
@@ -1403,7 +1403,7 @@ public sealed class LayoutingTests : IDisposable
 
         var expected =
             """
-            Grid = X:0, Y:0, W:0, H:0
+            Grid = X:0, Y:0, W:400.00003, H:14
                 FlexContainer = X:2, Y:2, W:129.33334, H:10
                 FlexContainer = X:135.33334, Y:2, W:129.33334, H:10
                 FlexContainer = X:268.6667, Y:2, W:129.33334, H:10
@@ -1479,6 +1479,7 @@ public sealed class LayoutingTests : IDisposable
         tree.Ui.FontManager = new FontManager();
         Ui.Arena = new Arena("test_arena", 10_000);
         tree.Ui.Root = rootContainer;
+        tree.Arena = Ui.Arena;
 
         tree.Ui.ResetStuff();
 
