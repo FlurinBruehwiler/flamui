@@ -128,6 +128,16 @@ public sealed class UiText : UiElement
         return Rect;
     }
 
+    public override void PrepareLayout(Dir dir)
+    {
+        //todo this is not really correct, it depends what the direction we are speaking off....
+        FlexibleChildConfig = new FlexibleChildConfig
+        {
+            SizeKind = ChildSizeKind.Dynamic
+        };
+        base.PrepareLayout(dir);
+    }
+
     /// <summary>
     /// The default trim mode is ellipsis
     /// </summary>
