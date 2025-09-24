@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Flamui.Windowing;
 using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
@@ -45,7 +46,11 @@ public sealed class FlamuiWindowHost
 
         var window = Window.Create(silkWindowOptions);
 
-        var physicalWindow = PhysicalWindow.Create(window, new UiTree(buildFunc), o);
+        var glfwApi = Glfw.GetApi();
+
+        var host = new NativeUiTreeHost(window, glfwApi);
+
+        var physicalWindow = PhysicalWindow.Create(host, new UiTree(host, buildFunc), o);
 
         _windows.Add(physicalWindow);
 

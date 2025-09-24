@@ -6,8 +6,8 @@ namespace Flamui.Windowing;
 
 public sealed class NativeUiTreeHost : IUiTreeHost
 {
-    private readonly Glfw _glfw;
-    private readonly IWindow _window;
+    public readonly Glfw _glfw;
+    public readonly IWindow _window;
     private Dictionary<CursorShape, IntPtr> CursorCache = [];
     private CursorShape currentCursor = CursorShape.Arrow;
 

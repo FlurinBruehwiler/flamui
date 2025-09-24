@@ -50,21 +50,21 @@ public sealed class PhysicalWindow
     private Vector2 lastScreenMousePosition;
     private int framecount;
 
-    public static PhysicalWindow Create(IWindow window, UiTree uiTree, FlamuiWindowOptions options)
+    public static PhysicalWindow Create(NativeUiTreeHost host, UiTree uiTree, FlamuiWindowOptions options)
     {
         var w = new PhysicalWindow
         {
             UiTree = uiTree,
-            GlfwWindow = window,
-            GlfwApi = Glfw.GetApi(),
-            NativeWindow = window
+            GlfwWindow = host._window,
+            GlfwApi = host._glfw,
+            NativeWindow = host._window
         };
 
-        uiTree.UiTreeHost = new NativeUiTreeHost(window, w.GlfwApi);
-        window.Load += () => w.OnLoad(options);
-        window.Update += w.OnUpdate;
-        window.Render += w.OnRender;
-        window.Closing += () =>
+
+        host._window.Load += () => w.OnLoad(options);
+        host._window.Update += w.OnUpdate;
+        host._window.Render += w.OnRender;
+        host._window.Closing += () =>
         {
             if (OperatingSystem.IsWindows() && options.ParentWindow != null)
             {

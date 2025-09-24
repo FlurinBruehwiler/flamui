@@ -181,9 +181,10 @@ public sealed partial class UiTree
     {
     }
 
-    public UiTree(Action<Ui> buildAction)
+    public UiTree(IUiTreeHost uiTreeHost, Action<Ui> buildAction)
     {
         _buildAction = buildAction;
+        UiTreeHost = uiTreeHost;
 
         RootContainer = new FlexContainer
         {
@@ -229,6 +230,7 @@ public sealed partial class UiTree
         UiTreeHost.SetCursorStyle(_cursorShape);
         _cursorShape = CursorShape.Arrow;
         _cursorPriority = 0;
+
     }
 
     public void HandleHitTest()
