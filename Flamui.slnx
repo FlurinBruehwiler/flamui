@@ -9,13 +9,8 @@
     <Project Path="TestApp\TestApp.csproj" />
   </Folder>
   <Project Path="Flamui.Components/Flamui.Components.csproj" />
-  <Project Path="Flamui.SourceGenerators.Tests/Flamui.SourceGenerators.Tests.csproj" />
-  <Project Path="Flamui.SourceGenerators/Flamui.SourceGenerators.csproj" />
   <Project Path="Flamui.Tests/Flamui.Tests.csproj" />
   <Project Path="Flamui/Flamui.csproj">
     <BuildDependency Project="ILWeavingTest.Fody\ILWeavingTest.Fody.csproj" />
   </Project>
-  <Project Path="ILWeavingTest.Fody\ILWeavingTest.Fody.csproj" Type="Classic C#" />
-  <Project Path="Playground/Playground.csproj" />
-  <Project Path="TestProgram\TestProgram.csproj" Type="Classic C#" />
 </Solution>
