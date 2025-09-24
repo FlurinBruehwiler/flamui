@@ -92,6 +92,6 @@ using Sample.LayoutTest;
 
 var windowHost = new FlamuiWindowHost();
 
-windowHost.CreateWindow("Sample.LayoutTest", (ui) => TestComponent.Build(ui, windowHost));
+windowHost.CreateWindow("TestApp", (ui) => TestComponent.Build(ui, windowHost));
 
 windowHost.Run();
