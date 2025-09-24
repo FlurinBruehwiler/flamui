@@ -1,13 +1,11 @@
 using System.Drawing;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Silk.NET.Maths;
-using Silk.NET.OpenGL;
-using Silk.NET.Windowing;
-
+using Silk.NET.OpenGL
+    ;
 namespace Flamui.Drawing;
 
 public struct Mesh
@@ -66,7 +64,7 @@ public struct BlurProgram
 public sealed class Renderer
 {
     public GL Gl;
-    public IWindow Window;
+    public IUiTreeHost UiTreeHost;
 
     public BlurProgram BlurProgram;
     public NewRenderer MainProgram;
@@ -110,11 +108,12 @@ public sealed class Renderer
     //nvidia paper: https://developer.nvidia.com/nv-path-rendering
 
 
-    public void Initialize(IWindow window)
+    public void Initialize(GL gl, IUiTreeHost host)
     {
-        Window = window;
+        UiTreeHost = host;
+        // Window = window;
 
-        Gl = Window.CreateOpenGL();
+        Gl = gl;
         Gl.Enable(EnableCap.Multisample);
 
         Gl.ClearColor(Color.FromArgb(43, 45, 48));
@@ -197,9 +196,9 @@ public sealed class Renderer
 
         CheckError();
 
-        mainRenderTexture = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
-        blurRenderTextureTemp = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
-        blurRenderTexture = RenderTexture.Create(Gl, window.Size.X, window.Size.Y);
+        mainRenderTexture = RenderTexture.Create(Gl, host.GetSize().width, host.GetSize().height);
+        blurRenderTextureTemp = RenderTexture.Create(Gl, host.GetSize().width, host.GetSize().height);
+        blurRenderTexture = RenderTexture.Create(Gl, host.GetSize().width, host.GetSize().height);
 
         CheckError();
 
@@ -231,16 +230,24 @@ public sealed class Renderer
 
     public void BeforeFrame()
     {
-        Gl.Viewport(Window.Size);
+        var (width, height) = UiTreeHost.GetSize();
 
-        mainRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
-        blurRenderTextureTemp.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
-        blurRenderTexture.UpdateSize(Gl, Window.Size.X, Window.Size.Y);
+        var size = new Size
+        {
+            Width = width,
+            Height = height
+        };
+
+        Gl.Viewport(size);
+
+        mainRenderTexture.UpdateSize(Gl, width, height);
+        blurRenderTextureTemp.UpdateSize(Gl, width, height);
+        blurRenderTexture.UpdateSize(Gl, width, height);
 
         Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
         Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
-        Gl.Viewport(Window.Size);
+        Gl.Viewport(size);
 
        PrepareMainProgram();
     }
@@ -383,7 +390,7 @@ public sealed class Renderer
         Gl.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         Gl.BlitFramebuffer(
             0, 0, source.width, source.height,
-            0, 0, Window.Size.X, Window.Size.Y,
+            0, 0, UiTreeHost.GetSize().width, UiTreeHost.GetSize().height,
             ClearBufferMask.ColorBufferBit, GLEnum.Nearest);
     }
 
@@ -479,7 +486,7 @@ public sealed class Renderer
         Gl.Uniform1(BlurProgram.Texture, 0);
 
         var marshal = MemoryMarshal.Cast<Vector4, float>(uniformKernel);
-        Gl.Uniform2(BlurProgram.ViewportSize, new Vector2(Window.Size.X, Window.Size.Y));
+        Gl.Uniform2(BlurProgram.ViewportSize, new Vector2(UiTreeHost.GetSize().width, UiTreeHost.GetSize().height));
         Gl.Uniform1(BlurProgram.KernelSize, 1f + (float)blurCount);
         Gl.Uniform4(BlurProgram.KernelWeights, marshal);
         Gl.Uniform2(BlurProgram.Direction, direction);
@@ -511,7 +518,7 @@ public sealed class Renderer
 
     public Matrix4X4<float> GetWorldToScreenMatrix()
     {
-        return Matrix4X4.CreateScale(1f / Window.Size.X, 1f / Window.Size.Y, 1) *
+        return Matrix4X4.CreateScale(1f / UiTreeHost.GetSize().width, 1f / UiTreeHost.GetSize().height, 1) *
                Matrix4X4.CreateScale(2f, 2f, 1) *
                Matrix4X4.CreateTranslation(-1f, -1f, 0) *
                Matrix4X4.CreateScale(1f, -1f, 1f);

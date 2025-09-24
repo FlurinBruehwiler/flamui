@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Silk.NET.GLFW;
 using Silk.NET.Maths;
-using  Silk.NET.Windowing;
+using Silk.NET.Windowing;
 
 namespace Flamui;
 

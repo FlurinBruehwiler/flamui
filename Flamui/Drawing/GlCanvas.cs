@@ -130,7 +130,7 @@ public sealed class GlCanvas2
         var matrix = renderer.GetWorldToScreenMatrix();
 
         renderer.Gl.ProgramUniformMatrix4(renderer.MainProgram.Program, renderer.MainProgram.U_Transform, false, new ReadOnlySpan<float>(Renderer.GetAsFloatArray(matrix)));
-        renderer.Gl.Uniform2(renderer.MainProgram.U_ViewportSize, new Vector2(renderer.Window.Size.X, renderer.Window.Size.Y));
+        renderer.Gl.Uniform2(renderer.MainProgram.U_ViewportSize, new Vector2(renderer.UiTreeHost.GetSize().width, renderer.UiTreeHost.GetSize().height));
 
         // renderer.Gl.BindVertexArray(renderer._vaoMain2);
         // renderer.Gl.UseProgram(renderer._main2Program);

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using Flamui.Drawing;
-using Silk.NET.Input;
 
 namespace Flamui;
 

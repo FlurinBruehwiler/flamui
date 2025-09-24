@@ -31,4 +31,9 @@ public sealed class TestUiTreeHost : IUiTreeHost
     {
         throw new NotImplementedException();
     }
+
+    public (int width, int height) GetSize()
+    {
+        return (100, 100);
+    }
 }

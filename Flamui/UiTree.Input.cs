@@ -1,10 +1,31 @@
 ﻿using System.Numerics;
-using Silk.NET.Input;
-using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
 
 //This is kind of the input abstraction on a per uiTree basis
+
+public sealed class MouseButtonState
+{
+    /// <summary>
+    /// Check if a mouse button has been pressed once
+    /// </summary>
+    public bool IsMouseButtonPressed { get; set; }
+
+    /// <summary>
+    /// Check if a mouse button is being pressed
+    /// </summary>
+    public bool IsMouseButtonDown { get; set; }
+
+    /// <summary>
+    /// Check if a mouse button has been released once
+    /// </summary>
+    public bool IsMouseButtonReleased { get; set; }
+
+    /// <summary>
+    /// Check if a mouse button is NOT being pressed
+    /// </summary>
+    public bool IsMouseButtonUp { get; set; }
+}
 
 public sealed partial class UiTree
 {

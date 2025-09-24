@@ -59,10 +59,10 @@ public static class StaticFunctions
                             arenaList.Clear();
                             info.Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
                             info.TextureSlot = renderer.ProduceBlurTexture(command.RectCommand.BlurRadius).TextureSlot;
-                            info.TextureCoordinate = new Vector4(topLeft.X / renderer.Window.Size.X,
-                                ((topLeft.Y + (bottomRight.Y - topLeft.Y)) / renderer.Window.Size.Y),
-                                (bottomRight.X - topLeft.X) / renderer.Window.Size.X,
-                                -(bottomRight.Y - topLeft.Y) / renderer.Window.Size.Y
+                            info.TextureCoordinate = new Vector4(topLeft.X / renderer.UiTreeHost.GetSize().width,
+                                ((topLeft.Y + (bottomRight.Y - topLeft.Y)) / renderer.UiTreeHost.GetSize().height),
+                                (bottomRight.X - topLeft.X) / renderer.UiTreeHost.GetSize().width,
+                                -(bottomRight.Y - topLeft.Y) / renderer.UiTreeHost.GetSize().height
                             ) ;
                         }
 
@@ -81,7 +81,7 @@ public static class StaticFunctions
                         var bounds = command.ClipRectCommand.Bounds.Multiply(currentMatrix);
                         if (command.ClipRectCommand.ClipMode == ClipMode.OnlyDrawWithin)
                         {
-                            renderer.Gl.Scissor((int)bounds.X, (int)(renderer.Window.Size.Y - (bounds.Y + bounds.H)), (uint)bounds.W, (uint)bounds.H);
+                            renderer.Gl.Scissor((int)bounds.X, (int)(renderer.UiTreeHost.GetSize().height - (bounds.Y + bounds.H)), (uint)bounds.W, (uint)bounds.H);
                         }
 
                         break;

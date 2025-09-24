@@ -11,7 +11,7 @@ public static class TestComponent
     private static long lastFrameTimeStamp;
     private static bool hi;
 
-    public static Bitmap bitmap = Bitmap.LoadFromFile(@"C:\Users\FBR\Downloads\example-png.png"); //this is just an example, you should obviously not load this here!!!!!
+    // public static Bitmap bitmap = Bitmap.LoadFromFile(@"C:\Users\FBR\Downloads\example-png.png"); //this is just an example, you should obviously not load this here!!!!!
 
     public static void Build(Ui ui, FlamuiWindowHost app)
     {

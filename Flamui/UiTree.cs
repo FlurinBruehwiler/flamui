@@ -2,9 +2,6 @@
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Flamui.UiElements;
-using Silk.NET.GLFW;
-using Silk.NET.Input;
-using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
 

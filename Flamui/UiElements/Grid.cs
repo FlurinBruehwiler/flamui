@@ -1,8 +1,6 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 using Flamui.Drawing;
 using Flamui.Layouting;
-using Silk.NET.GLFW;
 using Point = Flamui.Layouting.Point;
 
 namespace Flamui.UiElements;

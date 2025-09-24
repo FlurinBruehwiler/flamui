@@ -2,11 +2,12 @@
 using System.Numerics;
 using Flamui.Drawing;
 using Flamui.PerfTrace;
+using Flamui.Windowing;
 using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;
+using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
-
 
 namespace Flamui;
 
@@ -190,7 +191,9 @@ public sealed class PhysicalWindow
 
         DpiScaling = new Vector2(xScale, yScale);
 
-        _renderer.Initialize(GlfwWindow);
+        var opengl = GlfwWindow.CreateOpenGL();
+
+        _renderer.Initialize(opengl, UiTree.UiTreeHost);
     }
 
     public float Zoom = 1f;
@@ -205,7 +208,7 @@ public sealed class PhysicalWindow
             GlfwWindow.Close();
         }
 
-        if (UiTree.IsMouseButtonDown(Silk.NET.Input.MouseButton.Right))
+        if (UiTree.IsMouseButtonDown((MouseButton)Silk.NET.Input.MouseButton.Right))
         {
             ZoomTarget += mouseDelta * (-1f / Zoom);
         }

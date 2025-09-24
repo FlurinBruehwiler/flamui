@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Silk.NET.Input;
 
 namespace Flamui;
 

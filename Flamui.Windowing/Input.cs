@@ -7,6 +7,8 @@ using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Flamui;
 
+//Window.CreateOpenGL()
+
 /*
 
 The question is, what is this sealed class????
@@ -35,8 +37,6 @@ But this is way more expensive because we need to walk the entire tree. How ofte
  */
 public static class Input
 {
-
-
     private static MouseButtonState GetMouseButton(MouseButton button, PhysicalWindow window)
     {
         var uiTree = GetHoveredUiTree(window);
@@ -70,17 +70,17 @@ public static class Input
             {
                 var uiTree = GetFocusedUiTree(window);
 
-                uiTree.KeyDown.Add(key);
-                uiTree.KeyPressed.Add(key);
+                uiTree.KeyDown.Add((Key)key);
+                uiTree.KeyPressed.Add((Key)key);
             };
 
             keyboard.KeyUp += (_, key, _) =>
             {
                 var uiTree = GetFocusedUiTree(window);
 
-                uiTree.KeyUp.Add(key);
-                uiTree.KeyDown.Remove(key);
-                uiTree.KeyReleased.Add(key);
+                uiTree.KeyUp.Add((Key)key);
+                uiTree.KeyDown.Remove((Key)key);
+                uiTree.KeyReleased.Add((Key)key);
             };
 
             keyboard.KeyChar += (_, c) =>
@@ -112,13 +112,13 @@ public static class Input
         {
             mouse.MouseDown += (_, button) =>
             {
-                var mouseButton = GetMouseButton(button, window);
+                var mouseButton = GetMouseButton((MouseButton)button, window);
                 mouseButton.IsMouseButtonDown = true;
                 mouseButton.IsMouseButtonPressed = true;
             };
             mouse.MouseUp += (_, button) =>
             {
-                var mouseButton = GetMouseButton(button, window);
+                var mouseButton = GetMouseButton((MouseButton)button, window);
                 mouseButton.IsMouseButtonUp = true;
                 mouseButton.IsMouseButtonDown = false;
                 mouseButton.IsMouseButtonReleased = true;
@@ -132,25 +132,3 @@ public static class Input
     }
 }
 
-public sealed class MouseButtonState
-{
-    /// <summary>
-    /// Check if a mouse button has been pressed once
-    /// </summary>
-    public bool IsMouseButtonPressed { get; set; }
-
-    /// <summary>
-    /// Check if a mouse button is being pressed
-    /// </summary>
-    public bool IsMouseButtonDown { get; set; }
-
-    /// <summary>
-    /// Check if a mouse button has been released once
-    /// </summary>
-    public bool IsMouseButtonReleased { get; set; }
-
-    /// <summary>
-    /// Check if a mouse button is NOT being pressed
-    /// </summary>
-    public bool IsMouseButtonUp { get; set; }
-}

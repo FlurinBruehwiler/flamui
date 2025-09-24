@@ -1,5 +1,4 @@
 using Flamui.UiElements;
-using Silk.NET.Input;
 
 namespace Flamui;
 
