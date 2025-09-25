@@ -38,7 +38,7 @@ void main()
     }
     else if(gl_VertexID == 2)
     {
-    vTextureCoordinate = inTextureCoordinate.xy + vec2(inTextureCoordinate.z, 0);
+        vTextureCoordinate = inTextureCoordinate.xy + vec2(inTextureCoordinate.z, 0);
         gl_Position = vec4(bottomRight.x, topLeft.y, 0.0, 1.0);
     }
     else if(gl_VertexID == 3)

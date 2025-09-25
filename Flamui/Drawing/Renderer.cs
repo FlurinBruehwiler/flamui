@@ -398,7 +398,7 @@ public sealed class Renderer
     public void BeforeFrame(int width, int height)
     {
         targetWidth = width;
-        targetHeight = targetHeight;
+        targetHeight = height;
 
         var err = Gl.GetError();
         if (err != GLEnum.NoError)
