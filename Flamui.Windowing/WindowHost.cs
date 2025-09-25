@@ -40,7 +40,7 @@ public sealed class NativeUiTreeHost : IUiTreeHost
         }
         else
         {
-            cursor = _glfw.CreateStandardCursor((Silk.NET.GLFW.CursorShape)cursorShape);
+            cursor = _glfw.CreateStandardCursor(cursorShape.ToSilk());
         }
 
         currentCursor = cursorShape;

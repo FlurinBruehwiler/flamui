@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using Flamui;
 using Flamui.Components;
-using Silk.NET.GLFW;
-using MouseButton = Silk.NET.Input.MouseButton;
 
 namespace Sample.LayoutTest;
 
@@ -57,7 +55,18 @@ public static class TestComponent
             {
                 using (ui.Rect().Padding(10).Gap(10))
                 {
+                    using (var rect = ui.Rect().Width(100).Height(100).Color(C.Green7).Rounded(10))
+                    {
+                        if (rect.IsHovered)
+                        {
+                            rect.Color(C.Blue7);
+                        }
 
+                        if (ui.Tree.IsKeyDown(Key.A))
+                        {
+                            rect.Color(C.Red7);
+                        }
+                    }
                 }
             }
         }
@@ -142,8 +151,8 @@ public static class TestComponent
             ref string selectedOption = ref ui.GetString("John");
 
             Span<string> items = ["John", "Albert", "Div", "Size"];
-
             ui.DropDown(items, ref selectedOption);
+
             //
             ref string input = ref ui.GetString("");
 
