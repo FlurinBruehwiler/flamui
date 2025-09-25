@@ -11,7 +11,5 @@ public interface IUiTreeHost
     void SetCursorStyle(CursorShape cursorShape);
 
     void CloseWindow();
-
-    (int width, int height) GetSize();
 }
 

@@ -40,13 +40,20 @@ public class RenderTexture
 
     private static unsafe uint CreateTexture(GL gl, int width, int height)
     {
+        var err = gl.GetError();
+        if (err != GLEnum.NoError)
+        {
+            Console.WriteLine($"{err}");
+            throw new Exception("anita");
+        }
+
         //gen texture
         gl.GenTextures(1, out uint renderedTexture);
 
         // "Bind" the newly created texture : all future texture functions will modify this texture
         gl.BindTexture(GLEnum.Texture2D, renderedTexture);
 
-        var err = gl.GetError();
+        err = gl.GetError();
         if (err != GLEnum.NoError)
         {
             Console.WriteLine($"{err}");

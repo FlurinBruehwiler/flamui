@@ -22,11 +22,11 @@ public static class StaticFunctions
         return uiTree._renderContext.GetRenderInstructions();
     }
 
-    public static void ExecuteRenderInstructions(CommandBuffer commands, Renderer renderer, Arena arena)
+    public static void ExecuteRenderInstructions(CommandBuffer commands, Renderer renderer, int width, int height)
     {
-        // var canvas = new GlCanvas(renderer, arena);
-
-        renderer.BeforeFrame();
+        var arena = Ui.Arena;
+        
+        renderer.BeforeFrame(width, height);
 
         var arenaList = new ArenaList<RectInfo>(arena, commands.InnerBuffers.Sum(x => x.Value.Count));
 
@@ -55,14 +55,14 @@ public static class StaticFunctions
 
                         if (command.RectCommand.BlurRadius != 0)
                         {
-                            GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                            GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
                             arenaList.Clear();
                             info.Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
                             info.TextureSlot = renderer.ProduceBlurTexture(command.RectCommand.BlurRadius).TextureSlot;
-                            info.TextureCoordinate = new Vector4(topLeft.X / renderer.UiTreeHost.GetSize().width,
-                                ((topLeft.Y + (bottomRight.Y - topLeft.Y)) / renderer.UiTreeHost.GetSize().height),
-                                (bottomRight.X - topLeft.X) / renderer.UiTreeHost.GetSize().width,
-                                -(bottomRight.Y - topLeft.Y) / renderer.UiTreeHost.GetSize().height
+                            info.TextureCoordinate = new Vector4(topLeft.X / width,
+                                ((topLeft.Y + (bottomRight.Y - topLeft.Y)) / height),
+                                (bottomRight.X - topLeft.X) / width,
+                                -(bottomRight.Y - topLeft.Y) / height
                             ) ;
                         }
 
@@ -73,7 +73,7 @@ public static class StaticFunctions
                         break;
                     case CommandType.ClipRect:
                     {
-                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
                         arenaList.Clear();
 
                         renderer.Gl.Enable(EnableCap.ScissorTest);
@@ -81,13 +81,13 @@ public static class StaticFunctions
                         var bounds = command.ClipRectCommand.Bounds.Multiply(currentMatrix);
                         if (command.ClipRectCommand.ClipMode == ClipMode.OnlyDrawWithin)
                         {
-                            renderer.Gl.Scissor((int)bounds.X, (int)(renderer.UiTreeHost.GetSize().height - (bounds.Y + bounds.H)), (uint)bounds.W, (uint)bounds.H);
+                            renderer.Gl.Scissor((int)bounds.X, (int)(height - (bounds.Y + bounds.H)), (uint)bounds.W, (uint)bounds.H);
                         }
 
                         break;
                     }
                     case CommandType.ClearClip:
-                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
                         arenaList.Clear();
 
                         renderer.Gl.Disable(EnableCap.ScissorTest);
@@ -158,7 +158,7 @@ public static class StaticFunctions
                     }
                     case CommandType.Picture:
                         //separate drawcall...
-                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
                         arenaList.Clear();
 
                         var pictureCommand = command.PictureCommand;
@@ -189,9 +189,11 @@ public static class StaticFunctions
             }
         }
 
-        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan);
+        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
         renderer.Gl.Flush();
 
-        renderer.DisplayRenderTextureOnScreen(renderer.mainRenderTexture);
+        renderer.DisplayRenderTextureOnScreen(renderer.mainRenderTexture, width, height);
+
+        renderer.AfterFrame();
     }
 }

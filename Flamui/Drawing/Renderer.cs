@@ -61,6 +61,163 @@ public struct BlurProgram
 
 }
 
+[StructLayout(LayoutKind.Sequential)]
+public struct OpenGlStateBackup
+{
+    public int Program;
+
+    public int ActiveTexture;
+    public int TextureBinding2d;
+
+    public int ArrayBuffer;
+    public int ElementArrayBuffer;
+
+    public int VertexArray;
+
+    public int DrawFrameBuffer;
+    public int ReadFrameBuffer;
+
+    public int Viewport0;
+    public int Viewport1;
+    public int Viewport2;
+    public int Viewport3;
+
+    public int ScissorBox0;
+    public int ScissorBox1;
+    public int ScissorBox2;
+    public int ScissorBox3;
+
+    public bool Blend;
+
+    public int blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha;
+    public int blend_equation_rgb, blend_equation_alpha;
+
+    public bool depth_test;
+    public bool stencil_test;
+    public bool cull_face;
+
+    public unsafe void Restore(GL gl)
+    {
+        // Program
+        gl.UseProgram((uint)Program);
+
+        // Texture
+        gl.ActiveTexture((GLEnum)ActiveTexture);
+        gl.BindTexture(TextureTarget.Texture2D, (uint)TextureBinding2d);
+
+        // Buffers
+        gl.BindBuffer(BufferTargetARB.ArrayBuffer, (uint)ArrayBuffer);
+        gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, (uint)ElementArrayBuffer);
+
+        // Vertex array
+        gl.BindVertexArray((uint)VertexArray);
+
+        // Framebuffers
+        gl.BindFramebuffer(FramebufferTarget.DrawFramebuffer, (uint)DrawFrameBuffer);
+        gl.BindFramebuffer(FramebufferTarget.ReadFramebuffer, (uint)ReadFrameBuffer);
+
+        // Viewport / Scissor
+        gl.Viewport(Viewport0, Viewport1, (uint)Viewport2, (uint)Viewport3);
+        gl.Scissor(ScissorBox0, ScissorBox1, (uint)ScissorBox2, (uint)ScissorBox3);
+
+        // Blending
+        if (Blend) gl.Enable(EnableCap.Blend); else gl.Disable(EnableCap.Blend);
+        gl.BlendFuncSeparate((GLEnum)blend_src_rgb, (GLEnum)blend_dst_rgb,
+            (GLEnum)blend_src_alpha, (GLEnum)blend_dst_alpha);
+        gl.BlendEquationSeparate((GLEnum)blend_equation_rgb, (GLEnum)blend_equation_alpha);
+
+        // Depth / Stencil / Culling
+        if (depth_test) gl.Enable(EnableCap.DepthTest); else gl.Disable(EnableCap.DepthTest);
+        if (stencil_test) gl.Enable(EnableCap.StencilTest); else gl.Disable(EnableCap.StencilTest);
+        if (cull_face) gl.Enable(EnableCap.CullFace); else gl.Disable(EnableCap.CullFace);
+    }
+
+
+    public static unsafe OpenGlStateBackup Store(GL gl)
+    {
+        OpenGlStateBackup state = default;
+
+        GetError(gl);
+        gl.GetInteger(GLEnum.CurrentProgram, &state.Program);
+        GetError(gl);
+
+
+        gl.GetInteger(GLEnum.ActiveTexture, &state.ActiveTexture);
+        GetError(gl);
+
+        // gl.ActiveTexture((GLEnum)state.ActiveTexture);
+        gl.GetInteger(GetPName.TextureBinding2D, &state.TextureBinding2d);
+        GetError(gl);
+
+
+        gl.GetInteger(GLEnum.ArrayBufferBinding, &state.ArrayBuffer);
+        GetError(gl);
+        gl.GetInteger(GetPName.ElementArrayBufferBinding, &state.ElementArrayBuffer);
+        GetError(gl);
+
+
+        gl.GetInteger(GLEnum.VertexArrayBinding, &state.VertexArray);
+        GetError(gl);
+
+
+        gl.GetInteger(GLEnum.DrawFramebufferBinding, &state.DrawFrameBuffer);
+        GetError(gl);
+        gl.GetInteger(GLEnum.ReadFramebufferBinding, &state.ReadFrameBuffer);
+        GetError(gl);
+
+
+        gl.GetInteger(GLEnum.Viewport, &state.Viewport0);
+        GetError(gl);
+        gl.GetInteger(GLEnum.ScissorBox, &state.ScissorBox0);
+        GetError(gl);
+
+        state.Blend = gl.IsEnabled(GLEnum.Blend);
+        GetError(gl);
+
+
+        gl.GetInteger(GLEnum.BlendSrcRgb, &state.blend_src_rgb);
+        GetError(gl);
+
+        gl.GetInteger(GLEnum.BlendDstRgb, &state.blend_dst_rgb);
+        GetError(gl);
+
+        gl.GetInteger(GLEnum.BlendSrcAlpha, &state.blend_src_alpha);
+        GetError(gl);
+
+        gl.GetInteger(GLEnum.BlendDstAlpha, &state.blend_dst_alpha);
+        GetError(gl);
+
+        gl.GetInteger(GLEnum.BlendEquationRgb, &state.blend_equation_rgb);
+        GetError(gl);
+
+        gl.GetInteger(GLEnum.BlendEquationAlpha, &state.blend_equation_alpha);
+        GetError(gl);
+
+
+        state.depth_test = gl.IsEnabled(EnableCap.DepthTest);
+        GetError(gl);
+
+        state.stencil_test = gl.IsEnabled(EnableCap.StencilTest);
+        GetError(gl);
+
+        state.cull_face = gl.IsEnabled(EnableCap.CullFace);
+        GetError(gl);
+
+
+        return state;
+    }
+
+    public static void GetError(GL gl)
+    {
+        var err = gl.GetError();
+        if (err != GLEnum.NoError)
+        {
+            Console.WriteLine($"{err}");
+            throw new Exception("anita");
+        }
+    }
+}
+
 public sealed class Renderer
 {
     public GL Gl;
@@ -196,9 +353,10 @@ public sealed class Renderer
 
         CheckError();
 
-        mainRenderTexture = RenderTexture.Create(Gl, host.GetSize().width, host.GetSize().height);
-        blurRenderTextureTemp = RenderTexture.Create(Gl, host.GetSize().width, host.GetSize().height);
-        blurRenderTexture = RenderTexture.Create(Gl, host.GetSize().width, host.GetSize().height);
+        //this is just the random initial size, it will get changed later
+        mainRenderTexture = RenderTexture.Create(Gl, 100, 100);
+        blurRenderTextureTemp = RenderTexture.Create(Gl, 100, 100);
+        blurRenderTexture = RenderTexture.Create(Gl, 100, 100);
 
         CheckError();
 
@@ -228,9 +386,36 @@ public sealed class Renderer
     private RenderTexture blurRenderTextureTemp;
     private RenderTexture blurRenderTexture;
 
-    public void BeforeFrame()
+    private int targetWidth;
+    private int targetHeight;
+    private OpenGlStateBackup backupState;
+
+    public void AfterFrame()
     {
-        var (width, height) = UiTreeHost.GetSize();
+        backupState.Restore(Gl);
+    }
+
+    public void BeforeFrame(int width, int height)
+    {
+        targetWidth = width;
+        targetHeight = targetHeight;
+
+        var err = Gl.GetError();
+        if (err != GLEnum.NoError)
+        {
+            Console.WriteLine($"{err}");
+            throw new Exception("anita");
+        }
+
+
+        backupState = OpenGlStateBackup.Store(Gl);
+
+        err = Gl.GetError();
+        if (err != GLEnum.NoError)
+        {
+            Console.WriteLine($"{err}");
+            throw new Exception("anita");
+        }
 
         var size = new Size
         {
@@ -238,16 +423,18 @@ public sealed class Renderer
             Height = height
         };
 
-        Gl.Viewport(size);
+        // Gl.Viewport(size);
 
         mainRenderTexture.UpdateSize(Gl, width, height);
         blurRenderTextureTemp.UpdateSize(Gl, width, height);
         blurRenderTexture.UpdateSize(Gl, width, height);
 
         Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
+
+        Gl.ClearColor(Color.FromArgb(43, 45, 48));
         Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
-        Gl.Viewport(size);
+        // Gl.Viewport(size);
 
        PrepareMainProgram();
     }
@@ -384,13 +571,13 @@ public sealed class Renderer
         };
     }
 
-    public void DisplayRenderTextureOnScreen(RenderTexture source)
+    public void DisplayRenderTextureOnScreen(RenderTexture source, int width, int height)
     {
         Gl.BindFramebuffer(FramebufferTarget.ReadFramebuffer, source.FramebufferName);
         Gl.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         Gl.BlitFramebuffer(
             0, 0, source.width, source.height,
-            0, 0, UiTreeHost.GetSize().width, UiTreeHost.GetSize().height,
+            0, 0, width, height,
             ClearBufferMask.ColorBufferBit, GLEnum.Nearest);
     }
 
@@ -486,7 +673,7 @@ public sealed class Renderer
         Gl.Uniform1(BlurProgram.Texture, 0);
 
         var marshal = MemoryMarshal.Cast<Vector4, float>(uniformKernel);
-        Gl.Uniform2(BlurProgram.ViewportSize, new Vector2(UiTreeHost.GetSize().width, UiTreeHost.GetSize().height));
+        Gl.Uniform2(BlurProgram.ViewportSize, new Vector2(targetWidth, targetHeight));
         Gl.Uniform1(BlurProgram.KernelSize, 1f + (float)blurCount);
         Gl.Uniform4(BlurProgram.KernelWeights, marshal);
         Gl.Uniform2(BlurProgram.Direction, direction);
@@ -518,7 +705,7 @@ public sealed class Renderer
 
     public Matrix4X4<float> GetWorldToScreenMatrix()
     {
-        return Matrix4X4.CreateScale(1f / UiTreeHost.GetSize().width, 1f / UiTreeHost.GetSize().height, 1) *
+        return Matrix4X4.CreateScale(1f / targetWidth, 1f / targetHeight, 1) *
                Matrix4X4.CreateScale(2f, 2f, 1) *
                Matrix4X4.CreateTranslation(-1f, -1f, 0) *
                Matrix4X4.CreateScale(1f, -1f, 1f);
