@@ -1,6 +1,4 @@
-﻿using Silk.NET.GLFW;
-
-namespace Flamui.Tests;
+﻿namespace Flamui.Tests;
 
 public sealed class TestUiTreeHost : IUiTreeHost
 {

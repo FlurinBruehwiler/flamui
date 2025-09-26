@@ -1,4 +1,7 @@
-﻿namespace Flamui;
+﻿using Silk.NET.GLFW;
+using Silk.NET.Windowing;
+
+namespace Flamui;
 
 public sealed class NativeUiTreeHost : IUiTreeHost
 {

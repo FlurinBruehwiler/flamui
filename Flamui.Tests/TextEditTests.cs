@@ -1,7 +1,6 @@
 ﻿using Flamui.Components;
 using Flamui.Drawing;
 using Flamui.UiElements;
-using Silk.NET.Input;
 
 namespace Flamui.Tests;
 
