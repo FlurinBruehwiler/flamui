@@ -7,20 +7,16 @@
 
         <!-- Nuget Package -->
         <PackageId>Flamui.Components</PackageId>
-        <Version>0.1.0-alpha.6</Version>
+        <Version>0.1.0-alpha.7</Version>
         <Authors>Flurin Brühwiler</Authors>
         <PackageLicenseUrl>MIT</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/FlurinBruehwiler/flamui</RepositoryUrl>
         <Description>A set of components</Description>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <InterceptorsNamespaces>$(InterceptorsNamespaces);InterceptorNamespace</InterceptorsNamespaces>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Flamui\Flamui.csproj" />
-<!--        <ProjectReference Include="..\Flamui.SourceGenerators\Flamui.SourceGenerators.csproj"-->
-<!--                          OutputItemType="Analyzer"-->
-<!--                          ReferenceOutputAssembly="false" />-->
+        <ProjectReference Include="..\Flamui.Core\Flamui.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>

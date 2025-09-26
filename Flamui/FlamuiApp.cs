@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Flamui.Windowing;
 using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;

@@ -28,5 +28,8 @@ jobs:
       - name: Pack Flamui.Components
         run: dotnet pack ./Flamui.Components/Flamui.Components.csproj --configuration Release --output ./PackOutput
 
+      - name: Pack Flamui.Core
+        run: dotnet pack ./Flamui.Core/Flamui.Core.csproj --configuration Release --output ./PackOutput
+
       - name: Push nuget.org
         run: dotnet nuget push "PackOutput/*.nupkg" --api-key ${{secrets.NUGET_ORG_API_KEY}} --source https://api.nuget.org/v3/index.json

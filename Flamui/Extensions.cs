@@ -1,4 +1,4 @@
-﻿namespace Flamui.Windowing;
+﻿namespace Flamui;
 
 public static class Extensions
 {

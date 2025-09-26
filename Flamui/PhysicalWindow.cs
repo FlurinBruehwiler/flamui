@@ -2,7 +2,6 @@
 using System.Numerics;
 using Flamui.Drawing;
 using Flamui.PerfTrace;
-using Flamui.Windowing;
 using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;

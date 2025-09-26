@@ -9,9 +9,7 @@
     <Project Path="TestApp\TestApp.csproj" />
   </Folder>
   <Project Path="Flamui.Components/Flamui.Components.csproj" />
+  <Project Path="Flamui.Core\Flamui.Core.csproj" />
   <Project Path="Flamui.Tests/Flamui.Tests.csproj" />
-  <Project Path="Flamui.Windowing\Flamui.Windowing.csproj" Type="Classic C#" />
-  <Project Path="Flamui/Flamui.csproj">
-    <BuildDependency Project="ILWeavingTest.Fody\ILWeavingTest.Fody.csproj" />
-  </Project>
+  <Project Path="Flamui\Flamui.csproj" Type="Classic C#" />
 </Solution>
