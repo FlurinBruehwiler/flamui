@@ -61,7 +61,7 @@ public class RenderTexture
         }
 
         // Give an empty image to OpenGL ( the last "0" )
-        gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgb, (uint)width, (uint)height, 0, GLEnum.Rgb, GLEnum.UnsignedByte, null);
+        gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, (uint)width, (uint)height, 0, GLEnum.Rgb, GLEnum.UnsignedByte, null);
         // gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgb, (uint)width, (uint)height, 0, PixelFormat.Red, PixelType.UnsignedByte, null);
 
         // Poor filtering. Needed !

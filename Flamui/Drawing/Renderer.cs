@@ -390,12 +390,16 @@ public sealed class Renderer
     private int targetHeight;
     private OpenGlStateBackup backupState;
 
-    public void AfterFrame()
+    public void AfterFrame(bool isExternal)
     {
-        backupState.Restore(Gl);
+        if (isExternal)
+        {
+            backupState.Restore(Gl);
+        }
+        Gl.Enable(EnableCap.CullFace);
     }
 
-    public void BeforeFrame(int width, int height)
+    public void BeforeFrame(int width, int height, bool isExternal)
     {
         targetWidth = width;
         targetHeight = height;
@@ -407,23 +411,10 @@ public sealed class Renderer
             throw new Exception("anita");
         }
 
-
-        backupState = OpenGlStateBackup.Store(Gl);
-
-        err = Gl.GetError();
-        if (err != GLEnum.NoError)
+        if (isExternal)
         {
-            Console.WriteLine($"{err}");
-            throw new Exception("anita");
+            backupState = OpenGlStateBackup.Store(Gl);
         }
-
-        var size = new Size
-        {
-            Width = width,
-            Height = height
-        };
-
-        // Gl.Viewport(size);
 
         mainRenderTexture.UpdateSize(Gl, width, height);
         blurRenderTextureTemp.UpdateSize(Gl, width, height);
@@ -431,12 +422,17 @@ public sealed class Renderer
 
         Gl.BindFramebuffer(GLEnum.Framebuffer, mainRenderTexture.FramebufferName);
 
-        Gl.ClearColor(Color.FromArgb(43, 45, 48));
+        Gl.Disable(EnableCap.CullFace);
+
+        if (isExternal)
+        {
+            Gl.ClearColor(Color.FromArgb(0, 0, 0, 0));
+        }
+
         Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
 
-        // Gl.Viewport(size);
 
-       PrepareMainProgram();
+        PrepareMainProgram();
     }
 
     public void PrepareMainProgram()

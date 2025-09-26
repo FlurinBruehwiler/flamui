@@ -91,7 +91,7 @@ public sealed class PhysicalWindow
             LastCommandBuffer = commands;
 
             _renderer.Gl.Viewport(GlfwWindow.Size);
-            StaticFunctions.ExecuteRenderInstructions(commands, _renderer, GlfwWindow.Size.X, GlfwWindow.Size.Y);
+            StaticFunctions.ExecuteRenderInstructions(commands, _renderer, GlfwWindow.Size.X, GlfwWindow.Size.Y, false);
             GlfwWindow.GLContext.SwapBuffers();
         }
 

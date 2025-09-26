@@ -22,11 +22,11 @@ public static class StaticFunctions
         return uiTree._renderContext.GetRenderInstructions();
     }
 
-    public static void ExecuteRenderInstructions(CommandBuffer commands, Renderer renderer, int width, int height)
+    public static RenderTexture ExecuteRenderInstructions(CommandBuffer commands, Renderer renderer, int width, int height, bool isExternal)
     {
         var arena = Ui.Arena;
-        
-        renderer.BeforeFrame(width, height);
+
+        renderer.BeforeFrame(width, height, isExternal);
 
         var arenaList = new ArenaList<RectInfo>(arena, commands.InnerBuffers.Sum(x => x.Value.Count));
 
@@ -63,7 +63,7 @@ public static class StaticFunctions
                                 ((topLeft.Y + (bottomRight.Y - topLeft.Y)) / height),
                                 (bottomRight.X - topLeft.X) / width,
                                 -(bottomRight.Y - topLeft.Y) / height
-                            ) ;
+                            );
                         }
 
                         arenaList.Add(info);
@@ -114,7 +114,7 @@ public static class StaticFunctions
                             // Console.WriteLine($"{c}: {fontAtlas.Font.Ascent}: {glyphInfo.YOff}, {glyphInfo.AtlasHeight}, {glyphInfo.Height}");
                             // DrawGlyph(fontAtlas, glyphInfo, fontAtlas.GpuTexture, xCoord + glyphInfo.LeftSideBearing, command.TextCommand.Bounds.Y + fontAtlas.Font.Ascent + glyphInfo.YOff);
                             var uvXOffset = (1 / (float)fontAtlas.AtlasWidth) * glyphInfo.AtlasX;
-                            var uvYOffset = (1 / (float)fontAtlas.AtlasHeight) * (glyphInfo.AtlasY);// + (100 - glyphInfo.AtlasHeight));
+                            var uvYOffset = (1 / (float)fontAtlas.AtlasHeight) * (glyphInfo.AtlasY); // + (100 - glyphInfo.AtlasHeight));
                             var uvWidth = (1 / (float)fontAtlas.AtlasWidth) * glyphInfo.AtlasWidth;
                             var uvHeight = (1 / (float)fontAtlas.AtlasHeight) * glyphInfo.AtlasHeight;
 
@@ -132,6 +132,7 @@ public static class StaticFunctions
                             xCoord += glyphInfo.AdvanceWidth;
                             // Console.WriteLine($"Metrics: {c}:{glyphInfo.AdvanceWidth}:{glyphInfo.LeftSideBearing}");
                         }
+
                         break;
                     }
                     case CommandType.TinyVG:
@@ -192,8 +193,13 @@ public static class StaticFunctions
         GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
         renderer.Gl.Flush();
 
-        renderer.DisplayRenderTextureOnScreen(renderer.mainRenderTexture, width, height);
+        if (!isExternal)
+        {
+            renderer.DisplayRenderTextureOnScreen(renderer.mainRenderTexture, width, height);
+        }
 
-        renderer.AfterFrame();
+        renderer.AfterFrame(isExternal);
+
+        return renderer.mainRenderTexture;
     }
 }

@@ -1,6 +1,5 @@
 ﻿
 #version 450 core
-#extension GL_ARB_bindless_texture : enable
 
 in vec4 vColor;
 in vec2 vRectCenterPx;
