@@ -32,7 +32,7 @@ public enum Shader
 
 public struct GpuTexture
 {
-    public required uint TextureId { get; init; }
+    public required uint TextureId;
     public required int Width;
     public required int Height;
 
@@ -588,11 +588,6 @@ public sealed class Renderer
         FullScreenBlur(blurRadius, new Vector2(1, 0), blurRenderTextureTemp, blurRenderTexture);
 
         Gl.Flush();
-
-        Gl.UseProgram(MainProgram.Program);
-        Gl.ActiveTexture(GLEnum.Texture0 + (int)TextureSlot.ArbitraryBitmap);
-        Gl.BindTexture(TextureTarget.Texture2D, blurRenderTexture.textureId);
-        Gl.Uniform1(MainProgram.U_ImageTexture, (int)TextureSlot.ArbitraryBitmap);
 
         PrepareMainProgram();
 

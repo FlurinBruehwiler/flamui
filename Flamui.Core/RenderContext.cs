@@ -62,7 +62,7 @@ public sealed class RenderContext
         Add(cmd);
     }
 
-    public void AddBitmap(UiElement uiElement, Bounds bounds, Bitmap bitmap)
+    public void AddBitmap(UiElement uiElement, Bounds bounds, Bitmap bitmap, Bounds subImage)
     {
         var cmd = new Command
         {
@@ -71,14 +71,15 @@ public sealed class RenderContext
             BitmapCommand = new BitmapCommand
             {
                 Bounds = bounds,
-                Bitmap = bitmap
+                Bitmap = bitmap,
+                SubImage = subImage,
             }
         };
 
         Add(cmd);
     }
 
-    public void AddGpuTexture(UiElement uiElement, GpuTexture gpuTexture, Bounds bounds, Bounds subTexture)
+    public void AddGpuTexture(UiElement uiElement, GpuTexture gpuTexture, Bounds bounds, Bounds subImage)
     {
         var cmd = new Command
         {
@@ -88,7 +89,7 @@ public sealed class RenderContext
             {
                 Bounds = bounds,
                 GpuTexture = gpuTexture,
-                SubTexture = subTexture
+                SubImage = subImage
             }
         };
 

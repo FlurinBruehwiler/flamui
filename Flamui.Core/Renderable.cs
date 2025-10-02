@@ -154,12 +154,13 @@ public struct BitmapCommand
 {
     public required Bitmap Bitmap;
     public required Bounds Bounds;
+    public required Bounds SubImage;
 }
 
 public struct GpuTextureCommand
 {
     public required GpuTexture GpuTexture;
-    public required Bounds SubTexture;
+    public required Bounds SubImage;
     public required Bounds Bounds;
 }
 

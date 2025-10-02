@@ -328,6 +328,22 @@ public sealed class Ui
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public UiImage Image(GpuTexture gpuTexture, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
+    {
+        using var _ = CreateIdScope(file, lineNumber);
+        var svg = GetData(static (ui) => new UiImage()
+        {
+            Id = ui.GetHash(),
+            Tree = ui.Tree
+        });
+
+        OpenElement.AddChild(svg);
+        svg.GpuTexture = gpuTexture;
+
+        return svg;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UiImage Image(Bitmap bitmap, [CallerFilePath] string file = "", [CallerLineNumber] int lineNumber = 0)
     {
         using var _ = CreateIdScope(file, lineNumber);

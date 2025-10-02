@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.ComponentModel;
+using System.Numerics;
 using Flamui.Drawing;
 using Flamui.Layouting;
 using Silk.NET.Maths;
@@ -32,6 +33,8 @@ public static class StaticFunctions
 
         Matrix4X4<float> currentMatrix = Matrix4X4<float>.Identity;
 
+        uint currentlyBoundArbitraryTexture = 743823452; //random number :)
+
         foreach (var (_, value) in commands.InnerBuffers.OrderBy(x => x.Key))
         {
             foreach (var command in value)
@@ -57,7 +60,8 @@ public static class StaticFunctions
                         {
                             GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
                             arenaList.Clear();
-                            renderer.ProduceBlurTexture(command.RectCommand.BlurRadius);
+                            var blurTexture = renderer.ProduceBlurTexture(command.RectCommand.BlurRadius);
+                            BindArbitraryTexture(blurTexture);
 
                             info.Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
                             info.TextureSlot = (int)TextureSlot.ArbitraryBitmap;
@@ -160,54 +164,57 @@ public static class StaticFunctions
                         break;
                     }
                     case CommandType.Bitmap:
-                        //separate drawcall..., but not always
-                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
-                        arenaList.Clear();
 
                         var pictureCommand = command.BitmapCommand;
-
                         if (!renderer.GpuImageCache.TryGetValue(pictureCommand.Bitmap, out var texture))
                         {
                             texture = renderer.UploadTexture(pictureCommand.Bitmap);
                             renderer.GpuImageCache.Add(pictureCommand.Bitmap, texture);
                         }
 
-                        renderer.Gl.ActiveTexture(GLEnum.Texture0 + (int)TextureSlot.ArbitraryBitmap);
-                        renderer.Gl.BindTexture(TextureTarget.Texture2D, texture.TextureId);
+                        if (texture.TextureId != currentlyBoundArbitraryTexture)
+                        {
+                            GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
+                            arenaList.Clear();
 
-                        renderer.CheckError();
+                            BindArbitraryTexture(texture);
+                        }
 
                         arenaList.Add(new RectInfo
                         {
                             TopLeft = pictureCommand.Bounds.TopLeft().Multiply(currentMatrix),
                             BottomRight = pictureCommand.Bounds.BottomRight().Multiply(currentMatrix),
-                            TextureSlot = 3,
-                            TextureCoordinate = new Vector4(0, 0, 1.0f, 1.0f),
+                            TextureSlot = (int)TextureSlot.ArbitraryBitmap,
+                            TextureCoordinate = new Vector4(
+                                1.0f / pictureCommand.Bitmap.Width * pictureCommand.SubImage.X,
+                                1.0f / pictureCommand.Bitmap.Height * pictureCommand.SubImage.Y,
+                                1.0f / pictureCommand.Bitmap.Width * pictureCommand.SubImage.W,
+                                1.0f / pictureCommand.Bitmap.Height * pictureCommand.SubImage.H),
                             Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                         });
                         break;
                     case CommandType.GpuTexture:
-                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
-                        arenaList.Clear();
-
                         var gpuTextureCommand = command.GpuTextureCommand;
 
-                        renderer.Gl.ActiveTexture(GLEnum.Texture0 + (int)TextureSlot.ArbitraryBitmap);
-                        renderer.Gl.BindTexture(TextureTarget.Texture2D, gpuTextureCommand.GpuTexture.TextureId);
+                        if (gpuTextureCommand.GpuTexture.TextureId != currentlyBoundArbitraryTexture)
+                        {
+                            GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
+                            arenaList.Clear();
 
-                        renderer.CheckError();
+                            BindArbitraryTexture(gpuTextureCommand.GpuTexture);
+                        }
 
                         arenaList.Add(new RectInfo
                         {
                             TopLeft = gpuTextureCommand.Bounds.TopLeft().Multiply(currentMatrix),
                             BottomRight = gpuTextureCommand.Bounds.BottomRight().Multiply(currentMatrix),
-                            TextureSlot = 3,
+                            TextureSlot = (int)TextureSlot.ArbitraryBitmap,
                             TextureCoordinate =
                                 new Vector4(
-                                    1.0f / gpuTextureCommand.GpuTexture.Width * gpuTextureCommand.SubTexture.X,
-                                    1.0f / gpuTextureCommand.GpuTexture.Height * gpuTextureCommand.SubTexture.Y,
-                                    1.0f / gpuTextureCommand.GpuTexture.Width * gpuTextureCommand.SubTexture.W,
-                                    1.0f / gpuTextureCommand.GpuTexture.Height * gpuTextureCommand.SubTexture.H),
+                                    1.0f / gpuTextureCommand.GpuTexture.Width * gpuTextureCommand.SubImage.X,
+                                    1.0f / gpuTextureCommand.GpuTexture.Height * gpuTextureCommand.SubImage.Y,
+                                    1.0f / gpuTextureCommand.GpuTexture.Width * gpuTextureCommand.SubImage.W,
+                                    1.0f / gpuTextureCommand.GpuTexture.Height * gpuTextureCommand.SubImage.H),
                             Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                         });
                         break;
@@ -226,5 +233,12 @@ public static class StaticFunctions
         renderer.AfterFrame(isExternal);
 
         return renderer.mainRenderTexture;
+
+        void BindArbitraryTexture(GpuTexture gpuTexture)
+        {
+            renderer.Gl.ActiveTexture(GLEnum.Texture0 + (int)TextureSlot.ArbitraryBitmap);
+            renderer.Gl.BindTexture(TextureTarget.Texture2D, gpuTexture.TextureId);
+            currentlyBoundArbitraryTexture = gpuTexture.TextureId;
+        }
     }
 }
