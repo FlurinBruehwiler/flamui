@@ -9,7 +9,7 @@
 
     <!-- Nuget Package -->
     <PackageId>Flamui</PackageId>
-    <Version>0.1.0-alpha.7</Version>
+    <Version>0.1.0-alpha.8</Version>
     <Authors>Flurin Brühwiler</Authors>
     <PackageLicenseUrl>MIT</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/FlurinBruehwiler/flamui</RepositoryUrl>
