@@ -125,7 +125,7 @@ public sealed class FontAtlas
         GlyphTempMemory = Marshal.AllocHGlobal(100 * 100);
     }
 
-    public unsafe AtlasGlyphInfo FindGlyphEntry(ScaledFont font, char c, float resolutionMultiplier)
+    public unsafe AtlasGlyphInfo FindGlyphEntry(GL gl, ScaledFont font, char c, float resolutionMultiplier)
     {
         Unsafe.InitBlock((void*)GlyphTempMemory, 0, 100 * 100);
 
@@ -181,11 +181,11 @@ public sealed class FontAtlas
         // }
 
         //patch texture
-        GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
-        GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-        GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, 100, 100, PixelFormat.Red, PixelType.UnsignedByte, (void*)GlyphTempMemory);
+        gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
+        gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+        gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.AtlasX, entry.AtlasY, 100, 100, PixelFormat.Red, PixelType.UnsignedByte, (void*)GlyphTempMemory);
 
-        Renderer.CheckError2(GpuTexture.Gl);
+        Renderer.CheckError2(gl);
 
         var info = new AtlasGlyphInfo
         {

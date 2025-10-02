@@ -57,8 +57,10 @@ public static class StaticFunctions
                         {
                             GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
                             arenaList.Clear();
+                            renderer.ProduceBlurTexture(command.RectCommand.BlurRadius);
+
                             info.Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-                            info.TextureSlot = renderer.ProduceBlurTexture(command.RectCommand.BlurRadius).TextureSlot;
+                            info.TextureSlot = (int)TextureSlot.ArbitraryBitmap;
                             info.TextureCoordinate = new Vector4(topLeft.X / width,
                                 ((topLeft.Y + (bottomRight.Y - topLeft.Y)) / height),
                                 (bottomRight.X - topLeft.X) / width,
@@ -104,7 +106,7 @@ public static class StaticFunctions
 
                         foreach (var c in command.TextCommand.String.AsSpan())
                         {
-                            var glyphInfo = fontAtlas.FindGlyphEntry(font, c, resolutionMultiplier);
+                            var glyphInfo = fontAtlas.FindGlyphEntry(renderer.Gl, font, c, resolutionMultiplier);
 
                             float x = xCoord + glyphInfo.LeftSideBearing;
                             float y = command.TextCommand.Bounds.Y + font.Ascent + glyphInfo.YOff;
@@ -126,7 +128,7 @@ public static class StaticFunctions
                                 BorderWidth = 0,
                                 CornerRadius = 0,
                                 TextureCoordinate = new Vector4(uvXOffset, uvYOffset, uvWidth, uvHeight),
-                                TextureSlot = fontAtlas.GpuTexture.TextureSlot
+                                TextureSlot = (int)TextureSlot.FontAtlas
                             });
 
                             xCoord += glyphInfo.AdvanceWidth;
@@ -153,27 +155,25 @@ public static class StaticFunctions
                             BorderWidth = 0,
                             CornerRadius = 0,
                             TextureCoordinate = new Vector4(entryBounds.X, entryBounds.Y, entryBounds.W, entryBounds.H),
-                            TextureSlot = renderer.VgAtlas.GpuTexture.TextureSlot
+                            TextureSlot = (int)TextureSlot.IconAtlas
                         });
                         break;
                     }
-                    case CommandType.Picture:
-                        //separate drawcall...
+                    case CommandType.Bitmap:
+                        //separate drawcall..., but not always
                         GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
                         arenaList.Clear();
 
-                        var pictureCommand = command.PictureCommand;
-                        const int textureSlot = 2;
+                        var pictureCommand = command.BitmapCommand;
 
                         if (!renderer.GpuImageCache.TryGetValue(pictureCommand.Bitmap, out var texture))
                         {
-                            texture = renderer.UploadTexture(pictureCommand.Bitmap, textureSlot);
+                            texture = renderer.UploadTexture(pictureCommand.Bitmap);
                             renderer.GpuImageCache.Add(pictureCommand.Bitmap, texture);
                         }
 
-                        renderer.Gl.ActiveTexture(GLEnum.Texture0 + textureSlot);
+                        renderer.Gl.ActiveTexture(GLEnum.Texture0 + (int)TextureSlot.ArbitraryBitmap);
                         renderer.Gl.BindTexture(TextureTarget.Texture2D, texture.TextureId);
-                        renderer.Gl.Uniform1(renderer.MainProgram.U_PictureTexture, textureSlot);
 
                         renderer.CheckError();
 
@@ -183,6 +183,31 @@ public static class StaticFunctions
                             BottomRight = pictureCommand.Bounds.BottomRight().Multiply(currentMatrix),
                             TextureSlot = 3,
                             TextureCoordinate = new Vector4(0, 0, 1.0f, 1.0f),
+                            Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+                        });
+                        break;
+                    case CommandType.GpuTexture:
+                        GlCanvas2.IssueDrawCall(renderer, arenaList.AsSlice().ReadonlySpan, width, height);
+                        arenaList.Clear();
+
+                        var gpuTextureCommand = command.GpuTextureCommand;
+
+                        renderer.Gl.ActiveTexture(GLEnum.Texture0 + (int)TextureSlot.ArbitraryBitmap);
+                        renderer.Gl.BindTexture(TextureTarget.Texture2D, gpuTextureCommand.GpuTexture.TextureId);
+
+                        renderer.CheckError();
+
+                        arenaList.Add(new RectInfo
+                        {
+                            TopLeft = gpuTextureCommand.Bounds.TopLeft().Multiply(currentMatrix),
+                            BottomRight = gpuTextureCommand.Bounds.BottomRight().Multiply(currentMatrix),
+                            TextureSlot = 3,
+                            TextureCoordinate =
+                                new Vector4(
+                                    1.0f / gpuTextureCommand.GpuTexture.Width * gpuTextureCommand.SubTexture.X,
+                                    1.0f / gpuTextureCommand.GpuTexture.Height * gpuTextureCommand.SubTexture.Y,
+                                    1.0f / gpuTextureCommand.GpuTexture.Width * gpuTextureCommand.SubTexture.W,
+                                    1.0f / gpuTextureCommand.GpuTexture.Height * gpuTextureCommand.SubTexture.H),
                             Color = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                         });
                         break;

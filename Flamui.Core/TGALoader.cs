@@ -13,17 +13,12 @@ public enum BitmapFormat
     A
 }
 
-public struct Bitmap
+public struct Bitmap : IEquatable<Bitmap>
 {
     public required int Width;
     public required int Height;
     public required Slice<byte> Data;
     public required BitmapFormat BitmapFormat;
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Width.GetHashCode(), Height.GetHashCode(), Data.GetHashCode());
-    }
 
     public int Stride()
     {
@@ -84,6 +79,21 @@ public struct Bitmap
             Data = new Slice<byte>(res.Data.AsSpan()),
             BitmapFormat = BitmapFormat.RGBA
         };
+    }
+
+    public unsafe bool Equals(Bitmap other)
+    {
+        return Width == other.Width && Height == other.Height && Data.Items == other.Data.Items && BitmapFormat == other.BitmapFormat;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Bitmap other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Width, Height, Data, (int)BitmapFormat);
     }
 }
 

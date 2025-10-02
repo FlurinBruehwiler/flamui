@@ -7,7 +7,7 @@ public sealed class UiImage : UiElement
 
     public override void Render(RenderContext renderContext, Point offset)
     {
-        renderContext.AddPicture(this, new Bounds
+        renderContext.AddBitmap(this, new Bounds
         {
             X = offset.X,
             Y = offset.Y,

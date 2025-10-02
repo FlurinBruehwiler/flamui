@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Flamui.Drawing;
 using Flamui.UiElements;
 using Silk.NET.Maths;
 using Font = Flamui.Drawing.Font;
@@ -17,6 +18,7 @@ public record struct Bounds
     public required float H;
 
     public float Right => X + W;
+    public float Bottom => Y + H;
 
     [SetsRequiredMembers]
     public Bounds(Vector2 position, Vector2 size)
@@ -99,7 +101,8 @@ public enum CommandType : int
     Text,
     Matrix,
     Path,
-    Picture,
+    Bitmap,
+    GpuTexture,
     TinyVG,
     ClearClip
 }
@@ -147,9 +150,16 @@ public struct TinyVGCommand
     public required Slice<byte> VGData;
 }
 
-public struct PictureCommand
+public struct BitmapCommand
 {
     public required Bitmap Bitmap;
+    public required Bounds Bounds;
+}
+
+public struct GpuTextureCommand
+{
+    public required GpuTexture GpuTexture;
+    public required Bounds SubTexture;
     public required Bounds Bounds;
 }
 
@@ -177,7 +187,9 @@ public struct Command
     [FieldOffset(8)]
     public TextCommand TextCommand;
     [FieldOffset(8)]
-    public PictureCommand PictureCommand;
+    public BitmapCommand BitmapCommand;
+    [FieldOffset(8)]
+    public GpuTextureCommand GpuTextureCommand;
 
     public UiElement? GetAssociatedUiElement(Ui ui)
     {

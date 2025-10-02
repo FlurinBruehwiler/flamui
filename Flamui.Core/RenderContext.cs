@@ -62,16 +62,33 @@ public sealed class RenderContext
         Add(cmd);
     }
 
-    public void AddPicture(UiElement uiElement, Bounds bounds, Bitmap bitmap)
+    public void AddBitmap(UiElement uiElement, Bounds bounds, Bitmap bitmap)
     {
         var cmd = new Command
         {
-            Type = CommandType.Picture,
+            Type = CommandType.Bitmap,
             UiElementId = uiElement.Id,
-            PictureCommand = new PictureCommand
+            BitmapCommand = new BitmapCommand
             {
                 Bounds = bounds,
                 Bitmap = bitmap
+            }
+        };
+
+        Add(cmd);
+    }
+
+    public void AddGpuTexture(UiElement uiElement, GpuTexture gpuTexture, Bounds bounds, Bounds subTexture)
+    {
+        var cmd = new Command
+        {
+            Type = CommandType.GpuTexture,
+            UiElementId = uiElement.Id,
+            GpuTextureCommand = new GpuTextureCommand
+            {
+                Bounds = bounds,
+                GpuTexture = gpuTexture,
+                SubTexture = subTexture
             }
         };
 
@@ -290,7 +307,7 @@ public sealed class RenderContext
                     case CommandType.TinyVG:
                         Console.WriteLine($"VG: {command.TinyVGCommand.VGId}");
                         break;
-                    case CommandType.Picture:
+                    case CommandType.Bitmap:
                         Console.WriteLine("Picture:");
                         break;
                     case CommandType.ClearClip:

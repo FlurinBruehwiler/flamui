@@ -20,9 +20,11 @@ public sealed class VgAtlas
     public LRUCache<AtlasEntryKey, AtlasEntry> Table;
     public GpuTexture GpuTexture;
     private readonly Bitmap tempBitmap;
+    private GL gl;
 
     public unsafe VgAtlas(Renderer renderer)
     {
+        gl = renderer.Gl;
         const int byteCount = 1000 * 1000 * 4;
 
         var content = new byte[byteCount];
@@ -35,7 +37,7 @@ public sealed class VgAtlas
                 Height = 1000,
                 BitmapFormat = BitmapFormat.RGBA
             };
-            GpuTexture = renderer.UploadTexture(bitmap, 1);
+            GpuTexture = renderer.UploadTexture(bitmap);
         }
 
         Table = new LRUCache<AtlasEntryKey, AtlasEntry>(10*10);
@@ -124,9 +126,10 @@ public sealed class VgAtlas
             // tempBitmap.PrintToConsole();
 
             //patch texture
-            GpuTexture.Gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
-            GpuTexture.Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            GpuTexture.Gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.X, entry.Y, (uint)tempBitmap.Width, (uint)tempBitmap.Height, PixelFormat.Rgba, PixelType.UnsignedByte, (void*)tempBitmap.Data.Items);
+
+            gl.BindTexture(TextureTarget.Texture2D, GpuTexture.TextureId);
+            gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            gl.TexSubImage2D(TextureTarget.Texture2D, 0, entry.X, entry.Y, (uint)tempBitmap.Width, (uint)tempBitmap.Height, PixelFormat.Rgba, PixelType.UnsignedByte, (void*)tempBitmap.Data.Items);
         }
 
         Table.Add(hash, entry);
