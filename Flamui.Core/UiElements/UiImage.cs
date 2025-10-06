@@ -7,6 +7,7 @@ public sealed class UiImage : UiElement
     public Bitmap Bitmap = default;
     public GpuTexture? GpuTexture;
     public Bounds? subImage;
+    public bool ShouldFlipVertically;
 
     public override void Render(RenderContext renderContext, Point offset)
     {
@@ -18,13 +19,37 @@ public sealed class UiImage : UiElement
             W = Rect.Width
         };
 
+        Bounds actualSubImage = subImage!.Value;
+
         if (GpuTexture == null)
         {
-            renderContext.AddBitmap(this, bounds, Bitmap, subImage!.Value);
+            if (ShouldFlipVertically)
+            {
+                actualSubImage = new Bounds
+                {
+                    X = subImage!.Value.X,
+                    Y = Bitmap.Height - subImage!.Value.Y,
+                    W = subImage!.Value.W,
+                    H = -subImage!.Value.H,
+                };
+            }
+
+            renderContext.AddBitmap(this, bounds, Bitmap, actualSubImage);
         }
         else
         {
-            renderContext.AddGpuTexture(this, GpuTexture.Value, bounds, subImage!.Value);
+            if (ShouldFlipVertically)
+            {
+                actualSubImage = new Bounds
+                {
+                    X = subImage!.Value.X,
+                    Y = GpuTexture.Value.Height - subImage!.Value.Y,
+                    W = subImage!.Value.W,
+                    H = -subImage!.Value.H,
+                };
+            }
+
+            renderContext.AddGpuTexture(this, GpuTexture.Value, bounds, actualSubImage);
         }
     }
 
@@ -66,11 +91,18 @@ public sealed class UiImage : UiElement
         return this;
     }
 
+    public UiImage FlipVertically(bool flip = true)
+    {
+        ShouldFlipVertically = true;
+        return this;
+    }
+
     public override void Reset()
     {
         Bitmap = default;
         GpuTexture = default;
         subImage = default;
+        ShouldFlipVertically = false;
         base.Reset();
     }
 
